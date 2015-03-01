@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="DemoSystem" basedir="." 
+	xmlns:ivy="antlib:fr.jayasoft.ivy.ant"
+	default="build">
+	<!-- scp task-->   
+	<taskdef resource="net/sf/antcontrib/antlib.xml"/>
+	<!-- -->    
+	<property name="project.root" value="${basedir}" />
+	<property file="build.properties" />
+	<!-- build no.-->
+	<tstamp>
+		<format property="release_date" pattern="yyyyMMddHHmm" />
+	</tstamp>
+	<!-- src dir-->
+	<property name="src.dir" value="${project.root}/src" />
+	<property name="lib.dir" value="${project.root}/lib" />
+	<property name="webroot.dir" value="${project.root}/webroot" />
+	
+	<!-- build dir -->
+	<property name="build.dir" value="${project.root}/build" />
+	<property name="build.lib.dir" value="${build.dir}/lib" />
+	<property name="build.classes.dir" value="${build.dir}/classes" />
+	<!-- Java CLASSPATH -->
+	<path id="master-classpath">
+		<fileset dir="${lib.dir}" />
+	</path>
+
+	<!-- =================================================================== -->
+	<!-- clean release directory -->
+	<!-- =================================================================== -->
+	<target name="clean" description="release clean">
+		<delete dir="${build.dir}" />
+		<delete dir="${release.dir}/${project.name}" />
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- compile java code -->
+	<!-- =================================================================== -->
+	<target name="build" description="build java" >
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${build.classes.dir}" />
+		<javac destdir="${build.classes.dir}" 
+			source="1.8" target="1.8" 
+			debug="true" encoding="utf-8" 
+			deprecation="false" 
+			optimize="false"
+			failonerror="true">
+			<src path="${src.dir}" />
+			<classpath refid="master-classpath" />
+		</javac>
+	</target>
+	<!-- =================================================================== -->
+	<!-- make release package -->
+	<!-- =================================================================== -->
+	<target name="package" depends="build">
+		<!--copy source file -->
+		<jar destfile="${release.dir}/${project.name}.jar">
+			<fileset dir="${build.classes.dir}">
+				<include name="**/*" />
+			</fileset>
+			<manifest>
+			<attribute name="Implementation-Version" 
+				value="build${release_date}"/>
+				<attribute name="Implementation-Title" value="${project.name}"/>			
+			</manifest>
+		</jar>
+		<echo>make jaz package</echo>
+		<delete dir="${release.dir}/${project.name}" />
+		<mkdir dir="${release.dir}/${project.name}" />
+		<unzip dest="${release.dir}/${project.name}">
+		    <fileset dir="${lib.dir}">
+		        <include name="**/*.jar"/>
+		    	<exclude name="jazmin.jar"/>
+		    </fileset>
+			<fileset dir="${release.dir}">
+				<include name="*.jar"/>
+			</fileset>			
+		</unzip>
+	</target>	
+	<!-- =================================================================== -->
+	<!-- package demo appsystem -->
+	<!-- =================================================================== -->	
+	<target name="package-DemoAppSystem" depends="package">
+		<zip destfile="${release.dir}/DemoAppSystem.jaz">
+			<fileset dir="${release.dir}/${project.name}">
+				<include name="**/*" />
+			</fileset>
+		</zip>
+		<delete dir="${release.dir}/${project.name}" />
+	</target>
+	<!-- =================================================================== -->
+	<!-- deoloy to remote server -->
+	<!-- =================================================================== -->
+	<target name="deploy" depends="clean,clean-libcache,get-lib,package-DemoAppSystem">
+		<echo>deploy to ${deploy.dir} from ${release.dir}</echo>
+		<scp todir="${deploy.dir}"
+			trust="true">
+			<fileset dir="${release.dir}">
+				<include name="*.jaz" />
+			</fileset>
+		</scp>
+		<echo>publish to ${publish.dir} from ${release.dir}</echo>
+		<scp todir="${publish.dir}" trust="true">
+			<fileset dir="${release.dir}">
+				<include name="*.jar" />
+			</fileset>
+		</scp>
+	</target>	
+
+	<!-- =================================================================== -->
+    <!-- clean ivy lib cache -->
+    <!-- =================================================================== -->
+    <target name="clean-libcache" >
+    	<ivy:configure url="${ivy.config}"/>
+    	<ivy:cleancache/>
+    </target>
+
+	<!-- =================================================================== -->
+    <!-- get ivy lib -->
+    <!-- =================================================================== -->
+	<target name="get-lib">
+		<ivy:configure url="${ivy.config}"/>
+	    <ivy:retrieve pattern="${lib.dir}/[artifact].[ext]" />
+    </target>
+</project>

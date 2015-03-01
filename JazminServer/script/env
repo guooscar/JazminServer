@@ -1,0 +1,1 @@
+#export JAVA_MEM_OPTS=" -Xmx512m -Xms512m -Xmn256m -Xss256k"

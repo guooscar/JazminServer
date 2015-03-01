@@ -1,0 +1,277 @@
+#!/bin/bash
+#						JAZMIN SERVER BOOTFILE
+#-------------------------------------------------------------------------------
+#	     	  ___  _______  _______  __   __  ___   __    _ 		
+#		     |   ||   _   ||       ||  |_|  ||   | |  |  | |		
+#		     |   ||  |_|  ||____   ||       ||   | |   |_| |		
+#		     |   ||       | ____|  ||       ||   | |       |		
+#		  ___|   ||       || ______||       ||   | |  _    |		
+#		 |       ||   _   || |_____ | ||_|| ||   | | | |   |		
+#		 |__yama_||__| |__||_______||_|   |_||___| |_|  |__|	 
+#		 
+#-------------------------------------------------------------------------------
+#*******************************************************************************
+# 							Copyright (c) 2015 yama.
+#This is not a free software,all rights reserved by yama(guooscar@gmail.com).
+# ANY use of this software MUST be subject to the consent of yama.
+#
+#*******************************************************************************
+
+#
+function warn(){
+	echo -e "\033[33m"$1"  \033[0m"
+}
+function error(){
+	echo -e "\033[31m"$1"  \033[0m"
+}
+function usage(){
+	warn "USAGE: $0 start|startbg|stop INSTANCE_NAME"
+	list
+	exit 1;
+}
+function get_host_name(){
+	##get jmx binding ip address
+	if $darwin; then
+			HOSTNAME=`ifconfig | grep "inet " | grep -v 127.0.0.1 | head -1|cut -d\  -f2`
+	fi
+	if $cygwin; then
+	#the ipconfig commmand sometimes very slow on windows.
+			HOSTNAME=`ipconfig|grep 'IP Addr'|awk '{print $15}'|head -1`
+	fi
+	if $linux; then
+			HOSTNAME=`ifconfig | grep "inet " |grep -v 127|awk -F':' '{print $2}'|awk '{print $1}'|head -1`
+	fi
+}
+#
+function list(){
+	echo 'instance list:'
+	ls $INSTANCE_ROOT
+}
+
+function stop(){
+	JAZMIN_PID=`cat $PIDFILE`
+	if [ -z "$JAZMIN_PID" ]; then
+		return;
+	fi
+	echo "try to stop jazmin server $INSTANCE_NAME pid:$JAZMIN_PID..."
+	while   ps ax| grep "$JAZMIN_PID" |grep -v grep >/dev/null 
+	do
+			echo "process $JAZMIN_PID still running" 
+			kill -15 $JAZMIN_PID
+		    sleep 1
+	done
+	echo "jazmin server $INSTANCE_NAME pid:$JAZMIN_PID stopped."
+}
+function check_old_pid(){
+    JAZMIN_PID=`cat $PIDFILE`
+	    if [ -z "$JAZMIN_PID" ]; then
+			return;
+		fi
+    while   ps ax| grep "$JAZMIN_PID" |grep -v grep >/dev/null 
+    do
+	   echo "process $JAZMIN_PID still running.stop it first!" 
+	   exit 1
+	done
+}
+function setup(){
+#check file existed
+	if [ ! -d "$INSTANCE_HOME" ]; then
+		error "instance "$INSTANCE_NAME" not exist"
+		exit 1;
+	fi
+	#java
+	JAVA="$JAVA_HOME/bin/java"
+	export JAZMIN_CLASSPATH=$JAZMIN_HOME/jazmin.jar
+	#java opts
+	if [ -z "$JAVA_MEM_OPTS" ]; then
+		JAVA_MEM_OPTS=" -Xmx256m -Xms256m  -Xss256k"
+	fi
+	#instance env
+	if [ -f "$INSTANCE_HOME/$INSTANCE_ENV" ]; then
+		source $INSTANCE_HOME/$INSTANCE_ENV
+ 	fi
+	JAVA_OPTS=$JAVA_MEM_OPTS" -Xloggc:$JAZMIN_HOME/log/gc-$INSTANCE_NAME.log -Dfile.encoding=UTF-8"
+	GC_OPTS=" -XX:+UseG1GC -XX:+PrintGC -XX:+PrintGCDetails"
+	JAVA_OPTS=$JAVA_OPTS" "$GC_OPTS;
+	JAVA_OPTS=$JAVA_OPTS" "$SERVER_OPT;
+	#hostname for jmx
+	if [ -z "$HOSTNAME" ]; then
+		get_host_name
+	fi
+}
+#
+function start_normal(){
+# Display our environment
+echo "set max fd to:$MAX_FD/max fd limit:$MAX_FD_LIMIT"
+echo "========================================================================="
+echo "  JAZMIN_HOME: $JAZMIN_HOME"
+echo "  INSTANCE_HOME: $INSTANCE_HOME"
+echo "  JAVA: $JAVA"
+echo "  JAVA_HOME: $JAVA_HOME"
+echo "  JAVA_OPTS: $JAVA_OPTS"
+echo "  CLASSPATH: $JAZMIN_CLASSPATH"
+echo "  HOSTNAME:$HOSTNAME"
+echo "  ARGS: $@"
+echo "========================================================================="
+echo ""
+# Execute the JVM in the background
+eval \"$JAVA\" $JAVA_OPTS \
+	-classpath \"$JAZMIN_CLASSPATH\" \
+	-Djazmin.boot.file=$INSTANCE_HOME/jazmin.js	\
+	-Djazmin.server.name=$INSTANCE_NAME	\
+	-Djava.rmi.server.hostname=$HOSTNAME \
+	jazmin.core.Jazmin "$@"
+#debug enable
+# -Xdebug -Xrunjdwp:transport=dt_socket,suspend=n,server=y,address=8000 \	 
+JAZMIN_PID=$!
+# Trap common signals and relay them to the process
+trap "kill -HUP  $JAZMIN_PID" HUP
+trap "kill -TERM $JAZMIN_PID" INT
+trap "kill -QUIT $JAZMIN_PID" QUIT
+trap "kill -PIPE $JAZMIN_PID" PIPE
+trap "kill -TERM $JAZMIN_PID" TERM
+echo $JAZMIN_PID > $PIDFILE
+}
+#
+function start_bg(){
+# Execute the JVM in the background
+eval \"$JAVA\" $JAVA_OPTS \
+	-classpath \"$JAZMIN_CLASSPATH\" \
+	-Djazmin.boot.file=$INSTANCE_HOME/jazmin.js	\
+	-Djazmin.server.name=$INSTANCE_NAME	\
+	-Djava.rmi.server.hostname=$HOSTNAME \
+	jazmin.core.Jazmin "$@" ">/dev/null 2>&1 &" 
+JAZMIN_PID=$!
+# Trap common signals and relay them to the process
+trap "kill -HUP  $JAZMIN_PID" HUP
+trap "kill -TERM $JAZMIN_PID" INT
+trap "kill -QUIT $JAZMIN_PID" QUIT
+trap "kill -PIPE $JAZMIN_PID" PIPE
+trap "kill -TERM $JAZMIN_PID" TERM
+echo $JAZMIN_PID > $PIDFILE
+}
+#
+#-------------------------------------------------------------------------------
+DIRNAME=`dirname $0`
+PROGNAME=`basename $0`
+GREP="grep"
+#
+MAX_FD="maximum"
+INSTANCE_ENV="env"
+INSTANCE_NAME=""
+HOSTNAME=""
+#
+# OS specific support (must be 'true' or 'false').
+cygwin=false;
+darwin=false;
+linux=false;
+case "`uname`" in
+    CYGWIN*)
+        cygwin=true
+        ;;
+
+    Darwin*)
+        darwin=true
+        ;;
+
+    Linux)
+        linux=true
+        ;;
+esac
+
+
+# Force IPv4 on Linux systems since IPv6 doesn't work correctly with jdk5 and lower
+if [ "$linux" = "true" ]; then
+   JAVA_OPTS="$JAVA_OPTS -Djava.net.preferIPv4Stack=true"
+fi
+
+# Setup JAZMIN_HOME
+if [ "x$JAZMIN_HOME" = "x" ]; then
+    # get the full path (without any relative bits)
+	DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+    JAZMIN_HOME=$DIR
+    cd $JAZMIN_HOME
+fi
+export JAZMIN_HOME
+
+# Increase the maximum file descriptors if we can
+if [ "$cygwin" = "false" ]; then
+    MAX_FD_LIMIT=`ulimit -H -n`
+    if [ "$?" -eq 0 ]; then
+        # Darwin does not allow RLIMIT_INFINITY on file soft limit
+        if [ "$darwin" = "true" -a "$MAX_FD_LIMIT" = "unlimited" ]; then
+            MAX_FD_LIMIT=`/usr/sbin/sysctl -n kern.maxfilesperproc`
+        fi
+
+    if [ "$MAX_FD" = "maximum" -o "$MAX_FD" = "max" ]; then
+        # use the system max
+        MAX_FD="$MAX_FD_LIMIT"
+    fi
+
+    ulimit -n $MAX_FD
+	
+    if [ "$?" -ne 0 ]; then
+        warn "Could not set maximum file descriptor limit: $MAX_FD"
+    fi
+    else
+        warn "Could not query system maximum file descriptor limit: $MAX_FD_LIMIT"
+    fi
+fi
+
+# Setup the JVM
+if [ "x$JAVA" = "x" ]; then
+    if [ "x$JAVA_HOME" != "x" ]; then
+        JAVA="$JAVA_HOME/bin/java"
+    else
+        JAVA="java"
+    fi
+fi
+#
+#entry
+#
+INSTANCE_ROOT=instance
+INSTANCE_NAME=$2
+INSTANCE_NAME=${INSTANCE_NAME/instance\//}
+INSTANCE_HOME=$INSTANCE_ROOT"/"$INSTANCE_NAME
+PIDFILE=$INSTANCE_HOME"/jazmin.pid"
+if [ $# != 2 ] ; then
+	usage;
+	cd - >/dev/null
+fi
+#
+if [ "$1" == "stop" ];
+then
+	setup;
+	stop;
+	cd - >/dev/null
+	exit 0
+elif [ "$1" == "start" ];
+then
+	setup;
+	check_old_pid
+	start_normal;
+	cd - >/dev/null
+	exit 0
+elif [ "$1" == "restart" ];
+then
+	setup;
+	stop;
+	start_normal;
+	cd - >/dev/null
+	exit 0
+elif [ "$1" == "restartbg" ];
+then
+	setup;
+	stop;
+	start_bg;
+	cd - >/dev/null
+	exit 0
+elif [ "$1" == "startbg" ];
+then
+	setup;
+	check_old_pid
+	start_bg;
+	cd - >/dev/null
+	exit 0
+fi
+usage;

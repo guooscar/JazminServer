@@ -1,0 +1,60 @@
+						JAZMIN SERVER README FILE
+--------------------------------------------------------------------------------
+                                                                               
+                                      .                c,                       
+                                    .xMXl           .oNMO                       
+                                   lNMMMMX'      ,o0MMMMO                       
+                                 lNMMMMMMMN. .d0WMMMMMMMd           ..          
+                               ,XMMMMMMMMMM. ,MMMWXOdc;,.    .;ldOXWN.          
+                     oOKNWWk  :WMMMMMMMMMMx  kkl'    .,cok0NMMMMMMMN,           
+                     dMMMMK  .WMMMMMMMMMWo     .;oOXWMMMMMMMMMMMMMO.            
+                     ;0KWMk  oMMMMMMMMM0'   .l0WMMMMMMMMMMMMMMMMK,              
+                  .','.  .l. ,WMMMMMMX:   'kWMMMMZJLMMMMMMMMMWx'                
+             ,lkKWMMMMMNO:    .0W0K0;   .OMMMMMMMMMMMMMMMMNk:.  ..              
+         .c0WMMMMMMMMMMMMMX,    .      lWMMMMMMMMMMMMN0d:.    ,0MMMWX0kdl;      
+         'kMMMMMMMMMMMMMMMMk          ;0MMMMMWN0ko:'.     .,oXMMMMMMMMMXd'      
+           ,XMMMMMMMMMMMXd;            .dl:,.       .';lkXMMMMMMMMMMXd'         
+             :kXWMMMN0o.                      .;dOKNMMMMMMMMMMMMW0l.            
+            .    ..      .        ,0KK00Oxdc,.   :KMMMMMMMMMNOo,.               
+         .oNMNko'   .ckXWW0d    lNMMMMMMMMMMMWKl   cddolc;'.                    
+        oWMMMXc  .lXMMMMMMMd    NMMMMMMMMMMMMMMMX.                              
+      .KMMMX;  ,kWMMMMMMMMM;   .WMMMMMMMMMMMMMMMMX.                            
+      ,,,,,  '0MMMMMMMMMMMK  ;  XMMMMMMMMMMMMMMMMMO                             
+           .kMMMMMMMMMMMMN. .N: :MMMMMMMMMMMMMMMMMMl                            
+          'NMMMMMMMMMMMMO. 'NMN. xMMMMMMMMMMMMMMMMMW'                           
+         .XMMMMMMMMMMKd' .oWMMMK. oWMMMMMMMMMMMMMMMMK                           
+         OMMMMMMMNx;.   dWMMMMMMN: .oKMMMMMMMMMMMMMMMO                          
+        :MMMMMKo'       lMMMMMMMMMK,  .;oOXWMMMMMMMMMMk                         
+        OMW0l.           cWMMMMMMMK.        .,:ldkOKXNWx                       
+       .Xo.               .KMMMMMO                                              
+                            cXMMO                                               
+                              ,x.                                                                                                                              
+                                                                          
+	     	  ___  _______  _______  __   __  ___   __    _ 		
+		     |   ||   _   ||       ||  |_|  ||   | |  |  | |		
+		     |   ||  |_|  ||____   ||       ||   | |   |_| |		
+		     |   ||       | ____|  ||       ||   | |       |		
+		  ___|   ||       || ______||       ||   | |  _    |		
+		 |       ||   _   || |_____ | ||_|| ||   | | | |   |		
+		 |__yama_||__| |__||_______||_|   |_||___| |_|  |__|	 
+		 
+--------------------------------------------------------------------------------
+********************************************************************************
+ 							Copyright (c) 2015 yama.
+ This is not a free software,all rights reserved by yama(guooscar@gmail.com).
+ ANY use of this software MUST be subject to the consent of yama.
+
+********************************************************************************
+JAZMIN
+======
+The jazmin project is a 100% Java Message Server, RPCServer and WebServer powered
+by yama(guooscar@gmail.com).
+
+RUNNING JAZMIN
+==============
+using command line script 'jazmin' to start jazmin server.
+
+./jazmin start INSTANCE_NAME
+
+To see the available options and the default arguments using command ./jazmin
+

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="lib/log4j-api-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-core-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/fastjson-1.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/flex-messaging-core.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-nop-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/xmemcached-2.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.31-bin.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
+	<classpathentry kind="lib" path="lib/jetty.jar"/>
+	<classpathentry kind="lib" path="lib/gently-utils-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/josql-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/c3p0-0.9.5.jar"/>
+	<classpathentry kind="lib" path="lib/sshd-core-0.13.0.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-analyzers-common-4.10.3.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-core-4.10.3.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-queries-4.10.3.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-queryparser-4.10.3.jar"/>
+	<classpathentry kind="lib" path="lib/mmseg4j-core-1.10.0.jar"/>
+	<classpathentry kind="lib" path="lib/mmseg4j-solr-2.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/concurrentlinkedhashmap-lru-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/fst-2.21-onejar.jar"/>
+	<classpathentry kind="lib" path="lib/async-http-client-1.9.8.jar"/>
+	<classpathentry kind="lib" path="lib/netty-3.10.0.Final.jar"/>
+	<classpathentry kind="lib" path="lib/netty-all-5.0.0.Alpha2.jar"/>
+	<classpathentry kind="lib" path="lib/jzlib-1.1.3.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

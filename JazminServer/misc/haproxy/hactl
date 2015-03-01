@@ -1,0 +1,36 @@
+#!/bin/sh
+cd `dirname $0`/..
+
+ROOT_PATH="/home/appadmin/haproxy"
+BASE_DIR="`pwd`"
+ARGV="$1"
+
+start(){
+    echo "start haproxy service"
+    haproxy -f $ROOT_PATH/haproxy.cfg
+}
+
+stop(){
+    killall haproxy
+    echo "stop haproxy service"
+}
+
+case $ARGV in
+    start)
+        start
+        ERROR=$?
+        ;;
+    stop)
+        stop
+        ERROR=$?
+        ;;
+    restart)
+        stop
+        start
+        ERROR=$?
+        ;;
+    *)
+        echo "hactl.sh [start|restart|stop]"
+esac
+
+exit $ERROR

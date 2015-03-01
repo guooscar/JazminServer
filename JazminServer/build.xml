@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--============================================================================
+	     	  ___  _______  _______  __   __  ___   __    _ 		
+		     |   ||   _   ||       ||  |_|  ||   | |  |  | |		
+		     |   ||  |_|  ||____   ||       ||   | |   |_| |		
+		     |   ||       | ____|  ||       ||   | |       |		
+		  ___|   ||       || ______||       ||   | |  _    |		
+		 |       ||   _   || |_____ | ||_|| ||   | | | |   |		
+		 |__yama_||__| |__||_______||_|   |_||___| |_|  |__|	 
+		 
+********************************************************************************
+ 							Copyright (c) 2015 yama.
+ This is not a free software,all rights reserved by yama(guooscar@gmail.com).
+ ANY use of this software MUST be subject to the consent of yama.
+=========================================================================-->
+<project name="JazminServer" basedir="." default="release">
+    <property name="project.root" value="${basedir}"/> 
+    <property file="build.properties"/>
+	<!-- build no.-->
+	<tstamp>
+		<format property="release_date" pattern="yyyyMMddHHmm" />
+	</tstamp>
+    <!-- src dir-->
+    <property name="src.dir" value="${project.root}/src"/>
+    <property name="lib.dir" value="${project.root}/lib"/>
+		
+	<property name="script.dir" value="${project.root}/script/"/>
+		
+	<!-- build dir -->
+	<property name="build.dir" value="${project.root}/build" />
+	<property name="build.lib.dir" value="${build.dir}/lib"/>	
+	<property name="build.classes.dir" value="${build.dir}/classes" />
+    <!-- Java CLASSPATH -->
+    <path id="master-classpath">
+    	<fileset dir="${lib.dir}"/>
+    </path>
+	
+	<target name="clean">
+		<delete dir="${build.dir}"/>
+		<delete dir="${release.dir}"></delete>
+		<mkdir dir="${release.dir}"></mkdir>
+	</target>
+	
+	<!-- =================================================================== -->
+	<!--make a zip release-->
+	<!-- =================================================================== -->	
+	<target name="release-zip" depends="release">
+		<zip destfile="${release.dir}/${project.name}-${project.revision}-build${release_date}.zip"
+			basedir="${release.dir}/${project.name}">
+		</zip>
+	</target>
+	<!-- =================================================================== -->
+	<!--release-->
+	<!-- =================================================================== -->
+	<target name="release" depends="clean,jar">
+		<mkdir dir="${release.dir}/${project.name}"/>
+		<mkdir dir="${release.dir}/${project.name}/log"/>
+		<copy todir="${release.dir}/${project.name}" 
+						file="${project.root}/README"/>	
+		<copy todir="${release.dir}/${project.name}" 
+						file="${project.root}/script/jazmin"/>	
+				
+		<replace file="${release.dir}/${project.name}/README" 
+								token="@VERSION@" 
+								value="${project.revision}-build${release_date}"/>
+		
+		<echo>make all in one jar package</echo>
+		<delete dir="${release.dir}/${project.name}/tmp" />
+		<mkdir dir="${release.dir}/${project.name}/tmp" />
+		<unzip dest="${release.dir}/${project.name}/tmp">
+			<fileset dir="${lib.dir}">
+				<include name="**/*.jar"/>
+			</fileset>
+			<fileset dir="${release.dir}">
+				<include name="**/*.jar"/>
+			</fileset>			
+		</unzip>
+		<!-- if old META-INF exists new jar will cause an error.-->
+		<delete>  
+		    <fileset dir="${release.dir}/${project.name}/tmp/META-INF/" includes="**/*.SF"/>          
+		</delete>
+		<jar destfile="${release.dir}/${project.name}/jazmin.jar">
+			<manifest>
+					<attribute name="Version" value="${project.revision}"/>
+					<attribute name="Implementation-Version" 
+						value="${project.revision}-build${release_date}"/>
+					<attribute name="Implementation-Title" 
+						value="Jazmin"/>			
+			</manifest>	
+			<fileset dir="${release.dir}/${project.name}/tmp">
+				<include name="**/*" />
+			</fileset>
+		</jar>	
+		<delete dir="${release.dir}/${project.name}/tmp" />
+		<delete file="${release.dir}/jazmin.jar" />
+		<!-- make default server directory-->
+		<mkdir dir="${release.dir}/${project.name}/instance"/>
+		<mkdir dir="${release.dir}/${project.name}/instance/default"/>
+		<copy todir="${release.dir}/${project.name}/instance/default/" 
+								file="${script.dir}/jazmin.js"/>	
+		<copy todir="${release.dir}/${project.name}/instance/default/" 
+								file="${script.dir}/env"/>
+				
+	</target>
+	
+	<!-- =================================================================== -->
+    <!-- compile java code -->
+    <!-- =================================================================== -->
+    <target name="build" description="build java" >
+    	<mkdir dir="${build.dir}" />
+    	<mkdir dir="${build.classes.dir}" />
+ 	    <javac destdir="${build.classes.dir}" 
+	    	source="1.8"
+	    	target="1.8" 
+	    	debug="true"
+			encoding="utf-8"
+	    	deprecation="false" 
+	    	optimize="false" 
+	    	failonerror="true">
+            <src path="${src.dir}"/>
+            <classpath refid="master-classpath"/>
+        </javac>
+    </target>
+	<!-- =================================================================== -->
+    <!-- make jar file -->
+    <!-- =================================================================== -->
+	<target name="jar" description="make jar file" depends="build">
+		<copy todir="${build.classes.dir}">
+			<fileset dir="${src.dir}">
+					<include name="**/*.png"/>
+			</fileset>
+		</copy>
+		<jar destfile="${release.dir}/jazmin.jar">
+			<fileset dir="${build.classes.dir}">
+				<include name="**/**"/>
+			</fileset>
+			<manifest>
+				<attribute name="Version" value="${project.revision}"/>
+				<attribute name="Implementation-Version" 
+					value="${project.revision}-build${release_date}"/>
+				<attribute name="Implementation-Title" 
+					value="Jazmin"/>			
+			</manifest>
+		</jar>
+	</target>
+</project>

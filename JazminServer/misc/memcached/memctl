@@ -1,0 +1,88 @@
+#!/bin/bash
+#
+ROOT_PATH="/home/appadmin/memcached"
+CONFIG_FILE="$ROOT_PATH/memcached.cfg"
+#
+function warn(){
+    echo -e "\033[33m"$1"  \033[0m"
+}
+function error(){
+    echo -e "\033[31m"$1"  \033[0m"
+}
+function start(){
+	size=`grep $INSTANCE_NAME $CONFIG_FILE |awk '{print $2}'`
+	port=`grep $INSTANCE_NAME $CONFIG_FILE |awk '{print $3}'`
+	if [ ! $size ]
+	then    
+		error "can not found instance:$INSTANCE_NAME"
+		exit
+	fi  
+	eval /usr/local/memcached/bin/memcached -d -m $size -l 0.0.0.0 -p $port -u  appadmin -P $PIDFILE
+	echo "memcached $INSTANCE_NAME start"
+}
+#
+function stop(){
+	if [ ! -f "$PIDFILE" ]; then
+		echo "$PIDFILE not existed"
+		return 0
+	fi
+	#
+	PID=`cat $PIDFILE`
+	if [ -z "$PID" ]; then
+		return;
+	fi
+	echo "try to stop memcached $INSTANCE_NAME pid:$PID..."
+	while ps ax| grep "$PID" |grep -v grep >/dev/null 
+	do
+		echo "process $PID still running" 
+		kill -15 $PID
+	    sleep 1
+	done
+	echo "memcached $INSTANCE_NAME pid:$PID stopped."
+}
+
+function restartall(){
+	count=`cat $CONFIG_FILE | grep -v '#' |wc -l`
+	let j=1
+	while (( j <= $count ))
+	do
+		INSTANCE_NAME=`cat $CONFIG_FILE | grep -v '#'|grep -v ^$|awk -v k=$j '{if(NR==k)print $1}'`
+		PIDFILE=$ROOT_PATH/$INSTANCE_NAME.pid
+		stop
+		j=$(($j+1))
+	done
+	let j=1
+	while (( j <= $count ))
+	do
+		INSTANCE_NAME=`cat $CONFIG_FILE | grep -v '#'|grep -v ^$|awk -v k=$j '{if(NR==k)print $1}'`
+		PIDFILE=$ROOT_PATH/$INSTANCE_NAME.pid
+		start
+		j=$(($j+1))
+	done
+}
+#
+function usage(){
+	echo "usage: $0 start|stop instance"
+	cat $CONFIG_FILE |awk '{print $1}'
+	exit 1;
+}
+
+if [ $# -lt 1 ] ; then
+	usage;
+fi
+INSTANCE_NAME=$2
+PIDFILE=$ROOT_PATH/$INSTANCE_NAME.pid
+case "$1" in
+	'start')
+		start;
+		;;
+	'stop')
+		stop;
+		;;
+	'restartall')
+		restartall;
+		;;
+	*)
+		usage;
+		;;
+esac
