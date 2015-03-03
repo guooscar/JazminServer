@@ -32,6 +32,7 @@ JazminServer is a Java based application/message/rpc server.
   * Piped command
   * REPL env
 # Demo
+Start a rpc server and register remote server
 <pre>
    Jazmin.addServer(new ConsoleServer());
    RPCServer rpcServer=new RPCServer();
