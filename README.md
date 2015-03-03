@@ -1,3 +1,4 @@
+<img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/src/jazmin/core/jazmin-logo.png?raw=true' width=250 height=220/>
 # JazminServer
 JazminServer is a Java based application/message/rpc server.
 # Main features
