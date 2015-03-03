@@ -23,6 +23,7 @@ JazminServer is a Java based application/message/rpc server.
   * Asyc service
   * Continuation service
   * Oneway service
+  * Invoke frequency restrict
   * amf/json/zjson message format
 * WebServer
   * Jetty based webserver
