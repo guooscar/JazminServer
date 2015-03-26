@@ -63,6 +63,9 @@ public class LoggerFactory {
 		allLogList.add(warpLogger);
 		return warpLogger;
 	}
+	public static Logger getLogger(Class<?> clazz){
+		return get(clazz);
+	}
 	//set log level
 	/**
 	 * 
