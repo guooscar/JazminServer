@@ -1,5 +1,7 @@
 package jazmin.server.rpc;
 
+import java.io.IOException;
+
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
@@ -54,7 +56,11 @@ public class RPCClientHandler extends ChannelHandlerAdapter{
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) 
     		throws Exception {
-    	logger.error("exception caught from:"+ctx.channel(),cause);
+    	if(cause instanceof IOException){
+    		logger.warn("exception on channal:"+ctx.channel()+","+cause.getMessage());
+    	}else{
+    		logger.error("exception on channal:"+ctx.channel(),cause);	
+    	}
     	RPCSession session=ctx.channel().attr(RPCClient.SESSION_KEY).get();
     	session.close();
         ctx.close();

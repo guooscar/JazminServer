@@ -19,6 +19,7 @@ public class Context {
 	private boolean isContinuation;
 	private Session session;
 	private Map<String,Object>responseMap;
+	private byte rawData[];
 	private RequestMessage requestMessage;
 	private MessageServer messageServer;
 	//
@@ -61,6 +62,10 @@ public class Context {
 	public void put(String key,Object v){
 		responseMap.put(key, v);
 	}
+	//
+	public void putRawData(byte []bytes){
+		rawData=bytes;
+	}
 	/**
 	 * flush context.
 	 */
@@ -75,11 +80,18 @@ public class Context {
 			rspMessage.requestId=requestMessage.requestId;
 			rspMessage.responseMessages=responseMap;
 			rspMessage.serviceId=requestMessage.serviceId;
+			if(rawData!=null){
+				//if raw data is not null.change payload data type to raw
+				rspMessage.rawData=rawData;
+			}
 			session.sendMessage(rspMessage);
 		}
 	}
 	//--------------------------------------------------------------------------
 	//private method
+	byte [] getRawBytes(){
+		return requestMessage.rawData;
+	}
 	//
 	Boolean  getBoolean(int idx){
 		String ss=requestMessage.requestParameters[idx];

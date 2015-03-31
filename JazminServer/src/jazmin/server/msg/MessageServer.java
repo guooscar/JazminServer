@@ -50,8 +50,9 @@ public class MessageServer extends Server{
 	private static Logger logger=LoggerFactory.get(MessageServer.class);
 	//
 	public static final String MESSAGE_TYPE_JSON="json";
-	public static final String MESSAGE_TYPE_ZJSON="zjson";
 	public static final String MESSAGE_TYPE_AMF3="amf3";
+	public static final String MESSAGE_TYPE_ZJSON="zjson";
+	
 	//
 	static final int DEFAULT_PORT=3001;
 	static final int DEFAULT_IDLE_TIME=60*10;//10 min
@@ -280,18 +281,19 @@ public class MessageServer extends Server{
 						new JSONDecoder(networkTrafficStat),
 						new MessageServerHandler(MessageServer.this));
 			}
-			if(messageType.equals(MESSAGE_TYPE_ZJSON)){
-				ch.pipeline().addLast(
-						new ZJSONEncoder(networkTrafficStat),
-						new ZJSONDecoder(networkTrafficStat),
-						new MessageServerHandler(MessageServer.this));
-			}
 			if(messageType.equals(MESSAGE_TYPE_AMF3)){
 				ch.pipeline().addLast(
 						new AMF3Encoder(networkTrafficStat),
 						new AMF3Decoder(networkTrafficStat),
 						new MessageServerHandler(MessageServer.this));
 			}
+			if(messageType.equals(MESSAGE_TYPE_ZJSON)){
+				ch.pipeline().addLast(
+						new ZJSONEncoder(networkTrafficStat),
+						new ZJSONDecoder(networkTrafficStat),
+						new MessageServerHandler(MessageServer.this));
+			}
+			
 		}
 	}
 	//

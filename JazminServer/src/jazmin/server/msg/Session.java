@@ -127,9 +127,17 @@ public class Session {
 	}
 	//
 	//
-	public void push(byte[] bb) {
+	public void pushRaw(String serviceId,byte[] payload) {
+		if(serviceId==null){
+			throw new IllegalArgumentException("serviceId can not be null.");
+		}
+		if(payload==null){
+			throw new IllegalArgumentException("payload can not be null.");
+		}
 		ResponseMessage rsp=new ResponseMessage();
-		rsp.rawData=bb;
+		rsp.requestId=0;
+		rsp.serviceId=serviceId;
+		rsp.rawData=payload;
 		sendMessage(rsp);
 	}
 	//

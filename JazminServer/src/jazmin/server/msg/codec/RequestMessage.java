@@ -12,7 +12,6 @@ import jazmin.util.DumpUtil;
 
 
 /**
- * 
  * @author yama
  * @date Jun 5, 2014
  */
@@ -21,17 +20,25 @@ public class RequestMessage {
 	//
 	public boolean isBadRequest;
 	/**
-	 * 请求消息的request必须大于零
 	 */
 	public int requestId;//requestId
 	public String serviceId;//serviceId
 	public String[]requestParameters;
+	public byte rawData[];
 	public RequestMessage() {
 		requestParameters=new String[MAX_PARAMETER_COUNT];
 	}
 	//
 	@Override
 	public String toString() {
-		return DumpUtil.dump(this);
+		if(rawData!=null){
+			StringBuilder sb=new StringBuilder();
+			sb.append(",requestId:").
+			append(requestId).
+			append("}");
+			return sb.toString();
+		}else{
+			return DumpUtil.dump(this);		
+		}
 	}
 }

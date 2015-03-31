@@ -1,41 +1,32 @@
+/**
+ * 
+ */
 package jazmin.server.msg.codec.amf;
 
 import flex.messaging.io.amf.ASObject;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler.Sharable;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.CorruptedFrameException;
-import io.netty.handler.codec.MessageToByteEncoder;
 
 import java.io.ByteArrayOutputStream;
 
 import jazmin.misc.NetworkTrafficStat;
+import jazmin.server.msg.codec.BinaryEncoder;
 import jazmin.server.msg.codec.ResponseMessage;
 import jazmin.server.msg.codec.ResponseProto;
+
 /**
- * 
  * @author yama
- * 26 Dec, 2014
+ * 31 Mar, 2015
  */
 @Sharable
-public class AMF3Encoder extends MessageToByteEncoder<ResponseMessage> {
-	private static final int MAX_MESSAGE_LENGTH=1024*1024;
-	NetworkTrafficStat networkTrafficStat;
-	public AMF3Encoder(NetworkTrafficStat networkTrafficStat) {
-	    this.networkTrafficStat=networkTrafficStat;
-	}
+public class AMF3Encoder extends BinaryEncoder{
 	//
+	public AMF3Encoder(NetworkTrafficStat networkTrafficStat) {
+		super(networkTrafficStat);
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
-	protected void encode(
-			ChannelHandlerContext ctx, 
-			ResponseMessage msg,
-			ByteBuf out) throws Exception {
-		if(msg.rawData!=null){
-			out.writeBytes(msg.rawData);
-			return;
-		}
-		//
+	protected byte[] encode(ResponseMessage msg) throws Exception{
 		ResponseProto bean=new ResponseProto();
     	bean.d=(System.currentTimeMillis());
     	bean.ri=(msg.requestId);
@@ -55,13 +46,6 @@ public class AMF3Encoder extends MessageToByteEncoder<ResponseMessage> {
 		ser.close();
 		byte encodedByte[] = stream.toByteArray();
 		stream.close();
-		int dataLength=encodedByte.length;
-		if(dataLength>MAX_MESSAGE_LENGTH){
-			throw new CorruptedFrameException("message too long" + dataLength
-					+ "/" + MAX_MESSAGE_LENGTH);
-		}
-		out.writeInt(dataLength);
-		out.writeBytes(encodedByte);
-		networkTrafficStat.outBound(dataLength);
+		return encodedByte;
 	}
 }
