@@ -50,6 +50,9 @@ public class WebServer extends jazmin.core.Server{
 	private int port=7001;
 	private int idleTimeout=30;//30seconds
 	private boolean dirAllowed=false;
+	static{
+		System.getProperties().put("org.eclipse.jetty.util.log.class",JettyLogger.class.getName());
+	}
 	public WebServer() {
 	}
 	
@@ -85,7 +88,6 @@ public class WebServer extends jazmin.core.Server{
 	private WebAppContext createWebAppContext(String contextPath){
 		WebAppContext webAppContext=new WebAppContext();
 		webAppContext.setContextPath(contextPath);
-	    webAppContext.setLogger(new JettyLogger());
 		File tempDir=new File("webapp");
 		FileUtil.deleteDirectory(tempDir);
 		if(!tempDir.mkdir()){
@@ -134,6 +136,9 @@ public class WebServer extends jazmin.core.Server{
 	//-------------------------------------------------------------------------
 	//
 	public void init()throws Exception{
+		//set up jetty logger
+		
+		//
 		server = new Server();
 		// Setup JMX
 		MBeanContainer mbContainer=new MBeanContainer(ManagementFactory.getPlatformMBeanServer());
@@ -178,8 +183,10 @@ public class WebServer extends jazmin.core.Server{
 		if(webAppContext!=null){
 			JspFactory jspFactory=JspFactory.getDefaultFactory();
 			ServletContext sc=webAppContext.getServletContext();
-			JspApplicationContext jac=jspFactory.getJspApplicationContext(sc);
-			jac.addELResolver(new PublicFieldELResolver());		
+			if(jspFactory!=null){
+				JspApplicationContext jac=jspFactory.getJspApplicationContext(sc);
+				jac.addELResolver(new PublicFieldELResolver());					
+			}
 		}
 	}
 	//
