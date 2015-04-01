@@ -20,22 +20,26 @@ import jazmin.core.Server;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 
-/**
- * @author yama
- * 26 Dec, 2014
- */
 public class Application extends Lifecycle {
 	private static Logger logger=LoggerFactory.get(Application.class);
 	//
-	private Map<Class<?>,Object>autoWiredMap=new HashMap<Class<?>, Object>();
+	private Map<Class<?>,Object>autoWiredMap=new ConcurrentHashMap<Class<?>, Object>();
 	//
 	@Override
 	public String info() {
 		return "Application class:"+getClass().getName();
 	}
 	//
-public <T> T create(Class<T>clazz)throws Exception{
+	@SuppressWarnings("unchecked")
+	public <T> T getWired(Class<T>clazz){
+		T instance =(T) autoWiredMap.get(clazz);
+		return instance;
+	} 
+	//
+	@SuppressWarnings("unchecked")
+	public <T> T createWired(Class<T>clazz)throws Exception{
 		T instance =clazz.newInstance();
+		autoWiredMap.put(clazz,instance);
 		for(Field f:getField(clazz)){
 			if(f.isAnnotationPresent(AutoWired.class)){
 				AutoWired aw=f.getAnnotation(AutoWired.class);
@@ -62,13 +66,12 @@ public <T> T create(Class<T>clazz)throws Exception{
 					if(aw.shared()){
 						Object target=autoWiredMap.get(fieldType);
 						if(target==null){
-							target=create(fieldType);
-							autoWiredMap.put(fieldType,target);
+							target=createWired(fieldType);
 						}
 						f.set(instance,target);	
 	
 					}else{
-						Object target=create(fieldType);
+						Object target=createWired(fieldType);
 						f.set(instance,target);	
 					}
 				}
