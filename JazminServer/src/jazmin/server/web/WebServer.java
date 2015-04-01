@@ -51,7 +51,8 @@ public class WebServer extends jazmin.core.Server{
 	private int idleTimeout=30;//30seconds
 	private boolean dirAllowed=false;
 	static{
-		System.getProperties().put("org.eclipse.jetty.util.log.class",JettyLogger.class.getName());
+		System.getProperties().put("org.eclipse.jetty.util.log.class",
+				JettyLogger.class.getName());
 	}
 	public WebServer() {
 	}

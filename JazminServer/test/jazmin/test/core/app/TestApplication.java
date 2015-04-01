@@ -12,7 +12,7 @@ import jazmin.core.app.Application;
 public class TestApplication extends Application {
 	@Override
 	public void init() throws Exception {
-		TestActionImpl action=create(TestActionImpl.class);
+		TestActionImpl action=createWired(TestActionImpl.class);
 		//
 		System.out.println(action.testService);
 		System.out.println(action.testService.testDAO);

@@ -5,13 +5,10 @@ package jazmin.core.app;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 import jazmin.core.Driver;
 import jazmin.core.Jazmin;
@@ -19,7 +16,11 @@ import jazmin.core.Lifecycle;
 import jazmin.core.Server;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-
+/**
+ * 
+ * @author yama
+ * 1 Apr, 2015
+ */
 public class Application extends Lifecycle {
 	private static Logger logger=LoggerFactory.get(Application.class);
 	//
