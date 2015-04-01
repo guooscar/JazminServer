@@ -209,15 +209,20 @@ public class Jazmin {
 		}
 		drivers.put(name, driver);
 	}
-	/**
-	 * get driver by class
+/**
+	 * return driver by class
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T  driver(Class<? extends Driver> driverClass){
-		if(!drivers.containsKey(driverClass.getSimpleName())){
-			return null;
+		for(Driver d:drivers.values()){
+			if(driverClass.equals(d.getClass())){
+				return (T) d;
+			}
+			if(driverClass.isAssignableFrom(d.getClass())){
+				return (T) d;
+			}
 		}
-		return (T) drivers.get(driverClass.getSimpleName());
+		return null;
 	}
 	/**
 	 *get all drivers 
@@ -239,15 +244,20 @@ public class Jazmin {
 		servers.put(name, server);
 	}
 
-	/**
+/**
 	 * get server by type.
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T  server(Class<? extends Server> serverClass){
-		if(!servers.containsKey(serverClass.getSimpleName())){
-			return null;
+		for(Server d:servers.values()){
+			if(serverClass.equals(d.getClass())){
+				return (T) d;
+			}
+			if(serverClass.isAssignableFrom(d.getClass())){
+				return (T) d;
+			}
 		}
-		return (T) servers.get(serverClass.getSimpleName());
+		return null;
 	}
 	/**
 	 *get all servers 
