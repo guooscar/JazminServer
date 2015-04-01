@@ -34,12 +34,11 @@ public class Application extends Lifecycle {
 		return "Application class:"+getClass().getName();
 	}
 	//
-	@SuppressWarnings("unchecked")
-	public <T> T create(Class<T>clazz)throws Exception{
+public <T> T create(Class<T>clazz)throws Exception{
 		T instance =clazz.newInstance();
 		for(Field f:getField(clazz)){
-			System.err.println(f);
 			if(f.isAnnotationPresent(AutoWired.class)){
+				AutoWired aw=f.getAnnotation(AutoWired.class);
 				f.setAccessible(true);
 				Class<?>fieldType=f.getType();
 				if(Driver.class.isAssignableFrom(fieldType)){
@@ -59,13 +58,19 @@ public class Application extends Lifecycle {
 						logger.warn("can not find autowired server:"+fieldType);
 					}
 				}else{
-					System.err.println("set up :"+fieldType);
-					Object target=autoWiredMap.get(fieldType);
-					if(target==null){
-						target=create(fieldType);
-						autoWiredMap.put(fieldType,target);
+					//shared auto wire property 
+					if(aw.shared()){
+						Object target=autoWiredMap.get(fieldType);
+						if(target==null){
+							target=create(fieldType);
+							autoWiredMap.put(fieldType,target);
+						}
+						f.set(instance,target);	
+	
+					}else{
+						Object target=create(fieldType);
+						f.set(instance,target);	
 					}
-					f.set(instance,target);	
 				}
 			}
 		}
