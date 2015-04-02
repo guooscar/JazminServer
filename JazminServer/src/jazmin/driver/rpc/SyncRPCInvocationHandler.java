@@ -7,6 +7,7 @@ import jazmin.core.app.AppException;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.rpc.RPCClient;
+import jazmin.server.rpc.RPCException;
 import jazmin.server.rpc.RPCMessage;
 import jazmin.server.rpc.RPCMessage.AppExceptionMessage;
 import jazmin.server.rpc.RPCSession;
@@ -55,6 +56,9 @@ public class SyncRPCInvocationHandler extends RPCInvocationHandler {
 		}
 		driver.statMethod(method, e, useTime);
 		if(e!=null){
+			if(e instanceof RPCException){
+				throw new RPCException(e.getMessage());
+			}
 			throw e;
 		}
 		return msg.payloads[0];
