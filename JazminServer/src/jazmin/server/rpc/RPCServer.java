@@ -45,6 +45,7 @@ public class RPCServer extends Server{
 	//
 	private int port=6001;
 	private int idleTime=60*60;//one hour
+	private String credential;
 	private ServerBootstrap nettyServer;
 	private EventLoopGroup bossGroup;
 	private EventLoopGroup workerGroup;
@@ -54,7 +55,6 @@ public class RPCServer extends Server{
 	private Map<String,RPCSession>sessionMap;
 	private Map<String,List<RPCSession>>topicSessionMap;
 	private NetworkTrafficStat networkTrafficStat;
-	//
 	//
 	public static final int CODEC_JSON=1;
 	public static final int CODEC_ZJSON=2;
@@ -87,7 +87,7 @@ public class RPCServer extends Server{
 			throw new IllegalArgumentException("instance:"+instanceName
 					+" already exites.");
 		}
-		logger.info("register instance:{}",instanceName);
+		logger.debug("register instance:{}",instanceName);
 		instanceMap.put(instanceName, instance);
 		//
 		Class<?>implClass=instance.getClass();
@@ -100,10 +100,12 @@ public class RPCServer extends Server{
 				throw new IllegalArgumentException("method:"+methodName
 						+" already exists.");
 			}
-			logger.info("register method:{}",methodName);
+			logger.debug("register method:{}",methodName);
 			methodMap.put(methodName, m);
 		}
 	}
+	
+	//
 	/** 
 	 *  return all services name.
 	 */
@@ -182,22 +184,43 @@ public class RPCServer extends Server{
 	private void authMessageReceived(RPCSession session,RPCMessage message){
 		synchronized (session) {
 			String principal=(String)message.payloads[0];
-			Boolean disablePush=(Boolean)message.payloads[1];
-			Object topics[]=new Object[message.payloads.length-2];
+			String credential=(String)message.payloads[1];
+			Boolean disablePush=(Boolean)message.payloads[2];
+			Object topics[]=new Object[message.payloads.length-3];
 			if(topics.length>0){
-				System.arraycopy(message.payloads,2, topics, 0, topics.length);
+				System.arraycopy(message.payloads,3, topics, 0, topics.length);
 			}
 			//
 			session.principal(principal);
+			session.credential(credential);
 			session.disablePushMessage(disablePush);
 			for(Object o:topics){
 				session.subscribe((String)o);
 			}
-			sessionCreated(session);	
+			checkCredential(session);
+			sessionCreated(session);
 		}
 	}
 	//
+	private void checkCredential(RPCSession session){
+		if(this.credential==null){
+			session.authed=true;
+			return;
+		}
+		session.authed=credential.equals(session.credential);
+	}
+	//
 	private void rpcRequestCallMessageReceived(RPCSession session,RPCMessage message){
+		if(!session.authed){
+			logger.error("session need credential:"+session);
+			session.write(makeException(
+					message.id,
+					RPCMessage.TYPE_RPC_CALL_RSP,
+					"need credential"));
+			session.close();
+			return;
+		}
+		//
 		String serviceId=(String)message.payloads[0];
 		Object args[]=new Object[message.payloads.length-1];
 		if(args.length>0){
@@ -207,11 +230,19 @@ public class RPCServer extends Server{
 		Object instance=instanceMap.get(interfaceClass);
 		if(instance==null){
 			logger.error("can not find instance:"+interfaceClass);
+			session.write(makeException(
+					message.id,
+					RPCMessage.TYPE_RPC_CALL_RSP,
+					"can not find instance:"+interfaceClass));
 			return;
 		}
 		Method method=methodMap.get(serviceId);
 		if(method==null){
 			logger.error("can not find method:"+serviceId);
+			session.write(makeException(
+					message.id,
+					RPCMessage.TYPE_RPC_CALL_RSP,
+					"can not find method:"+serviceId));
 			return;
 		}
 		RPCInvokeCallback callback=new RPCInvokeCallback(session,message);
@@ -247,6 +278,15 @@ public class RPCServer extends Server{
 			session.write(rspMessage);
 		}
 	}
+	//
+	private RPCMessage makeException(int id,int type,String msg){
+		RPCMessage rspMessage=new RPCMessage();
+		rspMessage.id=id;
+		rspMessage.type=type;
+		rspMessage.payloads=new Object[]{null,new RPCException(msg)};	
+		return rspMessage;
+	}
+	//
 	/**
 	 * broadcast to all session
 	 */
@@ -328,6 +368,20 @@ public class RPCServer extends Server{
 				sessions.remove(session);
 			}
 		});
+	}
+	/**
+	 * 
+	 * @return
+	 */
+	public String credential() {
+		return credential;
+	}
+	/**
+	 * 
+	 * @param credential
+	 */
+	public void credential(String credential) {
+		this.credential = credential;
 	}
 	/**
 	 * @return the port
@@ -416,6 +470,7 @@ public class RPCServer extends Server{
 		ib.section("info")
 		.format("%-30s:%-30s\n")
 		.print("port",port)
+		.print("credential",credential!=null)
 		.print("idleTime",idleTime+" seconds");
 		ib.section("services");
 		int index=1;
