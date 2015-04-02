@@ -152,7 +152,7 @@ public class RPCClient {
 			//send auth message
 			auth(session);
 		} catch (Exception e) {
-			logger.warn("can not connect to server {}:{}-{}",host,port,e.getMessage());
+			logger.error("can not connect to server "+host+":"+port,e);
 		}
 	}
 	/**/
@@ -160,10 +160,11 @@ public class RPCClient {
 		RPCMessage msg=new RPCMessage();
 		msg.id=messageId.incrementAndGet();
 		msg.type=RPCMessage.TYPE_SESSION_AUTH;
-		msg.payloads=new Object[session.topics().size()+2];
+		msg.payloads=new Object[session.topics().size()+3];
 		msg.payloads[0]=session.principal();
-		msg.payloads[1]=session.disablePushMessage;
-		int idx=2;
+		msg.payloads[1]=session.credential();
+		msg.payloads[2]=session.disablePushMessage;
+		int idx=3;
 		for(String s:session.topics()){
 			msg.payloads[idx++]=s;
 		}
