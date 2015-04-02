@@ -12,7 +12,9 @@ public class RPCException extends RuntimeException{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
+	public RPCException() {
+		super();
+	}
 	public RPCException(String msg) {
 		super(msg);
 	}
