@@ -26,6 +26,7 @@ public class RPCSession {
 	String remoteHostAddress;
 	int remotePort;
 	String principal;
+	String credential;
 	Set<String>topics;
 	Channel channel;
 	Date createTime;
@@ -33,12 +34,14 @@ public class RPCSession {
 	LongAdder sendPackageCount;
 	LongAdder receivePackageCount;
 	String cluster;
+	boolean authed;
 	//
 	public RPCSession(){
 		topics=new TreeSet<String>();
 		createTime=new Date();
 		sendPackageCount=new LongAdder();
 		receivePackageCount=new LongAdder();
+		authed=false;
 	}
 	/**
 	 * @return the cluster
@@ -60,7 +63,13 @@ public class RPCSession {
 	public void principal(String principal) {
 		this.principal = principal;
 	}
-
+	
+	public String credential() {
+		return credential;
+	}
+	public void credential(String credential) {
+		this.credential = credential;
+	}
 	//
 	public void remoteHostAddress(String remoteHostAddress) {
 		this.remoteHostAddress = remoteHostAddress;
@@ -155,6 +164,6 @@ public class RPCSession {
 	//
 	@Override
 	public String toString() {
-		return "[RPCSession]"+principal+"/"+remoteHostAddress+":"+remotePort;
+		return "[RPCSession]"+principal+"/"+remoteHostAddress+":"+remotePort+"/auth:"+authed;
 	}
 }
