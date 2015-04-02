@@ -12,56 +12,75 @@ import org.eclipse.jetty.util.log.Logger;
  * @author yama 28 Dec, 2014
  */
 public class JettyLogger extends AbstractLogger {
-	private final static jazmin.log.Logger logger = LoggerFactory
-			.get(JettyLogger.class);
-
+	private final static jazmin.log.Logger logger = LoggerFactory.get(JettyLogger.class);
+	public static boolean enable=false;
 	public JettyLogger() throws Exception {
-
 	}
-
 	public String getName() {
 		return logger.getName();
 	}
 
 	public void warn(String msg, Object... args) {
-		logger.warn(msg, args);
+		if(enable){
+			logger.warn(msg, args);
+		}
 	}
 
 	public void warn(Throwable thrown) {
-		warn("", thrown);
+		if(enable){
+			warn("", thrown);
+		}
 	}
 
 	public void warn(String msg, Throwable thrown) {
-		logger.warn(msg, thrown);
+		if(enable){
+			logger.warn(msg, thrown);
+		}
 	}
 
 	public void info(String msg, Object... args) {
-		logger.info(msg, args);
+		if(enable){
+			logger.info(msg, args);
+		}
 	}
 
 	public void info(Throwable thrown) {
-		info("", thrown);
+		if(enable){
+			info("", thrown);
+		}
 	}
 
 	public void info(String msg, Throwable thrown) {
-		logger.info(msg, thrown);
+		if(enable){
+			logger.info(msg, thrown);
+		}
 	}
 
 	public void debug(String msg, Object... args) {
-		logger.debug(msg, args);
+		if(enable){
+			logger.debug(msg, args);
+		}
 	}
 
 	public void debug(String msg, long arg) {
-		if (isDebugEnabled())
-			logger.debug(msg, new Object[] { new Long(arg) });
+		if(enable){
+			if (isDebugEnabled()){
+				logger.debug(msg, new Object[] { new Long(arg) });
+			}
+		}
+			
 	}
 
 	public void debug(Throwable thrown) {
-		debug("", thrown);
+		if(enable){
+			debug("", thrown);
+		}
 	}
 
 	public void debug(String msg, Throwable thrown) {
-		logger.debug(msg, thrown);
+		if(enable){
+			logger.debug(msg, thrown);
+		}
 	}
 
 	public boolean isDebugEnabled() {
@@ -69,7 +88,9 @@ public class JettyLogger extends AbstractLogger {
 	}
 
 	public void setDebugEnabled(boolean enabled) {
-		warn("setDebugEnabled not implemented", null, null);
+		if(enable){
+			warn("setDebugEnabled not implemented", null, null);
+		}
 	}
 
 	/**
@@ -80,7 +101,9 @@ public class JettyLogger extends AbstractLogger {
 	}
 
 	public void ignore(Throwable ignored) {
-		logger.warn(ignored);
+		if(enable){
+			logger.warn(ignored);
+		}
 	}
 
 	@Override
