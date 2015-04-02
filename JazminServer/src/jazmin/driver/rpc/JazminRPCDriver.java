@@ -56,6 +56,7 @@ public class JazminRPCDriver extends Driver{
 		public int remotePort;
 		public String cluster;
 		public String name;
+		public String credential;
 	}
 	//
 	public JazminRPCDriver(){
@@ -86,11 +87,25 @@ public class JazminRPCDriver extends Driver{
 	public boolean disablePushMessage(){
 		return disablePushMessage;
 	}
-	//
 	/**
 	 * 
 	 */
-	public void addRemoteServer(String cluster,String name,String host,int port){
+	public void addRemoteServer(
+			String cluster,
+			String name,
+			String host,
+			int port){
+		addRemoteServer(cluster,name,null,host,port);
+	}
+	/**
+	 * 
+	 */
+	public void addRemoteServer(
+			String cluster,
+			String name,
+			String credential,
+			String host,
+			int port){
 		if(started()){
 			throw new IllegalStateException("register before started.");
 		}
@@ -99,6 +114,7 @@ public class JazminRPCDriver extends Driver{
 		si.name=name;
 		si.remoteHostAddress=host;
 		si.remotePort=port;
+		si.credential=credential;
 		List<RemoteServerInfo>serverList=serverInfoMap.get(cluster);
 		if(serverList==null){
 			serverList=new ArrayList<>();
@@ -113,6 +129,7 @@ public class JazminRPCDriver extends Driver{
 		session.remotePort(serverInfo.remotePort);
 		session.cluster(serverInfo.cluster);
 		session.principal(principal);
+		session.credential(serverInfo.credential);
 		session.disablePushMessage(disablePushMessage);
 		Set<String>topics=topicMap.get(serverInfo.cluster);
 		if(topics!=null){
