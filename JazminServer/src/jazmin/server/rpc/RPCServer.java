@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import jazmin.core.Jazmin;
@@ -55,6 +57,7 @@ public class RPCServer extends Server{
 	private Map<String,RPCSession>sessionMap;
 	private Map<String,List<RPCSession>>topicSessionMap;
 	private NetworkTrafficStat networkTrafficStat;
+	private Set<String>acceptRemoteHosts;
 	//
 	public static final int CODEC_JSON=1;
 	public static final int CODEC_ZJSON=2;
@@ -67,6 +70,7 @@ public class RPCServer extends Server{
 		methodMap=new ConcurrentHashMap<String, Method>();
 		sessionMap=new ConcurrentHashMap<String, RPCSession>();
 		topicSessionMap=new ConcurrentHashMap<String, List<RPCSession>>();
+		acceptRemoteHosts=Collections.synchronizedSet(new TreeSet<String>());
 		networkTrafficStat=new NetworkTrafficStat();
 	}
 	//--------------------------------------------------------------------------
@@ -369,6 +373,38 @@ public class RPCServer extends Server{
 			}
 		});
 	}
+	//
+	void checkSession(RPCSession session) {
+		if(acceptRemoteHosts.isEmpty()){
+			return;
+		}
+		if(!acceptRemoteHosts.contains(session.remoteHostAddress)){
+			logger.warn("close session from unaccept remote host {}",
+					session.remoteHostAddress);
+			session.close();
+		}
+	}
+	/**
+	 * 
+	 * @return
+	 */
+	public void addAcceptRemoteHost(String host){
+		acceptRemoteHosts.add(host);
+	}
+	/**
+	 * 
+	 * @return
+	 */
+	public void removeAcceptRemoteHost(String host){
+		acceptRemoteHosts.remove(host);
+	}
+	/**
+	 * 
+	 * @return
+	 */
+	public List<String>acceptRemoteHosts(){
+		return new ArrayList<String>(acceptRemoteHosts);
+	}
 	/**
 	 * 
 	 * @return
@@ -472,8 +508,15 @@ public class RPCServer extends Server{
 		.print("port",port)
 		.print("credential",credential!=null)
 		.print("idleTime",idleTime+" seconds");
-		ib.section("services");
+		ib.section("accept hosts");
 		int index=1;
+		List<String>hosts=acceptRemoteHosts();
+		Collections.sort(hosts);
+		for(String s:hosts){
+			ib.print(index++,s);
+		}
+		ib.section("services");
+		index=1;
 		List<String>methodNames=serviceNames();
 		Collections.sort(methodNames);
 		for(String s:methodNames){
@@ -481,5 +524,6 @@ public class RPCServer extends Server{
 		}
 		return ib.toString();
 	}
+	
 	
 }

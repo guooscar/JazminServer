@@ -66,6 +66,7 @@ public class RPCServerHandler extends ChannelHandlerAdapter{
 		RPCSession session=new RPCSession();
 		session.channel(ctx.channel());
 		ctx.channel().attr(SESSION_KEY).set(session);
+		rpcServer.checkSession(session);
 	}
     /*
      * 
