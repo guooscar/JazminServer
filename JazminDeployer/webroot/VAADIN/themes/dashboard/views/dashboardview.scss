@@ -1,0 +1,246 @@
+@mixin dashboard-dashboard-view {
+
+  .dashboard-view.dashboard-view {
+    padding: $view-padding;
+    overflow: visible;
+
+    .sparks {
+      @include valo-panel-style;
+      margin-bottom: round($view-padding / 3);
+
+      @include width-range($max: 680px) {
+        .spark {
+          width: 50%;
+        }
+        .spark:nth-child(2n+1) {
+          border-left: none;
+        }
+        .spark:nth-child(n+3) {
+          border-top: valo-border($strength: 0.3);
+        }
+      }
+
+      @include width-range($max: 270px) {
+        .spark {
+          width: 100%;
+          border-left: none;
+          border-top: valo-border($strength: 0.3);
+
+          &:first-child {
+            border-top: none;
+          }
+        }
+      }
+    }
+
+    .spark {
+      float: left;
+      text-align: center;
+      width: 25%;
+      padding: $v-layout-spacing-vertical $v-layout-spacing-horizontal;
+      border-left: valo-border($strength: 0.3);
+      line-height: 1.35;
+
+      > tbody {
+        display: inline-block;
+      }
+
+      &:first-child {
+        border-left: none;
+      }
+    }
+
+    .dashboard-panel-toolbar {
+      padding: 1px 0 1px round($v-unit-size / 1.8);
+      height: $v-unit-size + 2px;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .dashboard-panels {
+      display: block;
+      height: 100%;
+      margin: 0 round($view-padding / -3);
+
+      .card {
+        height: 100%;
+        overflow: hidden;
+        padding: $v-unit-size + 2px round($view-padding / 2) 0;
+        position: relative;
+
+        .v-table, .v-table-table {
+          background: transparent;
+        }
+      }
+
+      .top10-revenue {
+        .card {
+          padding-left: 0;
+          padding-right: 0;
+        }
+
+        .v-table-table {
+          @include box-shadow(none);
+        }
+
+        .v-table-cell-wrapper {
+          padding-left: round($view-padding / 2);
+          padding-right: round($view-padding / 2);
+        }
+
+        .v-table-cell-content {
+          border-color: first-color(valo-border($strength: 0.3));
+        }
+
+        .v-table-cell-content-rowheader {
+          color: valo-font-color($v-app-background-color, 0.4);
+
+          .v-table-cell-wrapper {
+            padding-right: 0;
+          }
+        }
+      }
+
+      .dashboard-panel-slot {
+        padding: round($view-padding / 3);
+        min-height: 220px;
+      }
+
+  	  &[width-range~="0-700px"] {
+  	    .dashboard-panel-slot {
+  	      width: 100% !important;
+  	    }
+  	  }
+
+  	  &[width-range~="701px-"] {
+  	    .dashboard-panel-slot {
+  	      width: 50% !important;
+  	    }
+  	  }
+
+      &[height-range~="0-440px"] {
+  	    .dashboard-panel-slot {
+  	      height: 100%;
+  	    }
+  	  }
+
+  	  &[height-range~="441px-"] {
+  	    .dashboard-panel-slot {
+  	      height: 50%;
+  	    }
+  	  }
+
+      .dashboard-panel-slot.max {
+        width: 100% !important;
+        height: 100%;
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+
+      .notes {
+        .card {
+          padding: $v-unit-size + 2px 0 0;
+        }
+
+        .v-textarea {
+          border-top: valo-border($strength: 0.5);
+          padding: 20px 20px 0;
+          line-height: 20px;
+          font-size: 13px;
+          background: #fffdf2 url(../img/notes-bg.png) repeat;
+          background-attachment: local;
+          color: #545145;
+          overflow: auto;
+        }
+      }
+    }
+
+  }
+
+  .dashboard-view {
+    @include width-range($max: 480px) {
+      padding-left: round($view-padding / 2);
+      padding-right: round($view-padding / 2);
+    }
+  }
+
+  .notifications.v-window {
+    overflow: visible !important;
+    // top: 3 * $v-unit-size !important;
+    right: $view-padding;
+    left: auto !important;
+    max-width: 90%;
+
+    $window-outline: $v-overlay-shadow;
+    @if list-of-lists($window-outline) {
+      $window-outline: last($v-overlay-shadow);
+    }
+    $window-outline: flatten-list(valo-bevel-and-shadow($bevel: null, $shadow: $window-outline));
+    $outline-width: nth($window-outline, length($window-outline) - 1);
+    $outline-color: last($window-outline);
+
+    @include transform-origin(296px - (2 * $v-unit-size - round($v-unit-size / 3)) -7px);
+
+    &.v-window-animate-in {
+      @include animation(animate-in-scale-up 260ms cubic-bezier(.68,.37,.51,1.37));
+    }
+
+    &:before,
+    &:after {
+      content: "";
+      position: absolute;
+      top: -14px;
+      right: 2 * $v-unit-size - round($v-unit-size / 3);
+      border: 7px solid transparent;
+      width: 0;
+      height: 0;
+      border-bottom-color: $v-window-background-color;
+    }
+
+
+    &:before {
+      @if type-of($outline-width) == number and $outline-width > 0 {
+        top: -15px - 2 * $outline-width;
+        margin-right: -$outline-width;
+        border-width: 7px + $outline-width;
+        border-bottom-width: 8px;
+        border-bottom-color: $outline-color;
+      } @else {
+        content: none;
+      }
+    }
+
+    .v-window-header {
+      color: $v-selection-color;
+    }
+
+    .v-window-outerheader:after,
+    .v-scrollable:before {
+      display: none;
+    }
+
+    .notification-item {
+      font-size: round($v-font-size * 0.9);
+    }
+
+    .notification-title {
+      font-weight: $v-font-weight + 200;
+    }
+
+    .notification-time {
+      font-size: round($v-font-size * 0.8);
+      color: valo-font-color($v-window-background-color, .5);
+    }
+
+  }
+
+  // Need to use normal media queries because Responsive doesn't work for overlay elements just yet
+  @media screen and (max-width: 480px) {
+    .notifications.v-window {
+      right: round($view-padding / 2);
+    }
+  }
+
+
+}

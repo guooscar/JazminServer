@@ -1,0 +1,80 @@
+@mixin dashboard-schedule-view {
+
+  .schedule {
+    // background: $v-panel-background-color;
+
+    .v-calendar-event-content {
+      background-repeat: repeat-x, no-repeat;
+      background-size: auto, cover;
+      border: 1px solid #000;
+      -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .v-calendar-event-caption {
+      right: 0;
+      width: auto;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+
+      span {
+        color: #979699;
+      }
+    }
+
+    .v-calendar-header-day {
+      font-weight: $v-font-weight + 200;
+      font-size: 0.8em;
+      text-transform: uppercase;
+      color: $v-focus-color;
+    }
+
+    .tray{
+      position: relative;
+      padding: round($view-padding/2) $view-padding;
+      background: $v-overlay-background-color;
+      border-top: valo-border();
+
+      -webkit-transition: -webkit-transform 400ms 120ms;
+      -ms-transition: -ms-transform 400ms 120ms;
+      transition: transform 400ms 120ms;
+
+      &.v-animate-reveal {
+        -ms-transform: translateY(-100%);
+          -webkit-transform: translateY(-100%);
+          transform: translateY(-100%);
+      }
+    }
+
+    .catalog {
+      padding: $view-padding;
+
+      .frame {
+        cursor: pointer;
+
+        .v-image {
+          @include box-shadow(0 2px 5px rgba(0,0,0,.5));
+          border-radius: 2px;
+          border: 2px solid rgba(255,255,255,.1);
+        }
+
+        &:hover .v-image {
+          border-color: $v-focus-color;
+        }
+
+        .v-label {
+          font-size: $v-font-size--small;
+          line-height: 1.2;
+          margin: 0.5em 0 1em;
+        }
+      }
+
+
+    }
+
+  }
+
+}

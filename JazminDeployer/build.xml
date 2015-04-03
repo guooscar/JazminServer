@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="JazminDeployer" basedir="." 
+	xmlns:ivy="antlib:fr.jayasoft.ivy.ant"
+	default="build">
+	<!-- scp task-->   
+	<taskdef resource="net/sf/antcontrib/antlib.xml"/>
+	<!-- -->    
+	<property name="project.root" value="${basedir}" />
+	<property file="build.properties" />
+	<!-- build no.-->
+	<tstamp>
+		<format property="release_date" pattern="yyyyMMddHHmm" />
+	</tstamp>
+	<!-- src dir-->
+	<property name="src.dir" value="${project.root}/src" />
+	<property name="lib.dir" value="${project.root}/lib" />
+	<property name="webroot.dir" value="${project.root}/webroot" />
+	
+	<!-- build dir -->
+	<property name="build.dir" value="${project.root}/build" />
+	<property name="build.lib.dir" value="${build.dir}/lib" />
+	<property name="build.classes.dir" value="${build.dir}/classes" />
+	<!-- Java CLASSPATH -->
+	<path id="master-classpath">
+		<fileset dir="${lib.dir}" />
+	</path>
+
+	<!-- =================================================================== -->
+	<!-- clean release directory -->
+	<!-- =================================================================== -->
+	<target name="clean" description="release clean">
+		<delete dir="${build.dir}" />
+		<delete dir="${release.dir}/${project.name}" />
+	</target>
+
+
+	<!-- =================================================================== -->
+	<!-- create build directory -->
+	<!-- =================================================================== -->
+	<target name="build-init" depends="" description="">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${build.classes.dir}" />
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- compile java code -->
+	<!-- =================================================================== -->
+	<target name="build" description="build java" depends="build-init">
+		<javac destdir="${build.classes.dir}" 
+			source="1.8" target="1.8" 
+			debug="true" encoding="utf-8" 
+			deprecation="false" 
+			optimize="false"
+			failonerror="true">
+			<src path="${src.dir}" />
+			<classpath refid="master-classpath" />
+		</javac>
+	</target>
+	<target name="compile-theme">
+		<java classname="com.vaadin.sass.SassCompiler" failonerror="yes" fork="yes">
+			<classpath refid="master-classpath"/>
+			<jvmarg value="-Djava.awt.headless=true"/>
+			<arg value="${webroot.dir}/VAADIN/themes/dashboard/styles.scss"/>
+			<arg value="${webroot.dir}/VAADIN/themes/dashboard/styles.css"/>
+		</java>
+		<java classname="com.google.gwt.dev.Compiler"
+					  failonerror="yes" fork="yes">
+					<arg value="-war" />
+					<arg value="${webroot.dir}/VAADIN/widgetsets" />
+					<arg value="-logLevel"/>
+					<arg value="DEBUG"/>
+					<arg value="-strict"/>
+		            <jvmarg value="-Xmx1024M"/>
+		            <jvmarg value="-Xss512M"/>
+		            <jvmarg value="-Djava.awt.headless=true"/>
+					<classpath>
+						<path refid="master-classpath"/>
+					</classpath>
+					<sysproperty key="vFailIfNotSerializable" value="true" />
+				</java>
+
+	</target>
+	<!-- =================================================================== -->
+	<!-- package demo websystem -->
+	<!-- =================================================================== -->	
+	<target name="package-dir" depends="build">
+		<mkdir dir="${release.dir}/${project.name}" />
+		<mkdir dir="${release.dir}/${project.name}/WEB-INF" />
+		<mkdir dir="${release.dir}/${project.name}/WEB-INF/lib" />
+		<mkdir dir="${release.dir}/${project.name}/WEB-INF/classes" />
+		<copy todir="${release.dir}/${project.name}/WEB-INF/classes">  
+			<fileset dir="${build.classes.dir}" >  
+				<include name="**/*"/>  
+			</fileset>  
+		</copy>
+		<copy todir="${release.dir}/${project.name}/WEB-INF/lib">  
+			 <fileset dir="${lib.dir}">
+			 	<include name="**/*.jar"/>
+				<exclude name="jazmin.jar"/>
+			</fileset> 
+		</copy>
+		<copy todir="${release.dir}/${project.name}/">  
+		   <fileset dir="${webroot.dir}" >  
+		    <include name="**/*"/>  
+		   </fileset>  
+		</copy>  
+	</target>
+	<target name="package-war" depends="package-dir">
+		<zip destfile="${release.dir}/${project.name}.war">
+					<fileset dir="${release.dir}/${project.name}">
+						<include name="**/*" />
+					</fileset>
+		</zip>
+	</target>
+	
+</project>

@@ -1,0 +1,10 @@
+@mixin dashboard-transactions-view {
+
+  .transactions {
+    .viewheader {
+      padding: $view-padding;
+      border-bottom: valo-border($strength: 0.5);
+    }
+  }
+
+}

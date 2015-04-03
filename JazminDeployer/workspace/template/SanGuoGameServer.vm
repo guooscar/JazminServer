@@ -1,0 +1,19 @@
+jazmin.logLevel("ALL");
+jazmin.logFile("./log/"+jazmin.serverName()+".log",true);
+//
+var remoteServer=new JazminRPCDriver();
+remoteServer.addRemoteServer("DataSystem","app1","localhost",6001);
+remoteServer.addRemoteServer("GameSystem","app1","localhost",4001);
+jazmin.addDriver(remoteServer);
+//
+messageServer=new MessageServer();
+messageServer.port($instance.port);
+messageServer.messageType("zjson");
+jazmin.addServer(messageServer);
+//
+consoleServer=new ConsoleServer();
+#set($monitorPort = $instance.port +10000)
+consoleServer.port($monitorPort);
+jazmin.addServer(consoleServer);
+//------------------------------------------------------------------------------
+jazmin.loadApplication("./instance/SanGuoGameServer/SanGuoGameServer.jaz");

@@ -1,0 +1,75 @@
+@import "../base/base.scss";
+
+@import "absolutelayout/absolutelayout.scss";
+@import "accordion/accordion.scss";
+@import "button/button.scss";
+@import "caption/caption.scss";
+@import "colorpicker/colorpicker.scss";
+@import "common/common.scss";
+@import "datefield/datefield.scss";
+@import "inlinedatefield/inlinedatefield.scss";
+@import "formlayout/formlayout.scss";
+@import "gridlayout/gridlayout.scss";
+@import "label/label.scss";
+@import "link/link.scss";
+@import "menubar/menubar.scss";
+@import "notification/notification.scss";
+@import "orderedlayout/orderedlayout.scss";
+@import "panel/panel.scss";
+@import "popupview/popupview.scss";
+@import "progressindicator/progressindicator.scss";
+@import "select/select.scss";
+@import "shadow/shadow.scss";
+@import "slider/slider.scss";
+@import "splitpanel/splitpanel.scss";
+@import "table/table.scss";
+@import "tabsheet/tabsheet.scss";
+@import "textfield/textfield.scss";
+@import "tree/tree.scss";
+@import "window/window.scss";
+
+.v-generated-body {
+	background: #e9eced;
+}
+
+$font-size: 13px;
+$line-height: 18px;
+
+@mixin runo {
+	// TODO move?
+	@include base;
+	// TODO each
+	@include runo-absolutelayout;
+	@include runo-accordion;
+	@include runo-button;
+	@include runo-caption;
+	@include runo-colorpicker;
+	
+	@include runo-common;
+	
+	@include runo-datefield;
+	@include runo-inline-datefield;
+	@include runo-formlayout;
+	@include runo-gridlayout;
+	@include runo-label;
+	@include runo-link;
+	@include runo-menubar;
+	@include runo-notification;
+	@include runo-orderedlayout;
+	@include runo-panel;
+	@include runo-popupview;
+	
+	@include runo-progressindicator(v-progressbar);
+	/* For legacy ProgressIndicator component */
+	@include runo-progressindicator(v-progressindicator);
+	
+	@include runo-select;
+	@include runo-shadow;
+	@include runo-slider;
+	@include runo-splitpanel;
+	@include runo-table;
+	@include runo-tabsheet;
+	@include runo-textfield;
+	@include runo-tree;
+	@include runo-window;
+}
