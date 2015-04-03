@@ -52,4 +52,33 @@ public class JSONRequestParser {
 		//
 		return msg;
 	}
+	//
+	public static RequestMessage createSimpleRequestMessage(String json){
+		RequestMessage msg=new RequestMessage();
+		JSONObject jsonObj=null;
+		try{
+			jsonObj=JSON.parseObject(json.trim());
+		}catch(Exception e){
+			logger.warn("bad message{}",e.getMessage());
+			msg.isBadRequest=true;
+			return msg;
+		}
+		if(jsonObj==null){
+			logger.warn("bad message.json string empty.");
+			msg.isBadRequest=true;
+			return msg;
+		}
+		JSONArray rps=jsonObj.getJSONArray("rps");
+		for(int i=0;i<rps.size();i++){
+			if(i<RequestMessage.MAX_PARAMETER_COUNT){
+				msg.requestParameters[i]=rps.getString(i);	
+			}else{
+				logger.warn("drop request parameter,size >"+
+						RequestMessage.MAX_PARAMETER_COUNT+"/"+rps.getString(i));
+			}
+		}
+		msg.isBadRequest=false;
+		//
+		return msg;
+	}
 }

@@ -18,17 +18,16 @@ import jazmin.util.IOUtil;
  */
 public class ZJSONDecoder extends BinaryDecoder{
 	private static Logger logger= LoggerFactory.get(ZJSONDecoder.class);
-	
+	//
 	public ZJSONDecoder(NetworkTrafficStat networkTrafficStat) {
 		super(networkTrafficStat);
 	}
-
+	//
 	@Override
-	protected RequestMessage decode(int requestId, String serviceId,
-			byte[] payload) throws Exception {
+	protected RequestMessage decode(byte[] payload) throws Exception {
 		byte[] bb = IOUtil.decompress(payload);
 		String s = new String(bb, "UTF-8");
-		RequestMessage reqMessage=JSONRequestParser.createRequestMessage(s);
+		RequestMessage reqMessage=JSONRequestParser.createSimpleRequestMessage(s);
 		if (logger.isDebugEnabled()) {
 			logger.debug("\ndecode message--------------------------------------\n{} "
 					+ "\nzjson decode size:{}",

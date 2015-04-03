@@ -36,7 +36,6 @@ import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.NetworkTrafficStat;
 import jazmin.server.msg.codec.ResponseMessage;
-import jazmin.server.msg.codec.ResponseProto;
 import jazmin.util.DumpUtil;
 
 import com.alibaba.fastjson.JSON;

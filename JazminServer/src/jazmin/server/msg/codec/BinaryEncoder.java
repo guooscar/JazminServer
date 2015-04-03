@@ -7,12 +7,18 @@ import io.netty.handler.codec.CorruptedFrameException;
 import io.netty.handler.codec.MessageToByteEncoder;
 import jazmin.misc.NetworkTrafficStat;
 /**
- *<pre>message format
- * binary format
- * 10 byte header
- * 1------4 | 5--------6 7-------10 11-----------12 13-13+serviceIdlength  payload
- * length     raw payload requestId  serviceIdLength  serviceId
- 
+ *<pre>
+ * binary format header 
+ * length    			4
+ * raw flag  			2  
+ * requestId 			4
+ * timestamp			8
+ * statusCode			2
+ * statusMsgLength		2
+ * statusMessage		? 
+ * serviceIdLength      2
+ * serviceId			?
+ * payload				?
  * @author yama
  * 26 Dec, 2014
  */
@@ -31,17 +37,40 @@ public abstract class BinaryEncoder extends MessageToByteEncoder<ResponseMessage
 			ByteBuf out) throws Exception {
 		byte payload[]=encode(msg);
 		int requestId=msg.requestId;
-		int payloadType=msg.rawData==null?0:1;
+		int rawFlag=msg.rawData==null?0:1;
+		long timestamp=System.currentTimeMillis();
 		String serviceId=msg.serviceId;
+		String statusMessage=msg.statusMessage;
+		int statusCode=msg.statusCode;
+		//
+		if(statusMessage==null){
+			statusMessage="NA";
+		}
+		//
+		byte statusMessageBytes[]=statusMessage.getBytes("UTF-8");
 		byte serviceIdBytes[]=serviceId.getBytes("UTF-8");
-		int dataLength=payload.length+2+4+2+serviceIdBytes.length;
+		int dataLength= 2+  //raw flag
+						4+	//requestId
+						8+	//timestamp
+						2+	//statusCode
+						2+	//statusMsgLength
+						statusMessageBytes.length+ //statusMsg
+						2+	//serviceIdLength
+						serviceIdBytes.length+ //serviceId
+						payload.length;
+		
 		if(dataLength>MAX_MESSAGE_LENGTH){
 			throw new CorruptedFrameException("message too long" + dataLength
 					+ "/" + MAX_MESSAGE_LENGTH);
 		}
 		out.writeInt(dataLength);
-		out.writeShort(payloadType);
+		//
+		out.writeShort(rawFlag);
 		out.writeInt(requestId);
+		out.writeLong(timestamp);
+		out.writeShort(statusCode);
+		out.writeShort(statusMessageBytes.length);
+		out.writeBytes(statusMessageBytes);
 		out.writeShort(serviceIdBytes.length);
 		out.writeBytes(serviceIdBytes);
 		out.writeBytes(payload);

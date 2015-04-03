@@ -1,4 +1,4 @@
-package jazmin.server.msg.codec;
+package jazmin.server.msg.codec.json;
 
 import java.util.Map;
 

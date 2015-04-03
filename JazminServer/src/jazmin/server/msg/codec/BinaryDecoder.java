@@ -18,10 +18,12 @@ import java.util.List;
 import jazmin.misc.NetworkTrafficStat;
 /**
  * <pre>message format
- * binary format
- * 10 byte header
- * 1------4 | 5-------6 7-------10 11-----------12 13-13+serviceIdlength  payload
- * length   raw payload  requestId  serviceIdLength  serviceId
+ * length      			4
+ * raw flag    			2
+ * requestId   			4
+ * serviceIdLength  	2
+ * serviceId			?
+ * payload				?
  * </pre>
  * @author yama
  * 26 Dec, 2014
@@ -69,7 +71,7 @@ public abstract class BinaryDecoder extends ByteToMessageDecoder {
 			msg=new RequestMessage();
 			msg.rawData=payloadBytes;
 		}else{
-			msg=decode(requestId, serviceId, payloadBytes);	
+			msg=decode(payloadBytes);	
 		}
 		//
 		msg.requestId=requestId;
@@ -77,6 +79,6 @@ public abstract class BinaryDecoder extends ByteToMessageDecoder {
 		//
 		out.add(msg);
 	}
-	protected abstract RequestMessage decode(int requestId,String serviceId,byte[]payload)throws Exception;
+	protected abstract RequestMessage decode(byte[]payload)throws Exception;
 	
 }

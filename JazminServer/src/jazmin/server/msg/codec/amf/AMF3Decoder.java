@@ -22,8 +22,7 @@ public class AMF3Decoder extends BinaryDecoder{
 	}
 
 	@Override
-	protected RequestMessage decode(int requestId, String serviceId,
-			byte[] payload) throws Exception {
+	protected RequestMessage decode(byte[] payload) throws Exception {
 		ByteArrayInputStream bais=new ByteArrayInputStream(payload);
 		AMF3Deserializer des=new AMF3Deserializer(bais);
 		Object message = des.readObject();
@@ -31,8 +30,6 @@ public class AMF3Decoder extends BinaryDecoder{
 		RequestMessage reqMessage=new RequestMessage();
 		@SuppressWarnings("unchecked")
 		Map<String,Object> obj=(Map<String,Object>) message;
-		String ri=(String) obj.get("ri");
-		String si=(String) obj.get("si");
 		@SuppressWarnings("unchecked")
 		List<String>rps=(List<String>) obj.get("rps");
 		int idx=0;
@@ -42,9 +39,6 @@ public class AMF3Decoder extends BinaryDecoder{
 			}
 			idx++;
 		}
-		reqMessage.serviceId=si;
-		reqMessage.requestId=Integer.valueOf(ri);
-		//
 		bais.close();
 		des.close();
 		return reqMessage;

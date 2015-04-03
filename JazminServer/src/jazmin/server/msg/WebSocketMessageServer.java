@@ -18,7 +18,7 @@ import jazmin.log.LoggerFactory;
 import jazmin.server.msg.codec.JSONRequestParser;
 import jazmin.server.msg.codec.RequestMessage;
 import jazmin.server.msg.codec.ResponseMessage;
-import jazmin.server.msg.codec.ResponseProto;
+import jazmin.server.msg.codec.json.ResponseProto;
 import jazmin.util.DumpUtil;
 
 import com.alibaba.fastjson.JSON;
