@@ -81,7 +81,7 @@
 	<!-- package demo appsystem -->
 	<!-- =================================================================== -->	
 	<target name="package-DemoAppSystem" depends="package">
-		<zip destfile="${release.dir}/DemoAppSystem.jaz">
+		<zip destfile="${release.dir}/DemoAppSystem-${project.revision}.jaz">
 			<fileset dir="${release.dir}/${project.name}">
 				<include name="**/*" />
 			</fileset>
@@ -99,8 +99,8 @@
 				<include name="*.jaz" />
 			</fileset>
 		</scp>
-		<echo>publish to ${publish.dir} from ${release.dir}</echo>
-		<scp todir="${publish.dir}" trust="true">
+		<echo>publish to ${repo.dir} from ${release.dir}</echo>
+		<scp todir="${repo.dir}" trust="true">
 			<fileset dir="${release.dir}">
 				<include name="*.jar" />
 			</fileset>
