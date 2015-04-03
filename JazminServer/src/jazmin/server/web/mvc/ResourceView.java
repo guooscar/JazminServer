@@ -19,6 +19,9 @@ public class ResourceView implements View{
 	private String file;
 	public ResourceView(String file) {
 		this.file=file;
+		if(!file.startsWith("/")){
+			throw new IllegalArgumentException("resource path should start with /");
+		}
 	}
 	@Override
 	public void render(Context ctx) throws Exception {
