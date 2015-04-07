@@ -34,16 +34,15 @@ public class PublicFieldELResolver extends ELResolver {
 		if (base == null) {
 			return null;
 		}
-
 		try {
 			Field field = base.getClass().getDeclaredField((String) property);
+			field.setAccessible(true);
 			Object value = field.get(base);
 			context.setPropertyResolved(true);
 			return value;
 		} catch (Exception e) {
 			throw new PropertyNotFoundException(e);
 		}
-
 	}
 
 	@Override
@@ -54,5 +53,16 @@ public class PublicFieldELResolver extends ELResolver {
 	@Override
 	public void setValue(ELContext context, Object base, Object property,
 			Object value) {
+		if (base == null) {
+			return;
+		}
+		try {
+			Field field = base.getClass().getDeclaredField((String) property);
+			field.setAccessible(true);
+			field.set(base, value);
+			context.setPropertyResolved(true);
+		} catch (Exception e) {
+			throw new PropertyNotFoundException(e);
+		}
 	}
 }
