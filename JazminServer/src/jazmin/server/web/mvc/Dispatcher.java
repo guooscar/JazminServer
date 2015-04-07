@@ -42,7 +42,9 @@ public class Dispatcher {
 			throw new IllegalArgumentException("controller :"+cc.id()+" already exists");
 		}
 		//
-		logger.info("register controller:{}-{}",cc.id(),obj.getClass());
+		if(logger.isDebugEnabled()){
+			logger.debug("register controller:{}-{}",cc.id(),obj.getClass());
+		}
 		ControllerStub cs=new ControllerStub(cc.id());
 		cs.setInstance(obj);
 		if(cc.index()){

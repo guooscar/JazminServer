@@ -53,6 +53,9 @@ public class ControllerStub implements Comparable<ControllerStub>{
 			ms.id=srv.id();
 			ms.method=srv.method().toString();
 			ms.invokeMethod=m;
+			if(methodStubs.containsKey(srv.id())){
+				throw new IllegalArgumentException("service :"+srv.id()+" already exists");
+			}
 			methodStubs.put(srv.id(),ms);
 			//
 			if(srv.index()){
