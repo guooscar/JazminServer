@@ -91,9 +91,9 @@ public class WebServer extends jazmin.core.Server{
 	private WebAppContext createWebAppContext(String contextPath){
 		WebAppContext webAppContext=new WebAppContext();
 		webAppContext.setContextPath(contextPath);
-		File tempDir=new File("webapp");
+		File tempDir=new File("webapp/"+Jazmin.serverName());
 		FileUtil.deleteDirectory(tempDir);
-		if(!tempDir.mkdir()){
+		if(!tempDir.mkdirs()){
 			logger.warn("can not create temp dir:"+tempDir.getAbsolutePath());
 		}else{
 			logger.info("set temp dir to:"+tempDir.getAbsolutePath());
