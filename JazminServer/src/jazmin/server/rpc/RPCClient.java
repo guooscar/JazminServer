@@ -69,8 +69,16 @@ public class RPCClient {
 		initNettyConnector();
 		Jazmin.scheduleAtFixedRate(
 				this::checkAsyncTimeout,
-				timeout/2, timeout/2, TimeUnit.MILLISECONDS);
+				2000, 2000, TimeUnit.MILLISECONDS);
 		principal=Jazmin.serverName();
+	}
+	//
+	public void requestTimeout(long timeout){
+		this.timeout=timeout;
+	}
+	//
+	public long requestTimeout(){
+		return timeout;
 	}
 	//
 	public void principal(String p){
