@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 
+ * the annotation of jazmin task
  * @author yama
  * 25 Dec, 2014
  */
@@ -21,7 +21,19 @@ import java.util.concurrent.TimeUnit;
 @Documented
 @Inherited  
 public @interface TaskDefine{
+	/**
+	 * initial delay time
+	 * @return the initial delay time
+	 */
 	long initialDelay();
+	/**
+	 * the repeat time period
+	 * @return repeat time period
+	 */
 	long period();
+	/**
+	 * the time unit of repeat time
+	 * @return time unit of repeat time
+	 */
 	TimeUnit unit();
 }

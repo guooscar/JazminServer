@@ -45,7 +45,7 @@ import jazmin.misc.InfoBuilder;
 import jazmin.util.IOUtil;
 
 /**
- * Main entry of JazminServer.
+ * JazminServer is a Java based application/message/rpc server.
  * @author yama
  * 2014-12-20
  */
@@ -145,14 +145,20 @@ public class Jazmin {
 		return bootFile;
 	}
 	//--------------------------------------------------------------------------
-	//boot
+	/**
+	 * boot jazmin server from config file specified by bootFileURI
+	 * @param bootFileURI the file will be boot 
+	 */
 	public static void bootURL(String bootFileURI)throws Exception{
 		logger.info("boot from:"+bootFileURI);
 		BootScriptLoader bsl=new BootScriptLoader(new URL(bootFileURI).openStream());
 		bsl.load();
 	}
 	//
-	//boot
+	/**
+	 * boot jazmin server from local file
+	 * @param bootFile the boot file
+	 */
 	public static void boot(File bootFile)throws Exception{
 		logger.info("boot from:"+bootFile.getAbsolutePath());
 		BootScriptLoader bsl=new BootScriptLoader(new FileInputStream(bootFile));
@@ -165,7 +171,10 @@ public class Jazmin {
 	public static String serverPath(){
 		return new File(".").getAbsolutePath();
 	}
-	//
+	/**
+	 * load application package
+	 * @param appPackage the application package
+	 */
 	public static void loadApplication(String appPackage){
 		logger.info("load application from:"+appPackage);
 		ApplicationLoader applicationLoader=new ApplicationLoader(
@@ -173,26 +182,42 @@ public class Jazmin {
 		applicationPackage=appPackage;
 		loadApplication(applicationLoader.load());
 	}
-	//
+	/**
+	 * load application 
+	 * @param app the application 
+	 * @see Application
+	 */
 	public static void loadApplication(Application app){
 		application=app;
 		if(app!=null){
 			appClassloader=application.getClass().getClassLoader();
 		}
 	}
-	//
+	/**
+	 * return application package name
+	 * @return application package name
+	 */
 	public static String applicationPackage(){
 		return applicationPackage;
 	}
-	//
+	/**
+	 * return application instance 
+	 * @return application instance
+	 */
 	public static Application application(){
 		return application;
 	}
-	//
+	/**
+	 * return application class loader
+	 * @return the application class loader
+	 */
 	public static ClassLoader appClassLoader(){
 		return appClassloader;
 	}
-	//
+	/**
+	 * set application class loader
+	 * @param classLoader the application class loader will be used
+	 */
 	public static void appClassLoader(ClassLoader classLoader){
 		appClassloader=classLoader;
 	}
@@ -201,6 +226,7 @@ public class Jazmin {
 	//drivers
 	/**
 	 * add driver to jazmin server with specified name.
+	 * @param driver the driver will be added
 	 */
 	public static void addDriver(Driver driver){
 		String name=driver.getClass().getSimpleName();
@@ -209,8 +235,9 @@ public class Jazmin {
 		}
 		drivers.put(name, driver);
 	}
-/**
+	/**
 	 * return driver by class
+	 * @param the driverClass 
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T  driver(Class<? extends Driver> driverClass){
@@ -226,6 +253,7 @@ public class Jazmin {
 	}
 	/**
 	 *get all drivers 
+	 *@return all drivers
 	 */
 	public static List<Driver>drivers(){
 		return new ArrayList<Driver>(drivers.values());
@@ -234,6 +262,7 @@ public class Jazmin {
 	//servers
 	/**
 	 * add server to jazmin server.
+	 * @param the server will be added
 	 */
 	public static void addServer(Server server) {
 		String name=server.getClass().getSimpleName();
@@ -244,8 +273,9 @@ public class Jazmin {
 		servers.put(name, server);
 	}
 
-/**
+	/**
 	 * get server by type.
+	 * @return the server 
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T  server(Class<? extends Server> serverClass){
@@ -261,6 +291,7 @@ public class Jazmin {
 	}
 	/**
 	 *get all servers 
+	 *@return all servers
 	 */
 	public static List<Server>servers(){
 		return new ArrayList<Server>(servers.values());
@@ -269,6 +300,11 @@ public class Jazmin {
 	// --------------------------------------------------------------------------
 	//task
 	/**
+	 * schedule task with specified delay time and repeat it every period time
+	 * @param command the command class will be scheduled
+	 * @param initialDelay the initialDelay time
+	 * @param period repeat period
+	 * @param unit time unit of repeat time
 	 */
 	public static ScheduledFuture<?> scheduleAtFixedRate(Runnable command,
 			long initialDelay, long period, TimeUnit unit) {
@@ -286,6 +322,7 @@ public class Jazmin {
 				command, Runnable.class.getMethods()[0]);
 	}
 	/**
+	 * @see java.util.concurrent.ScheduledExecutorService#scheduleWithFixedDelay(Runnable, long, long, TimeUnit)
 	 */
 	public static ScheduledFuture<?> scheduleWithFixedDelay(Runnable command,
 			long initialDelay, long delay, TimeUnit unit) {
@@ -294,7 +331,9 @@ public class Jazmin {
 	}
 	//
 	// --------------------------------------------------------------------------
-	//
+	/**
+	 * start jazmin server
+	 */
 	public static void start(){
 		logger.info("\n"+LOGO);
 		//
@@ -435,9 +474,9 @@ public class Jazmin {
 		logger.info("jazmin {} running {}//",VERSION,d);  
 		LoggerFactory.stop();
 	}
-	//
+	//--------------------------------------------------------------------------
 	/**
-	 * 
+	 * main entry of jazmin server
 	 */
 	public static void main(String[] args) {
 		Thread shutdownThread=new Thread(Jazmin::stop);

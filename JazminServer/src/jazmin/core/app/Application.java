@@ -30,13 +30,22 @@ public class Application extends Lifecycle {
 	public String info() {
 		return "Application class:"+getClass().getName();
 	}
-	//
+	/**
+	 * get auto wired object
+	 * @param clazz the auto wired object class 
+	 * @return the auto wired object
+	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getWired(Class<T>clazz){
 		T instance =(T) autoWiredMap.get(clazz);
 		return instance;
 	} 
-	//
+	/**
+	 * create auto wired object
+	 * @param clazz the auto wired object class
+	 * @return the auto wired object
+	 * @throws Exception 
+	 */
 	@SuppressWarnings("unchecked")
 	public <T> T createWired(Class<T>clazz)throws Exception{
 		T instance =clazz.newInstance();

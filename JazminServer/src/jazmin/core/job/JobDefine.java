@@ -11,7 +11,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 
+ * annotation of jazmin job
  * @author yama
  * 25 Dec, 2014
  */
@@ -20,5 +20,9 @@ import java.lang.annotation.Target;
 @Documented
 @Inherited  
 public @interface JobDefine{
+	/**
+	 * the cron express of this job
+	 * @return the cron express
+	 */
 	String cron();
 }

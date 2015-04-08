@@ -71,7 +71,10 @@ public class JazminRPCDriver extends Driver{
 		totalInvokeCount=new LongAdder();
 		pushCallbackMethod=PushCallback.class.getMethods()[0];
 	}
-	//
+	/**
+	 * set principal of this rpc driver
+	 * @param p the principal
+	 */
 	public void principal(String p){
 		this.principal=p;
 	}

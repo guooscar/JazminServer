@@ -347,8 +347,7 @@ public class RPCServer extends Server{
 		session.topics().forEach((topic)->{
 			List<RPCSession>sessions=topicSessionMap.get(topic);
 			if(sessions==null){
-				sessions=(List<RPCSession>) Collections.synchronizedCollection(
-						new ArrayList<RPCSession>());
+				sessions=new ArrayList<RPCSession>();
 				topicSessionMap.put(topic, sessions);
 			}
 			sessions.add(session);
