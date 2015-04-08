@@ -128,61 +128,97 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	/**
 	 */
 	public void checkoutTimeout(int checkoutTimeout) {
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		dataSource.setCheckoutTimeout(checkoutTimeout);
 	}
 	/**
 	 */
 	public void driverClass(String driverClass) throws PropertyVetoException {
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		dataSource.setDriverClass(driverClass);
 	}
 	/**
 	 */
 	public void initialPoolSize(int initialPoolSize) {
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		dataSource.setInitialPoolSize(initialPoolSize);
 	}
 	/**
 	 */
 	public void url(String jdbcUrl) {
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		dataSource.setJdbcUrl(jdbcUrl);
 	}
 	/**
 	 */
 	public void loginTimeout(int seconds) throws SQLException {
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		dataSource.setLoginTimeout(seconds);
 	}
 	/**
 	 */
 	public void maxConnectionAge(int maxConnectionAge) {
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		dataSource.setMaxConnectionAge(maxConnectionAge);
 	}
 	/**
 	 */
 	public void maxIdleTime(int maxIdleTime) {
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		dataSource.setMaxIdleTime(maxIdleTime);
 	}
 	/**
 	 */
 	public void maxPoolSize(int maxPoolSize) {
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		dataSource.setMaxPoolSize(maxPoolSize);
 	}
 	/**
 	 */
 	public void maxStatements(int maxStatements) {
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		dataSource.setMaxStatements(maxStatements);
 	}
 	/**
 	 */
 	public void minPoolSize(int minPoolSize) {
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		dataSource.setMinPoolSize(minPoolSize);
 	}
 	/**
 	 */
 	public void password(String password) {
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		dataSource.setPassword(password);
 	}
 	/**
 	 */
 	public void user(String user) {
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		dataSource.setUser(user);
 	}
 	//--------------------------------------------------------------------------

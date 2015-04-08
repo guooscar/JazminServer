@@ -121,7 +121,9 @@ public class MessageServer extends Server{
 	 * @param port the port to set
 	 */
 	public void port(int port) {
-		checkServerState();
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		this.port = port;
 	}
 
@@ -136,7 +138,9 @@ public class MessageServer extends Server{
 	 * @param idleTime the idleTime to set
 	 */
 	public void idleTime(int idleTime) {
-		checkServerState();
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		this.idleTime = idleTime;
 	}
 
@@ -151,7 +155,9 @@ public class MessageServer extends Server{
 	 * @param messageType the messageType to set
 	 */
 	public void messageType(String messageType) {
-		checkServerState();
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		this.messageType = messageType;
 	}
 	/**
@@ -180,12 +186,6 @@ public class MessageServer extends Server{
 	 */
 	public void maxChannelCount(int maxChannelCount) {
 		this.maxChannelCount = maxChannelCount;
-	}
-	//
-	private void checkServerState(){
-		if(started()){
-			throw new IllegalStateException("set before started");
-		}
 	}
 	//
 	public List<String>serviceNames(){

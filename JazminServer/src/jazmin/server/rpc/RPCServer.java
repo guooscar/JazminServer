@@ -416,6 +416,9 @@ public class RPCServer extends Server{
 	 * @param credential
 	 */
 	public void credential(String credential) {
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		this.credential = credential;
 	}
 	/**
@@ -428,7 +431,9 @@ public class RPCServer extends Server{
 	 * @param port the port to set
 	 */
 	public void port(int port) {
-		checkServerState();
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		this.port = port;
 	}
 	/**
@@ -441,7 +446,9 @@ public class RPCServer extends Server{
 	 * @param idleTime the idleTime to set
 	 */
 	public void idleTime(int idleTime) {
-		checkServerState();
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		this.idleTime = idleTime;
 	}
 	/**
@@ -464,13 +471,6 @@ public class RPCServer extends Server{
 	 */
 	public List<RPCSession>sessions(){
 		return new ArrayList<RPCSession>(sessionMap.values());
-	}
-	//
-	//
-	private void checkServerState(){
-		if(started()){
-			throw new IllegalStateException("set before started");
-		}
 	}
 	//--------------------------------------------------------------------------
 	//lifecycle

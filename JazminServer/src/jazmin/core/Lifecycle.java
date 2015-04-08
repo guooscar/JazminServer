@@ -12,8 +12,12 @@ public abstract class Lifecycle {
 	//
 	LifecycleListener lifecycleListener;
 	boolean started;
+	boolean inited;
 	public boolean started(){
 		return started;
+	}
+	public boolean inited(){
+		return inited;
 	}
 	//
 	public void init() throws Exception{}

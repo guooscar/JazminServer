@@ -30,6 +30,9 @@ public class JDBCConnectionDriver extends ConnectionDriver{
 	 * @param user the user to set
 	 */
 	public void user(String user) {
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		this.user = user;
 	}
 
@@ -44,6 +47,9 @@ public class JDBCConnectionDriver extends ConnectionDriver{
 	 * @param driver the driver to set
 	 */
 	public void driver(String driver) {
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		this.driver = driver;
 	}
 	/**
@@ -57,6 +63,9 @@ public class JDBCConnectionDriver extends ConnectionDriver{
 	 * @param password the password to set
 	 */
 	public void password(String password) {
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		this.password = password;
 	}
 
@@ -71,6 +80,9 @@ public class JDBCConnectionDriver extends ConnectionDriver{
 	 * @param url the url to set
 	 */
 	public void url(String url) {
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		this.url = url;
 	}
 	//

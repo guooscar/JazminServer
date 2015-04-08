@@ -76,6 +76,9 @@ public class JazminRPCDriver extends Driver{
 	 * @param p the principal
 	 */
 	public void principal(String p){
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		this.principal=p;
 	}
 	//
@@ -84,6 +87,9 @@ public class JazminRPCDriver extends Driver{
 	}
 	//
 	public void disablePushMessage(boolean dpm){
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		disablePushMessage=dpm;
 	}
 	//
@@ -109,8 +115,8 @@ public class JazminRPCDriver extends Driver{
 			String credential,
 			String host,
 			int port){
-		if(started()){
-			throw new IllegalStateException("register before started.");
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
 		}
 		RemoteServerInfo si=new RemoteServerInfo();
 		si.cluster=cluster;
@@ -273,6 +279,9 @@ public class JazminRPCDriver extends Driver{
 	//pub sub
 	//
 	public void subscribe(String cluster,String topic){
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		Set<String>topics=topicMap.get(cluster);
 		if(topics==null){
 			topics=new TreeSet<String>();

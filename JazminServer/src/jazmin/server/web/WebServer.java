@@ -70,6 +70,9 @@ public class WebServer extends jazmin.core.Server{
 	 * @param dirAllowed the dirAllowed to set
 	 */
 	public void dirAllowed(boolean dirAllowed) {
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		this.dirAllowed = dirAllowed;
 	}
 
@@ -77,6 +80,9 @@ public class WebServer extends jazmin.core.Server{
 	 * 
 	 */
 	public void addWar(String contextPath,String war) throws Exception{
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		webAppContext=createWebAppContext(contextPath);
 		webAppContext.setWar(war);
 	}
@@ -84,6 +90,9 @@ public class WebServer extends jazmin.core.Server{
 	 * 
 	 */
 	public void addResource(String contextPath,String resourceBase){
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		webAppContext=createWebAppContext(contextPath);
 		webAppContext.setResourceBase(resourceBase);
 	}
@@ -122,6 +131,9 @@ public class WebServer extends jazmin.core.Server{
 	}
 	//
 	public void port(int port) {
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		this.port = port;
 	}
 	//
@@ -130,6 +142,9 @@ public class WebServer extends jazmin.core.Server{
 	}
 	//
 	public void idleTimeout(int idleTimeout) {
+		if(inited()){
+			throw new IllegalArgumentException("set before inited");
+		}
 		this.idleTimeout = idleTimeout;
 	}
 	//

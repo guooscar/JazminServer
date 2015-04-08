@@ -435,6 +435,7 @@ public class Jazmin {
 			if(lc.lifecycleListener!=null){
 				lc.lifecycleListener.afterInit(lc);
 			}
+			lc.inited=true;
 		}
 	}
 	/**
