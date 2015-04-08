@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -26,7 +27,7 @@ import jazmin.misc.InvokeStat;
  * @author yama
  * 23 Dec, 2014
  */
-public class Dispatcher extends Lifecycle{
+public class Dispatcher extends Lifecycle implements Executor{
 	private static Logger logger=LoggerFactory.get(Dispatcher.class);
 	//
 	public static final Object EMPTY_ARGS[]=new Object[]{};
@@ -217,6 +218,11 @@ public class Dispatcher extends Lifecycle{
 		return totalSubmitCount.longValue();
 	}
 	//--------------------------------------------------------------------------
+	@Override
+	public void execute(Runnable command) {
+		poolExecutor.execute(command);
+	}
+	//--------------------------------------------------------------------------
 	/**
 	 * 
 	 */
@@ -236,4 +242,5 @@ public class Dispatcher extends Lifecycle{
 		globalCallbacks.forEach(ib::println);
 		return ib.toString();
 	}
+	
 }

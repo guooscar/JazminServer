@@ -101,7 +101,7 @@ public class RPCClient {
 	}
 	//
 	private void initNettyConnector(){
-		group = new NioEventLoopGroup(1);
+		group = new NioEventLoopGroup(1,Jazmin.dispatcher);
 		bootstrap = new Bootstrap();
 		clientHandler=new RPCClientHandler(this);
 		ChannelInitializer <SocketChannel>channelInitializer=

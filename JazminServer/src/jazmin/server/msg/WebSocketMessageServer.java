@@ -13,6 +13,7 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 import io.netty.handler.timeout.IdleStateHandler;
+import jazmin.core.Jazmin;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.msg.codec.JSONRequestParser;
@@ -38,8 +39,8 @@ public class WebSocketMessageServer extends MessageServer{
 	protected void initNettyServer(){
 		nettyServer=new ServerBootstrap();
 		channelInitializer=new WSMessageServerChannelInitializer();
-		bossGroup = new NioEventLoopGroup(1);
-		workerGroup = new NioEventLoopGroup();
+		bossGroup = new NioEventLoopGroup(1,Jazmin.dispatcher);
+		workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(),Jazmin.dispatcher);
 		nettyServer.group(bossGroup, workerGroup)
 		.channel(NioServerSocketChannel.class)
 		.option(ChannelOption.SO_BACKLOG, 128)    
