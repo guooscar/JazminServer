@@ -30,7 +30,7 @@
 	<!-- =================================================================== -->
 	<target name="clean" description="release clean">
 		<delete dir="${build.dir}" />
-		<delete dir="${release.dir}/${project.name}" />
+		<delete dir="${release.dir}/" />
 	</target>
 
 	<!-- =================================================================== -->
