@@ -77,6 +77,7 @@ public class DeployManager {
 								+ " is " + kind);
 						reloadPackage();
 					}
+					key.reset();
 				} catch (InterruptedException e) {
 					logger.catching(e);
 				}
