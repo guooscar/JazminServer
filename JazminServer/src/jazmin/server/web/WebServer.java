@@ -34,7 +34,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.webapp.WebAppContext;
 /**
- * 
+ * WebServer is a wrapper of Jetty(http://www.eclipse.org/jetty/)
  * @author yama
  * 27 Dec, 2014
  */
@@ -55,11 +55,15 @@ public class WebServer extends jazmin.core.Server{
 	}
 	public WebServer() {
 	}
-	//
+	/**
+	 * set jetty logger enable flag
+	 * @param enabled jetty logger enable flag
+	 */
 	public void enableJettyLogger(boolean enabled){
 		JettyLogger.enable=enabled;
 	}
 	/**
+	 * return whether or not jetty server default servlet allowed directory list 
 	 * @return the dirAllowed
 	 */
 	public boolean dirAllowed() {
@@ -67,6 +71,7 @@ public class WebServer extends jazmin.core.Server{
 	}
 
 	/**
+	 * set whether or not jetty server default servlet allowed directory list 
 	 * @param dirAllowed the dirAllowed to set
 	 */
 	public void dirAllowed(boolean dirAllowed) {
@@ -75,11 +80,12 @@ public class WebServer extends jazmin.core.Server{
 		}
 		this.dirAllowed = dirAllowed;
 	}
-
 	/**
-	 * 
+	 * add war package to server
+	 * @param contextPath the war context path
+	 * @param war the war path
 	 */
-	public void addWar(String contextPath,String war) throws Exception{
+	public void addWar(String contextPath,String war){
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -87,7 +93,9 @@ public class WebServer extends jazmin.core.Server{
 		webAppContext.setWar(war);
 	}
 	/**
-	 * 
+	 * add resource directory to server
+	 * @param contextPath the resource context path
+	 * @param resourceBase resource directory path
 	 */
 	public void addResource(String contextPath,String resourceBase){
 		if(inited()){
@@ -125,29 +133,44 @@ public class WebServer extends jazmin.core.Server{
 		return webAppContext;
 	}
 	//
-	//
+	/**
+	 * return port of this server
+	 * @return port of this server
+	 */
 	public int port() {
 		return port;
 	}
-	//
+	/**
+	 * set port of this server
+	 * @param port the port of server
+	 */
 	public void port(int port) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		this.port = port;
 	}
-	//
+	/**
+	 * return idle timeout time of server connection
+	 * @return idle timeout time of server connection
+	 */
 	public int idleTimeout() {
 		return idleTimeout;
 	}
-	//
+	/**
+	 * set server idle timeout time of server connection
+	 * @param idleTimeout server idle timeout time of server connection 
+	 */ 
 	public void idleTimeout(int idleTimeout) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		this.idleTimeout = idleTimeout;
 	}
-	//
+	/**
+	 * return WebAppContext of this server
+	 * @return  WebAppContext of this server
+	 */
 	public WebAppContext webAppContext(){
 		return webAppContext;
 	}

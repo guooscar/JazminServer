@@ -30,6 +30,7 @@ import jazmin.server.rpc.RPCSession;
 import jazmin.server.rpc.RemoteService;
 
 /**
+ * use JazminRPCDriver to connect to JazminRPCServer 
  * @author yama
  * 25 Dec, 2014
  */
@@ -81,23 +82,36 @@ public class JazminRPCDriver extends Driver{
 		}
 		this.principal=p;
 	}
-	//
+	/**
+	 * get principal of this rpc client
+	 * @return
+	 */
 	public String principal(){
 		return this.principal;
 	}
-	//
+	/**
+	 * if disable server push message
+	 * @param dpm if disable flag
+	 */
 	public void disablePushMessage(boolean dpm){
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		disablePushMessage=dpm;
 	}
-	//
+	/**
+	 * return if disable server push message feature
+	 * @return if disable flag
+	 */
 	public boolean disablePushMessage(){
 		return disablePushMessage;
 	}
 	/**
-	 * 
+	 * add remote server that rpc driver will connecting
+	 * @param cluster the cluster of this server
+	 * @param name the name of this server
+	 * @param host the host of this server
+	 * @param port the port of this server
 	 */
 	public void addRemoteServer(
 			String cluster,
@@ -108,6 +122,13 @@ public class JazminRPCDriver extends Driver{
 	}
 	/**
 	 * 
+	/**
+	 * add remote server that rpc driver will connecting
+	 * @param cluster the cluster of this server
+	 * @param name the name of this server
+	 * @param credential the credential of this server
+	 * @param host the host of this server
+	 * @param port the port of this server
 	 */
 	public void addRemoteServer(
 			String cluster,
@@ -154,30 +175,48 @@ public class JazminRPCDriver extends Driver{
 		sessionList.add(session);
 	}
 	/**
+	 * set push callback of this driver
 	 * @param pushCallback the pushCallback to set
+	 * @see PushCallback
 	 */
 	public void pushCallback(PushCallback pushCallback) {
 		this.pushCallback = pushCallback;
 	}
-	//
+	/**
+	 * return push callback of this driver
+	 * @return  push callback of this driver
+	 */
 	public PushCallback pushCallback(){
 		return pushCallback;
 	}
-	//
+	/**
+	 * return all session of this driver
+	 * @return all session of this driver
+	 * @see RPCSession
+	 */
 	public List<RPCSession>sessions(){
 		List<RPCSession>ss=new ArrayList<RPCSession>();
 		sessionMap.forEach((cluster,sessionList)->ss.addAll(sessionList));
 		return ss;
 	}
-	//
+	/**
+	 * return all synchronized proxy of this driver
+	 * @return all synchronized proxy of this server 
+	 */
 	public List<String>syncProxys(){
 		return new ArrayList<String>(syncProxyMap.keySet());
 	}
-	//
+	/**
+	 * return all asynchronized proxy of this driver
+	 * @return all asynchronized proxy of this server 
+	 */
 	public List<String>asyncProxys(){
 		return new ArrayList<String>(asyncProxyMap.keySet());
 	}
-	//
+	/**
+	 * return all remote server info of this driver
+	 * @return all remote server info of this driver
+	 */
 	public List<RemoteServerInfo>remoteServers(){
 		List<RemoteServerInfo>ss=new ArrayList<RemoteServerInfo>();
 		serverInfoMap.forEach((cluster,serverList)->ss.addAll(serverList));
@@ -240,7 +279,10 @@ public class JazminRPCDriver extends Driver{
 	}
 	//
 	/**
-	 * create remote class proxy
+	 * create a local sync  proxy object which connect to remote cluster
+	 * @param clazz the local proxy object interface
+	 * @param clusterName the remote proxy name
+	 * @return the proxy object
 	 */
 	public <T> T create(Class<T>clazz,String clusterName){
 		if(!RemoteService.class.isAssignableFrom(clazz)){
@@ -269,7 +311,10 @@ public class JazminRPCDriver extends Driver{
 	}
 	//
 	/**
-	 * create async remote class proxy
+	 * create a local async  proxy object which connect to remote cluster
+	 * @param clazz the local proxy object interface
+	 * @param clusterName the remote proxy name
+	 * @return the proxy object
 	 */
 	public <T> T createAsync(Class<T>clazz,String clusterName){
 		checkAsyncClassSignature(clazz);
@@ -277,7 +322,11 @@ public class JazminRPCDriver extends Driver{
 	}
 	//--------------------------------------------------------------------------
 	//pub sub
-	//
+	/**
+	 * subscribe a topic event from remote cluster
+	 * @param cluster the cluster name
+	 * @param topic the topic name
+	 */
 	public void subscribe(String cluster,String topic){
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
@@ -316,11 +365,17 @@ public class JazminRPCDriver extends Driver{
 		ms.invoke(e!=null, time);
 		totalInvokeCount.increment();
 	}
-	//
+	/**
+	 * return all invoke statics information
+	 * @return
+	 */
 	public List<InvokeStat>invokeStats(){
 		return new ArrayList<InvokeStat>(methodStats.values());
 	}
-	//
+	/**
+	 * return total invoke count of this driver
+	 * @return total invoke count of this driver
+	 */
 	public long totalInvokeCount(){
 		return totalInvokeCount.longValue();
 	}

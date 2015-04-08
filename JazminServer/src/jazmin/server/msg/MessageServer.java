@@ -111,13 +111,15 @@ public class MessageServer extends Server{
 				"sessionDestroyed",Session.class);
 	}
 	/**
-	 * @return the port
+	 * return port of this server
+	 * @return the port of this server
 	 */
 	public int port() {
 		return port;
 	}
 	
 	/**
+	 * set port of this server
 	 * @param port the port to set
 	 */
 	public void port(int port) {
@@ -128,6 +130,7 @@ public class MessageServer extends Server{
 	}
 
 	/**
+	 * return connection idle time 
 	 * @return the idleTime
 	 */
 	public int idleTime() {
@@ -135,6 +138,7 @@ public class MessageServer extends Server{
 	}
 
 	/**
+	 * set connection idle time
 	 * @param idleTime the idleTime to set
 	 */
 	public void idleTime(int idleTime) {
@@ -145,6 +149,7 @@ public class MessageServer extends Server{
 	}
 
 	/**
+	 * return server message type
 	 * @return the messageType
 	 */
 	public String messageType() {
@@ -152,15 +157,22 @@ public class MessageServer extends Server{
 	}
 
 	/**
+	 * set server message type
 	 * @param messageType the messageType to set
 	 */
 	public void messageType(String messageType) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
+		if(!messageType.equals(MESSAGE_TYPE_AMF3)||
+			!messageType.equals(MESSAGE_TYPE_JSON)||
+			!messageType.equals(MESSAGE_TYPE_ZJSON)){
+			throw new IllegalArgumentException("bad message type");
+		}
 		this.messageType = messageType;
 	}
 	/**
+	 * return max session count 
 	 * @return the maxSessionCount
 	 */
 	public int maxSessionCount() {
@@ -168,6 +180,7 @@ public class MessageServer extends Server{
 	}
 
 	/**
+	 * set max session count
 	 * @param maxSessionCount the maxSessionCount to set
 	 */
 	public void maxSessionCount(int maxSessionCount) {
@@ -175,6 +188,7 @@ public class MessageServer extends Server{
 	}
 
 	/**
+	 * return max channel count
 	 * @return the maxChannelCount
 	 */
 	public int maxChannelCount() {
@@ -182,12 +196,16 @@ public class MessageServer extends Server{
 	}
 
 	/**
+	 * set max channel count
 	 * @param maxChannelCount the maxChannelCount to set
 	 */
 	public void maxChannelCount(int maxChannelCount) {
 		this.maxChannelCount = maxChannelCount;
 	}
-	//
+	/**
+	 * return all service names
+	 * @return all service names
+	 */
 	public List<String>serviceNames(){
 		return new ArrayList<String>(serviceMap.keySet());
 	}
@@ -195,23 +213,38 @@ public class MessageServer extends Server{
 	List<ServiceStub>services(){
 		return new ArrayList<ServiceStub>(serviceMap.values());
 	}
-	//
+	/**
+	 * return all sessions
+	 * @return all sessions
+	 */
 	public List<Session>sessions(){
 		return new ArrayList<Session>(sessionMap.values());
 	}
-	//
+	/**
+	 * return current session count
+	 * @return current session count
+	 */
 	public int sessionCount(){
 		return sessionMap.size();
 	}
-	//
+	/**
+	 * return all channels
+	 * @return all channels
+	 */
 	public List<Channel>channels(){
 		return new ArrayList<Channel>(channelMap.values());
 	}
-	//
+	/**
+	 * return all inbound byte count
+	 * @return  all inbound byte count
+	 */
 	public long inBoundBytes(){
 		return networkTrafficStat.inBoundBytes.longValue();
 	}
-	//
+	/**
+	 * return all outbound byte count
+	 * @return all outbound byte count
+	 */
 	public long outBoundBytes(){
 		return networkTrafficStat.outBoundBytes.longValue();
 	}
@@ -252,21 +285,32 @@ public class MessageServer extends Server{
 	}
 	/**
 	 * set global session lifecycle listener.
+	 * @param l the session lifecycle listener
+	 * @see SessionLifecycleListener
+	 * @see SessionLifecycleAdapter
 	 */
 	public void sessionLifecycleListener(SessionLifecycleListener l){
 		this.sessionLifecycleListener=l;
 	}
-	//
+	/**
+	 * return session lifecycle listener
+	 * @return  session lifecycle listener
+	 */
 	public SessionLifecycleListener sessionLifecycleListener(){
 		return sessionLifecycleListener;
 	}
 	/**
-	 * set global service filter.
+	 * set global service filter
+	 * @param sf the service filter
+	 * @see ServiceFilter
 	 */
 	public void serviceFilter(ServiceFilter sf){
 		this.serviceFilter=sf;
 	}
-	//
+	/**
+	 * return the global service filter
+	 * @return  the global service filter
+	 */
 	public ServiceFilter serviceFilter(){
 		return serviceFilter;
 	}
@@ -648,6 +692,8 @@ public class MessageServer extends Server{
 	}
 	/**
 	 * get session by principal
+	 * @param principal the session principal
+	 * @return session with specified principal 
 	 */
 	public Session getSessionByPrincipal(String principal){
 		if(principal==null){
@@ -656,13 +702,18 @@ public class MessageServer extends Server{
 		return principalMap.get(principal);
 	}
 	/**
-	 * get session by id
+	 * get session by session id
+	 * @param id the session id
+	 * @return session with specified id
 	 */
 	public Session getSessionById(int id){
 		return sessionMap.get(id);
 	}
 	/**
 	 * setup session principal info,user agent is an option but recommend
+	 * @param s the session 
+	 * @param principal the principal releated to session
+	 * @param userAgent the session user agent
 	 */
 	public void principal(Session s,String principal,String userAgent){
 		synchronized (s) {
@@ -703,7 +754,9 @@ public class MessageServer extends Server{
 	}
 	//--------------------------------------------------------------------------
 	/**
-	 * board message to all session
+	 * broadcast message to all sessions
+	 * @param serviceId the message id
+	 * @param payload the message 
 	 */
 	public void broadcast(String serviceId,Object payload){
 		sessionMap.forEach((id,session)->{
@@ -715,6 +768,11 @@ public class MessageServer extends Server{
 	//
 	
 	//--------------------------------------------------------------------------
+	/**
+	 * create a new channel with specified id
+	 * @param id the channel id
+	 * @return the channel with specified id
+	 */
 	public Channel createChannel(String id){
 		if(logger.isDebugEnabled()){
 			logger.debug("create channel:"+id);
@@ -734,13 +792,16 @@ public class MessageServer extends Server{
 		return channel;
 	}
 	/**
-	 * 
+	 * get channel by id
+	 * @param id the channel id
+	 * @return channel with specified id
 	 */
 	public Channel channel(String id){
 		return channelMap.get(id);
 	}
 	/**
-	 *return total channel count 
+	 * return total channel count 
+	 * @return total channel count
 	 */
 	public int channelCount(){
 		return channelMap.size();

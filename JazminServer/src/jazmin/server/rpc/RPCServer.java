@@ -76,7 +76,9 @@ public class RPCServer extends Server{
 	//--------------------------------------------------------------------------
 	//instance
 	/**
-	 * register remote service
+	 * register remote service,remote service object must have an interface of 
+	 * remote service
+	 * @param instance the remote service instance
 	 */
 	public void registerService(RemoteService instance){
 		Class<?>interfaceClass=null;
@@ -108,21 +110,25 @@ public class RPCServer extends Server{
 			methodMap.put(methodName, m);
 		}
 	}
-	
-	//
-	/** 
-	 *  return all services name.
+	/**
+	 * return all service names
+	 * @return all service names
 	 */
 	public List<String>serviceNames(){
 		return new ArrayList<String>(methodMap.keySet());
 	}
 	/**
-	 * 
+	 * return all topic names
+	 * @return all topic names
 	 */
 	public List<String>topicNames(){
 		return new ArrayList<String>(topicSessionMap.keySet());
 	}
-	//
+	/**
+	 * return all session releated to specified topic name
+	 * @param name topic name
+	 * @return all session releated to specified topic name
+	 */
 	public List<RPCSession>topicSession(String name){
 		return topicSessionMap.get(name);
 	}
@@ -292,7 +298,9 @@ public class RPCServer extends Server{
 	}
 	//
 	/**
-	 * broadcast to all session
+	 * broadcast message to all session
+	 * @param serviceId the service id of message 
+	 * @param payload the message
 	 */
 	public void broadcast(String serviceId,Object payload){
 		sessionMap.forEach((name,session)->{
@@ -305,7 +313,11 @@ public class RPCServer extends Server{
 			session.write(msg);
 		});
 	}
-	//
+	/**
+	 * publish message to rpc client which subscribe specified topic id
+	 * @param topicId the topic id
+	 * @param payload the message 
+	 */
 	public void publish(String topicId,Object payload){
 		List<RPCSession>sessions=topicSessionMap.get(topicId);
 		if(sessions==null){
@@ -384,36 +396,35 @@ public class RPCServer extends Server{
 		}
 	}
 	/**
-	 * 
-	 * @return
+	 * add accept remote host addr
 	 */
 	public void addAcceptRemoteHost(String host){
 		acceptRemoteHosts.add(host);
 	}
 	/**
-	 * 
-	 * @return
+	 * remove accept remote host
+	 * @param host the host will be removed
 	 */
 	public void removeAcceptRemoteHost(String host){
 		acceptRemoteHosts.remove(host);
 	}
 	/**
-	 * 
-	 * @return
+	 * return all accept remote hosts
+	 * @return all accept remote hosts
 	 */
 	public List<String>acceptRemoteHosts(){
 		return new ArrayList<String>(acceptRemoteHosts);
 	}
 	/**
-	 * 
-	 * @return
+	 * return credential of this server
+	 * @return  credential of this server
 	 */
 	public String credential() {
 		return credential;
 	}
 	/**
-	 * 
-	 * @param credential
+	 * set credential of this server
+	 * @param credential of this server
 	 */
 	public void credential(String credential) {
 		if(inited()){
@@ -422,12 +433,14 @@ public class RPCServer extends Server{
 		this.credential = credential;
 	}
 	/**
-	 * @return the port
+	 * return port of this server
+	 * @return the port of this server
 	 */
 	public int port() {
 		return port;
 	}
 	/**
+	 * set port of this server
 	 * @param port the port to set
 	 */
 	public void port(int port) {
@@ -437,12 +450,14 @@ public class RPCServer extends Server{
 		this.port = port;
 	}
 	/**
-	 * @return the idleTime
+	 * return idle time of this server
+	 * @return the idleTime 
 	 */
 	public int idleTime() {
 		return idleTime;
 	}
 	/**
+	 * set idle timeout time of this server
 	 * @param idleTime the idleTime to set
 	 */
 	public void idleTime(int idleTime) {
@@ -452,15 +467,15 @@ public class RPCServer extends Server{
 		this.idleTime = idleTime;
 	}
 	/**
-	 * 
-	 * @return
+	 * return inbound byte count
+	 * @return inbound byte count
 	 */
 	public long inBoundBytes(){
 		return networkTrafficStat.inBoundBytes.longValue();
 	}
 	/**
-	 * 
-	 * @return
+	 * outbound byte count
+	 * @return outbound byte count
 	 */
 	public long outBoundBytes(){
 		return networkTrafficStat.outBoundBytes.longValue();
@@ -468,6 +483,7 @@ public class RPCServer extends Server{
 	
 	/**
 	 * return all rpc session 
+	 * @return all rpc sessions
 	 */
 	public List<RPCSession>sessions(){
 		return new ArrayList<RPCSession>(sessionMap.values());
