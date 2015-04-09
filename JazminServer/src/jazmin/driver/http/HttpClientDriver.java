@@ -109,7 +109,7 @@ public class HttpClientDriver extends Driver{
 	/**
 	 */
 	public void setCompressionEnforced(boolean compressionEnforced) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		clientConfigBuilder.setCompressionEnforced(compressionEnforced);
@@ -117,7 +117,7 @@ public class HttpClientDriver extends Driver{
 	/**
 	 */
 	public void setConnectTimeout(int connectTimeOut) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		clientConfigBuilder.setConnectTimeout(connectTimeOut);
@@ -125,7 +125,7 @@ public class HttpClientDriver extends Driver{
 	/**
 	 */
 	public void setConnectionTTL(int connectionTTL) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		clientConfigBuilder.setConnectionTTL(connectionTTL);
@@ -135,7 +135,7 @@ public class HttpClientDriver extends Driver{
 	 */
 	public void setDisableUrlEncodingForBoundedRequests(
 			boolean disableUrlEncodingForBoundedRequests) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		clientConfigBuilder
@@ -146,7 +146,7 @@ public class HttpClientDriver extends Driver{
 	/**
 	 */
 	public void setFollowRedirect(boolean followRedirect) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		clientConfigBuilder.setFollowRedirect(followRedirect);
@@ -156,7 +156,7 @@ public class HttpClientDriver extends Driver{
 	/**
 	 */
 	public void setMaxConnections(int maxConnections) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		 clientConfigBuilder.setMaxConnections(maxConnections);
@@ -166,7 +166,7 @@ public class HttpClientDriver extends Driver{
 	/**
 	 */
 	public void setMaxConnectionsPerHost(int maxConnectionsPerHost) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		clientConfigBuilder
@@ -176,7 +176,7 @@ public class HttpClientDriver extends Driver{
 	/**
 	 */
 	public void setMaxRedirects(int maxRedirects) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		clientConfigBuilder.setMaxRedirects(maxRedirects);
@@ -186,7 +186,7 @@ public class HttpClientDriver extends Driver{
 	/**
 	 */
 	public void setMaxRequestRetry(int maxRequestRetry) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		 clientConfigBuilder.setMaxRequestRetry(maxRequestRetry);
@@ -197,7 +197,7 @@ public class HttpClientDriver extends Driver{
 	 */
 	public void setPooledConnectionIdleTimeout(
 			int pooledConnectionIdleTimeout) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		 clientConfigBuilder
@@ -208,7 +208,7 @@ public class HttpClientDriver extends Driver{
 	/**
 	 */
 	public void setReadTimeout(int readTimeout) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		clientConfigBuilder.setReadTimeout(readTimeout);
@@ -218,7 +218,7 @@ public class HttpClientDriver extends Driver{
 	/**
 	 */
 	public void setRequestTimeout(int requestTimeout) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		 clientConfigBuilder.setRequestTimeout(requestTimeout);
@@ -228,7 +228,7 @@ public class HttpClientDriver extends Driver{
 	/**
 	 */
 	public void setUserAgent(String userAgent) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		 clientConfigBuilder.setUserAgent(userAgent);

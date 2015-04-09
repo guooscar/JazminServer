@@ -427,7 +427,7 @@ public class RPCServer extends Server{
 	 * @param credential of this server
 	 */
 	public void setCredential(String credential) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		this.credential = credential;
@@ -444,7 +444,7 @@ public class RPCServer extends Server{
 	 * @param port the port to set
 	 */
 	public void setPort(int port) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		this.port = port;
@@ -461,7 +461,7 @@ public class RPCServer extends Server{
 	 * @param idleTime the idleTime to set
 	 */
 	public void setIdleTime(int idleTime) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		this.idleTime = idleTime;

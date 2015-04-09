@@ -23,7 +23,7 @@ public class Environment extends Lifecycle{
 	 * put key/value to environment.
 	 */
 	public void put(String k,String v){
-		if(started()){
+		if(isStarted()){
 			throw new IllegalStateException("put before started");
 		}
 		map.put(k, v);

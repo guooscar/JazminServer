@@ -75,7 +75,7 @@ public class WebServer extends jazmin.core.Server{
 	 * @param dirAllowed the dirAllowed to set
 	 */
 	public void setDirAllowed(boolean dirAllowed) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		this.dirAllowed = dirAllowed;
@@ -86,7 +86,7 @@ public class WebServer extends jazmin.core.Server{
 	 * @param war the war path
 	 */
 	public void addWar(String contextPath,String war){
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		webAppContext=createWebAppContext(contextPath);
@@ -98,7 +98,7 @@ public class WebServer extends jazmin.core.Server{
 	 * @param resourceBase resource directory path
 	 */
 	public void addResource(String contextPath,String resourceBase){
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		webAppContext=createWebAppContext(contextPath);
@@ -145,7 +145,7 @@ public class WebServer extends jazmin.core.Server{
 	 * @param port the port of server
 	 */
 	public void setPort(int port) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		this.port = port;
@@ -162,7 +162,7 @@ public class WebServer extends jazmin.core.Server{
 	 * @param idleTimeout server idle timeout time of server connection 
 	 */ 
 	public void setIdleTimeout(int idleTimeout) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		this.idleTimeout = idleTimeout;

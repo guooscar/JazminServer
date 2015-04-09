@@ -44,7 +44,7 @@ public class LuceneSearchDriver extends Driver{
 	private String indexPath;
 	//
 	public void indexPath(String path){
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		this.indexPath=path;

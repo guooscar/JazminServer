@@ -132,7 +132,7 @@ public class ConsoleServer extends Server{
 	 * @param port the port to set
 	 */
 	public void setPort(int port) {
-		if(started()){
+		if(isStarted()){
 			throw new IllegalStateException("set before started.");
 		}
 		this.port = port;

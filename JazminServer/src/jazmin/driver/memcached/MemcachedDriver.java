@@ -135,7 +135,7 @@ public class MemcachedDriver extends Driver{
 	}
 	
 	public void setOpTimeout(long arg0) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		memcachedClient.setOpTimeout(arg0);
@@ -143,7 +143,7 @@ public class MemcachedDriver extends Driver{
 	/**
 	 */
 	public void setServerAddr(String serverAddr) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		this.serverAddr = serverAddr;

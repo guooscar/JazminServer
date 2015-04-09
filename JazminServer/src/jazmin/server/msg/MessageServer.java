@@ -123,7 +123,7 @@ public class MessageServer extends Server{
 	 * @param port the port to set
 	 */
 	public void setPort(int port) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		this.port = port;
@@ -142,7 +142,7 @@ public class MessageServer extends Server{
 	 * @param idleTime the idleTime to set
 	 */
 	public void setIdleTime(int idleTime) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		this.idleTime = idleTime;
@@ -161,7 +161,7 @@ public class MessageServer extends Server{
 	 * @param messageType the messageType to set
 	 */
 	public void setMessageType(String messageType) {
-		if(inited()){
+		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		if(!messageType.equals(MESSAGE_TYPE_AMF3)||

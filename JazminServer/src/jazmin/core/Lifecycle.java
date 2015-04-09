@@ -13,10 +13,10 @@ public abstract class Lifecycle {
 	LifecycleListener lifecycleListener;
 	boolean started;
 	boolean inited;
-	public boolean started(){
+	public boolean isStarted(){
 		return started;
 	}
-	public boolean inited(){
+	public boolean isInited(){
 		return inited;
 	}
 	//
@@ -31,7 +31,7 @@ public abstract class Lifecycle {
 	 * @param lifecycleListener the lifecycleListener to set
 	 * @return 
 	 */
-	public void lifecycleListener(LifecycleListener lifecycleListener) {
+	public void setLifecycleListener(LifecycleListener lifecycleListener) {
 		this.lifecycleListener = lifecycleListener;
 	}
 	

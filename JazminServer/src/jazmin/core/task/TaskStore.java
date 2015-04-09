@@ -28,7 +28,7 @@ public class TaskStore extends Lifecycle{
 	 * @param instance
 	 */
 	public void registerTask(Object instance){
-		if(started()){
+		if(isStarted()){
 			throw new IllegalStateException("register before started.");
 		}
 		for(Method m:instance.getClass().getDeclaredMethods()){
