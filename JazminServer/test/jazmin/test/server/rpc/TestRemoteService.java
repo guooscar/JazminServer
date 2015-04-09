@@ -10,6 +10,6 @@ import jazmin.server.rpc.RemoteService;
  * 25 Dec, 2014
  */
 public interface TestRemoteService extends RemoteService{
-	int methodA();
+	String methodA();
 	void timeoutMethod();
 }

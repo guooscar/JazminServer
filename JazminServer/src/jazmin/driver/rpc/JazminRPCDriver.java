@@ -379,6 +379,21 @@ public class JazminRPCDriver extends Driver{
 	public long getTotalInvokeCount(){
 		return totalInvokeCount.longValue();
 	}
+	/**
+	 * return request timeout time in million seconds
+	 * @return request timeout time in million seconds
+	 */
+	public long getRequestTimeout(){
+		return client.getTimeout();
+	}
+	/**
+	 * set  request timeout time in million seconds
+	 * @param timeout request timeout time in million seconds
+	 */
+	public void setRequestTimeout(long timeout){
+		client.setTimeout(timeout);
+	}
+	//
 	//--------------------------------------------------------------------------
 	@Override
 	public void init() throws Exception {
