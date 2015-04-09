@@ -165,7 +165,7 @@ public class RPCServer extends Server{
 		};
 		//
 		bossGroup = new NioEventLoopGroup(1,Jazmin.dispatcher);
-		workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(),Jazmin.dispatcher);
+		workerGroup = new NioEventLoopGroup(0,Jazmin.dispatcher);
 		nettyServer.group(bossGroup, workerGroup)
 		.channel(NioServerSocketChannel.class)
 		.option(ChannelOption.SO_BACKLOG, 128)    
@@ -174,6 +174,8 @@ public class RPCServer extends Server{
 		.option(ChannelOption.SO_REUSEADDR, true)   
         .childOption(ChannelOption.SO_KEEPALIVE, true) 
         .childOption(ChannelOption.TCP_NODELAY, true) 
+        .childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 32*1024) 
+        .childOption(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, 8*1024)
         .childHandler(channelInitializer);
 	}
 	//--------------------------------------------------------------------------

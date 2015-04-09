@@ -181,4 +181,11 @@ public class ConsoleCommand{
     	SimpleDateFormat sdf=new SimpleDateFormat("MM/dd HH:mm:ss");
     	return  sdf.format(date);
     }
+    //
+    protected void printLine(char c,int width){
+    	for(int i=0;i<width;i++){
+    		out.print(c);
+    	}
+    	out.print("\n");
+    }
 }

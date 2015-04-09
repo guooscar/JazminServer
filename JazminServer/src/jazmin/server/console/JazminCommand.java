@@ -35,8 +35,7 @@ public class JazminCommand extends ConsoleCommand {
     	addOption("server",false,"show all servers",this::showServers);  	
     	addOption("poolinfo",false,"show thread pool info",this::showThreadPoolInfo);  	
     	addOption("poolstat",false,"show method stats",this::showThreadPoolStats);  	
-    	addOption("poolstatop",false,"show method stats",this::showThreadPoolStatsTop); 
-    	addOption("pooltps",false,"show thread pool tps",this::showThreadPoolTps); 
+    	addOption("pooldashboard",false,"show thread pool dashboard",this::showThreadPoolDashboard); 
     	addOption("dump",false,"dump servers and drivers",this::dump); 
         
     }
@@ -170,28 +169,20 @@ public class JazminCommand extends ConsoleCommand {
 		};
     }
     //
-    private void showThreadPoolStatsTop(String args)throws Exception{
+    private void showThreadPoolDashboard(String args)throws Exception{
     	TerminalWriter tw=new TerminalWriter(out);
-    	while(stdin.available()==0){
-    		tw.cls();
-    		out.println("press any key to quit.");
-    		showThreadPoolStats(args);
-    		out.flush();
-    		TimeUnit.SECONDS.sleep(1);
-    	}
-    	stdin.read();
-    }
-    //
-    private void showThreadPoolTps(String args)throws Exception{
-    	TerminalWriter tw=new TerminalWriter(out);
-    	AsciiChart chart=new AsciiChart(160,80);
+    	AsciiChart chart=new AsciiChart(200,80);
     	lastInvokeCount=Jazmin.dispatcher.getTotalInvokeCount();
     	lastSubmitCount=Jazmin.dispatcher.getTotalSubmitCount();
     	maxInvokeTps=0;
     	maxSubmitTps=0;
+    	
     	while(stdin.available()==0){
     		tw.cls();
     		out.println("press any key to quit.");
+    		printLine('=', 100);
+    		showThreadPoolInfo(args);
+    		printLine('=', 100);
     		showThreadPoolTps0(chart,tw);
     		out.flush();
     		TimeUnit.SECONDS.sleep(1);
@@ -253,7 +244,7 @@ public class JazminCommand extends ConsoleCommand {
     	lastInvokeCount=invokeCount;
     	lastSubmitCount=submitCount;
     	//
-    	out.println("-----------------------------------------------------");
+    	printLine('=', 100);
 		out.println("thread pool invoke tps chart. current:"+invokeTps+"/s");
 		tw.fmagenta();
 		chart.reset();

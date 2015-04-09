@@ -142,6 +142,8 @@ public class RPCClient {
 		bootstrap.channel(NioSocketChannel.class)
 		.option(ChannelOption.SO_KEEPALIVE, true)
 		.option(ChannelOption.TCP_NODELAY, true)
+        .option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 32*1024) 
+        .option(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, 8*1024)
 		.handler(channelInitializer);
 	}
 	/**

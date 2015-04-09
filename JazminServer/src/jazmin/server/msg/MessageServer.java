@@ -346,7 +346,7 @@ public class MessageServer extends Server{
 		channelInitializer=new MessageServerChannelInitializer();
 		
 		bossGroup = new NioEventLoopGroup(1,Jazmin.dispatcher);
-		workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(),Jazmin.dispatcher);
+		workerGroup = new NioEventLoopGroup(0,Jazmin.dispatcher);
 		nettyServer.group(bossGroup, workerGroup)
 		.channel(NioServerSocketChannel.class)
 		.option(ChannelOption.SO_BACKLOG, 128)    

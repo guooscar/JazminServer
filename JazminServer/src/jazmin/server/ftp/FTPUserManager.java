@@ -99,7 +99,7 @@ import org.apache.ftpserver.util.BaseProperties;
  */
 public class FTPUserManager extends AbstractUserManager {
 
-    private static final Logger LOG = LoggerFactory.get(FTPUserManager.class);
+    private static final Logger logger = LoggerFactory.get(FTPUserManager.class);
 
     private final static String PREFIX = "ftpserver.user.";
 
@@ -322,10 +322,10 @@ public class FTPUserManager extends AbstractUserManager {
         if (authentication instanceof UsernamePasswordAuthentication) {
             UsernamePasswordAuthentication upauth = (UsernamePasswordAuthentication) authentication;
             String user = upauth.getUsername();
-        	LOG.debug("authenticate :"+user);
+        	logger.debug("authenticate :"+user);
             String password = upauth.getPassword();
             if (user == null) {
-            	LOG.debug("authenticate :"+user+" can not found user");
+            	logger.debug("authenticate :"+user+" can not found user");
                 throw new AuthenticationFailedException("Authentication failed");
             }
             if (password == null) {
@@ -337,21 +337,21 @@ public class FTPUserManager extends AbstractUserManager {
 
             if (storedPassword == null) {
                 // user does not exist
-            	LOG.debug("authenticate :"+user+" can not found password");
+            	logger.debug("authenticate :"+user+" can not found password");
                 throw new AuthenticationFailedException("Authentication failed");
             }
 
             if (getPasswordEncryptor().matches(password, storedPassword)) {
             	User u= getUserByName(user);
-            	LOG.info("authenticate :"+user+" ok");
+            	logger.info("authenticate :"+user+" ok");
             	return u;
             } else {
-             	LOG.debug("authenticate :"+user+" wrong password");
+             	logger.debug("authenticate :"+user+" wrong password");
                 throw new AuthenticationFailedException("Authentication failed");
             }
 
         } else if (authentication instanceof AnonymousAuthentication) {
-        	LOG.debug("authenticate :anonymous");
+        	logger.debug("authenticate :anonymous");
             if (doesExist("anonymous")) {
                 return getUserByName("anonymous");
             } else {

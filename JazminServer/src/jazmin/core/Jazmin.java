@@ -103,10 +103,10 @@ public class Jazmin {
 					new JazminThreadFactory("ScheduledExecutor"),
 					new ThreadPoolExecutor.AbortPolicy());
 	//--------------------------------------------------------------------------
-	public static Environment environment=new Environment();
-	public static Dispatcher dispatcher=new Dispatcher();
-	public static TaskStore taskStore=new TaskStore();
-	public static JobStore jobStore=new JobStore();
+	public static final Environment environment=new Environment();
+	public static final Dispatcher dispatcher=new Dispatcher();
+	public static final TaskStore taskStore=new TaskStore();
+	public static final JobStore jobStore=new JobStore();
 	//
 	private static List<Lifecycle>lifecycles;
 	private static Map<String,Driver>drivers;
