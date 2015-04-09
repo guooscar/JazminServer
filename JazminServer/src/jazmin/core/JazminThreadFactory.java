@@ -21,7 +21,7 @@ public class JazminThreadFactory implements ThreadFactory{
 	@Override
 	public Thread newThread(Runnable r) {
 		Thread t=new Thread(r);
-		t.setContextClassLoader(Jazmin.appClassLoader());
+		t.setContextClassLoader(Jazmin.getAppClassLoader());
 		t.setName(threadName+"-"+threadCounter.incrementAndGet());
 		Thread.UncaughtExceptionHandler logHander=new Thread.UncaughtExceptionHandler() {
 			@Override

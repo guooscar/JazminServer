@@ -64,7 +64,7 @@ public class RPCServerHandler extends ChannelHandlerAdapter{
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		logger.info("rpc session create:{}",ctx.channel());
 		RPCSession session=new RPCSession();
-		session.channel(ctx.channel());
+		session.setChannel(ctx.channel());
 		ctx.channel().attr(SESSION_KEY).set(session);
 		rpcServer.checkSession(session);
 	}

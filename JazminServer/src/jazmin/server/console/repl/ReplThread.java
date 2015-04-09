@@ -37,7 +37,7 @@ public class ReplThread implements Closeable {
         	String prompt=
         			"\033[32;49;1m"+"JazminConsole"+"\033[39;49;0m"+
         			"\033[33;49;1m@"+environment.user+"\033[39;49;0m"+
-                    "\033[35;49;1m#"+Jazmin.serverName()+"\033[39;49;0m"+
+                    "\033[35;49;1m#"+Jazmin.getServerName()+"\033[39;49;0m"+
         			">";
         	Repl.repl(stdin, stdout, stderr, environment, commands,prompt);
         } catch (Exception e) {

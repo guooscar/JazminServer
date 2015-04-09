@@ -22,14 +22,14 @@ public class JDBCConnectionDriver extends ConnectionDriver{
 	/**
 	
 	 * @return the user */
-	public String user() {
+	public String getUser() {
 		return user;
 	}
 
 	/**
 	 * @param user the user to set
 	 */
-	public void user(String user) {
+	public void setUser(String user) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -39,14 +39,14 @@ public class JDBCConnectionDriver extends ConnectionDriver{
 	/**
 	
 	 * @return the driver */
-	public String driver() {
+	public String getDriver() {
 		return driver;
 	}
 
 	/**
 	 * @param driver the driver to set
 	 */
-	public void driver(String driver) {
+	public void setDriver(String driver) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -55,14 +55,14 @@ public class JDBCConnectionDriver extends ConnectionDriver{
 	/**
 	
 	 * @return the password */
-	public String password() {
+	public String getPassword() {
 		return password;
 	}
 
 	/**
 	 * @param password the password to set
 	 */
-	public void password(String password) {
+	public void setPassword(String password) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -72,14 +72,14 @@ public class JDBCConnectionDriver extends ConnectionDriver{
 	/**
 	
 	 * @return the url */
-	public String url() {
+	public String getUrl() {
 		return url;
 	}
 
 	/**
 	 * @param url the url to set
 	 */
-	public void url(String url) {
+	public void setUrl(String url) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -107,9 +107,9 @@ public class JDBCConnectionDriver extends ConnectionDriver{
 	@Override
 	public String info() {
 		return InfoBuilder.create().format("%-30s:%-30s\n")
-				.print("Url",url())
-				.print("User",user())
-				.print("Driver",driver())
+				.print("Url",getUrl())
+				.print("User",getUser())
+				.print("Driver",getDriver())
 				.toString();
 	}
 	//

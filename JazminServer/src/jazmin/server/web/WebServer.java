@@ -59,14 +59,14 @@ public class WebServer extends jazmin.core.Server{
 	 * set jetty logger enable flag
 	 * @param enabled jetty logger enable flag
 	 */
-	public void enableJettyLogger(boolean enabled){
+	public void setEnableJettyLogger(boolean enabled){
 		JettyLogger.enable=enabled;
 	}
 	/**
 	 * return whether or not jetty server default servlet allowed directory list 
 	 * @return the dirAllowed
 	 */
-	public boolean dirAllowed() {
+	public boolean isDirAllowed() {
 		return dirAllowed;
 	}
 
@@ -74,7 +74,7 @@ public class WebServer extends jazmin.core.Server{
 	 * set whether or not jetty server default servlet allowed directory list 
 	 * @param dirAllowed the dirAllowed to set
 	 */
-	public void dirAllowed(boolean dirAllowed) {
+	public void setDirAllowed(boolean dirAllowed) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -108,7 +108,7 @@ public class WebServer extends jazmin.core.Server{
 	private WebAppContext createWebAppContext(String contextPath){
 		WebAppContext webAppContext=new WebAppContext();
 		webAppContext.setContextPath(contextPath);
-		File tempDir=new File("webapp/"+Jazmin.serverName());
+		File tempDir=new File("webapp/"+Jazmin.getServerName());
 		FileUtil.deleteDirectory(tempDir);
 		if(!tempDir.mkdirs()){
 			logger.warn("can not create temp dir:"+tempDir.getAbsolutePath());
@@ -137,14 +137,14 @@ public class WebServer extends jazmin.core.Server{
 	 * return port of this server
 	 * @return port of this server
 	 */
-	public int port() {
+	public int getPort() {
 		return port;
 	}
 	/**
 	 * set port of this server
 	 * @param port the port of server
 	 */
-	public void port(int port) {
+	public void setPort(int port) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -154,14 +154,14 @@ public class WebServer extends jazmin.core.Server{
 	 * return idle timeout time of server connection
 	 * @return idle timeout time of server connection
 	 */
-	public int idleTimeout() {
+	public int getIdleTimeout() {
 		return idleTimeout;
 	}
 	/**
 	 * set server idle timeout time of server connection
 	 * @param idleTimeout server idle timeout time of server connection 
 	 */ 
-	public void idleTimeout(int idleTimeout) {
+	public void setIdleTimeout(int idleTimeout) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -171,7 +171,7 @@ public class WebServer extends jazmin.core.Server{
 	 * return WebAppContext of this server
 	 * @return  WebAppContext of this server
 	 */
-	public WebAppContext webAppContext(){
+	public WebAppContext getWebAppContext(){
 		return webAppContext;
 	}
 	//-------------------------------------------------------------------------
@@ -210,10 +210,10 @@ public class WebServer extends jazmin.core.Server{
         server.setHandler(handlers);
         server.start();
 		if(webAppContext!=null){
-			Jazmin.appClassLoader(webAppContext.getClassLoader());
+			Jazmin.setAppClassLoader(webAppContext.getClassLoader());
 		}
 		//
-		ConsoleServer cs=Jazmin.server(ConsoleServer.class);
+		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
 			cs.registerCommand(new WebServerCommand());
 		}

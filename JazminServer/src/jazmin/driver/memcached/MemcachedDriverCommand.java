@@ -18,7 +18,7 @@ public class MemcachedDriverCommand extends ConsoleCommand {
     	addOption("get",true,"get memory cache item by key",this::getItem);
     	addOption("delete",true,"delete memory cache item by key",this::deleteItem);
     	//
-    	driver=Jazmin.driver(MemcachedDriver.class);
+    	driver=Jazmin.getDriver(MemcachedDriver.class);
     }
 	//
 	@Override
@@ -32,23 +32,23 @@ public class MemcachedDriverCommand extends ConsoleCommand {
     //
     private void showDriverInfo(String args){
     	String format="%-20s: %-10s\n";
-    	out.printf(format,"name",driver.name());
-    	out.printf(format,"port",driver.serverAddr());
-		out.printf(format,"idleTimeout",driver.opTimeout());
-		out.printf(format,"connectTimeout",driver.connectTimeout());
-		out.printf(format,"connectionPoolSize",driver.connectionPoolSize());
+    	out.printf(format,"name",driver.getName());
+    	out.printf(format,"port",driver.getServerAddr());
+		out.printf(format,"idleTimeout",driver.getOpTimeout());
+		out.printf(format,"connectTimeout",driver.getConnectTimeout());
+		out.printf(format,"connectionPoolSize",driver.getConnectionPoolSize());
 	}
     //
     private void showQueryStat(String args){
     	String format="%-20s %-20s %-20s %-20s\n";
     	out.printf(format,"QUERY","HIT","ERROR","HIT RATIO");
-    	double qc=driver.totalQueryCount();
-    	double hit=driver.hitQueryCount();
-    	double hitRatio=(driver.totalQueryCount()==0)?0:hit/qc;
+    	double qc=driver.getTotalQueryCount();
+    	double hit=driver.getHitQueryCount();
+    	double hitRatio=(driver.getTotalQueryCount()==0)?0:hit/qc;
     	out.printf(format,
-    			driver.totalQueryCount(),
-    			driver.hitQueryCount(),
-    			driver.errorQueryCount(),
+    			driver.getTotalQueryCount(),
+    			driver.getHitQueryCount(),
+    			driver.getErrorQueryCount(),
     			String.format("%.2f",hitRatio));
     	
     }

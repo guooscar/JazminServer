@@ -18,7 +18,7 @@ public class RPCDriverTest2 {
 
 	public static void main(String[] args) {
 		JazminRPCDriver driver=new JazminRPCDriver();
-		driver.principal("a"+System.currentTimeMillis());
+		driver.setPrincipal("a"+System.currentTimeMillis());
 		driver.addRemoteServer("test","test","localhost",6001);
 		Jazmin.addDriver(driver);
 		Jazmin.addServer(new ConsoleServer());

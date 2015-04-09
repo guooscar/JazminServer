@@ -41,19 +41,19 @@ public class Context {
 	/**
 	 * get service id
 	 */
-	public String serviceId(){
+	public String getServiceId(){
 		return requestMessage.serviceId;
 	}
 	/**
 	 * return message server
 	 */
-	public MessageServer server(){
+	public MessageServer getServer(){
 		return messageServer;
 	}
 	/**
 	 * return session of this context.
 	 */
-	public Session session(){
+	public Session getSession(){
 		return session;
 	}
 	/**

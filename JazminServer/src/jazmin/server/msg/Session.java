@@ -61,54 +61,54 @@ public class Session {
 	/**
 	 * @return the createTime
 	 */
-	public Date createTime() {
+	public Date getCreateTime() {
 		return createTime;
 	}
 	/**
 	 * @return the id
 	 */
-	public int id() {
+	public int getId() {
 		return id;
 	}
 	/**
 	 * @return the totalMessageCount
 	 */
-	public int totalMessageCount() {
+	public int getTotalMessageCount() {
 		return totalMessageCount;
 	}
 	/**
 	 * @return the principal
 	 */
-	public String principal() {
+	public String getPrincipal() {
 		return principal;
 	}
 	/**
 	 * @return the userObject
 	 */
-	public Object userObject() {
+	public Object getUserObject() {
 		return userObject;
 	}
 	/**
 	 * @param userObject the userObject to set
 	 */
-	public void userObject(Object userObject) {
+	public void setUserObject(Object userObject) {
 		this.userObject = userObject;
 	}
 	/**
 	 * @return the remoteHostAddress
 	 */
-	public String remoteHostAddress() {
+	public String getRemoteHostAddress() {
 		return remoteHostAddress;
 	}
 	/**
 	 * @return the remotePort
 	 */
-	public int remotePort() {
+	public int getRemotePort() {
 		return remotePort;
 	}
 
 	//
-	public long lastAccessTime(){
+	public long getLastAccessTime(){
 		return lastAccessTime;
 	}
 	//
@@ -159,7 +159,7 @@ public class Session {
 	/**
 	 * @return the userAgent
 	 */
-	public String userAgent() {
+	public String getUserAgent() {
 		return userAgent;
 	}
 	/**
@@ -177,11 +177,11 @@ public class Session {
 	/**
 	 * 
 	 */
-	public List<String>channels(){
+	public List<String>getChannels(){
 		return new ArrayList<>(channels);
 	}
 	//
-	public boolean processSyncService(){
+	public boolean isProcessSyncService(){
 		return processSyncServiceState.get();
 	}
 	//
@@ -208,10 +208,6 @@ public class Session {
 	 */
 	void setPrincipal(String principal) {
 		this.principal = principal;
-	}
-	//
-	boolean isProcessSyncService(){
-		return processSyncServiceState.get();
 	}
 	/*
 	 */

@@ -26,7 +26,7 @@ public class JazminRPCDriverCommand extends ConsoleCommand {
     	addOption("stat",false,"show method stat.",this::showMethodStats);
     	addOption("tps",false,"show invoke tps.",this::showInvokeTps);
     	//
-    	driver=Jazmin.driver(JazminRPCDriver.class);
+    	driver=Jazmin.getDriver(JazminRPCDriver.class);
     }
 	//
 	@Override
@@ -40,19 +40,19 @@ public class JazminRPCDriverCommand extends ConsoleCommand {
     //
     private void showDriverInfo(String args)throws Exception{
     	String format="%-20s: %-10s\n";
-		out.printf(format,"pushCallback",driver.pushCallback());
-		out.printf(format,"principal",driver.principal());	
+		out.printf(format,"pushCallback",driver.getPushCallback());
+		out.printf(format,"principal",driver.getPrincipal());	
 		//
 		out.println("remote servers");
-		driver.remoteServers().forEach(server->{
+		driver.getRemoteServers().forEach(server->{
 			out.format(format,
 					server.cluster+"."+server.name,
 					server.remoteHostAddress+":"+server.remotePort);	
 		});
 		out.println("async proxy");
-		driver.asyncProxys().forEach(out::println);
+		driver.getAsyncProxys().forEach(out::println);
 		out.println("sync proxy");
-		driver.syncProxys().forEach(out::println);	
+		driver.getSyncProxys().forEach(out::println);	
     }
     //
     private void showSessionTop(String args)throws Exception{
@@ -69,7 +69,7 @@ public class JazminRPCDriverCommand extends ConsoleCommand {
     private void showSessions(String args){
 		String format="%-5s : %-20s %-20s %-10s %-15s %-10s %-10s %-10s %-10s %-10s\n";
 		int i=0;
-		List<RPCSession> sessions=driver.sessions();
+		List<RPCSession> sessions=driver.getSessions();
 		out.println("total "+sessions.size()+" sessions");
 		out.format(format,"#",
 				"PRINCIPAL",
@@ -84,22 +84,22 @@ public class JazminRPCDriverCommand extends ConsoleCommand {
 		for(RPCSession s:sessions){
 			out.format(format,
 					i++,
-					s.principal(),
-					s.cluster(),
+					s.getPrincipal(),
+					s.getCluster(),
 					s.isConnected(),
-					s.remoteHostAddress(),
-					s.remotePort(),
-					s.disablePushMessage(),
-					s.sendPackageCount(),
-					s.receivePackageCount(),
-					formatDate(s.createTime()));
+					s.getRemoteHostAddress(),
+					s.getRemotePort(),
+					s.isDisablePushMessage(),
+					s.getSendPackageCount(),
+					s.getReceivePackageCount(),
+					formatDate(s.getCreateTime()));
 		};
     }
     //
     private void showMethodStats(String args){
     	String format="%-5s : %-50s %-10s %-10s %-10s %-10s %-10s\n";
 		int i=0;
-		List<InvokeStat>stats=driver.invokeStats();
+		List<InvokeStat>stats=driver.getInvokeStats();
 		out.println("total "+stats.size()+" method stats");
 		Collections.sort(stats);
 		out.format(format,"#","NAME","IVC","ERR","MINT","MAXT","AVGT");	
@@ -121,7 +121,7 @@ public class JazminRPCDriverCommand extends ConsoleCommand {
     private void showInvokeTps(String args)throws Exception{
     	TerminalWriter tw=new TerminalWriter(out);
     	AsciiChart chart=new AsciiChart(160,80);
-    	lastInvokeCount=driver.totalInvokeCount();
+    	lastInvokeCount=driver.getTotalInvokeCount();
     	maxInvokeTps=0;
     	while(stdin.available()==0){
     		tw.cls();
@@ -134,7 +134,7 @@ public class JazminRPCDriverCommand extends ConsoleCommand {
     }
     //
     private void showInvokeTps(AsciiChart chart,TerminalWriter tw){
-    	long invokeCount=driver.totalInvokeCount();
+    	long invokeCount=driver.getTotalInvokeCount();
     	long invokeTps=invokeCount-lastInvokeCount;
     	if(invokeTps>maxInvokeTps){
     		maxInvokeTps=invokeTps;

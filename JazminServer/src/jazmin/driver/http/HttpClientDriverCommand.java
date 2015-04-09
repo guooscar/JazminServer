@@ -24,7 +24,7 @@ public class HttpClientDriverCommand extends ConsoleCommand {
     	addOption("errorlog",false,"show query error logs.",this::showErrorLogs);
     	addOption("f",false,"show full url",null);
     	//
-    	httpDriver=Jazmin.driver(HttpClientDriver.class);
+    	httpDriver=Jazmin.getDriver(HttpClientDriver.class);
     }
 	//
 	@Override
@@ -57,7 +57,7 @@ public class HttpClientDriverCommand extends ConsoleCommand {
     private void showStats(String args){
     	String format="%-5s : %-8s %-8s %-20s %-10s %-10s %-10s %-10s %-50s \n";
 		int i=0;
-		List<HttpHandler>handlers=httpDriver.handlers();
+		List<HttpHandler>handlers=httpDriver.getHandlers();
 		out.println("total "+handlers.size()+" requests");
 		out.format(format,"#","METHOD","STATUS","START","CTN-LEN","SENT","RECEIVED","RATE","URL");	
 		for(HttpHandler handler:handlers){

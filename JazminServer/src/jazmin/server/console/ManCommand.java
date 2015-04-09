@@ -18,7 +18,7 @@ public class ManCommand extends ConsoleCommand {
     		out.println("What manual page do you want?");
     		return;
     	}
-    	ConsoleServer cs=Jazmin.server(ConsoleServer.class);
+    	ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
     	ConsoleCommand cmd=cs.getCommand(cli.getArgs()[0]);
     	if(cmd==null){
     		out.println("No manual entry for "+cli.getArgs()[0]);

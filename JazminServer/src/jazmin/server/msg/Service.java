@@ -11,14 +11,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 
  * @author yama
- * 25 Dec, 2014
+ * 26 Dec, 2014
  */
 @Target(ElementType.METHOD)  
 @Retention(RetentionPolicy.RUNTIME)  
 @Documented
 @Inherited  
-public @interface ServiceDisableResponse{
-	
+public @interface Service{
+	boolean async() default false;
+	boolean continuation() default false;
+	boolean disableResponse() default false;	
 }

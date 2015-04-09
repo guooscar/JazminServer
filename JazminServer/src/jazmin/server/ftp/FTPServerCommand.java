@@ -21,7 +21,7 @@ public class FTPServerCommand extends ConsoleCommand {
     	addOption("statop",false,"show stat info.",this::showStatsTop);
     	
     	//
-    	ftpServer=Jazmin.server(FTPServer.class);
+    	ftpServer=Jazmin.getServer(FTPServer.class);
     }
 	//
 	@Override

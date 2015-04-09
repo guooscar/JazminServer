@@ -48,7 +48,7 @@ public class HttpClientDriver extends Driver{
 		clientConfig=clientConfigBuilder.build();
 		asyncHttpClient = new AsyncHttpClient(clientConfig);
 		//
-		ConsoleServer cs=Jazmin.server(ConsoleServer.class);
+		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
 			cs.registerCommand(new HttpClientDriverCommand());
 		}
@@ -60,14 +60,14 @@ public class HttpClientDriver extends Driver{
 				.print("asyncHttpProvider",clientConfig.getAsyncHttpProviderConfig().getClass())
 				.print("isCompressionEnforced",isCompressionEnforced())
 				.print("isFollowRedirect",isFollowRedirect())
-				.print("maxConnections",maxConnections())
-				.print("maxConnectionsPerHost",maxConnectionsPerHost())
-				.print("userAgent",userAgent())
-				.print("pooledConnectionIdleTimeout",pooledConnectionIdleTimeout())
-				.print("readTimeout",readTimeout())
-				.print("maxRequestRetry",maxRequestRetry())
-				.print("connectionTTL",connectionTTL())
-				.print("connectTimeout",connectTimeout())
+				.print("maxConnections",getMaxConnections())
+				.print("maxConnectionsPerHost",getMaxConnectionsPerHost())
+				.print("userAgent",getUserAgent())
+				.print("pooledConnectionIdleTimeout",getPooledConnectionIdleTimeout())
+				.print("readTimeout",getReadTimeout())
+				.print("maxRequestRetry",getMaxRequestRetry())
+				.print("connectionTTL",getConnectionTTL())
+				.print("connectTimeout",getConnectTimeout())
 				.toString();			
 	}
 	//--------------------------------------------------------------------------
@@ -82,7 +82,7 @@ public class HttpClientDriver extends Driver{
 		handlerMap.remove(id);
 	}
 	//
-	List<HttpHandler>handlers(){
+	List<HttpHandler>getHandlers(){
 		return new ArrayList<HttpHandler>(handlerMap.values());
 	}
 	//
@@ -103,12 +103,12 @@ public class HttpClientDriver extends Driver{
 	//--------------------------------------------------------------------------
 	/**
 	 */
-	public int connectTimeout() {
+	public int getConnectTimeout() {
 		return clientConfig.getConnectTimeout();
 	}
 	/**
 	 */
-	public void compressionEnforced(boolean compressionEnforced) {
+	public void setCompressionEnforced(boolean compressionEnforced) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -116,7 +116,7 @@ public class HttpClientDriver extends Driver{
 	}
 	/**
 	 */
-	public void connectTimeout(int connectTimeOut) {
+	public void setConnectTimeout(int connectTimeOut) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -124,7 +124,7 @@ public class HttpClientDriver extends Driver{
 	}
 	/**
 	 */
-	public void connectionTTL(int connectionTTL) {
+	public void setConnectionTTL(int connectionTTL) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -133,7 +133,7 @@ public class HttpClientDriver extends Driver{
 
 	/**
 	 */
-	public void disableUrlEncodingForBoundedRequests(
+	public void setDisableUrlEncodingForBoundedRequests(
 			boolean disableUrlEncodingForBoundedRequests) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
@@ -145,7 +145,7 @@ public class HttpClientDriver extends Driver{
 
 	/**
 	 */
-	public void followRedirect(boolean followRedirect) {
+	public void setFollowRedirect(boolean followRedirect) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -155,7 +155,7 @@ public class HttpClientDriver extends Driver{
 
 	/**
 	 */
-	public void maxConnections(int maxConnections) {
+	public void setMaxConnections(int maxConnections) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -165,7 +165,7 @@ public class HttpClientDriver extends Driver{
 
 	/**
 	 */
-	public void maxConnectionsPerHost(int maxConnectionsPerHost) {
+	public void setMaxConnectionsPerHost(int maxConnectionsPerHost) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -175,7 +175,7 @@ public class HttpClientDriver extends Driver{
 
 	/**
 	 */
-	public void maxRedirects(int maxRedirects) {
+	public void setMaxRedirects(int maxRedirects) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -185,7 +185,7 @@ public class HttpClientDriver extends Driver{
 
 	/**
 	 */
-	public void maxRequestRetry(int maxRequestRetry) {
+	public void setMaxRequestRetry(int maxRequestRetry) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -195,7 +195,7 @@ public class HttpClientDriver extends Driver{
 
 	/**
 	 */
-	public void pooledConnectionIdleTimeout(
+	public void setPooledConnectionIdleTimeout(
 			int pooledConnectionIdleTimeout) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
@@ -207,7 +207,7 @@ public class HttpClientDriver extends Driver{
 
 	/**
 	 */
-	public void readTimeout(int readTimeout) {
+	public void setReadTimeout(int readTimeout) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -217,7 +217,7 @@ public class HttpClientDriver extends Driver{
 
 	/**
 	 */
-	public void requestTimeout(int requestTimeout) {
+	public void setRequestTimeout(int requestTimeout) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -227,7 +227,7 @@ public class HttpClientDriver extends Driver{
 
 	/**
 	 */
-	public void userAgent(String userAgent) {
+	public void setUserAgent(String userAgent) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -237,43 +237,43 @@ public class HttpClientDriver extends Driver{
 
 	/**
 	 */
-	public int connectionTTL() {
+	public int getConnectionTTL() {
 		return clientConfig.getConnectionTTL();
 	}
 
 	/**
 	 */
-	public int maxConnections() {
+	public int getMaxConnections() {
 		return clientConfig.getMaxConnections();
 	}
 
 	/**
 	 */
-	public int maxConnectionsPerHost() {
+	public int getMaxConnectionsPerHost() {
 		return clientConfig.getMaxConnectionsPerHost();
 	}
 
 	/**
 	 */
-	public int maxRequestRetry() {
+	public int getMaxRequestRetry() {
 		return clientConfig.getMaxRequestRetry();
 	}
 
 	/**
 	 */
-	public int pooledConnectionIdleTimeout() {
+	public int getPooledConnectionIdleTimeout() {
 		return clientConfig.getPooledConnectionIdleTimeout();
 	}
 
 	/**
 	 */
-	public int readTimeout() {
+	public int getReadTimeout() {
 		return clientConfig.getReadTimeout();
 	}
 
 	/**
 	 */
-	public String userAgent() {
+	public String getUserAgent() {
 		return clientConfig.getUserAgent();
 	}
 

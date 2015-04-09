@@ -23,8 +23,10 @@ public class WebServerCommand extends ConsoleCommand {
     	desc="web server ctrl command";
     	addOption("i",false,"show server information.",this::showServerInfo);
     	addOption("service",false,"show services.",this::showServices);
+    	addOption("openlogger",false,"open jetty logger.",this::openLogger);
+    	addOption("closelogger",false,"close jetty logger.",this::closeLogger);
     	//
-    	webServer=Jazmin.server(WebServer.class);
+    	webServer=Jazmin.getServer(WebServer.class);
     }
 	//
 	@Override
@@ -35,17 +37,25 @@ public class WebServerCommand extends ConsoleCommand {
 		 }
 		 super.run();
 	}
+	//
+	private void closeLogger(String args){
+		  JettyLogger.enable=false;
+	}
+	//
+	private void openLogger(String args){
+		JettyLogger.enable=true;
+	}
     //
     private void showServerInfo(String args){
     	String format="%-20s: %-10s\n";
-		out.printf(format,"port",webServer.port());
-		out.printf(format,"idleTimeout",webServer.idleTimeout());
-		out.printf(format,"dirAllowed",webServer.dirAllowed());
-		out.printf(format,"webAppContext",webServer.webAppContext());
+		out.printf(format,"port",webServer.getPort());
+		out.printf(format,"idleTimeout",webServer.getIdleTimeout());
+		out.printf(format,"dirAllowed",webServer.isDirAllowed());
+		out.printf(format,"webAppContext",webServer.getWebAppContext());
 		//
 		out.println("servlets:");
 		int index=0;
-		WebAppContext webAppContext=webServer.webAppContext();
+		WebAppContext webAppContext=webServer.getWebAppContext();
 		if(webAppContext!=null){
 			List<String>servletNames=new ArrayList<String>(
 					webAppContext.getServletContext().getServletRegistrations().keySet());

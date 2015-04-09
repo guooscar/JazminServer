@@ -30,17 +30,17 @@ public class MemoryCacheDriver extends Driver{
 	/**
 	 * @return the totalQueryCount
 	 */
-	public long totalQueryCount() {
+	public long getTotalQueryCount() {
 		return totalQueryCount.longValue();
 	}
 	/**
 	 * @return the hitQueryCount
 	 */
-	public long hitQueryCount() {
+	public long getHitQueryCount() {
 		return hitQueryCount.longValue();
 	}
 	//
-	public int size(){
+	public int getCacheSize(){
 		return itemMap.size();
 	}
 	//
@@ -79,13 +79,13 @@ public class MemoryCacheDriver extends Driver{
 	/**
 	 * @return the maxCacheCount
 	 */
-	public int maxCacheCount() {
+	public int getMaxCacheCount() {
 		return maxCacheCount;
 	}
 	/**
 	 * @param maxCacheCount the maxCacheCount to set
 	 */
-	public void maxCacheCount(int maxCacheCount) {
+	public void setMaxCacheCount(int maxCacheCount) {
 		this.maxCacheCount = maxCacheCount;
 	}
 	//--------------------------------------------------------------------------
@@ -95,7 +95,7 @@ public class MemoryCacheDriver extends Driver{
 			    .maximumWeightedCapacity(maxCacheCount)
 			    .build();
 		
-		ConsoleServer cs=Jazmin.server(ConsoleServer.class);
+		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
 			cs.registerCommand(new MemoryCacheDriverCommand());
 		}

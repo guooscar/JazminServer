@@ -83,7 +83,7 @@ public class Dispatcher extends Lifecycle implements Executor{
 	}
 	//--------------------------------------------------------------------------
 	//
-	public int requestQueueSize(){
+	public int getRequestQueueSize(){
 		return requestQueue.size();
 	}
 	//
@@ -99,7 +99,7 @@ public class Dispatcher extends Lifecycle implements Executor{
 		totalInvokeCount.increment();
 	}
 	//
-	public List<InvokeStat>invokeStats(){
+	public List<InvokeStat>getInvokeStats(){
 		return new ArrayList<InvokeStat>(methodStats.values());
 	}
 	//
@@ -107,7 +107,7 @@ public class Dispatcher extends Lifecycle implements Executor{
 		globalCallbacks.add(callback);
 	}
 	//
-	public List<DispatcherCallback> globalDispatcherCallbacks(){
+	public List<DispatcherCallback> getGlobalDispatcherCallbacks(){
 		return new ArrayList<DispatcherCallback>(globalCallbacks);
 	}
 	//
@@ -166,25 +166,25 @@ public class Dispatcher extends Lifecycle implements Executor{
 	/**
 	 * @return the corePoolSize
 	 */
-	public int corePoolSize() {
+	public int getCorePoolSize() {
 		return corePoolSize;
 	}
 	/**
 	 * @param corePoolSize the corePoolSize to set
 	 */
-	public void corePoolSize(int corePoolSize) {
+	public void getCorePoolSize(int corePoolSize) {
 		this.corePoolSize = corePoolSize;
 	}
 	/**
 	 * @return the maxPoolSize
 	 */
-	public int maxPoolSize() {
+	public int getMaxPoolSize() {
 		return maxPoolSize;
 	}
 	/**
 	 * @param maxPoolSize the maxPoolSize to set
 	 */
-	public void maxPoolSize(int maxPoolSize) {
+	public void getMaxPoolSize(int maxPoolSize) {
 		this.maxPoolSize = maxPoolSize;
 	}
 	//
@@ -192,29 +192,29 @@ public class Dispatcher extends Lifecycle implements Executor{
 	 * @return
 	 * @see java.util.concurrent.ThreadPoolExecutor#getActiveCount()
 	 */
-	public int activeCount() {
+	public int getActiveCount() {
 		return poolExecutor.getActiveCount();
 	}
 	/**
 	 * @return
 	 * @see java.util.concurrent.ThreadPoolExecutor#getTaskCount()
 	 */
-	public long taskCount() {
+	public long getTaskCount() {
 		return poolExecutor.getTaskCount();
 	}
 	/**
 	 * @return
 	 * @see java.util.concurrent.ThreadPoolExecutor#getCompletedTaskCount()
 	 */
-	public long completedTaskCount() {
+	public long getCompletedTaskCount() {
 		return poolExecutor.getCompletedTaskCount();
 	}
 	//
-	public long totalInvokeCount(){
+	public long getTotalInvokeCount(){
 		return totalInvokeCount.longValue();
 	}
 	//
-	public long totalSubmitCount(){
+	public long getTotalSubmitCount(){
 		return totalSubmitCount.longValue();
 	}
 	//--------------------------------------------------------------------------

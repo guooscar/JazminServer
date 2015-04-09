@@ -54,11 +54,11 @@ public abstract class RPCInvocationHandler implements InvocationHandler {
 		//if all session deactive throw exception.
 		if(!session.isConnected()){
 			logger.warn("no active session for connection.{}:{}",
-					session.remoteHostAddress(),
-					session.remotePort());
+					session.getRemoteHostAddress(),
+					session.getRemotePort());
 			throw new RPCException("no active session for connection."+
-					session.remoteHostAddress()+":"+
-					session.remotePort());
+					session.getRemoteHostAddress()+":"+
+					session.getRemotePort());
 		}
 		return invoke0(session,proxy,method,args);
 	}

@@ -70,14 +70,14 @@ public class RPCClient {
 		Jazmin.scheduleAtFixedRate(
 				this::checkAsyncTimeout,
 				timeout/2, timeout/2, TimeUnit.MILLISECONDS);
-		principal=Jazmin.serverName();
+		principal=Jazmin.getServerName();
 	}
 	//
-	public void principal(String p){
+	public void setPrincipal(String p){
 		this.principal=p;
 	}
 	//
-	public String principal(){
+	public String getPrincipal(){
 		return principal;
 	}
 	//
@@ -138,16 +138,16 @@ public class RPCClient {
 	 * create a new RPC session using specified host and port.
 	 */
 	public void connect(RPCSession session){
-		String host=session.remoteHostAddress();
-		int port=session.remotePort();
+		String host=session.getRemoteHostAddress();
+		int port=session.getRemotePort();
 		try {
 			if(logger.isWarnEnabled()){
 				logger.warn("connect rpc server {}:{}",host,port);
 			}
 			Channel channel=bootstrap.connect(host, port).sync().channel();
 			channel.attr(SESSION_KEY).set(session);
-			session.channel(channel);
-			session.principal(principal);
+			session.setChannel(channel);
+			session.setPrincipal(principal);
 			//
 			//send auth message
 			auth(session);
@@ -160,12 +160,12 @@ public class RPCClient {
 		RPCMessage msg=new RPCMessage();
 		msg.id=messageId.incrementAndGet();
 		msg.type=RPCMessage.TYPE_SESSION_AUTH;
-		msg.payloads=new Object[session.topics().size()+3];
-		msg.payloads[0]=session.principal();
-		msg.payloads[1]=session.credential();
+		msg.payloads=new Object[session.getTopics().size()+3];
+		msg.payloads[0]=session.getPrincipal();
+		msg.payloads[1]=session.getCredential();
 		msg.payloads[2]=session.disablePushMessage;
 		int idx=3;
-		for(String s:session.topics()){
+		for(String s:session.getTopics()){
 			msg.payloads[idx++]=s;
 		}
 		session.write(msg);

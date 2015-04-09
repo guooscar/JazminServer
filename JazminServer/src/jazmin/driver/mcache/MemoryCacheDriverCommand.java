@@ -18,7 +18,7 @@ public class MemoryCacheDriverCommand extends ConsoleCommand {
     	addOption("get",true,"get memory cache item by key",this::getItem);
     	addOption("delete",true,"delete memory cache item by key",this::deleteItem);
     	//
-    	driver=Jazmin.driver(MemoryCacheDriver.class);
+    	driver=Jazmin.getDriver(MemoryCacheDriver.class);
     }
 	//
 	@Override
@@ -32,19 +32,19 @@ public class MemoryCacheDriverCommand extends ConsoleCommand {
     //
     private void showDriverInfo(String args){
     	String format="%-20s: %-10s\n";
-    	out.printf(format,"maxCacheCount",driver.maxCacheCount());
-    	out.printf(format,"size",driver.size());
+    	out.printf(format,"maxCacheCount",driver.getMaxCacheCount());
+    	out.printf(format,"size",driver.getCacheSize());
     }
     //
     private void showQueryStat(String args){
     	String format="%-20s %-20s %-20s\n";
     	out.printf(format,"QUERY","HIT","HIT RATIO");
-    	double qc=driver.totalQueryCount();
-    	double hit=driver.hitQueryCount();
-    	double hitRatio=(driver.totalQueryCount()==0)?0:hit/qc;
+    	double qc=driver.getTotalQueryCount();
+    	double hit=driver.getHitQueryCount();
+    	double hitRatio=(driver.getTotalQueryCount()==0)?0:hit/qc;
     	out.printf(format,
-    			driver.totalQueryCount(),
-    			driver.hitQueryCount(),
+    			driver.getTotalQueryCount(),
+    			driver.getHitQueryCount(),
     			String.format("%.2f",hitRatio));
     	
     }

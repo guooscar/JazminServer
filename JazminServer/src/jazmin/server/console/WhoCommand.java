@@ -18,7 +18,7 @@ public class WhoCommand extends ConsoleCommand {
     public void run(){
     	out.println("user list:");
     	String format="%-30s %-20s\n";
-    	ConsoleServer cs=Jazmin.server(ConsoleServer.class); 	
+    	ConsoleServer cs=Jazmin.getServer(ConsoleServer.class); 	
     	cs.sshServer.getActiveSessions().forEach(session->{
     		InetSocketAddress sa=(InetSocketAddress)session.getIoSession().getRemoteAddress();
         	String loginHostAddress=sa.getAddress().getHostAddress();

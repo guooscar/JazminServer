@@ -56,7 +56,7 @@ public class Application extends Lifecycle {
 				f.setAccessible(true);
 				Class<?>fieldType=f.getType();
 				if(Driver.class.isAssignableFrom(fieldType)){
-					Object target=Jazmin.driver(
+					Object target=Jazmin.getDriver(
 							(Class<? extends Driver>) fieldType);
 					if(target!=null){
 						f.set(instance,target);		
@@ -64,7 +64,7 @@ public class Application extends Lifecycle {
 						logger.warn("can not find autowired driver:"+fieldType);
 					}
 				}else if(Server.class.isAssignableFrom(fieldType)){
-					Object target=Jazmin.server(
+					Object target=Jazmin.getServer(
 							(Class<? extends Server>) fieldType);
 					if(target!=null){
 						f.set(instance,target);		

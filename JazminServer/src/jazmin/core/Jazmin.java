@@ -129,19 +129,19 @@ public class Jazmin {
 	/**
 	 * get server start time
 	 */
-	public static Date startTime(){
+	public static Date getStartTime(){
 		return startTime;
 	}
 	/**
 	 * return server name
 	 */
-	public static String serverName(){
+	public static String getServerName(){
 		return serverName;
 	}
 	/**
 	 * return boot file path
 	 */
-	public static String bootFile(){
+	public static String getBootFile(){
 		return bootFile;
 	}
 	//--------------------------------------------------------------------------
@@ -149,7 +149,7 @@ public class Jazmin {
 	 * boot jazmin server from config file specified by bootFileURI
 	 * @param bootFileURI the file will be boot 
 	 */
-	public static void bootURL(String bootFileURI)throws Exception{
+	public static void bootFromURI(String bootFileURI)throws Exception{
 		logger.info("boot from:"+bootFileURI);
 		BootScriptLoader bsl=new BootScriptLoader(new URL(bootFileURI).openStream());
 		bsl.load();
@@ -168,7 +168,7 @@ public class Jazmin {
 	/**
 	 * return server path
 	 */
-	public static String serverPath(){
+	public static String getServerPath(){
 		return new File(".").getAbsolutePath();
 	}
 	/**
@@ -197,28 +197,28 @@ public class Jazmin {
 	 * return application package name
 	 * @return application package name
 	 */
-	public static String applicationPackage(){
+	public static String getApplicationPackage(){
 		return applicationPackage;
 	}
 	/**
 	 * return application instance 
 	 * @return application instance
 	 */
-	public static Application application(){
+	public static Application getApplication(){
 		return application;
 	}
 	/**
 	 * return application class loader
 	 * @return the application class loader
 	 */
-	public static ClassLoader appClassLoader(){
+	public static ClassLoader getAppClassLoader(){
 		return appClassloader;
 	}
 	/**
 	 * set application class loader
 	 * @param classLoader the application class loader will be used
 	 */
-	public static void appClassLoader(ClassLoader classLoader){
+	public static void setAppClassLoader(ClassLoader classLoader){
 		appClassloader=classLoader;
 	}
 	//
@@ -240,7 +240,7 @@ public class Jazmin {
 	 * @param the driverClass 
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T  driver(Class<? extends Driver> driverClass){
+	public static <T> T  getDriver(Class<? extends Driver> driverClass){
 		for(Driver d:drivers.values()){
 			if(driverClass.equals(d.getClass())){
 				return (T) d;
@@ -255,7 +255,7 @@ public class Jazmin {
 	 *get all drivers 
 	 *@return all drivers
 	 */
-	public static List<Driver>drivers(){
+	public static List<Driver>getDrivers(){
 		return new ArrayList<Driver>(drivers.values());
 	}
 	//--------------------------------------------------------------------------
@@ -278,7 +278,7 @@ public class Jazmin {
 	 * @return the server 
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T  server(Class<? extends Server> serverClass){
+	public static <T> T  getServer(Class<? extends Server> serverClass){
 		for(Server d:servers.values()){
 			if(serverClass.equals(d.getClass())){
 				return (T) d;
@@ -293,7 +293,7 @@ public class Jazmin {
 	 *get all servers 
 	 *@return all servers
 	 */
-	public static List<Server>servers(){
+	public static List<Server>getServers(){
 		return new ArrayList<Server>(servers.values());
 	}
 	//
@@ -376,8 +376,8 @@ public class Jazmin {
 		InfoBuilder ib=InfoBuilder.create();
 		ib.section("Jazmin dump info");
 		ib.format("%-30s:%-30s\n");
-		ib.print("serverName",serverName());
-		ib.print("serverPath",serverPath());
+		ib.print("serverName",getServerName());
+		ib.print("serverPath",getServerPath());
 		ib.print("appClassloader",appClassloader);
 		ib.print("applicationPackage",applicationPackage);
 		logger.info("\n"+ib.toString());

@@ -58,7 +58,7 @@ public abstract class ConnectionDriver extends Driver{
 		stat.invoke(error, time);
 	}
 	//
-	public List<InvokeStat>invokeStats(){
+	public List<InvokeStat>getInvokeStats(){
 		return new ArrayList<InvokeStat>(sqlStatMap.values());
 	}
 	/**

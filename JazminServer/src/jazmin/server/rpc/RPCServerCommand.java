@@ -26,7 +26,7 @@ public class RPCServerCommand extends ConsoleCommand {
     	addOption("network",false,"show network stats.",this::showNetworkStats);
         	
     	//
-    	rpcServer=Jazmin.server(RPCServer.class);
+    	rpcServer=Jazmin.getServer(RPCServer.class);
     }
 	//
 	@Override
@@ -40,10 +40,10 @@ public class RPCServerCommand extends ConsoleCommand {
     //
     private void showServerInfo(String args){
     	String format="%-20s: %-10s\n";
-		out.printf(format,"port",rpcServer.port());
-		out.printf(format,"idleTime",rpcServer.idleTime());
+		out.printf(format,"port",rpcServer.getPort());
+		out.printf(format,"idleTime",rpcServer.getIdleTime());
 		int idx=1;
-		for(String host:rpcServer.acceptRemoteHosts()){
+		for(String host:rpcServer.getAcceptRemoteHosts()){
 			out.printf(format,"acceptHost-"+idx++,host);		
 		}
 	}
@@ -52,7 +52,7 @@ public class RPCServerCommand extends ConsoleCommand {
     private void showServices(String args){
 		String format="%-5s: %-100s\n";
 		int i=0;
-		List<String> services=rpcServer.serviceNames();
+		List<String> services=rpcServer.getServiceNames();
 		Collections.sort(services);
 		out.println("total "+services.size()+" services");
 		out.format(format,"#","NAME");	
@@ -75,7 +75,7 @@ public class RPCServerCommand extends ConsoleCommand {
     private void showSessions(String args){
 		String format="%-5s: %-20s %-15s %-10s %-10s %-10s %-10s %-10s\n";
 		int i=0;
-		List<RPCSession> sessions=rpcServer.sessions();
+		List<RPCSession> sessions=rpcServer.getSessions();
 		out.println("total "+sessions.size()+" sessions");
 		out.format(format,"#",
 				"PRINCIPAL",
@@ -88,13 +88,13 @@ public class RPCServerCommand extends ConsoleCommand {
 		for(RPCSession s:sessions){
 			out.format(format,
 					i++,
-					s.principal(),
-					s.remoteHostAddress(),
-					s.remotePort(),
-					s.disablePushMessage(),
-					s.sendPackageCount(),
-					s.receivePackageCount(),
-					formatDate(s.createTime()));
+					s.getPrincipal(),
+					s.getRemoteHostAddress(),
+					s.getRemotePort(),
+					s.isDisablePushMessage(),
+					s.getSendPackageCount(),
+					s.getReceivePackageCount(),
+					formatDate(s.getCreateTime()));
 		};
     }
     //
@@ -102,11 +102,11 @@ public class RPCServerCommand extends ConsoleCommand {
     private void showTopics(String args){
 		int i=0;
 		String format="%-5s: %-20s\n";
-		List<String> topicNames=rpcServer.topicNames();
+		List<String> topicNames=rpcServer.getTopicNames();
 		out.println("total "+topicNames.size()+" topics");
 		for(String topic:topicNames){
 			out.format(format,i++,topic);
-			for(RPCSession s:rpcServer.topicSession(topic)){
+			for(RPCSession s:rpcServer.getTopicSession(topic)){
 				out.format(format,"",s);
 			}
 		}
@@ -114,8 +114,8 @@ public class RPCServerCommand extends ConsoleCommand {
     //
     private void showNetworkStats(String args)throws Exception{
     	TerminalWriter tw=new TerminalWriter(out);
-    	lastInBoundBytes=rpcServer.inBoundBytes();
-    	lastOutBoundBytes=rpcServer.outBoundBytes();
+    	lastInBoundBytes=rpcServer.getInBoundBytes();
+    	lastOutBoundBytes=rpcServer.getOutBoundBytes();
     	while(stdin.available()==0){
     		tw.cls();
     		out.println("press any key to quit.");
@@ -129,8 +129,8 @@ public class RPCServerCommand extends ConsoleCommand {
     private long lastOutBoundBytes=0;
     //
     private void showNetworkStats0(){
-    	long inBoundBytes=rpcServer.inBoundBytes();
-    	long outBoundBytes=rpcServer.outBoundBytes();
+    	long inBoundBytes=rpcServer.getInBoundBytes();
+    	long outBoundBytes=rpcServer.getOutBoundBytes();
     	String format="%-30s %-10s %-10s %-10s %-10s %-10s %-10s\n";
     	out.printf(format,
     			"DATE",

@@ -267,7 +267,7 @@ public class FTPServer extends Server{
 	//
 	@Override
 	public void init() throws Exception {
-		ConsoleServer cs=Jazmin.server(ConsoleServer.class);
+		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
 			cs.registerCommand(new FTPServerCommand());
 		}

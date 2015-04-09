@@ -23,7 +23,7 @@ public class C3P0DriverCommand extends ConsoleCommand {
     	addOption("f",false,"show full sql",null);
     	
     	//
-    	connectionDriver=Jazmin.driver(C3P0ConnectionDriver.class);
+    	connectionDriver=Jazmin.getDriver(C3P0ConnectionDriver.class);
     }
 	//
 	@Override
@@ -39,7 +39,7 @@ public class C3P0DriverCommand extends ConsoleCommand {
     private void showStats(String args){
     	String format="%-5s : %-10s %-10s %-10s %-10s %-10s %-50s \n";
 		int i=0;
-		List<InvokeStat>stats=connectionDriver.invokeStats();
+		List<InvokeStat>stats=connectionDriver.getInvokeStats();
 		out.println("total "+stats.size()+" sql stats");
 		Collections.sort(stats);
 		out.format(format,"#","IVC","ERR","MINT","MAXT","AVGT","SQL");	
@@ -71,23 +71,23 @@ public class C3P0DriverCommand extends ConsoleCommand {
     //
     private void showDriverInfo(String args)throws Exception{
     	String format="%-20s: %-10s\n";
-		out.printf(format,"url",connectionDriver.url());
-		out.printf(format,"user",connectionDriver.user());
-		out.printf(format,"autoCommitOnClose",connectionDriver.autoCommitOnClose());
-		out.printf(format,"checkoutTimeout",connectionDriver.checkoutTimeout());
-		out.printf(format,"driverClass",connectionDriver.driverClass());
-		out.printf(format,"initialPoolSize",connectionDriver.initialPoolSize());
-		out.printf(format,"loginTimeout",connectionDriver.loginTimeout());
-		out.printf(format,"maxConnectionAge",connectionDriver.maxConnectionAge());
-		out.printf(format,"minPoolSize",connectionDriver.minPoolSize());
-		out.printf(format,"maxPoolSize",connectionDriver.maxPoolSize());
-		out.printf(format,"threadPoolSize",connectionDriver.threadPoolSize());
+		out.printf(format,"url",connectionDriver.getUrl());
+		out.printf(format,"user",connectionDriver.getUser());
+		out.printf(format,"autoCommitOnClose",connectionDriver.isAutoCommitOnClose());
+		out.printf(format,"checkoutTimeout",connectionDriver.getCheckoutTimeout());
+		out.printf(format,"driverClass",connectionDriver.getDriverClass());
+		out.printf(format,"initialPoolSize",connectionDriver.getInitialPoolSize());
+		out.printf(format,"loginTimeout",connectionDriver.getLoginTimeout());
+		out.printf(format,"maxConnectionAge",connectionDriver.getMaxConnectionAge());
+		out.printf(format,"minPoolSize",connectionDriver.getMinPoolSize());
+		out.printf(format,"maxPoolSize",connectionDriver.getMaxPoolSize());
+		out.printf(format,"threadPoolSize",connectionDriver.getThreadPoolSize());
 		//
-		out.printf(format,"numConnections",connectionDriver.numConnections());
-		out.printf(format,"numIdleConnections",connectionDriver.numIdleConnections());
-		out.printf(format,"threadPoolNumActiveThreads",connectionDriver.threadPoolNumActiveThreads());
-		out.printf(format,"threadPoolNumIdleThreads",connectionDriver.threadPoolNumIdleThreads());
-		out.printf(format,"threadPoolNumTasksPending",connectionDriver.threadPoolNumTasksPending());
+		out.printf(format,"numConnections",connectionDriver.getNumConnections());
+		out.printf(format,"numIdleConnections",connectionDriver.getNumIdleConnections());
+		out.printf(format,"threadPoolNumActiveThreads",connectionDriver.getThreadPoolNumActiveThreads());
+		out.printf(format,"threadPoolNumIdleThreads",connectionDriver.getThreadPoolNumIdleThreads());
+		out.printf(format,"threadPoolNumTasksPending",connectionDriver.getThreadPoolNumTasksPending());
 		//
 		out.printf(format,"statSql",connectionDriver.isStatSql());
 		

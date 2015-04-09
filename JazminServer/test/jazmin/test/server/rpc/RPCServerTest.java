@@ -14,7 +14,7 @@ public class RPCServerTest {
 	//
 	public static void main(String[] args) throws Exception{
 		RPCServer rpcServer=new RPCServer();
-		rpcServer.credential("123");
+		rpcServer.setCredential("123");
 		Jazmin.addServer(rpcServer);
 		Jazmin.start();
 		//

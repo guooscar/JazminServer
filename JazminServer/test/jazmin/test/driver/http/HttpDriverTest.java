@@ -20,7 +20,7 @@ public class HttpDriverTest {
 		HttpClientDriver hd=new HttpClientDriver();
 		Jazmin.addDriver(hd);
 		ConsoleServer cs=new ConsoleServer();
-		cs.port(2222);
+		cs.setPort(2222);
 		Jazmin.addServer(cs);
 		Jazmin.start();
 		//

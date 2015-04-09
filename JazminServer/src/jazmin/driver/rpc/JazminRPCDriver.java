@@ -76,7 +76,7 @@ public class JazminRPCDriver extends Driver{
 	 * set principal of this rpc driver
 	 * @param p the principal
 	 */
-	public void principal(String p){
+	public void setPrincipal(String p){
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -86,14 +86,14 @@ public class JazminRPCDriver extends Driver{
 	 * get principal of this rpc client
 	 * @return
 	 */
-	public String principal(){
+	public String getPrincipal(){
 		return this.principal;
 	}
 	/**
 	 * if disable server push message
 	 * @param dpm if disable flag
 	 */
-	public void disablePushMessage(boolean dpm){
+	public void setDisablePushMessage(boolean dpm){
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -103,7 +103,7 @@ public class JazminRPCDriver extends Driver{
 	 * return if disable server push message feature
 	 * @return if disable flag
 	 */
-	public boolean disablePushMessage(){
+	public boolean isDisablePushMessage(){
 		return disablePushMessage;
 	}
 	/**
@@ -155,12 +155,12 @@ public class JazminRPCDriver extends Driver{
 	//
 	private void connectToRemoteServer(RemoteServerInfo serverInfo){
 		RPCSession session=new RPCSession();
-		session.remoteHostAddress(serverInfo.remoteHostAddress);
-		session.remotePort(serverInfo.remotePort);
-		session.cluster(serverInfo.cluster);
-		session.principal(principal);
-		session.credential(serverInfo.credential);
-		session.disablePushMessage(disablePushMessage);
+		session.setRemoteHostAddress(serverInfo.remoteHostAddress);
+		session.setRemotePort(serverInfo.remotePort);
+		session.setCluster(serverInfo.cluster);
+		session.setPrincipal(principal);
+		session.setCredential(serverInfo.credential);
+		session.setDisablePushMessage(disablePushMessage);
 		Set<String>topics=topicMap.get(serverInfo.cluster);
 		if(topics!=null){
 			topics.forEach((topic)->session.subscribe(topic));
@@ -179,14 +179,14 @@ public class JazminRPCDriver extends Driver{
 	 * @param pushCallback the pushCallback to set
 	 * @see PushCallback
 	 */
-	public void pushCallback(PushCallback pushCallback) {
+	public void setPushCallback(PushCallback pushCallback) {
 		this.pushCallback = pushCallback;
 	}
 	/**
 	 * return push callback of this driver
 	 * @return  push callback of this driver
 	 */
-	public PushCallback pushCallback(){
+	public PushCallback getPushCallback(){
 		return pushCallback;
 	}
 	/**
@@ -194,7 +194,7 @@ public class JazminRPCDriver extends Driver{
 	 * @return all session of this driver
 	 * @see RPCSession
 	 */
-	public List<RPCSession>sessions(){
+	public List<RPCSession>getSessions(){
 		List<RPCSession>ss=new ArrayList<RPCSession>();
 		sessionMap.forEach((cluster,sessionList)->ss.addAll(sessionList));
 		return ss;
@@ -203,21 +203,21 @@ public class JazminRPCDriver extends Driver{
 	 * return all synchronized proxy of this driver
 	 * @return all synchronized proxy of this server 
 	 */
-	public List<String>syncProxys(){
+	public List<String>getSyncProxys(){
 		return new ArrayList<String>(syncProxyMap.keySet());
 	}
 	/**
 	 * return all asynchronized proxy of this driver
 	 * @return all asynchronized proxy of this server 
 	 */
-	public List<String>asyncProxys(){
+	public List<String>getAsyncProxys(){
 		return new ArrayList<String>(asyncProxyMap.keySet());
 	}
 	/**
 	 * return all remote server info of this driver
 	 * @return all remote server info of this driver
 	 */
-	public List<RemoteServerInfo>remoteServers(){
+	public List<RemoteServerInfo>getRemoteServers(){
 		List<RemoteServerInfo>ss=new ArrayList<RemoteServerInfo>();
 		serverInfoMap.forEach((cluster,serverList)->ss.addAll(serverList));
 		return ss;
@@ -343,7 +343,7 @@ public class JazminRPCDriver extends Driver{
 		if(pushCallback==null){
 			return;
 		}
-		String cluster=session.cluster();
+		String cluster=session.getCluster();
 		String serviceId=(String)message.payloads[0];
 		Object payload=message.payloads[1];
 		Jazmin.dispatcher.invokeInPool(cluster+"."+serviceId,
@@ -369,24 +369,24 @@ public class JazminRPCDriver extends Driver{
 	 * return all invoke statics information
 	 * @return
 	 */
-	public List<InvokeStat>invokeStats(){
+	public List<InvokeStat>getInvokeStats(){
 		return new ArrayList<InvokeStat>(methodStats.values());
 	}
 	/**
 	 * return total invoke count of this driver
 	 * @return total invoke count of this driver
 	 */
-	public long totalInvokeCount(){
+	public long getTotalInvokeCount(){
 		return totalInvokeCount.longValue();
 	}
 	//--------------------------------------------------------------------------
 	@Override
 	public void init() throws Exception {
 		if(principal==null){
-			principal=Jazmin.serverName();
+			principal=Jazmin.getServerName();
 		}
 		client=new RPCClient();
-		client.principal(principal);
+		client.setPrincipal(principal);
 		client.setPushMessageCallback(this::handlePushMessage);
 		serverInfoMap.forEach((cluster,serverList)->{
 			serverList.forEach(serverInfo->connectToRemoteServer(serverInfo));
@@ -397,7 +397,7 @@ public class JazminRPCDriver extends Driver{
 	public void start() throws Exception {
 		Jazmin.scheduleAtFixedRate(
 				this::checkSessionActiveStatus, 30,30, TimeUnit.SECONDS);
-		ConsoleServer cs=Jazmin.server(ConsoleServer.class);
+		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
 			cs.registerCommand(new JazminRPCDriverCommand());
 		}

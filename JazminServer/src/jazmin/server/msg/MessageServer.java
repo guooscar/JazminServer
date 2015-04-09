@@ -114,7 +114,7 @@ public class MessageServer extends Server{
 	 * return port of this server
 	 * @return the port of this server
 	 */
-	public int port() {
+	public int getPort() {
 		return port;
 	}
 	
@@ -122,7 +122,7 @@ public class MessageServer extends Server{
 	 * set port of this server
 	 * @param port the port to set
 	 */
-	public void port(int port) {
+	public void setPort(int port) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -133,7 +133,7 @@ public class MessageServer extends Server{
 	 * return connection idle time 
 	 * @return the idleTime
 	 */
-	public int idleTime() {
+	public int getIdleTime() {
 		return idleTime;
 	}
 
@@ -141,7 +141,7 @@ public class MessageServer extends Server{
 	 * set connection idle time
 	 * @param idleTime the idleTime to set
 	 */
-	public void idleTime(int idleTime) {
+	public void setIdleTime(int idleTime) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -152,7 +152,7 @@ public class MessageServer extends Server{
 	 * return server message type
 	 * @return the messageType
 	 */
-	public String messageType() {
+	public String getMessageType() {
 		return messageType;
 	}
 
@@ -160,7 +160,7 @@ public class MessageServer extends Server{
 	 * set server message type
 	 * @param messageType the messageType to set
 	 */
-	public void messageType(String messageType) {
+	public void setMessageType(String messageType) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -175,7 +175,7 @@ public class MessageServer extends Server{
 	 * return max session count 
 	 * @return the maxSessionCount
 	 */
-	public int maxSessionCount() {
+	public int getMaxSessionCount() {
 		return maxSessionCount;
 	}
 
@@ -183,7 +183,7 @@ public class MessageServer extends Server{
 	 * set max session count
 	 * @param maxSessionCount the maxSessionCount to set
 	 */
-	public void maxSessionCount(int maxSessionCount) {
+	public void setMaxSessionCount(int maxSessionCount) {
 		this.maxSessionCount = maxSessionCount;
 	}
 
@@ -191,7 +191,7 @@ public class MessageServer extends Server{
 	 * return max channel count
 	 * @return the maxChannelCount
 	 */
-	public int maxChannelCount() {
+	public int getMaxChannelCount() {
 		return maxChannelCount;
 	}
 
@@ -199,53 +199,53 @@ public class MessageServer extends Server{
 	 * set max channel count
 	 * @param maxChannelCount the maxChannelCount to set
 	 */
-	public void maxChannelCount(int maxChannelCount) {
+	public void setMaxChannelCount(int maxChannelCount) {
 		this.maxChannelCount = maxChannelCount;
 	}
 	/**
 	 * return all service names
 	 * @return all service names
 	 */
-	public List<String>serviceNames(){
+	public List<String>getServiceNames(){
 		return new ArrayList<String>(serviceMap.keySet());
 	}
 	//
-	List<ServiceStub>services(){
+	List<ServiceStub>getServices(){
 		return new ArrayList<ServiceStub>(serviceMap.values());
 	}
 	/**
 	 * return all sessions
 	 * @return all sessions
 	 */
-	public List<Session>sessions(){
+	public List<Session>getSessions(){
 		return new ArrayList<Session>(sessionMap.values());
 	}
 	/**
 	 * return current session count
 	 * @return current session count
 	 */
-	public int sessionCount(){
+	public int getSessionCount(){
 		return sessionMap.size();
 	}
 	/**
 	 * return all channels
 	 * @return all channels
 	 */
-	public List<Channel>channels(){
+	public List<Channel>getChannels(){
 		return new ArrayList<Channel>(channelMap.values());
 	}
 	/**
 	 * return all inbound byte count
 	 * @return  all inbound byte count
 	 */
-	public long inBoundBytes(){
+	public long getInBoundBytes(){
 		return networkTrafficStat.inBoundBytes.longValue();
 	}
 	/**
 	 * return all outbound byte count
 	 * @return all outbound byte count
 	 */
-	public long outBoundBytes(){
+	public long getOutBoundBytes(){
 		return networkTrafficStat.outBoundBytes.longValue();
 	}
 	//--------------------------------------------------------------------------
@@ -267,7 +267,7 @@ public class MessageServer extends Server{
 	 *if session didn't set principal over 30 seconds,kick it.
 	 */
 	private void checkPrincipal(long currentTime,Session session) {
-		if (session.principal() == null) {
+		if (session.getPrincipal() == null) {
 			if ((currentTime - session.createTime.getTime())> 30 * 1000) {
 				session.kick("principal not set.");
 			}
@@ -278,7 +278,7 @@ public class MessageServer extends Server{
 	 */
 	private void checkSessionTimeout(long currentTime,Session session){
 		if(!session.isActive()){
-			if((currentTime-session.lastAccessTime())>sessionTimeout*1000){
+			if((currentTime-session.getLastAccessTime())>sessionTimeout*1000){
 				sessionDestroyed(session);
 			}
 		}
@@ -289,14 +289,14 @@ public class MessageServer extends Server{
 	 * @see SessionLifecycleListener
 	 * @see SessionLifecycleAdapter
 	 */
-	public void sessionLifecycleListener(SessionLifecycleListener l){
+	public void setSessionLifecycleListener(SessionLifecycleListener l){
 		this.sessionLifecycleListener=l;
 	}
 	/**
 	 * return session lifecycle listener
 	 * @return  session lifecycle listener
 	 */
-	public SessionLifecycleListener sessionLifecycleListener(){
+	public SessionLifecycleListener getSessionLifecycleListener(){
 		return sessionLifecycleListener;
 	}
 	/**
@@ -304,14 +304,14 @@ public class MessageServer extends Server{
 	 * @param sf the service filter
 	 * @see ServiceFilter
 	 */
-	public void serviceFilter(ServiceFilter sf){
+	public void setServiceFilter(ServiceFilter sf){
 		this.serviceFilter=sf;
 	}
 	/**
 	 * return the global service filter
 	 * @return  the global service filter
 	 */
-	public ServiceFilter serviceFilter(){
+	public ServiceFilter getServiceFilter(){
 		return serviceFilter;
 	}
 	//--------------------------------------------------------------------------
@@ -402,9 +402,16 @@ public class MessageServer extends Server{
 			}
 			ServiceStub ss=new ServiceStub();
 			ss.serviceId=methodName;
-			ss.isAsyncService=m.isAnnotationPresent(ServiceAsync.class);
-			ss.isContinuationService=m.isAnnotationPresent(ServiceContinuation.class);
-			ss.isDisableResponseService=m.isAnnotationPresent(ServiceDisableResponse.class);
+			Service srvAnnotation=m.getAnnotation(Service.class);
+			if(srvAnnotation!=null){
+				ss.isAsyncService=srvAnnotation.async();
+				ss.isContinuationService=srvAnnotation.continuation();
+				ss.isDisableResponseService=srvAnnotation.disableResponse();
+			}else{
+				ss.isAsyncService=false;
+				ss.isContinuationService=false;
+				ss.isDisableResponseService=false;
+			}
 			ss.instance=instance;
 			ss.method=m;
 			serviceMap.put(methodName, ss);
@@ -675,7 +682,7 @@ public class MessageServer extends Server{
 		}
 		//auto remove disconnect session from room
 		session.channels.forEach(cname->{
-			Channel cc=channel(cname);
+			Channel cc=getChannel(cname);
 			if(cc!=null){
 				session.leaveChannel(cc);
 			}
@@ -715,7 +722,7 @@ public class MessageServer extends Server{
 	 * @param principal the principal releated to session
 	 * @param userAgent the session user agent
 	 */
-	public void principal(Session s,String principal,String userAgent){
+	public void setPrincipal(Session s,String principal,String userAgent){
 		synchronized (s) {
 			setPrincipal0(s,principal,userAgent);
 		}
@@ -744,7 +751,7 @@ public class MessageServer extends Server{
 				oldSession.kick("kicked by same principal.");		
 			}
 			//同名用户登录成功以后新session使用老用户的缓存信息
-			session.userObject(oldSession.userObject);
+			session.setUserObject(oldSession.userObject);
 		}
 		//NOTE 在old session存在的情况下，新的session会直接替换掉老的session 老的session
 		//不会触发sessionDestroyed事件，这么做的目的是防止出现新用户登录提到同名老用户
@@ -796,14 +803,14 @@ public class MessageServer extends Server{
 	 * @param id the channel id
 	 * @return channel with specified id
 	 */
-	public Channel channel(String id){
+	public Channel getChannel(String id){
 		return channelMap.get(id);
 	}
 	/**
 	 * return total channel count 
 	 * @return total channel count
 	 */
-	public int channelCount(){
+	public int getChannelCount(){
 		return channelMap.size();
 	}
 	/**
@@ -820,7 +827,7 @@ public class MessageServer extends Server{
 	@Override
 	public void init() throws Exception {
 		initNettyServer();
-		ConsoleServer cs=Jazmin.server(ConsoleServer.class);
+		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
 			cs.registerCommand(new MessageServerCommand());
 		}

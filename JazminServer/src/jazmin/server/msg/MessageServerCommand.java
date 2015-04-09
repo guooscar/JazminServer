@@ -31,7 +31,7 @@ public class MessageServerCommand extends ConsoleCommand {
     	addOption("co",true,"show channel info",this::showChannelInfo); 
     	addOption("network",false,"show network stats.",this::showNetworkStats);
     	//
-    	messageServer=Jazmin.server(MessageServer.class);
+    	messageServer=Jazmin.getServer(MessageServer.class);
     }
 	//
 	@Override
@@ -45,16 +45,16 @@ public class MessageServerCommand extends ConsoleCommand {
     //
     private void showServerInfo(String args){
     	String format="%-20s: %-10s\n";
-		out.printf(format,"port",messageServer.port());
-		out.printf(format,"idleTime",messageServer.idleTime());
-		out.printf(format,"maxChannelCount",messageServer.maxChannelCount());
-		out.printf(format,"maxSessionCount",messageServer.maxSessionCount());
-		out.printf(format,"messageType",messageServer.messageType());
-		out.printf(format,"serviceFilter",messageServer.serviceFilter());
-		out.printf(format,"sessionLifecycleListener",messageServer.sessionLifecycleListener());
+		out.printf(format,"port",messageServer.getPort());
+		out.printf(format,"idleTime",messageServer.getIdleTime());
+		out.printf(format,"maxChannelCount",messageServer.getMaxChannelCount());
+		out.printf(format,"maxSessionCount",messageServer.getMaxSessionCount());
+		out.printf(format,"messageType",messageServer.getMessageType());
+		out.printf(format,"serviceFilter",messageServer.getServiceFilter());
+		out.printf(format,"sessionLifecycleListener",messageServer.getSessionLifecycleListener());
 		//
-		out.printf(format,"sessionCount",messageServer.sessionCount());
-		out.printf(format,"channelCount",messageServer.channelCount());
+		out.printf(format,"sessionCount",messageServer.getSessionCount());
+		out.printf(format,"channelCount",messageServer.getChannelCount());
 		
 	}
     //
@@ -62,7 +62,7 @@ public class MessageServerCommand extends ConsoleCommand {
     private void showServices(String args){
 		String format="%-5s : %-30s %-10s %-10s %-10s\n";
 		int i=0;
-		List<ServiceStub> services=messageServer.services();
+		List<ServiceStub> services=messageServer.getServices();
 		Collections.sort(services);
 		out.println("total "+services.size()+" services");
 		out.format(format,"#","NAME","ASYNC","CONTINUATION","DISABLERSP");	
@@ -84,17 +84,17 @@ public class MessageServerCommand extends ConsoleCommand {
     		return;
     	}
     	String format="%-20s: %-10s\n";
-		out.printf(format,"id",session.id());
-		out.printf(format,"principal",session.principal());
-		out.printf(format,"userAgent",session.userAgent());
+		out.printf(format,"id",session.getId());
+		out.printf(format,"principal",session.getPrincipal());
+		out.printf(format,"userAgent",session.getUserAgent());
 		out.printf(format,"isActive",session.isActive());
-		out.printf(format,"remoteHostAddress",session.remoteHostAddress());
-		out.printf(format,"remotePort",session.remotePort());
-		out.printf(format,"lastAccessTime",formatDate(new Date(session.lastAccessTime())));
-		out.printf(format,"createTime",formatDate(session.createTime()));
-		out.printf(format,"totalMessageCount",session.totalMessageCount());
-		out.printf(format,"channels",session.channels());
-		out.printf(format,"userObject",DumpUtil.dump(session.userObject()));		
+		out.printf(format,"remoteHostAddress",session.getRemoteHostAddress());
+		out.printf(format,"remotePort",session.getRemotePort());
+		out.printf(format,"lastAccessTime",formatDate(new Date(session.getLastAccessTime())));
+		out.printf(format,"createTime",formatDate(session.getCreateTime()));
+		out.printf(format,"totalMessageCount",session.getTotalMessageCount());
+		out.printf(format,"channels",session.getChannels());
+		out.printf(format,"userObject",DumpUtil.dump(session.getUserObject()));		
 	}
     //
     //
@@ -110,7 +110,7 @@ public class MessageServerCommand extends ConsoleCommand {
     private void showSessions(String args){
 		String format="%-5s: %-5s %-10s %-10s %-10s %-15s %-10s %-10s %-15s %-15s %-10s\n";
 		int i=0;
-		List<Session> sessions=messageServer.sessions();
+		List<Session> sessions=messageServer.getSessions();
 		//
 		String querySql=cli.getOptionValue('q');
 		if(querySql!=null){
@@ -132,42 +132,42 @@ public class MessageServerCommand extends ConsoleCommand {
 		for(Session s:sessions){
 			out.format(format,
 					i++,
-					s.id(),
-					s.principal(),
-					s.userAgent(),
+					s.getId(),
+					s.getPrincipal(),
+					s.getUserAgent(),
 					s.isActive(),
-					s.remoteHostAddress(),
-					s.remotePort(),
-					s.totalMessageCount(),
-					formatDate(new Date(s.lastAccessTime())),
-					formatDate(s.createTime()),
-					s.processSyncService());
+					s.getRemoteHostAddress(),
+					s.getRemotePort(),
+					s.getTotalMessageCount(),
+					formatDate(new Date(s.getLastAccessTime())),
+					formatDate(s.getCreateTime()),
+					s.isProcessSyncService());
 		};
     }
     //
     private void showChannels(String args){
 		String format="%-5s: %-10s %-10s \n";
 		int i=0;
-		List<Channel> channels=messageServer.channels();
+		List<Channel> channels=messageServer.getChannels();
 		out.println("total "+channels.size()+" channels");
 		out.format(format,"#","ID","CREATETIME");	
 		for(Channel s:channels){
 			out.format(format,
 					i++,
-					s.id(),
-					formatDate(new Date(s.createTime())));
+					s.getId(),
+					formatDate(new Date(s.getCreateTime())));
 		};
     }
     private void showChannelInfo(String args){
-    	Channel channel=messageServer.channel(args);
+    	Channel channel=messageServer.getChannel(args);
     	if(channel==null){
     		err.println("can not find channel:"+args);
     		return;
     	}
     	String format="%-20s: %-10s\n";
-		out.printf(format,"id",channel.id());
-		out.printf(format,"createTime",formatDate(new Date(channel.createTime())));
-		out.printf(format,"userObject",DumpUtil.dump(channel.userObject()));		
+		out.printf(format,"id",channel.getId());
+		out.printf(format,"createTime",formatDate(new Date(channel.getCreateTime())));
+		out.printf(format,"userObject",DumpUtil.dump(channel.getUserObject()));		
 	}
     //
     //
@@ -177,8 +177,8 @@ public class MessageServerCommand extends ConsoleCommand {
     	while(stdin.available()==0){
     		tw.cls();
     		out.println("press any key to quit.");
-    		out.println("current session count:"+messageServer.sessionCount());
-    		chart.addValue(messageServer.sessionCount());
+    		out.println("current session count:"+messageServer.getSessionCount());
+    		chart.addValue(messageServer.getSessionCount());
     		chart.reset();
     		tw.fmagenta();
     		out.println(chart.draw());
@@ -191,8 +191,8 @@ public class MessageServerCommand extends ConsoleCommand {
     //
     private void showNetworkStats(String args)throws Exception{
     	TerminalWriter tw=new TerminalWriter(out);
-    	lastInBoundBytes=messageServer.inBoundBytes();
-    	lastOutBoundBytes=messageServer.outBoundBytes();
+    	lastInBoundBytes=messageServer.getInBoundBytes();
+    	lastOutBoundBytes=messageServer.getOutBoundBytes();
     	while(stdin.available()==0){
     		tw.cls();
     		out.println("press any key to quit.");
@@ -207,8 +207,8 @@ public class MessageServerCommand extends ConsoleCommand {
     private long lastOutBoundBytes=0;
     //
     private void showNetworkStats0(){
-    	long inBoundBytes=messageServer.inBoundBytes();
-    	long outBoundBytes=messageServer.outBoundBytes();
+    	long inBoundBytes=messageServer.getInBoundBytes();
+    	long outBoundBytes=messageServer.getOutBoundBytes();
     	String format="%-30s %-10s %-10s %-10s %-10s %-10s %-10s\n";
     	out.printf(format,
     			"DATE",

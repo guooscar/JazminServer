@@ -36,35 +36,35 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	 * return data source checkout connection timeout time
 	 * @return data source checkout connection timeout time
 	 */
-	public int checkoutTimeout() {
+	public int getCheckoutTimeout() {
 		return dataSource.getCheckoutTimeout();
 	}
 	/**
 	 * return jdbc driver class name
 	 * @return jdbc driver class name
 	 */
-	public String driverClass() {
+	public String getDriverClass() {
 		return dataSource.getDriverClass();
 	}
 	/**
 	 * return initial connection pool size
 	 * @return initial connection pool size
 	 */
-	public int initialPoolSize() {
+	public int getInitialPoolSize() {
 		return dataSource.getInitialPoolSize();
 	}
 	/**
 	 * return jdbc connection url
 	 * @return jdbc connection url
 	 */
-	public String url() {
+	public String getUrl() {
 		return dataSource.getJdbcUrl();
 	}
 	/**
 	 * return jdbc login timeout time
 	 * @return jdbc login timeout time
 	 */
-	public int loginTimeout()  {
+	public int getLoginTimeout()  {
 		try {
 			return dataSource.getLoginTimeout();
 		} catch (SQLException e) {
@@ -75,28 +75,28 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	 * return max jdbc connection alive time
 	 * @return  max jdbc connection alive time
 	 */
-	public int maxConnectionAge() {
+	public int getMaxConnectionAge() {
 		return dataSource.getMaxConnectionAge();
 	}
 	/**
 	 * return jdbc max idle time
 	 * @return jdbc max idle time
 	 */
-	public int maxIdleTime() {
+	public int getMaxIdleTime() {
 		return dataSource.getMaxIdleTime();
 	}
 	/**
 	 * return max jdbc connection pool size
 	 * @return
 	 */
-	public int maxPoolSize() {
+	public int getMaxPoolSize() {
 		return dataSource.getMaxPoolSize();
 	}
 	/**
 	 * return min jdbc connection pool size
 	 * @return
 	 */
-	public int minPoolSize() {
+	public int getMinPoolSize() {
 		return dataSource.getMinPoolSize();
 	}
 	/**
@@ -104,7 +104,7 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	 * @return current jdbc connection number
 	 * @throws SQLException
 	 */
-	public int numConnections() throws SQLException {
+	public int getNumConnections() throws SQLException {
 		return dataSource.getNumConnections();
 	}
 	/**
@@ -112,7 +112,7 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	 * @return  current jdbc idle connection number
 	 * @throws SQLException
 	 */
-	public int numIdleConnections() throws SQLException {
+	public int getNumIdleConnections() throws SQLException {
 		return dataSource.getNumIdleConnections();
 	}
 	/**
@@ -120,7 +120,7 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	 * @return thread pool active threads number
 	 * @throws SQLException
 	 */
-	public int threadPoolNumActiveThreads() throws SQLException {
+	public int getThreadPoolNumActiveThreads() throws SQLException {
 		return dataSource.getThreadPoolNumActiveThreads();
 	}
 	/**
@@ -128,7 +128,7 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	 * @return thread pool idle thread number
 	 * @throws SQLException
 	 */
-	public int threadPoolNumIdleThreads() throws SQLException {
+	public int getThreadPoolNumIdleThreads() throws SQLException {
 		return dataSource.getThreadPoolNumIdleThreads();
 	}
 	/**
@@ -136,14 +136,14 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	 * @return thread pool pending task number 
 	 * @throws SQLException
 	 */
-	public int threadPoolNumTasksPending() throws SQLException {
+	public int getThreadPoolNumTasksPending() throws SQLException {
 		return dataSource.getThreadPoolNumTasksPending();
 	}
 	/**
 	 * return thread pool size 
 	 * @return thread pool size
 	 */
-	public int threadPoolSize() {
+	public int getThreadPoolSize() {
 		try {
 			return dataSource.getThreadPoolSize();
 		} catch (SQLException e) {
@@ -154,21 +154,21 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	 * return jdbc user
 	 * @return jdbc user
 	 */
-	public String user() {
+	public String getUser() {
 		return dataSource.getUser();
 	}
 	/**
 	 * return auto commit flag when close connection 
 	 * @return   auto commit flag when close connection 
 	 */
-	public boolean autoCommitOnClose() {
+	public boolean isAutoCommitOnClose() {
 		return dataSource.isAutoCommitOnClose();
 	}
 	/**
 	 * set checkout timeout time
 	 * @param checkoutTimeout
 	 */
-	public void checkoutTimeout(int checkoutTimeout) {
+	public void setCheckoutTimeout(int checkoutTimeout) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -179,7 +179,7 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	 * @param driverClass jdbc driver class name
 	 * @throws PropertyVetoException
 	 */
-	public void driverClass(String driverClass) throws PropertyVetoException {
+	public void setDriverClass(String driverClass) throws PropertyVetoException {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -189,7 +189,7 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	 * set initial jdbc connection pool size
 	 * @param initialPoolSize initial jdbc connection pool size
 	 */
-	public void initialPoolSize(int initialPoolSize) {
+	public void setInitialPoolSize(int initialPoolSize) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -199,7 +199,7 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	 * set jdbc connection url
 	 * @param jdbcUrl jdbc connection url
 	 */
-	public void url(String jdbcUrl) {
+	public void setUrl(String jdbcUrl) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -210,7 +210,7 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	 * @param seconds jdbc connection login timeout time in seconds
 	 * @throws SQLException
 	 */
-	public void loginTimeout(int seconds) throws SQLException {
+	public void setLoginTimeout(int seconds) throws SQLException {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -220,7 +220,7 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	 * set max connection alive time
 	 * @param maxConnectionAge max connection alive time
 	 */
-	public void maxConnectionAge(int maxConnectionAge) {
+	public void setMaxConnectionAge(int maxConnectionAge) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -230,7 +230,7 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	 * set max connection idle time
 	 * @param maxIdleTime  max connection idle time
 	 */
-	public void maxIdleTime(int maxIdleTime) {
+	public void setMaxIdleTime(int maxIdleTime) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -240,7 +240,7 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	 * set max connection pool size
 	 * @param maxPoolSize  max connection pool size
 	 */
-	public void maxPoolSize(int maxPoolSize) {
+	public void setMaxPoolSize(int maxPoolSize) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -250,7 +250,7 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	 * set max statements count
 	 * @param maxStatements
 	 */
-	public void maxStatements(int maxStatements) {
+	public void setMaxStatements(int maxStatements) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -260,7 +260,7 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	 * set min pool size
 	 * @param minPoolSize
 	 */
-	public void minPoolSize(int minPoolSize) {
+	public void setMinPoolSize(int minPoolSize) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -270,7 +270,7 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	 * set jdbc password
 	 * @param password jdbc password
 	 */
-	public void password(String password) {
+	public void setPassword(String password) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -280,7 +280,7 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	 * set jdbc user
 	 * @param user jdbc user
 	 */
-	public void user(String user) {
+	public void setUser(String user) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -290,7 +290,7 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	@Override
 	public void init() throws Exception {
 		super.init();
-		ConsoleServer cs=Jazmin.server(ConsoleServer.class);
+		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
 			cs.registerCommand(new C3P0DriverCommand());
 		}
@@ -305,16 +305,16 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 	@Override
 	public String info() {
 		return InfoBuilder.create().format("%-30s:%-30s\n")
-				.print("user",user())
-				.print("driverClass",driverClass())
-				.print("initialPoolSize",initialPoolSize())
-				.print("url",url())
-				.print("loginTimeout",loginTimeout())
-				.print("maxConnectionAge",maxConnectionAge())
-				.print("maxIdleTime",maxIdleTime())
-				.print("maxPoolSize",maxPoolSize())
-				.print("minPoolSize",minPoolSize())
-				.print("threadPoolSize",threadPoolSize())
+				.print("user",getUser())
+				.print("driverClass",getDriverClass())
+				.print("initialPoolSize",getInitialPoolSize())
+				.print("url",getUrl())
+				.print("loginTimeout",getLoginTimeout())
+				.print("maxConnectionAge",getMaxConnectionAge())
+				.print("maxIdleTime",getMaxIdleTime())
+				.print("maxPoolSize",getMaxPoolSize())
+				.print("minPoolSize",getMinPoolSize())
+				.print("threadPoolSize",getThreadPoolSize())
 				.print("statSql",isStatSql())
 				.toString();
 	}

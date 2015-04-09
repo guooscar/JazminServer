@@ -31,7 +31,7 @@ public class Channel {
 	/**
 	 * return id of this channel
 	 */
-	public String id(){
+	public String getId(){
 		return id;
 	}
 	/**
@@ -66,14 +66,14 @@ public class Channel {
 	/**
 	 *get all session in this channel.
 	 */
-	public List<Session>sessions(){
+	public List<Session>getSessions(){
 		List<Session>allSessions=new ArrayList<>(sessions.values());
 		return allSessions;
 	}
 	/** 
 	 *get session by principal
 	 */
-	public Session sessionByPrincipal(String principal){
+	public Session getSessionByPrincipal(String principal){
 		if(principal==null){
 			throw new IllegalArgumentException("principal can not be null.");
 		}
@@ -89,7 +89,7 @@ public class Channel {
 	/**
 	 *get channel create time.
 	 */
-	public long createTime(){
+	public long getCreateTime(){
 		return createTime;
 	}
 	/** 
@@ -117,13 +117,13 @@ public class Channel {
 	/** 
 	 *get user object 
 	 */
-	public Object userObject() {
+	public Object getUserObject() {
 		return userObject;
 	}
 	/** 
 	 *set user object
 	 */
-	public void userObject(Object userObject) {
+	public void setUserObject(Object userObject) {
 		this.userObject = userObject;
 	}
 }

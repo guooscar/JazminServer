@@ -84,7 +84,7 @@ public class BeanUtil {
 	public static <T>List<T>query(List<T>collection,String sql){
 		try{
 			Query query=new Query();
-			query.setClassLoader(Jazmin.appClassLoader());
+			query.setClassLoader(Jazmin.getAppClassLoader());
 			query.parse(sql);
 			QueryResults qr = query.execute (collection);
 			return qr.getResults();

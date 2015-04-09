@@ -114,14 +114,14 @@ public class RPCServer extends Server{
 	 * return all service names
 	 * @return all service names
 	 */
-	public List<String>serviceNames(){
+	public List<String>getServiceNames(){
 		return new ArrayList<String>(methodMap.keySet());
 	}
 	/**
 	 * return all topic names
 	 * @return all topic names
 	 */
-	public List<String>topicNames(){
+	public List<String>getTopicNames(){
 		return new ArrayList<String>(topicSessionMap.keySet());
 	}
 	/**
@@ -129,7 +129,7 @@ public class RPCServer extends Server{
 	 * @param name topic name
 	 * @return all session releated to specified topic name
 	 */
-	public List<RPCSession>topicSession(String name){
+	public List<RPCSession>getTopicSession(String name){
 		return topicSessionMap.get(name);
 	}
 	//--------------------------------------------------------------------------
@@ -201,9 +201,9 @@ public class RPCServer extends Server{
 				System.arraycopy(message.payloads,3, topics, 0, topics.length);
 			}
 			//
-			session.principal(principal);
-			session.credential(credential);
-			session.disablePushMessage(disablePush);
+			session.setPrincipal(principal);
+			session.setCredential(credential);
+			session.setDisablePushMessage(disablePush);
 			for(Object o:topics){
 				session.subscribe((String)o);
 			}
@@ -346,17 +346,17 @@ public class RPCServer extends Server{
 		if(session.principal==null){
 			throw new IllegalStateException("session principal can not be null."+session);
 		}
-		RPCSession oldSession=sessionMap.get(session.principal());
+		RPCSession oldSession=sessionMap.get(session.getPrincipal());
 		if(oldSession!=null){
 			logger.warn("kick old rpc session:"+oldSession);
 			oldSession.close();
 		}
 		if(logger.isInfoEnabled()){
-			logger.info("rpc session created:"+session+"/topics:"+session.topics());
+			logger.info("rpc session created:"+session+"/topics:"+session.getTopics());
 			
 		}
-		sessionMap.put(session.principal(),session);
-		session.topics().forEach((topic)->{
+		sessionMap.put(session.getPrincipal(),session);
+		session.getTopics().forEach((topic)->{
 			List<RPCSession>sessions=topicSessionMap.get(topic);
 			if(sessions==null){
 				sessions=new ArrayList<RPCSession>();
@@ -376,8 +376,8 @@ public class RPCServer extends Server{
 		if(session.principal==null){
 			return;
 		}
-		sessionMap.remove(session.principal());
-		session.topics().forEach((topic)->{
+		sessionMap.remove(session.getPrincipal());
+		session.getTopics().forEach((topic)->{
 			List<RPCSession>sessions=topicSessionMap.get(topic);
 			if(sessions!=null){
 				sessions.remove(session);
@@ -412,21 +412,21 @@ public class RPCServer extends Server{
 	 * return all accept remote hosts
 	 * @return all accept remote hosts
 	 */
-	public List<String>acceptRemoteHosts(){
+	public List<String>getAcceptRemoteHosts(){
 		return new ArrayList<String>(acceptRemoteHosts);
 	}
 	/**
 	 * return credential of this server
 	 * @return  credential of this server
 	 */
-	public String credential() {
+	public String getCredential() {
 		return credential;
 	}
 	/**
 	 * set credential of this server
 	 * @param credential of this server
 	 */
-	public void credential(String credential) {
+	public void setCredential(String credential) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -436,14 +436,14 @@ public class RPCServer extends Server{
 	 * return port of this server
 	 * @return the port of this server
 	 */
-	public int port() {
+	public int getPort() {
 		return port;
 	}
 	/**
 	 * set port of this server
 	 * @param port the port to set
 	 */
-	public void port(int port) {
+	public void setPort(int port) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -453,14 +453,14 @@ public class RPCServer extends Server{
 	 * return idle time of this server
 	 * @return the idleTime 
 	 */
-	public int idleTime() {
+	public int getIdleTime() {
 		return idleTime;
 	}
 	/**
 	 * set idle timeout time of this server
 	 * @param idleTime the idleTime to set
 	 */
-	public void idleTime(int idleTime) {
+	public void setIdleTime(int idleTime) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -470,14 +470,14 @@ public class RPCServer extends Server{
 	 * return inbound byte count
 	 * @return inbound byte count
 	 */
-	public long inBoundBytes(){
+	public long getInBoundBytes(){
 		return networkTrafficStat.inBoundBytes.longValue();
 	}
 	/**
 	 * outbound byte count
 	 * @return outbound byte count
 	 */
-	public long outBoundBytes(){
+	public long getOutBoundBytes(){
 		return networkTrafficStat.outBoundBytes.longValue();
 	}
 	
@@ -485,7 +485,7 @@ public class RPCServer extends Server{
 	 * return all rpc session 
 	 * @return all rpc sessions
 	 */
-	public List<RPCSession>sessions(){
+	public List<RPCSession>getSessions(){
 		return new ArrayList<RPCSession>(sessionMap.values());
 	}
 	//--------------------------------------------------------------------------
@@ -494,7 +494,7 @@ public class RPCServer extends Server{
 	public void init() throws Exception {
 		initNettyConnector();
 		//
-		ConsoleServer cs=Jazmin.server(ConsoleServer.class);
+		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
 			cs.registerCommand(new RPCServerCommand());
 		}
@@ -525,14 +525,14 @@ public class RPCServer extends Server{
 		.print("idleTime",idleTime+" seconds");
 		ib.section("accept hosts");
 		int index=1;
-		List<String>hosts=acceptRemoteHosts();
+		List<String>hosts=getAcceptRemoteHosts();
 		Collections.sort(hosts);
 		for(String s:hosts){
 			ib.print(index++,s);
 		}
 		ib.section("services");
 		index=1;
-		List<String>methodNames=serviceNames();
+		List<String>methodNames=getServiceNames();
 		Collections.sort(methodNames);
 		for(String s:methodNames){
 			ib.print(index++,s);

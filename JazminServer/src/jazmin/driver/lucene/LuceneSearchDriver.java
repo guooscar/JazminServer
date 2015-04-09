@@ -161,7 +161,7 @@ public class LuceneSearchDriver extends Driver{
 		
 	}
 	//
-	public int numDocs() throws SearchException{
+	public int getNumDocs() throws SearchException{
 		try {
 			initReader();
 			return reader.numDocs();
@@ -170,7 +170,7 @@ public class LuceneSearchDriver extends Driver{
 		}
 	}
 	//
-	public List<SearchDocument> moreLikeThis(String likeFields[], int docId,
+	public List<SearchDocument> queryMoreLikeThis(String likeFields[], int docId,
 			int count) throws SearchException {
 		try {
 			initReader();

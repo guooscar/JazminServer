@@ -24,13 +24,13 @@ public class JazminDAO {
 	/**
 	 * @return the connectionDriver
 	 */
-	public ConnectionDriver connectionDriver() {
+	public ConnectionDriver getConnectionDriver() {
 		return connectionDriver;
 	}
 	/**
 	 * @param connectionDriver the connectionDriver to set
 	 */
-	public void connectionDriver(ConnectionDriver connectionDriver) {
+	public void setConnectionDriver(ConnectionDriver connectionDriver) {
 		this.connectionDriver = connectionDriver;
 	}
 	//

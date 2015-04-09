@@ -46,39 +46,39 @@ public class RPCSession {
 	/**
 	 * @return the cluster
 	 */
-	public String cluster() {
+	public String getCluster() {
 		return cluster;
 	}
 	/**
 	 * @param cluster the cluster to set
 	 */
-	public void cluster(String cluster) {
+	public void setCluster(String cluster) {
 		this.cluster = cluster;
 	}
 	
-	public String principal() {
+	public String getPrincipal() {
 		return principal;
 	}
 
-	public void principal(String principal) {
+	public void setPrincipal(String principal) {
 		this.principal = principal;
 	}
 	
-	public String credential() {
+	public String getCredential() {
 		return credential;
 	}
-	public void credential(String credential) {
+	public void setCredential(String credential) {
 		this.credential = credential;
 	}
 	//
-	public void remoteHostAddress(String remoteHostAddress) {
+	public void setRemoteHostAddress(String remoteHostAddress) {
 		this.remoteHostAddress = remoteHostAddress;
 	}
-	public void remotePort(int remotePort) {
+	public void setRemotePort(int remotePort) {
 		this.remotePort = remotePort;
 	}
 	//
-	public void channel(Channel channel){
+	public void setChannel(Channel channel){
 		this.channel=channel;
 		if(channel!=null){
 			SocketAddress remoteAddr=channel.remoteAddress();
@@ -93,13 +93,13 @@ public class RPCSession {
 	/**
 	 * return remote host address of this connection
 	 */
-	public String remoteHostAddress() {
+	public String getRemoteHostAddress() {
 		return remoteHostAddress;
 	}
 	/**
 	 * return remote port of this connection
 	 */
-	public int remotePort() {
+	public int getRemotePort() {
 		return remotePort;
 	}
 	/**
@@ -123,11 +123,11 @@ public class RPCSession {
 		}
 	}
 	//
-	public long receivePackageCount(){
+	public long getReceivePackageCount(){
 		return receivePackageCount.longValue();
 	}
 	//
-	public long sendPackageCount(){
+	public long getSendPackageCount(){
 		return sendPackageCount.longValue();
 	}
 	//
@@ -139,19 +139,19 @@ public class RPCSession {
 		topics.add(topic);
 	}
 	//
-	public Set<String> topics() {
+	public Set<String> getTopics() {
 		return topics;
 	}
 	//
-	public Date createTime(){
+	public Date getCreateTime(){
 		return createTime;
 	}
 	//
-	public boolean disablePushMessage(){
+	public boolean isDisablePushMessage(){
 		return disablePushMessage;
 	}
 	//
-	public void disablePushMessage(boolean dpm){
+	public void setDisablePushMessage(boolean dpm){
 		disablePushMessage=dpm;
 	}
 	/**

@@ -98,15 +98,15 @@ public class BootScriptLoader {
 		//
 		@Override
 		public void include(String bootFileURI)throws Exception{
-			Jazmin.bootURL(bootFileURI);
+			Jazmin.bootFromURI(bootFileURI);
 		}
 		@Override
 		public String serverName() {
-			return Jazmin.serverName();
+			return Jazmin.getServerName();
 		}
 		@Override
 		public String serverPath() {
-			return Jazmin.serverPath();
+			return Jazmin.getServerPath();
 		}
 		//
 		@Override

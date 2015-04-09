@@ -60,34 +60,34 @@ public class MemcachedDriver extends Driver{
 	 * @return
 	 * @see net.rubyeye.xmemcached.MemcachedClient#getConnectTimeout()
 	 */
-	public long connectTimeout() {
+	public long getConnectTimeout() {
 		return memcachedClient.getConnectTimeout();
 	}
 	/**
 	 * @return
 	 * @see net.rubyeye.xmemcached.MemcachedClient#getHealSessionInterval()
 	 */
-	public long healSessionInterval() {
+	public long getHealSessionInterval() {
 		return memcachedClient.getHealSessionInterval();
 	}
 	/**
 	 * @return
 	 * @see net.rubyeye.xmemcached.MemcachedClient#getName()
 	 */
-	public String name() {
+	public String getName() {
 		return memcachedClient.getName();
 	}
 	/**
 	 * @return
 	 * @see net.rubyeye.xmemcached.MemcachedClient#getOpTimeout()
 	 */
-	public long opTimeout() {
+	public long getOpTimeout() {
 		return memcachedClient.getOpTimeout();
 	}
 	
 	/**
 	*/
-	public Map<InetSocketAddress, Map<String, String>> stats()
+	public Map<InetSocketAddress, Map<String, String>> getStats()
 			throws MemcachedException {
 		try{
 			return memcachedClient.getStats();
@@ -130,11 +130,11 @@ public class MemcachedDriver extends Driver{
 	/**
 	 * @return String
 	 */
-	public String serverAddr() {
+	public String getServerAddr() {
 		return serverAddr;
 	}
 	
-	public void opTimeout(long arg0) {
+	public void setOpTimeout(long arg0) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -142,7 +142,7 @@ public class MemcachedDriver extends Driver{
 	}
 	/**
 	 */
-	public void serverAddr(String serverAddr) {
+	public void setServerAddr(String serverAddr) {
 		if(inited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -152,14 +152,14 @@ public class MemcachedDriver extends Driver{
 	 * 
 	 * @return
 	 */
-	public int connectionPoolSize() {
+	public int getConnectionPoolSize() {
 		return connectionPoolSize;
 	}
 	/**
 	 * 
 	 * @param connectionPoolSize
 	 */
-	public void connectionPoolSize(int connectionPoolSize) {
+	public void setConnectionPoolSize(int connectionPoolSize) {
 		this.connectionPoolSize = connectionPoolSize;
 	}
 	//life cycle
@@ -238,19 +238,19 @@ public class MemcachedDriver extends Driver{
 	/**
 	 * @return the totalQueryCount
 	 */
-	public long totalQueryCount() {
+	public long getTotalQueryCount() {
 		return totalQueryCount.longValue();
 	}
 	/**
 	 * @return the hitQueryCount
 	 */
-	public long hitQueryCount() {
+	public long getHitQueryCount() {
 		return hitQueryCount.longValue();
 	}
 	/**
 	 * 
 	 */
-	public long errorQueryCount() {
+	public long getErrorQueryCount() {
 		return errorQueryCount.longValue();
 	}
 	//--------------------------------------------------------------------------
@@ -268,7 +268,7 @@ public class MemcachedDriver extends Driver{
 		builder.setConnectionPoolSize(connectionPoolSize);
 		memcachedClient=builder.build();
 		memcachedClient.setOpTimeout(opTimeout);
-		ConsoleServer cs=Jazmin.server(ConsoleServer.class);
+		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
 			cs.registerCommand(new MemcachedDriverCommand());
 		}
@@ -293,11 +293,11 @@ public class MemcachedDriver extends Driver{
 	@Override
 	public String info() {
 		return InfoBuilder.create().format("%-30s:%-30s\n")
-		.print("serverAddr",serverAddr())
-		.print("connectionPoolSize",connectionPoolSize())
-		.print("name",name())
-		.print("connectTimeout",connectTimeout())
-		.print("opTimeout",opTimeout())
+		.print("serverAddr",getServerAddr())
+		.print("connectionPoolSize",getConnectionPoolSize())
+		.print("name",getName())
+		.print("connectTimeout",getConnectTimeout())
+		.print("opTimeout",getOpTimeout())
 		.toString();
 	}
 }

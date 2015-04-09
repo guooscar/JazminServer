@@ -43,15 +43,15 @@ public class JazminCommand extends ConsoleCommand {
     //
     private void showServerInfo(String args){
     	String format="%-20s : %-10s\n";
-		out.printf(format,"name",Jazmin.serverName());
+		out.printf(format,"name",Jazmin.getServerName());
 		out.printf(format,"version",Jazmin.VERSION);
 		out.printf(format,"logLevel",LoggerFactory.getLevel());
 		out.printf(format,"logFile",LoggerFactory.getFile());
-		out.printf(format,"startTime",formatDate(Jazmin.startTime()));
-		out.printf(format,"bootFile",Jazmin.bootFile());
-		out.printf(format,"applicationPackage",Jazmin.applicationPackage());
-		out.printf(format,"appClassLoader",Jazmin.appClassLoader());
-		out.printf(format,"serverPath",Jazmin.serverPath());	
+		out.printf(format,"startTime",formatDate(Jazmin.getStartTime()));
+		out.printf(format,"bootFile",Jazmin.getBootFile());
+		out.printf(format,"applicationPackage",Jazmin.getApplicationPackage());
+		out.printf(format,"appClassLoader",Jazmin.getAppClassLoader());
+		out.printf(format,"serverPath",Jazmin.getServerPath());	
     }
     //
     //
@@ -117,7 +117,7 @@ public class JazminCommand extends ConsoleCommand {
     private void showServers(String args){
 		String format="%-5s : %-100s\n";
 		int i=0;
-		List<Server>servers=Jazmin.servers();
+		List<Server>servers=Jazmin.getServers();
 		out.println("total "+servers.size()+" servers");
 		out.format(format,"#","NAME");	
 		for(Server server:servers){
@@ -128,7 +128,7 @@ public class JazminCommand extends ConsoleCommand {
     private void showDrivers(String args){
 		String format="%-5s : %-100s\n";
 		int i=0;
-		List<Driver>drivers=Jazmin.drivers();
+		List<Driver>drivers=Jazmin.getDrivers();
 		out.println("total "+drivers.size()+" drivers");
 		out.format(format,"#","NAME");	
 		for(Driver driver:drivers){
@@ -139,23 +139,23 @@ public class JazminCommand extends ConsoleCommand {
     //
     private void showThreadPoolInfo(String args){
     	String format="%-20s : %-10s\n";
-		out.printf(format,"corePoolSize",Jazmin.dispatcher.corePoolSize());
-		out.printf(format,"maxPoolSize",Jazmin.dispatcher.maxPoolSize());
+		out.printf(format,"corePoolSize",Jazmin.dispatcher.getCorePoolSize());
+		out.printf(format,"maxPoolSize",Jazmin.dispatcher.getMaxPoolSize());
 		int index=1;
-		for(DispatcherCallback c: Jazmin.dispatcher.globalDispatcherCallbacks()){
+		for(DispatcherCallback c: Jazmin.dispatcher.getGlobalDispatcherCallbacks()){
 			out.printf(format,"dispatcherCallback-"+(index++),c);
 		}
 		//
-		out.printf(format,"activeCount",Jazmin.dispatcher.activeCount());
-		out.printf(format,"completedTaskCount",Jazmin.dispatcher.completedTaskCount());
-		out.printf(format,"taskCount",Jazmin.dispatcher.taskCount());	
+		out.printf(format,"activeCount",Jazmin.dispatcher.getActiveCount());
+		out.printf(format,"completedTaskCount",Jazmin.dispatcher.getCompletedTaskCount());
+		out.printf(format,"taskCount",Jazmin.dispatcher.getTaskCount());	
     }
     //
     //
     private void showThreadPoolStats(String args){
     	String format="%-5s : %-50s %-10s %-10s %-10s %-10s %-10s\n";
 		int i=0;
-		List<InvokeStat>stats=Jazmin.dispatcher.invokeStats();
+		List<InvokeStat>stats=Jazmin.dispatcher.getInvokeStats();
 		out.println("total "+stats.size()+" method stats");
 		Collections.sort(stats);
 		out.format(format,"#","NAME","IVC","ERR","MINT","MAXT","AVGT");	
@@ -185,8 +185,8 @@ public class JazminCommand extends ConsoleCommand {
     private void showThreadPoolTps(String args)throws Exception{
     	TerminalWriter tw=new TerminalWriter(out);
     	AsciiChart chart=new AsciiChart(160,80);
-    	lastInvokeCount=Jazmin.dispatcher.totalInvokeCount();
-    	lastSubmitCount=Jazmin.dispatcher.totalSubmitCount();
+    	lastInvokeCount=Jazmin.dispatcher.getTotalInvokeCount();
+    	lastSubmitCount=Jazmin.dispatcher.getTotalSubmitCount();
     	maxInvokeTps=0;
     	maxSubmitTps=0;
     	while(stdin.available()==0){
@@ -208,12 +208,12 @@ public class JazminCommand extends ConsoleCommand {
     //
     private void showThreadPoolTps0(AsciiChart chart,TerminalWriter tw){
     	String format="%-20s : %-10s\n";
-		out.printf(format,"activeCount",Jazmin.dispatcher.activeCount());
-		out.printf(format,"completedTaskCount",Jazmin.dispatcher.completedTaskCount());
-		out.printf(format,"taskCount",Jazmin.dispatcher.taskCount());	
+		out.printf(format,"activeCount",Jazmin.dispatcher.getActiveCount());
+		out.printf(format,"completedTaskCount",Jazmin.dispatcher.getCompletedTaskCount());
+		out.printf(format,"taskCount",Jazmin.dispatcher.getTaskCount());	
     	//
-    	long invokeCount=Jazmin.dispatcher.totalInvokeCount();
-    	long submitCount=Jazmin.dispatcher.totalSubmitCount();
+    	long invokeCount=Jazmin.dispatcher.getTotalInvokeCount();
+    	long submitCount=Jazmin.dispatcher.getTotalSubmitCount();
     	format="%-10s %-30s %-10s %-10s %-10s %-10s %-10s\n";
     	out.printf(format,
     			"TYPE",
@@ -234,7 +234,7 @@ public class JazminCommand extends ConsoleCommand {
     			lastInvokeCount,
     			invokeCount,
     			maxInvokeTps,
-    			Jazmin.dispatcher.requestQueueSize(),
+    			Jazmin.dispatcher.getRequestQueueSize(),
     			invokeTps);
     	//
     	long submitTps=submitCount-lastSubmitCount;
@@ -247,7 +247,7 @@ public class JazminCommand extends ConsoleCommand {
     			lastSubmitCount,
     			submitCount,
     			maxSubmitTps,
-    			Jazmin.dispatcher.requestQueueSize(),
+    			Jazmin.dispatcher.getRequestQueueSize(),
     			submitTps);
     	
     	lastInvokeCount=invokeCount;
@@ -263,11 +263,11 @@ public class JazminCommand extends ConsoleCommand {
     }
     //
     private void dump(String args){
-    	Jazmin.servers().forEach(server->{
+    	Jazmin.getServers().forEach(server->{
     		out.println(server.getClass().getName()+" dump info");
     		out.println(server.info());
     	});
-    	Jazmin.drivers().forEach(driver->{
+    	Jazmin.getDrivers().forEach(driver->{
     		out.println(driver.getClass().getName()+" dump info");
     		out.println(driver.info());
     	});
