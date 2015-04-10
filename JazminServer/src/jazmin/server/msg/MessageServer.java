@@ -352,6 +352,8 @@ public class MessageServer extends Server{
 		.channel(NioServerSocketChannel.class)
 		.option(ChannelOption.SO_BACKLOG, 128)    
 		.option(ChannelOption.SO_REUSEADDR, true)    
+		.option(ChannelOption.SO_RCVBUF, 1024*256)   
+		.option(ChannelOption.SO_SNDBUF, 1024*256)  
 		.childOption(ChannelOption.TCP_NODELAY, true)
         .childOption(ChannelOption.SO_KEEPALIVE, true) 
 		.childHandler(channelInitializer);

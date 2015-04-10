@@ -263,8 +263,10 @@ public class IMMessageServer extends Server{
 		workerGroup = new NioEventLoopGroup(0,worker);
 		nettyServer.group(bossGroup, workerGroup)
 		.channel(NioServerSocketChannel.class)
-		.option(ChannelOption.SO_BACKLOG, 128)    
-		.option(ChannelOption.SO_REUSEADDR, true)    
+		.option(ChannelOption.SO_BACKLOG, 1024)    
+		.option(ChannelOption.SO_REUSEADDR, true)   
+		.option(ChannelOption.SO_RCVBUF, 1024*256)   
+		.option(ChannelOption.SO_SNDBUF, 1024*256)   
 		.childOption(ChannelOption.TCP_NODELAY, true)
         .childOption(ChannelOption.SO_KEEPALIVE, true) 
 		.childHandler(channelInitializer);

@@ -41,7 +41,8 @@ public class IMDecoder extends ByteToMessageDecoder {
 			throw new CorruptedFrameException("message too long" + dataLength
 					+ "/" + MAX_MESSAGE_LENGTH);
 		}
-		if (in.readableBytes() < dataLength) {
+		//read next bytes
+		if (in.readableBytes() < (dataLength-2)) {
 			in.resetReaderIndex();
 			return;
 		}
