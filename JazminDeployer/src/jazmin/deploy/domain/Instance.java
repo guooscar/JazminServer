@@ -14,6 +14,7 @@ public class Instance {
 	public static final String TYPE_MYSQL="mysql";
 	public static final String TYPE_MEMCACHED="memcached";
 	public static final String TYPE_HAPROXY="haproxy";
+	public static final String TYPE_REDIS="redis";
 	//
 	public String id;
 	public String cluster;
