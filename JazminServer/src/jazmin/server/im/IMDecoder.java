@@ -49,7 +49,7 @@ public class IMDecoder extends ByteToMessageDecoder {
 		byte[] decoded = new byte[dataLength];
 		in.resetReaderIndex();
 		in.readBytes(decoded);
-		int serviceId=decoded[2]&0xff<<8|decoded[3]&0xff;
+		int serviceId=(decoded[2]<<8)|decoded[3]&0xff;
 		
 		if (logger.isDebugEnabled()) {
 			logger.debug("decode message serviceId:0x{},length:{} ",
