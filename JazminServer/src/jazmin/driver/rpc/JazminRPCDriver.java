@@ -25,7 +25,7 @@ import jazmin.core.aop.Dispatcher;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
-import jazmin.misc.InvokeStat;
+import jazmin.misc.io.InvokeStat;
 import jazmin.server.console.ConsoleServer;
 import jazmin.server.rpc.RPCClient;
 import jazmin.server.rpc.RPCMessage;
@@ -127,13 +127,13 @@ public class JazminRPCDriver extends Driver{
 		String path=u.getPath();
 		//
 		String ss[]=path.split("/");
-		if(ss.length<2){
+		if(ss.length<3){
 			throw new IllegalArgumentException("can not find cluster or server name");
 		}
 		if(credential==null){
-			addRemoteServer(ss[0],ss[1], host, port);
+			addRemoteServer(ss[1],ss[2], host, port);
 		}else{
-			addRemoteServer(ss[0],ss[1],credential,host, port);
+			addRemoteServer(ss[1],ss[2],credential,host, port);
 		}
 	}
 	/**

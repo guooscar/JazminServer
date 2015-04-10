@@ -28,7 +28,8 @@ import jazmin.core.app.AppException;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
-import jazmin.misc.NetworkTrafficStat;
+import jazmin.misc.io.IOWorker;
+import jazmin.misc.io.NetworkTrafficStat;
 import jazmin.server.console.ConsoleServer;
 import jazmin.server.rpc.RPCMessage.AppExceptionMessage;
 import jazmin.server.rpc.codec.fst.FSTDecoder;
@@ -58,6 +59,7 @@ public class RPCServer extends Server{
 	private Map<String,List<RPCSession>>topicSessionMap;
 	private NetworkTrafficStat networkTrafficStat;
 	private Set<String>acceptRemoteHosts;
+	private IOWorker ioWorker;
 	//
 	public static final int CODEC_JSON=1;
 	public static final int CODEC_ZJSON=2;
@@ -133,6 +135,10 @@ public class RPCServer extends Server{
 		return topicSessionMap.get(name);
 	}
 	//--------------------------------------------------------------------------
+	//
+	IOWorker getIOWorker(){
+		return ioWorker;
+	}
 	//io
 	private void initNettyConnector(){
 		rpcServerHandler=new RPCServerHandler(this);
@@ -164,8 +170,9 @@ public class RPCServer extends Server{
 			}
 		};
 		//
-		bossGroup = new NioEventLoopGroup(1,Jazmin.dispatcher);
-		workerGroup = new NioEventLoopGroup(0,Jazmin.dispatcher);
+		ioWorker=new IOWorker("RPCServerIO",Runtime.getRuntime().availableProcessors()*2+1);
+		bossGroup = new NioEventLoopGroup(1,ioWorker);
+		workerGroup = new NioEventLoopGroup(0,ioWorker);
 		nettyServer.group(bossGroup, workerGroup)
 		.channel(NioServerSocketChannel.class)
 		.option(ChannelOption.SO_BACKLOG, 128)    
@@ -490,6 +497,8 @@ public class RPCServer extends Server{
 	public List<RPCSession>getSessions(){
 		return new ArrayList<RPCSession>(sessionMap.values());
 	}
+	
+	//
 	//--------------------------------------------------------------------------
 	//lifecycle
 	@Override

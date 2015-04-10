@@ -1,4 +1,4 @@
-package jazmin.misc;
+package jazmin.misc.config;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

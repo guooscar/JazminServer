@@ -21,7 +21,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import jazmin.core.Jazmin;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.misc.NetworkTrafficStat;
+import jazmin.misc.io.IOWorker;
+import jazmin.misc.io.NetworkTrafficStat;
 import jazmin.server.rpc.codec.fst.FSTDecoder;
 import jazmin.server.rpc.codec.fst.FSTEncoder;
 import jazmin.server.rpc.codec.json.JSONDecoder;
@@ -111,7 +112,8 @@ public class RPCClient {
 	}
 	//
 	private void initNettyConnector(){
-		group = new NioEventLoopGroup(1,Jazmin.dispatcher);
+		IOWorker worker=new IOWorker("RPCClientIO",1);
+		group = new NioEventLoopGroup(1,worker);
 		bootstrap = new Bootstrap();
 		clientHandler=new RPCClientHandler(this);
 		ChannelInitializer <SocketChannel>channelInitializer=

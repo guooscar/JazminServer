@@ -6,7 +6,7 @@ package jazmin.server.msg.codec.zjson;
 import io.netty.channel.ChannelHandler.Sharable;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.misc.NetworkTrafficStat;
+import jazmin.misc.io.NetworkTrafficStat;
 import jazmin.server.msg.codec.BinaryEncoder;
 import jazmin.server.msg.codec.ResponseMessage;
 import jazmin.util.DumpUtil;

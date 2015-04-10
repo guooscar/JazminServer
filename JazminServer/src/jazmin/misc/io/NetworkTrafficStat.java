@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jazmin.misc;
+package jazmin.misc.io;
 
 import java.util.concurrent.atomic.LongAdder;
 

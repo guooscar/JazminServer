@@ -15,7 +15,7 @@ import io.netty.handler.codec.CorruptedFrameException;
 import io.netty.handler.codec.MessageToByteEncoder;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.misc.NetworkTrafficStat;
+import jazmin.misc.io.NetworkTrafficStat;
 
 /**
  * 

@@ -21,7 +21,7 @@ import jazmin.driver.rpc.ProxyInvocationHandler;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
-import jazmin.misc.InvokeStat;
+import jazmin.misc.io.InvokeStat;
 
 /**
  * @author yama
@@ -51,9 +51,16 @@ public class Dispatcher extends Lifecycle implements Executor{
 	public Dispatcher() {
 		corePoolSize=DEFAULT_CORE_POOL_SIZE;
 		maxPoolSize=DEFAULT_MAX_POOL_SIZE;
-		//
 		requestQueue=new LinkedBlockingQueue<Runnable>(1024);
+		globalCallbacks=new ArrayList<DispatcherCallback>();
+		methodStats=new ConcurrentHashMap<String, InvokeStat>();
+		totalInvokeCount=new LongAdder();
+		totalSubmitCount=new LongAdder();
 		//
+	}
+	//--------------------------------------------------------------------------
+	@Override
+	public void init() throws Exception {
 		poolExecutor=new ThreadPoolExecutor(
 				corePoolSize, maxPoolSize,
 				60L,
@@ -61,12 +68,27 @@ public class Dispatcher extends Lifecycle implements Executor{
 				requestQueue, new JazminThreadFactory("WorkerThread"));
 		poolExecutor.setRejectedExecutionHandler(
 				new ThreadPoolExecutor.DiscardOldestPolicy());
-		globalCallbacks=new ArrayList<DispatcherCallback>();
-		methodStats=new ConcurrentHashMap<String, InvokeStat>();
-		totalInvokeCount=new LongAdder();
-		totalSubmitCount=new LongAdder();
-		//
 	}
+	/**
+	 * 
+	 */
+	@Override
+	public void stop(){
+		long rejectTaskCount=poolExecutor.shutdownNow().size();
+		logger.info("reject task count:{}",rejectTaskCount);
+	}
+
+	//
+	@Override
+	public String info() {
+		InfoBuilder ib=InfoBuilder.create().format("%-30s:%-30s\n");
+		ib.print("corePoolSize:",corePoolSize);
+		ib.print("maxPoolSize:",maxPoolSize);
+		ib.section("global callbacks");
+		globalCallbacks.forEach(ib::println);
+		return ib.toString();
+	}
+	
 	//--------------------------------------------------------------------------
 	@SuppressWarnings("unchecked")	
 	public <T> T createProxy(Class<T>clazz,T obj){
@@ -222,25 +244,4 @@ public class Dispatcher extends Lifecycle implements Executor{
 	public void execute(Runnable command) {
 		poolExecutor.execute(command);
 	}
-	//--------------------------------------------------------------------------
-	/**
-	 * 
-	 */
-	@Override
-	public void stop(){
-		long rejectTaskCount=poolExecutor.shutdownNow().size();
-		logger.info("reject task count:{}",rejectTaskCount);
-	}
-
-	//
-	@Override
-	public String info() {
-		InfoBuilder ib=InfoBuilder.create().format("%-30s:%-30s\n");
-		ib.print("corePoolSize:",corePoolSize);
-		ib.print("maxPoolSize:",maxPoolSize);
-		ib.section("global callbacks");
-		globalCallbacks.forEach(ib::println);
-		return ib.toString();
-	}
-	
 }

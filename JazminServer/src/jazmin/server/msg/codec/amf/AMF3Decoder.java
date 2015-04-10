@@ -7,7 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Map;
 
-import jazmin.misc.NetworkTrafficStat;
+import jazmin.misc.io.NetworkTrafficStat;
 import jazmin.server.msg.codec.BinaryDecoder;
 import jazmin.server.msg.codec.RequestMessage;
 

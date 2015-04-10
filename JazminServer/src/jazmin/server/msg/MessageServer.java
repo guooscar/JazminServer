@@ -31,7 +31,8 @@ import jazmin.core.app.AppException;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
-import jazmin.misc.NetworkTrafficStat;
+import jazmin.misc.io.IOWorker;
+import jazmin.misc.io.NetworkTrafficStat;
 import jazmin.server.console.ConsoleServer;
 import jazmin.server.msg.codec.RequestMessage;
 import jazmin.server.msg.codec.ResponseMessage;
@@ -344,9 +345,9 @@ public class MessageServer extends Server{
 	protected void initNettyServer(){
 		nettyServer=new ServerBootstrap();
 		channelInitializer=new MessageServerChannelInitializer();
-		
-		bossGroup = new NioEventLoopGroup(1,Jazmin.dispatcher);
-		workerGroup = new NioEventLoopGroup(0,Jazmin.dispatcher);
+		IOWorker worker=new IOWorker("MsgServerIO",Runtime.getRuntime().availableProcessors()*2+1);
+		bossGroup = new NioEventLoopGroup(1,worker);
+		workerGroup = new NioEventLoopGroup(0,worker);
 		nettyServer.group(bossGroup, workerGroup)
 		.channel(NioServerSocketChannel.class)
 		.option(ChannelOption.SO_BACKLOG, 128)    

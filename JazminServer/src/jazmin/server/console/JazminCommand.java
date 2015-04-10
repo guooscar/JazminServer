@@ -12,7 +12,7 @@ import jazmin.core.job.JazminJob;
 import jazmin.core.task.JazminTask;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.misc.InvokeStat;
+import jazmin.misc.io.InvokeStat;
 /**
  * 
  * @author yama

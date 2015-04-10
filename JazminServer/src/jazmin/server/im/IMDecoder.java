@@ -9,7 +9,7 @@ import java.util.List;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.misc.NetworkTrafficStat;
+import jazmin.misc.io.NetworkTrafficStat;
 /**
  * 
  * @author yama
