@@ -261,6 +261,10 @@ public class DeployManager {
 		if(templateDir==null){
 			templateDir=".";
 		}
+		File file=new File(templateDir+"/"+app+".vm");
+		if(!file.exists()){
+			return null;
+		}
 		Velocity.mergeTemplate(templateDir+"/"+app+".vm","UTF-8", ctx, sw);
 		return sw.toString();
 	}

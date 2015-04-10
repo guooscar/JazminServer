@@ -35,6 +35,8 @@ public class DeployController {
 		String result=DeployManager.renderTemplate(instanceName);
 		if(result!=null){
 			c.view(new PlainTextView(result));
+		}else{
+			c.view(new PlainTextView("can not find template for instance:"+instanceName));	
 		}
 	}
 	//
