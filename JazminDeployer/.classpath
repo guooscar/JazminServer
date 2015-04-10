@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="lib/|webroot/|workspace/|src/jazmin/deploy/|src/jazmin/|src/" kind="src" path=""/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="lib/jsch-0.1.51.jar"/>
+	<classpathentry kind="lib" path="lib/vaadin.jar"/>
+	<classpathentry kind="lib" path="lib/velocity-1.7-dep.jar"/>
+	<classpathentry kind="lib" path="lib/jazmin.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/JazminServer"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
