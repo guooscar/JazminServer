@@ -101,11 +101,11 @@ public class BootScriptLoader {
 			Jazmin.bootFromURI(bootFileURI);
 		}
 		@Override
-		public String serverName() {
+		public String getServerName() {
 			return Jazmin.getServerName();
 		}
 		@Override
-		public String serverPath() {
+		public String getServerPath() {
 			return Jazmin.getServerPath();
 		}
 		//
@@ -139,7 +139,7 @@ public class BootScriptLoader {
 	    }
 		//
 		@Override
-		public void env(String k, String v) {
+		public void setEnv(String k, String v) {
 			Jazmin.environment.put(k, v);
 		}
 	}

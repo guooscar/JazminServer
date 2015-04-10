@@ -63,12 +63,12 @@ public interface BootContext{
 	 * return server name 
 	 * @return server name
 	 */
-	String serverName();
+	String getServerName();
 	/**
 	 * return server home path
 	 * @return server home path
 	 */
-	String serverPath();
+	String getServerPath();
 	/**
 	 * copy resource from remote URI
 	 * @param sourceURI the resource URI
@@ -81,5 +81,5 @@ public interface BootContext{
 	 * @param k the variable key
 	 * @param v the variable value
 	 */
-	void env(String k,String v);
+	void setEnv(String k,String v);
 }
