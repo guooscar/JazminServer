@@ -18,7 +18,7 @@ public class IMMessageServerCommand extends ConsoleCommand {
     private IMMessageServer messageServer;
 	public IMMessageServerCommand() {
     	super();
-    	id="msgsrv";
+    	id="imsgsrv";
     	desc="message server ctrl command";
     	addOption("i",false,"show server information.",this::showServerInfo);
     	addOption("srv",false,"show services.",this::showServices);
@@ -68,7 +68,7 @@ public class IMMessageServerCommand extends ConsoleCommand {
 		for(IMServiceStub s:services){
 			out.format(format,
 					i++,
-					s.serviceId,
+					"0x"+Integer.toHexString(s.serviceId),
 					s.isAsyncService,
 					s.isContinuationService);
 		};

@@ -696,7 +696,7 @@ public class IMMessageServer extends Server{
 		List<IMServiceStub>ss=new ArrayList<IMServiceStub>(serviceMap.values());
 		Collections.sort(ss);
 		ss.forEach((stub)->{
-			ib.print(stub.serviceId+"", stub);
+			ib.print("0x"+Integer.toHexString(stub.serviceId), stub);
 		});			
 		return ib.toString();
 	}
