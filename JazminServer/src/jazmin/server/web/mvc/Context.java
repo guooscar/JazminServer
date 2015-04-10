@@ -6,10 +6,13 @@ package jazmin.server.web.mvc;
 import java.util.HashMap;
 import java.util.Map;
 
+import jazmin.util.DumpIgnore;
+
 /**
  * @author yama
  * 29 Dec, 2014
  */
+@DumpIgnore
 public class Context {
 	View view;
 	Throwable exception;

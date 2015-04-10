@@ -23,9 +23,13 @@ public class DumpUtil {
 			for(int i=startIndex;i<args.length;i++){
 				sb.append("args[")
 					.append(i)
-					.append("]:")
-					.append(JSON.toJSONString(args[i],SerializerFeature.PrettyFormat))
-					.append("\n");
+					.append("]:");
+					if(args[i].getClass().isAnnotationPresent(DumpIgnore.class)){
+						sb.append(args[i]);
+					}else{
+						sb.append(JSON.toJSONString(args[i],SerializerFeature.PrettyFormat));	
+					}
+					sb.append("\n");
 			}
 		}
 		sb.append("--------------------------------------------------------\n");

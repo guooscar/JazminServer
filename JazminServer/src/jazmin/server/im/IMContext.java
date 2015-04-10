@@ -3,11 +3,14 @@
  */
 package jazmin.server.im;
 
+import jazmin.util.DumpIgnore;
+
 
 /**
  * @author yama
  * 26 Dec, 2014
  */
+@DumpIgnore
 public class IMContext {
 	private boolean isFlush;
 	private boolean isContinuation;
