@@ -3,6 +3,7 @@
  */
 package jazmin.test.driver.rpc;
 
+import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
 
 import jazmin.core.Jazmin;
@@ -18,11 +19,13 @@ public class RPCDriverTest {
 
 	/**
 	 * @param args
+	 * @throws URISyntaxException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws URISyntaxException {
 		JazminRPCDriver driver=new JazminRPCDriver();
 		driver.setPrincipal("a"+System.currentTimeMillis());
-		driver.addRemoteServer("test","test","123","localhost",6001);
+		driver.addRemoteServer("jazmin://123@localhost:6001/test/test");
+		//driver.addRemoteServer("test","test","123","localhost",6001);
 		Jazmin.addDriver(driver);
 		
 		Jazmin.start();
