@@ -5,7 +5,7 @@ package jazmin.server.msg.codec.zjson;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.misc.NetworkTrafficStat;
+import jazmin.misc.io.NetworkTrafficStat;
 import jazmin.server.msg.codec.BinaryDecoder;
 import jazmin.server.msg.codec.JSONRequestParser;
 import jazmin.server.msg.codec.RequestMessage;

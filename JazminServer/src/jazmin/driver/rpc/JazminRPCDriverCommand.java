@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import jazmin.core.Jazmin;
-import jazmin.misc.InvokeStat;
+import jazmin.misc.io.InvokeStat;
 import jazmin.server.console.AsciiChart;
 import jazmin.server.console.ConsoleCommand;
 import jazmin.server.console.TerminalWriter;

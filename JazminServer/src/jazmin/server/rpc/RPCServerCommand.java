@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import jazmin.core.Jazmin;
+import jazmin.misc.io.IOWorker;
 import jazmin.server.console.AsciiChart;
 import jazmin.server.console.ConsoleCommand;
 import jazmin.server.console.TerminalWriter;
@@ -80,6 +81,8 @@ public class RPCServerCommand extends ConsoleCommand {
     		printLine('=', 120);
     		showNetworkStats0();
     		printLine('=', 120);
+    		showIOWorkerInfo();
+    		printLine('=', 120);
         	showThreadPoolTps0(chart,tw);
         	out.flush();
     		TimeUnit.SECONDS.sleep(1);
@@ -87,6 +90,24 @@ public class RPCServerCommand extends ConsoleCommand {
       	stdin.read();
     }
     //
+    private void showIOWorkerInfo(){
+    	String format="%-10s %-15s %-10s %-15s %-15s %-15s\n";
+    	out.printf(format,
+    			"POOLSIZE",
+    			"REQUESTQUEUESIZE",
+    			"TASKCOUNT",
+    			"ACTIVECOUNT",
+    			"COMPLETEDTASK",
+    			"TOTALEXECUTE");
+    	IOWorker worker=rpcServer.getIOWorker();
+    	out.printf(format,
+    			worker.getPoolSize(),
+    			worker.getRequestQueueSize(),
+    			worker.getTaskCount(),
+    			worker.getActiveCount(),
+    			worker.getCompletedTaskCount(),
+    			worker.getTotalExecuteCount());
+	}
     //
     private long lastInvokeCount=0;
     private long lastSubmitCount=0;

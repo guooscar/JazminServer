@@ -16,7 +16,7 @@ import jazmin.core.Jazmin;
 import jazmin.core.aop.DispatcherCallbackAdapter;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.misc.InvokeStat;
+import jazmin.misc.io.InvokeStat;
 
 /**
  * @author yama

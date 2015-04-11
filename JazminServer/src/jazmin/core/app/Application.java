@@ -50,6 +50,9 @@ public class Application extends Lifecycle {
 	public <T> T createWired(Class<T>clazz)throws Exception{
 		T instance =clazz.newInstance();
 		autoWiredMap.put(clazz,instance);
+		if(logger.isDebugEnabled()){
+			logger.debug("create wired object {}",clazz.getName());
+		}
 		for(Field f:getField(clazz)){
 			if(f.isAnnotationPresent(AutoWired.class)){
 				AutoWired aw=f.getAnnotation(AutoWired.class);

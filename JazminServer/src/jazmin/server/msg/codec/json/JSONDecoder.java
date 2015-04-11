@@ -33,7 +33,7 @@ import java.util.List;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.misc.NetworkTrafficStat;
+import jazmin.misc.io.NetworkTrafficStat;
 import jazmin.server.msg.codec.JSONRequestParser;
 import jazmin.server.msg.codec.RequestMessage;
 import jazmin.util.DumpUtil;

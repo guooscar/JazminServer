@@ -1,4 +1,4 @@
-package jazmin.misc;
+package jazmin.misc.config;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -15,6 +15,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)  
 @Documented
 @Inherited  
-public @interface JSONConfigPrimaryKey{
-	int order() default 0;
+public @interface JSONConfigField{
+	int min() default Integer.MIN_VALUE;
+	int max() default Integer.MAX_VALUE;
+	int size() default 0;
+	boolean notNull() default false;
 }

@@ -6,6 +6,9 @@ package jazmin.driver.rpc;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +25,7 @@ import jazmin.core.aop.Dispatcher;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
-import jazmin.misc.InvokeStat;
+import jazmin.misc.io.InvokeStat;
 import jazmin.server.console.ConsoleServer;
 import jazmin.server.rpc.RPCClient;
 import jazmin.server.rpc.RPCMessage;
@@ -105,6 +108,33 @@ public class JazminRPCDriver extends Driver{
 	 */
 	public boolean isDisablePushMessage(){
 		return disablePushMessage;
+	}
+	/**
+	 * add remote server using information specified by uri.
+	 * jazmin://credential@host:port/cluster/name
+	 * @param url the remote server uri
+	 * @throws MalformedURLException 
+	 */
+	public void addRemoteServer(String uri) throws URISyntaxException{
+		URI u=new URI(uri);
+		String schema=u.getScheme();
+		if(schema==null||!schema.equals("jazmin")){
+			throw new IllegalArgumentException("schema should be jazmin");
+		}
+		String host=u.getHost();
+		int port=u.getPort();
+		String credential=u.getUserInfo();
+		String path=u.getPath();
+		//
+		String ss[]=path.split("/");
+		if(ss.length<3){
+			throw new IllegalArgumentException("can not find cluster or server name");
+		}
+		if(credential==null){
+			addRemoteServer(ss[1],ss[2], host, port);
+		}else{
+			addRemoteServer(ss[1],ss[2],credential,host, port);
+		}
 	}
 	/**
 	 * add remote server that rpc driver will connecting

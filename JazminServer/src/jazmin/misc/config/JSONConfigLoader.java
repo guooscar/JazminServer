@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jazmin.misc;
+package jazmin.misc.config;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;

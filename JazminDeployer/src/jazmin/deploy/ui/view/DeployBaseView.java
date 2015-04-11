@@ -25,6 +25,7 @@ import com.vaadin.ui.themes.ValoTheme;
 public abstract class DeployBaseView extends VerticalLayout{
 	protected TextField searchTxt;
 	private HorizontalLayout tray;
+	private Label titleLabel; 
 	//
 	public DeployBaseView() {
 		super();
@@ -35,6 +36,8 @@ public abstract class DeployBaseView extends VerticalLayout{
 	public abstract BeanTable<?> createTable();
 	//
 	private void initUI(){
+		setSizeFull();
+		//
 		HorizontalLayout optLayout = new HorizontalLayout();
 		optLayout.setSpacing(true);
 		optLayout.addStyleName(ValoTheme.WINDOW_TOP_TOOLBAR);
@@ -64,6 +67,7 @@ public abstract class DeployBaseView extends VerticalLayout{
         
         BeanTable<?> table = createTable();
 		addComponent(table);
+		table.setSizeFull();
         setExpandRatio(table, 1);
         tray = new HorizontalLayout();
 		tray.setWidth(100.0f, Unit.PERCENTAGE);
@@ -77,6 +81,10 @@ public abstract class DeployBaseView extends VerticalLayout{
 		tray.setExpandRatio(emptyLabel,1.0f);
 		//
 		addComponent(tray);
+	}
+	//
+	public void setTitle(String title){
+		titleLabel.setValue(title);
 	}
 	//
 	protected void addOptButton(String name,String style,ClickListener cl){

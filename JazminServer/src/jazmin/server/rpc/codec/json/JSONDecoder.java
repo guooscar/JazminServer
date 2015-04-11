@@ -7,7 +7,7 @@ import io.netty.handler.codec.CorruptedFrameException;
 
 import java.util.List;
 
-import jazmin.misc.NetworkTrafficStat;
+import jazmin.misc.io.NetworkTrafficStat;
 import jazmin.server.rpc.RPCMessage;
 
 import com.alibaba.fastjson.JSON;

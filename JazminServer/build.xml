@@ -102,7 +102,44 @@
 								file="${script.dir}/env"/>
 				
 	</target>
-	
+	<!-- =================================================================== -->
+	<!--release-->
+	<!-- =================================================================== -->
+	<target name="release-rpc-client" depends="clean,jar">
+		<mkdir dir="${release.dir}/${project.name}-rpc-client"/>
+		<echo>make all in one rpc client jar package</echo>
+		<delete dir="${release.dir}/${project.name}-rpc-client/tmp" />
+		<mkdir dir="${release.dir}/${project.name}-rpc-client/tmp" />
+		<unzip dest="${release.dir}/${project.name}-rpc-client/tmp">
+			<fileset dir="${lib.dir}">
+				<include name="netty-all-5.0.0.Alpha2.jar"/>
+				<include name="log4j-api-2.0.1.jar"/>
+				<include name="log4j-core-2.0.1.jar"/>
+				<include name="fastjson-1.2.1.jar"/>
+			</fileset>
+			<fileset dir="${release.dir}">
+				<include name="**/*.jar"/>
+			</fileset>			
+		</unzip>
+		<!-- if old META-INF exists new jar will cause an error.-->
+		<delete>  
+		    <fileset dir="${release.dir}/${project.name}-rpc-client/tmp/META-INF/" includes="**/*.SF"/>          
+		</delete>
+		<jar destfile="${release.dir}/${project.name}-rpc-client/jazmin-rpc-client.jar">
+			<manifest>
+					<attribute name="Version" value="${project.revision}"/>
+					<attribute name="Implementation-Version" 
+						value="${project.revision}-build${release_date}"/>
+					<attribute name="Implementation-Title" 
+						value="Jazmin"/>			
+			</manifest>	
+			<fileset dir="${release.dir}/${project.name}-rpc-client/tmp">
+				<include name="**/*" />
+			</fileset>
+		</jar>	
+		<delete dir="${release.dir}/${project.name}-rpc-client/tmp" />
+		<delete file="${release.dir}/jazmin.jar" />		
+	</target>
 	<!-- =================================================================== -->
     <!-- compile java code -->
     <!-- =================================================================== -->

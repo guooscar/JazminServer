@@ -38,7 +38,8 @@ public class VaadinStartServlet extends VaadinServlet{
 		WebServer ws=new WebServer();
 		Jazmin.environment.put("deploy.config.path","workspace/config/");
 		Jazmin.environment.put("deploy.template.path","workspace/template/");
-		ws.addResource("/","release/JazminDeploySystem");
+		Jazmin.environment.put("deploy.package.path","workspace/package/");
+		ws.addResource("/","release/JazminDeployer");
 		Jazmin.addServer(ws);
 		Jazmin.addServer(new ConsoleServer());
 		Jazmin.start();

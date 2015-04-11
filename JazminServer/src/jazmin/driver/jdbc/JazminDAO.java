@@ -12,11 +12,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import jazmin.core.app.AutoWired;
+
 /**
  * @author yama
  * 27 Dec, 2014
  */
 public class JazminDAO {
+	@AutoWired
 	private ConnectionDriver connectionDriver;
 	public JazminDAO() {	
 	}

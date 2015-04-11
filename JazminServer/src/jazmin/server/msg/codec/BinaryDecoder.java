@@ -15,7 +15,7 @@ import io.netty.handler.codec.CorruptedFrameException;
 
 import java.util.List;
 
-import jazmin.misc.NetworkTrafficStat;
+import jazmin.misc.io.NetworkTrafficStat;
 /**
  * <pre>message format
  * length      			4

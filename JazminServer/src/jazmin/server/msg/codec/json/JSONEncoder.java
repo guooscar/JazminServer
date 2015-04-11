@@ -34,7 +34,7 @@ import java.nio.charset.Charset;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.misc.NetworkTrafficStat;
+import jazmin.misc.io.NetworkTrafficStat;
 import jazmin.server.msg.codec.ResponseMessage;
 import jazmin.util.DumpUtil;
 

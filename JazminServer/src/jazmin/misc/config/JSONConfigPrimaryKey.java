@@ -1,4 +1,4 @@
-package jazmin.misc;
+package jazmin.misc.config;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -15,7 +15,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)  
 @Documented
 @Inherited  
-public @interface BeanField{
-	String name();
-	boolean required() default false;
+public @interface JSONConfigPrimaryKey{
+	int order() default 0;
 }

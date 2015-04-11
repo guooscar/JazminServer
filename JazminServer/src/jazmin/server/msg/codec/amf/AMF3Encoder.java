@@ -8,7 +8,7 @@ import io.netty.channel.ChannelHandler.Sharable;
 
 import java.io.ByteArrayOutputStream;
 
-import jazmin.misc.NetworkTrafficStat;
+import jazmin.misc.io.NetworkTrafficStat;
 import jazmin.server.msg.codec.BinaryEncoder;
 import jazmin.server.msg.codec.ResponseMessage;
 

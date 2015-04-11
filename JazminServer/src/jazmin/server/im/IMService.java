@@ -1,4 +1,7 @@
-package jazmin.misc;
+/**
+ * 
+ */
+package jazmin.server.im;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -6,18 +9,17 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
 /**
- * 
  * @author yama
- * 5 Jan, 2015
+ * 26 Dec, 2014
  */
-@Target(ElementType.FIELD)  
+@Target(ElementType.METHOD)  
 @Retention(RetentionPolicy.RUNTIME)  
 @Documented
 @Inherited  
-public @interface JSONConfigField{
-	int min() default Integer.MIN_VALUE;
-	int max() default Integer.MAX_VALUE;
-	int size() default 0;
-	boolean notNull() default false;
+public @interface IMService{
+	int id();
+	boolean async() default false;
+	boolean continuation() default false;
 }

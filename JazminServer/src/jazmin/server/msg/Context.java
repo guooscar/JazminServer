@@ -8,11 +8,13 @@ import java.util.Map;
 
 import jazmin.server.msg.codec.RequestMessage;
 import jazmin.server.msg.codec.ResponseMessage;
+import jazmin.util.DumpIgnore;
 
 /**
  * @author yama
  * 26 Dec, 2014
  */
+@DumpIgnore
 public class Context {
 	private boolean isFlush;
 	private boolean isDisableResponse;
