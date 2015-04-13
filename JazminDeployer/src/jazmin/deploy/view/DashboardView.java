@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jazmin.deploy.ui.view;
+package jazmin.deploy.view;
 
 import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.Instance;
@@ -72,7 +72,7 @@ public class DashboardView extends Panel{
 	//
 	private Component buildMachines(){
 		ActiveStateBean bean=new ActiveStateBean();
-		for(Machine m:DeployManager.machines()){
+		for(Machine m:DeployManager.getMachines()){
 			bean.total++;
 			if(m.isAlive){
 				bean.active++;
@@ -89,7 +89,7 @@ public class DashboardView extends Panel{
 	//
 	private Component buildInstances(){
 		ActiveStateBean bean=new ActiveStateBean();
-		for(Instance m:DeployManager.instances()){
+		for(Instance m:DeployManager.getInstances()){
 			bean.total++;
 			if(m.isAlive){
 				bean.active++;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jazmin.deploy;
+package jazmin.deploy.controller;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;

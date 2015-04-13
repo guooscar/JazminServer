@@ -427,12 +427,18 @@ public class MessageServer extends Server{
 		session.lastAccess();
 		//1.bad message
 		if(message.isBadRequest||message.requestId<=0){
+			if(logger.isWarnEnabled()){
+				logger.warn("{} bad request",session);	
+			}
 			session.sendError(
 					message,ResponseMessage.SC_BAD_MESSAGE,"bad message");
 			return null;
 		}
 		//2.replay attack
 		if(message.requestId<=session.getRequestId()){
+			if(logger.isWarnEnabled()){
+				logger.warn("{} same request id",session);	
+			}
 			session.sendError(
 					message,ResponseMessage.SC_REPEAT_ATTACK,
 					"same request id:"+message.requestId);
@@ -441,6 +447,9 @@ public class MessageServer extends Server{
 		session.receivedMessage(message);
 		//3.request rate check
 		if(session.isFrequencyReach()){
+			if(logger.isWarnEnabled()){
+				logger.warn("{} frequency reach",session);
+			}
 			session.sendError(
 					message,ResponseMessage.SC_REQUEST_RATE_TOO_HIGH,
 					"request rate too high");
@@ -449,6 +458,9 @@ public class MessageServer extends Server{
 		//4.get service 
 		ServiceStub ss=serviceMap.get(message.serviceId);
 		if(ss==null){
+			if(logger.isWarnEnabled()){
+				logger.warn("{} can not found service:{}",session,message.serviceId);	
+			}
 			session.sendError(
 					message,ResponseMessage.SC_BAD_MESSAGE,
 					"can not find serviceId:"+message.serviceId);
@@ -456,6 +468,9 @@ public class MessageServer extends Server{
 		}
 		//5.check async state
 		if(!ss.isAsyncService&&session.isProcessSyncService()){
+			if(logger.isWarnEnabled()){
+				logger.warn("{} process sync service:{}",session,message.serviceId);	
+			}
 			session.sendError(
 					message,ResponseMessage.SC_SYNC_SERVICE,
 					"sync service processing");

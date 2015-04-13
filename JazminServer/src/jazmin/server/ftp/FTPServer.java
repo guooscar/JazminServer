@@ -133,20 +133,32 @@ public class FTPServer extends Server{
 	public void setKeystorePassword(String keystorePass) {
 		ssl.setKeystorePassword(keystorePass);
 	}
-	
-	//
+	/**
+	 * set ftp server admin user name
+	 * @param adminName admin user name
+	 */
 	public void setAdminUser(String adminName){
 		userManager=new FTPUserManager(adminName);
 	}
-	//
+	/**
+	 * return ftp server admin user name
+	 * @return admin user name
+	 */
 	public String getAdminUser(){
 		return userManager.getAdminName();
 	}
-	//
+	/**
+	 * add new ftp user
+	 * @param user the new user
+	 * @throws FTPException
+	 */
 	public void addUser(FTPUserInfo user) throws FTPException{
 		userManager.addUser(user);
 	}
-	//
+	/**
+	 * return all ftp user names
+	 * @return
+	 */
 	public String[] getAllUserNames(){
 		try {
 			return serverFactory.getUserManager().getAllUserNames();

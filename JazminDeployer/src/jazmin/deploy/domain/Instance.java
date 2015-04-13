@@ -8,7 +8,7 @@ package jazmin.deploy.domain;
  * 6 Jan, 2015
  */
 public class Instance {
-	public static final String TYPE_JAZMIN_APP="jazmin-rpc";
+	public static final String TYPE_JAZMIN_RPC="jazmin-rpc";
 	public static final String TYPE_JAZMIN_WEB="jazmin-web";
 	public static final String TYPE_JAZMIN_MSG="jazmin-msg";
 	public static final String TYPE_MYSQL="mysql";

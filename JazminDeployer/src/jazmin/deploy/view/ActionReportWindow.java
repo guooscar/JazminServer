@@ -1,9 +1,7 @@
 /**
  * 
  */
-package jazmin.deploy.ui.view;
-
-import jazmin.deploy.domain.Instance;
+package jazmin.deploy.view;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.ExternalResource;
@@ -21,12 +19,12 @@ import com.vaadin.ui.themes.ValoTheme;
  * 6 Jan, 2015
  */
 @SuppressWarnings("serial")
-public class BootFileWindow extends Window{
+public class ActionReportWindow extends Window{
 	//
-	public BootFileWindow(Instance instance) {
+	public ActionReportWindow() {
         Responsive.makeResponsive(this);
-        setCaption(instance.id);
-        setWidth("800px");
+        setCaption("Action Report");
+        setWidth(90.0f, Unit.PERCENTAGE);
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);
         setResizable(false);
@@ -36,7 +34,7 @@ public class BootFileWindow extends Window{
         content.setSizeFull();
         setContent(content);
         BrowserFrame frame=new BrowserFrame(null,
-        		new ExternalResource("/srv/deploy/boot/"+instance.id));  
+        		new ExternalResource("/srv/deploy/report"));  
         frame.setSizeFull();
         content.addComponent(frame);
         content.setExpandRatio(frame, 1f);

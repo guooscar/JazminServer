@@ -55,30 +55,64 @@ public class RPCSession {
 	public void setCluster(String cluster) {
 		this.cluster = cluster;
 	}
-	
+	/**
+	 * get principal of this session
+	 * @return
+	 */
 	public String getPrincipal() {
 		return principal;
 	}
-
+	/**
+	 * set principal of this session
+	 * @param principal
+	 */
 	public void setPrincipal(String principal) {
+		if(principal!=null){
+			throw new IllegalStateException("principal already set to :"+principal);
+		}
 		this.principal = principal;
 	}
-	
+	/**
+	 * return credential of thi session
+	 * @return
+	 */
 	public String getCredential() {
 		return credential;
 	}
+	/**
+	 * set credential of this this session
+	 * @param credential the credential
+	 */
 	public void setCredential(String credential) {
+		if(credential!=null){
+			throw new IllegalStateException("credential already set");
+		}
 		this.credential = credential;
 	}
-	//
+	/**
+	 * set remote host address of this session
+	 * @param remoteHostAddress
+	 */
 	public void setRemoteHostAddress(String remoteHostAddress) {
+		if(remoteHostAddress!=null){
+			throw new IllegalStateException("remoteHostAddress already set to :"
+					+remoteHostAddress);
+		}
 		this.remoteHostAddress = remoteHostAddress;
 	}
+	/**
+	 * set remote port of this session
+	 * @param remotePort
+	 */
 	public void setRemotePort(int remotePort) {
+		if(remotePort!=0){
+			throw new IllegalStateException("remotePort already set to :"
+					+remotePort);
+		}
 		this.remotePort = remotePort;
 	}
 	//
-	public void setChannel(Channel channel){
+	void setChannel(Channel channel){
 		this.channel=channel;
 		if(channel!=null){
 			SocketAddress remoteAddr=channel.remoteAddress();
@@ -122,42 +156,63 @@ public class RPCSession {
 			logger.error(e.getMessage(),e);
 		}
 	}
-	//
-	public long getReceivePackageCount(){
+	/**
+	 * get total received package count in bytes
+	 * @return total received package count in bytes
+	 */
+	public long getReceivedPackageCount(){
 		return receivePackageCount.longValue();
 	}
-	//
-	public long getSendPackageCount(){
+	/**
+	 * get total sent package count in bytes
+	 * @return total sent package count in bytes
+	 */
+	public long getSentPackageCount(){
 		return sendPackageCount.longValue();
 	}
 	//
 	void receivePackage(){
 		receivePackageCount.increment();
 	}
-	//
+	/**
+	 * subscribe event 
+	 * @param topic
+	 */
 	public void subscribe(String topic){
 		topics.add(topic);
 	}
-	//
+	/**
+	 * get topic list of this session
+	 * @return
+	 */
 	public Set<String> getTopics() {
 		return topics;
 	}
-	//
+	/**
+	 * return create time of thi session
+	 * @return
+	 */
 	public Date getCreateTime(){
 		return createTime;
 	}
-	//
+	/**
+	 * return if client disable push message 
+	 * @return if client disable push message 
+	 */
 	public boolean isDisablePushMessage(){
 		return disablePushMessage;
 	}
-	//
+	/**
+	 * set  whether or not client disable server push message 
+	 * @param dpm whether or not  client disable server push message 
+	 */
 	public void setDisablePushMessage(boolean dpm){
 		disablePushMessage=dpm;
 	}
 	/**
-	 * 
+	 * write message to other side
 	 */
-	public void write(RPCMessage message){
+	void write(RPCMessage message){
 		channel.writeAndFlush(message);
 		sendPackageCount.increment();
 	}

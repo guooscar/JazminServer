@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jazmin.deploy.ui.view;
+package jazmin.deploy.view;
 
 import jazmin.deploy.domain.Instance;
 

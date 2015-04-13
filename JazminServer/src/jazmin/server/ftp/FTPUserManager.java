@@ -30,8 +30,6 @@ import org.apache.ftpserver.util.BaseProperties;
 
 
 /**
- * <strong>Internal class, do not use directly.</strong>
- * 
  * <p>Properties file based <code>UserManager</code> implementation. We use
  * <code>user.properties</code> file to store user data.</p>
  *

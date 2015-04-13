@@ -90,8 +90,8 @@ public class JazminRPCDriverCommand extends ConsoleCommand {
 					s.getRemoteHostAddress(),
 					s.getRemotePort(),
 					s.isDisablePushMessage(),
-					s.getSendPackageCount(),
-					s.getReceivePackageCount(),
+					s.getSentPackageCount(),
+					s.getReceivedPackageCount(),
 					formatDate(s.getCreateTime()));
 		};
     }

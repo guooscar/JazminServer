@@ -4,7 +4,7 @@ package jazmin.deploy.domain;
  * @author yama
  * 6 Jan, 2015
  */
-public class Package {
+public class AppPackage {
 	public String id;
 	public String file;
 	/**

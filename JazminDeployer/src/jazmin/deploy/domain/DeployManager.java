@@ -17,6 +17,7 @@ import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,14 +47,16 @@ public class DeployManager {
 	//
 	private static Map<String,Instance>instanceMap;
 	private static Map<String,Machine>machineMap;
-	private static Map<String,Package>packages;
+	private static Map<String,AppPackage>packages;
+	private static List<PackageDownloadInfo>downloadInfos;
 	private static WatchKey key;
 	private static StringBuffer actionReport=new StringBuffer();
 	//
 	static{
 		instanceMap=new ConcurrentHashMap<String, Instance>();
 		machineMap=new ConcurrentHashMap<String, Machine>();
-		packages=new ConcurrentHashMap<String, Package>();
+		packages=new ConcurrentHashMap<String, AppPackage>();
+		downloadInfos=Collections.synchronizedList(new LinkedList<PackageDownloadInfo>());
 	}
 	//
 	@SuppressWarnings("rawtypes")
@@ -116,7 +119,7 @@ public class DeployManager {
 			configDir="./workspace/config";
 		}
 		File configFile=new File(configDir,"instance.json");
-		List<Instance>list=instances();
+		List<Instance>list=getInstances();
 		Collections.sort(list,(o1,o2)->o1.priority-o2.priority);
 		if(configFile.exists()){
 			String result=JSON.toJSONString(
@@ -147,7 +150,7 @@ public class DeployManager {
 		if(packageFolder.exists()&&packageFolder.isDirectory()){
 			for(File ff:packageFolder.listFiles()){
 				if(ff.isFile()){
-					Package pkg=new Package();
+					AppPackage pkg=new AppPackage();
 					String fileName=ff.getName();
 					pkg.id=(fileName);
 					pkg.file=(ff.getAbsolutePath());
@@ -157,43 +160,55 @@ public class DeployManager {
 		}
 	}
 	//
-	public static List<Package>packages(){
-		return new ArrayList<Package>(packages.values());
+	public static List<PackageDownloadInfo>getPackageDownloadInfos(){
+		return downloadInfos;
 	}
 	//
-	public static List<Package>packages(String search)throws Exception{
+	public static void addPackageDownloadInfo(PackageDownloadInfo info){
+		downloadInfos.add(info);
+	}
+	//
+	public static void removePackageDownloadInfo(PackageDownloadInfo info){
+		downloadInfos.remove(info);
+	}
+	//
+	public static List<AppPackage>getPackages(){
+		return new ArrayList<AppPackage>(packages.values());
+	}
+	//
+	public static List<AppPackage>getPackages(String search)throws Exception{
 		if(search==null||search.trim().isEmpty()){
-			return new ArrayList<Package>();
+			return new ArrayList<AppPackage>();
 		}
-		String queryBegin="select * from "+Package.class.getName()+" where 1=1 and ";
-		return BeanUtil.query(packages(),queryBegin+search);
+		String queryBegin="select * from "+AppPackage.class.getName()+" where 1=1 and ";
+		return BeanUtil.query(getPackages(),queryBegin+search);
 	}
 	//
-	public static List<Instance>instances(String search)throws Exception{
+	public static List<Instance>getInstances(String search)throws Exception{
 		if(search==null||search.trim().isEmpty()){
 			return new ArrayList<Instance>();
 		}
 		String queryBegin="select * from "+Instance.class.getName()+" where 1=1 and ";
-		return BeanUtil.query(instances(),queryBegin+search);
+		return BeanUtil.query(getInstances(),queryBegin+search);
 	}
 	//
-	public static Instance instance(String id){
+	public static Instance getInstance(String id){
 		return instanceMap.get(id);
 	}
 	//
-	public static List<Machine>machines(String search){
+	public static List<Machine>getMachines(String search){
 		if(search==null||search.trim().isEmpty()){
 			return new ArrayList<Machine>();
 		}
 		String queryBegin="select * from "+Machine.class.getName()+" where 1=1 and ";
-		return BeanUtil.query(machines(),queryBegin+search);
+		return BeanUtil.query(getMachines(),queryBegin+search);
 	}
 	//
-	public static List<Machine>machines(){
+	public static List<Machine>getMachines(){
 		return new ArrayList<Machine>(machineMap.values());
 	}
 	//
-	public static List<Instance>instances(){
+	public static List<Instance>getInstances(){
 		return new ArrayList<Instance>(instanceMap.values());
 	}
 	//
@@ -253,8 +268,8 @@ public class DeployManager {
 	private static String renderTemplate(Instance instance,String app){
 		Velocity.init();
 		VelocityContext ctx=new VelocityContext();
-		ctx.put("instances",instances());
-		ctx.put("machines",machines());
+		ctx.put("instances",getInstances());
+		ctx.put("machines",getMachines());
 		ctx.put("instance", instance);
 		StringWriter sw=new StringWriter();
 		String templateDir=Jazmin.environment.getString("deploy.template.path");
@@ -400,16 +415,24 @@ public class DeployManager {
 	/**
 	 * 
 	 */
-	public static Package getInstancePackage(String instanceId) {
+	public static AppPackage getInstancePackage(String instanceId) {
 		Instance ins=instanceMap.get(instanceId);
 		if(ins==null){
 			return null;
 		}
-		String packageName=ins.app+"-"+ins.packageVersion+".jaz";
+		String suffex="";
+		if(ins.type.equals(Instance.TYPE_JAZMIN_RPC)
+				||ins.type.equals(Instance.TYPE_JAZMIN_MSG)){
+			suffex=".jaz";
+		}
+		if(ins.type.equals(Instance.TYPE_JAZMIN_WEB)){
+			suffex=".war";
+		}
+		String packageName=ins.app+"-"+ins.packageVersion+suffex;
 		return packages.get(packageName);
 	}
 	//
-	public static Package getPackage(String name){
+	public static AppPackage getPackage(String name){
 		return packages.get(name);
 	}
 	//

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jazmin.deploy.ui.view;
+package jazmin.deploy.view;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,7 +106,7 @@ public class InstanceInfoView extends DeployBaseView{
     		return;
     	}
     	try {
-			instances=DeployManager.instances(search);
+			instances=DeployManager.getInstances(search);
 			if(instances.isEmpty()){
 				DeploySystemUI.showNotificationInfo("Result","No mactch result found.");		
 			}

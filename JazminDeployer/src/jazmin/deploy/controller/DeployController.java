@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jazmin.deploy;
+package jazmin.deploy.controller;
 
 import java.util.List;
 
@@ -65,7 +65,7 @@ public class DeployController {
 			return;
 		}
 		String packageName=querys.get(2);
-		jazmin.deploy.domain.Package result=DeployManager.getPackage(packageName);
+		jazmin.deploy.domain.AppPackage result=DeployManager.getPackage(packageName);
 		if(result!=null){
 			c.view(new FileView(result.file));
 		}
@@ -78,7 +78,7 @@ public class DeployController {
 			return;
 		}
 		String instanceId = querys.get(2);
-		Instance instance=DeployManager.instance(instanceId);
+		Instance instance=DeployManager.getInstance(instanceId);
 		if(instance==null){
 			return;
 		}
@@ -88,10 +88,10 @@ public class DeployController {
 			c.view(new ErrorView(HttpServletResponse.SC_FORBIDDEN));
 			return ;
 		}
-		jazmin.deploy.domain.Package result = DeployManager
+		jazmin.deploy.domain.AppPackage result = DeployManager
 				.getInstancePackage(instanceId);
 		if (result != null) {
-			c.view(new FileView(result.file));
+			c.view(new PackageDownloadView(instance,result));
 		}
 	}
 }

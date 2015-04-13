@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jazmin.deploy.ui.view;
+package jazmin.deploy.view;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -143,7 +143,7 @@ public class MachineInfoView extends DeployBaseView{
     		return;
     	}
     	try {
-    		machines=DeployManager.machines(search);
+    		machines=DeployManager.getMachines(search);
 			if(machines.isEmpty()){
 				DeploySystemUI.showNotificationInfo("Result","No mactch result found.");		
 			}

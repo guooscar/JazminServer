@@ -2,10 +2,10 @@ package jazmin.deploy.ui;
 
 import java.io.File;
 
-import jazmin.deploy.ui.view.DashboardView;
-import jazmin.deploy.ui.view.InstanceInfoView;
-import jazmin.deploy.ui.view.MachineInfoView;
-import jazmin.deploy.ui.view.PackageInfoView;
+import jazmin.deploy.view.DashboardView;
+import jazmin.deploy.view.InstanceInfoView;
+import jazmin.deploy.view.MachineInfoView;
+import jazmin.deploy.view.PackageInfoView;
 
 import com.vaadin.server.FileResource;
 import com.vaadin.server.FontAwesome;

@@ -313,5 +313,10 @@ public class Session {
 			return false;
 		return true;
 	}
+	@Override
+	public String toString() {
+		return "Session [id=" + id + ", principal=" + principal + ", channel="
+				+ channel + "]";
+	}
 
 }

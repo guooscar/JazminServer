@@ -61,6 +61,8 @@ public class RPCServer extends Server{
 	private Set<String>acceptRemoteHosts;
 	private IOWorker ioWorker;
 	//
+	private static ThreadLocal<RPCSession>rpcSessionThreadLocal=new ThreadLocal<RPCSession>();
+	//
 	public static final int CODEC_JSON=1;
 	public static final int CODEC_ZJSON=2;
 	public static final int CODEC_FST=3;
@@ -133,6 +135,13 @@ public class RPCServer extends Server{
 	 */
 	public List<RPCSession>getTopicSession(String name){
 		return topicSessionMap.get(name);
+	}
+	/**
+	 * return rpc session of current request
+	 * @return rpc session of current request 
+	 */
+	public static RPCSession getSession(){
+		return rpcSessionThreadLocal.get();
 	}
 	//--------------------------------------------------------------------------
 	//
@@ -279,9 +288,15 @@ public class RPCServer extends Server{
 			this.session=session;
 			this.message=rpcMessage;
 		}
+		@Override
+		public void before(Object instance, Method method, Object[] args)
+				throws Exception {
+			rpcSessionThreadLocal.set(session);
+		}
 		//
 		@Override
 		public void end(Object instance, Method method, Object[]args,Object ret, Throwable e) {
+			rpcSessionThreadLocal.set(null);
 			RPCMessage rspMessage=new RPCMessage();
 			rspMessage.id=message.id;
 			rspMessage.type=RPCMessage.TYPE_RPC_CALL_RSP;

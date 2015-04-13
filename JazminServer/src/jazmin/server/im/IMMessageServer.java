@@ -338,6 +338,9 @@ public class IMMessageServer extends Server{
 		session.receivedMessage(message);
 		//3.request rate check
 		if(session.isFrequencyReach()){
+			if(logger.isWarnEnabled()){
+				logger.warn("request rate too high");
+			}
 			session.sendError(
 					message,ResponseMessage.SC_REQUEST_RATE_TOO_HIGH,
 					"request rate too high");
@@ -353,6 +356,9 @@ public class IMMessageServer extends Server{
 		}
 		//5.check async state
 		if(!ss.isAsyncService&&session.isProcessSyncService()){
+			if(logger.isWarnEnabled()){
+				logger.warn("processing sync service:"+ss.serviceId);
+			}
 			session.sendError(
 					message,ResponseMessage.SC_SYNC_SERVICE,
 					"sync service processing");
@@ -429,7 +435,7 @@ public class IMMessageServer extends Server{
 	void receiveMessage(IMSession session,IMRequestMessage message){
 		IMServiceStub ss=checkMessage(session, message);
 		if(ss==null){
-			logger.warn("can not found service stub:0x{}",Integer.toHexString(message.serviceId));
+			logger.warn("can not execute service stub:0x{}",Integer.toHexString(message.serviceId));
 			return;
 		}
 		invokeService(session, ss, message);

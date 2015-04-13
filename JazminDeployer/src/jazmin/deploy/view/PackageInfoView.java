@@ -1,14 +1,14 @@
 /**
  * 
  */
-package jazmin.deploy.ui.view;
+package jazmin.deploy.view;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.DeployManager;
-import jazmin.deploy.domain.Package;
+import jazmin.deploy.domain.AppPackage;
 import jazmin.deploy.ui.BeanTable;
 
 import com.vaadin.ui.UI;
@@ -19,26 +19,28 @@ import com.vaadin.ui.UI;
  */
 @SuppressWarnings("serial")
 public class PackageInfoView extends DeployBaseView{
-	private List<Package>packages;
-	BeanTable<Package>table;
+	private List<AppPackage>packages;
+	BeanTable<AppPackage>table;
 	//
 	public PackageInfoView() {
 		super();
 		initUI();
+		searchTxt.setValue("1=1");
 	}
 	@Override
 	public BeanTable<?> createTable() {
-		packages=new ArrayList<Package>();
-		table= new BeanTable<Package>(null, Package.class);
+		packages=new ArrayList<AppPackage>();
+		table= new BeanTable<AppPackage>(null, AppPackage.class);
 		return table;
 	}
 	//
 	private void initUI(){
 		addOptButton("Download",null, (e)->download());
+		addOptButton("Progress",null, (e)->progress());
 	}
 	//
 	private void download(){
-		Package pkg=table.getSelectValue();
+		AppPackage pkg=table.getSelectValue();
 		if(pkg==null){
 			DeploySystemUI.showNotificationInfo("Info",
 					"Please choose which package to download.");
@@ -46,7 +48,12 @@ public class PackageInfoView extends DeployBaseView{
 			UI.getCurrent().getPage().open("/srv/deploy/download/"+pkg.id, pkg.id);
 		}
 	}
-	
+	//
+	private void progress(){
+		PackageDownloadWindow w=new PackageDownloadWindow();
+		UI.getCurrent().addWindow(w);
+		w.focus();
+	}
 	//
 	@Override
 	public void loadData(){
@@ -55,7 +62,7 @@ public class PackageInfoView extends DeployBaseView{
     		return;
     	}
     	try {
-    		packages=DeployManager.packages(search);
+    		packages=DeployManager.getPackages(search);
 			if(packages.isEmpty()){
 				DeploySystemUI.showNotificationInfo("Result","No mactch result found.");		
 			}
