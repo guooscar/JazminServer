@@ -13,10 +13,10 @@ public abstract class Lifecycle {
 	LifecycleListener lifecycleListener;
 	boolean started;
 	boolean inited;
-	public boolean isStarted(){
+	protected final  boolean isStarted(){
 		return started;
 	}
-	public boolean isInited(){
+	protected final boolean isInited(){
 		return inited;
 	}
 	//
