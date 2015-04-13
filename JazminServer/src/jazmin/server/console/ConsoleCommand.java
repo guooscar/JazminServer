@@ -20,6 +20,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.UnrecognizedOptionException;
 /**
  * 
  * @author yama
@@ -159,11 +160,10 @@ public class ConsoleCommand{
 				commandHistory.removeFirst();
 			}
 			run();
-		} catch (Throwable e) {
-			if(!(e instanceof IOException)){
-				logger.catching(e);		
-			}
-			this.err.println(e.getMessage());
+		} catch (IOException |UnrecognizedOptionException e2) {
+			this.err.println(e2.getMessage());
+		}catch (Exception e) {
+			logger.catching(e);	
 		}finally{
 			try{
 				this.out.flush();

@@ -3,7 +3,6 @@
  */
 package jazmin.server.console;
 
-import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,9 +36,7 @@ public class ConsoleServer extends Server{
 	private void startSshServer()throws Exception {
 		sshServer= SshServer.setUpDefaultServer();
 		sshServer.setPort(port);
-		sshServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(
-        		new File(System.getProperty("user.home"), 
-        				".ssh/jazmin-console-hostkey.ser").getAbsolutePath()));
+		sshServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider("jch.ser"));
 		sshServer.setPasswordAuthenticator(new PasswordAuthenticator() {
             public boolean authenticate(String u, String p, ServerSession session) {
             	String loginUser=u;

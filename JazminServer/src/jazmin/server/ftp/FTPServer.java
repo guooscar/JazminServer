@@ -5,7 +5,12 @@ package jazmin.server.ftp;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
@@ -41,8 +46,18 @@ public class FTPServer extends Server{
 	private LinkedHashMap<String,Ftplet>ftplets;
 	private CommandListener commandListener;
 	private FTPStatistics statistics;
+	private Map<String,FileTransferInfo>fileTransferInfos;
 	//
-	
+	public FTPServer() {
+		serverFactory=new FtpServerFactory();
+		factory = new ListenerFactory();
+		ssl = new SslConfigurationFactory();
+		userManager=new FTPUserManager("admin");
+		ftplets=new LinkedHashMap<String, Ftplet>();
+		ftplets.put("EX",new ServiceFtplet());
+		fileTransferInfos=new ConcurrentHashMap<String, FileTransferInfo>();
+	}
+	//
 	/**
 	 * @return
 	 * @see org.apache.ftpserver.listener.ListenerFactory#getIdleTimeout()
@@ -180,8 +195,13 @@ public class FTPServer extends Server{
 	public void setCommandListener(CommandListener commandListener) {
 		this.commandListener = commandListener;
 	}
-	//
-	
+	/**
+	 * return file transfer information 
+	 * @return file transfer information 
+	 */
+	public List<FileTransferInfo>getFileTransferInfos(){
+		return new ArrayList<FileTransferInfo>(fileTransferInfos.values());
+	}
 	//--------------------------------------------------------------------------
 	
 	private class ServiceFtplet implements Ftplet{
@@ -196,6 +216,11 @@ public class FTPServer extends Server{
 				session.session=arg0;
 				request.request=arg1;
 				reply.reply=arg2;
+				//
+				String cmd=request.request.getCommand();
+				if(cmd.equals("STOR")||cmd.equals("RETR")){
+					fileTransferInfos.remove(arg1.hashCode()+"");
+				}
 				//
 				try {
 					commandListener.afterCommand(session, request, reply);
@@ -216,6 +241,16 @@ public class FTPServer extends Server{
 				session.session=arg0;
 				request.request=arg1;
 				//
+				String cmd=request.request.getCommand();
+				if(cmd.equals("STOR")||cmd.equals("RETR")){
+					String argument=request.request.getArgument();
+					FileTransferInfo ft=new FileTransferInfo();
+					ft.file=argument;
+					ft.session=session;
+					ft.startTime=new Date();
+					ft.type=cmd;
+					fileTransferInfos.put(arg1.hashCode()+"",ft);
+				}
 				try {
 					commandListener.beforeCommand(session, request);
 				} catch (Exception e) {
@@ -268,15 +303,6 @@ public class FTPServer extends Server{
 	}
 	//--------------------------------------------------------------------------
 	//
-	public FTPServer() {
-		serverFactory=new FtpServerFactory();
-		factory = new ListenerFactory();
-		ssl = new SslConfigurationFactory();
-		userManager=new FTPUserManager("admin");
-		ftplets=new LinkedHashMap<String, Ftplet>();
-		ftplets.put("EX",new ServiceFtplet());
-	}
-	//
 	@Override
 	public void init() throws Exception {
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
@@ -327,7 +353,7 @@ public class FTPServer extends Server{
 		//
 		FTPUserInfo admin=new FTPUserInfo();
 		admin.userName="admin";
-		admin.homeDirectory="/Users/yama/Desktop/ftp";
+		admin.homeDirectory="d:/ftp";
 		admin.userPassword="202CB962AC59075B964B07152D234B70";//123
 		//admin.homedirectory="/";
 		server.addUser(admin);

@@ -1,4 +1,5 @@
 package jazmin.server.ftp;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import jazmin.core.Jazmin;
@@ -19,7 +20,7 @@ public class FTPServerCommand extends ConsoleCommand {
     	addOption("u",false,"show all user names.",this::showUsers);
     	addOption("stat",false,"show stat info.",this::showStats);
     	addOption("statop",false,"show stat info.",this::showStatsTop);
-    	
+    	addOption("list",false,"list upload/download files.",this::showList);
     	//
     	ftpServer=Jazmin.getServer(FTPServer.class);
     }
@@ -88,6 +89,25 @@ public class FTPServerCommand extends ConsoleCommand {
 			out.format(format,
 					i++,
 					s);
+		};
+    }
+    //
+    private void showList(String args){
+    	List<FileTransferInfo>transferList=ftpServer.getFileTransferInfos();
+    	out.format("total %d transfers\n",transferList.size());
+    	String format="%-5s : %-6s %-20s %-20s %-30s\n";
+		int i=0;
+		out.format(format,"#","TYPE","SESSION","STARTTIME","FILE");	
+		for(FileTransferInfo s:transferList){
+			out.format(format,
+					i++,
+					s.type,
+					s.session.getUser().userName+"@"+
+					s.session.getServerAddress().getHostName()
+					+":"+
+					s.session.getServerAddress().getPort(),
+					formatDate(s.startTime),
+					s.file);
 		};
     }
 }
