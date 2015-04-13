@@ -67,8 +67,9 @@ public class RPCSession {
 	 * @param principal
 	 */
 	public void setPrincipal(String principal) {
-		if(principal!=null){
-			throw new IllegalStateException("principal already set to :"+principal);
+		if(this.principal!=null){
+			throw new IllegalStateException("principal already set to :"
+					+this.principal);
 		}
 		this.principal = principal;
 	}
@@ -84,7 +85,7 @@ public class RPCSession {
 	 * @param credential the credential
 	 */
 	public void setCredential(String credential) {
-		if(credential!=null){
+		if(this.credential!=null){
 			throw new IllegalStateException("credential already set");
 		}
 		this.credential = credential;
@@ -94,9 +95,9 @@ public class RPCSession {
 	 * @param remoteHostAddress
 	 */
 	public void setRemoteHostAddress(String remoteHostAddress) {
-		if(remoteHostAddress!=null){
+		if(this.remoteHostAddress!=null){
 			throw new IllegalStateException("remoteHostAddress already set to :"
-					+remoteHostAddress);
+					+this.remoteHostAddress);
 		}
 		this.remoteHostAddress = remoteHostAddress;
 	}
@@ -105,9 +106,9 @@ public class RPCSession {
 	 * @param remotePort
 	 */
 	public void setRemotePort(int remotePort) {
-		if(remotePort!=0){
+		if(this.remotePort!=0){
 			throw new IllegalStateException("remotePort already set to :"
-					+remotePort);
+					+this.remotePort);
 		}
 		this.remotePort = remotePort;
 	}
