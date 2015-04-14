@@ -20,7 +20,7 @@ import com.vaadin.server.VaadinServlet;
  */
 @WebServlet(value = "/*",asyncSupported = true,loadOnStartup=1)
 @VaadinServletConfiguration(
-        productionMode = false,
+        productionMode = true,
         ui = DeploySystemUI.class)
 public class VaadinStartServlet extends VaadinServlet{
 	/**
