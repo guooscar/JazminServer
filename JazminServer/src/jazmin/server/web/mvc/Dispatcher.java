@@ -53,7 +53,7 @@ public class Dispatcher {
 		controllerMap.put(cc.id(),cs);
 	}
 	//
-	public Context invokeService(Request request,Response response){
+	Context invokeService(Request request,Response response){
 		Context ctx=new Context();
 		ctx.request=request;
 		ctx.response=response;

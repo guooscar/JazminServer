@@ -131,6 +131,10 @@ public class JDBCUtil {
 				ps.setLong(i++, ((Long) o));
 				continue;
 			}
+			if (o instanceof Short) {
+				ps.setShort(i++, ((Short) o));
+				continue;
+			}
 			if (o instanceof Byte) {
 				ps.setByte(i++, ((Byte) o));
 				continue;

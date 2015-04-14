@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspApplicationContext;
 import javax.servlet.jsp.JspFactory;
@@ -104,6 +105,22 @@ public class WebServer extends jazmin.core.Server{
 		webAppContext=createWebAppContext(contextPath);
 		webAppContext.setResourceBase(resourceBase);
 	}
+	/**
+	 * create context for jazmin web application
+	 * @param contextPath the web applicaiton context path
+	 * @param resourceBase the web applicaiton resource base
+	 */
+	public void addApplication(String contextPath,String resourceBase){
+		if(isInited()){
+			throw new IllegalArgumentException("set before inited");
+		}
+		webAppContext=createWebAppContext(contextPath);
+		webAppContext.setResourceBase(resourceBase);
+	}
+	//
+	public void addServlet(Class<? extends Servlet> servlet,String pathSpec){
+		webAppContext.addServlet(servlet, pathSpec);
+	}
 	//
 	private WebAppContext createWebAppContext(String contextPath){
 		WebAppContext webAppContext=new WebAppContext();
@@ -129,6 +146,7 @@ public class WebServer extends jazmin.core.Server{
 		configList.add("org.eclipse.jetty.plus.webapp.PlusConfiguration");
 		configList.add("org.eclipse.jetty.annotations.AnnotationConfiguration");
 		webAppContext.setConfigurationClasses(configList);
+		//
 		//
 		return webAppContext;
 	}
