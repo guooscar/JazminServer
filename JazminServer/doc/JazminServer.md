@@ -4,7 +4,7 @@
 JazminServer适合被用作大型多人在游戏的服务器、物联网系统的后台服务器、大型网站系统的后台服务器等。
 # 特性列表
 * Core
-	* Log统一的全局日志系统
+	* Log 统一的全局日志系统
 	* Dispatcher  统一的多线程调度器
 	* JobScheduler 基于CRON表达式的Job调度器
 	* ApplicationLoader 从自定义格式的二进制分发包加载插件
@@ -35,11 +35,13 @@ JazminServer适合被用作大型多人在游戏的服务器、物联网系统�
 	* SSH based monitor server  基于SSH协议的监控控制台
 	* Piped command 支持管道命令
 	* REPL env 有完整的交互式的命令行环境
-	
-<img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image002.jpg?raw=true' width=250 height=220/>
-<img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image003.jpg?raw=true' width=250 height=220/>
-<img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image004.jpg?raw=true' width=250 height=220/>
-<img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image005.jpg?raw=true' width=250 height=220/>
-<img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image006.jpg?raw=true' width=250 height=220/>
-<img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image007.gif?raw=true' width=250 height=220/>
+<p>
+<img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image002.jpg?raw=true'/>
+<span alian="center">架构图</span>
+</p>
+<img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image003.jpg?raw=true'/>
+<img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image004.jpg?raw=true'/>
+<img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image005.jpg?raw=true'/>
+<img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image006.jpg?raw=true'/>
+<img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image007.gif?raw=true'/>
 
