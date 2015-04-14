@@ -204,8 +204,9 @@ public class IMMessageServerCommand extends ConsoleCommand {
     private void showNetworkStats0(){
     	long inBoundBytes=messageServer.getInBoundBytes();
     	long outBoundBytes=messageServer.getOutBoundBytes();
-    	String format="%-30s %-10s %-10s %-10s %-10s %-10s %-10s\n";
+    	String format="%-10s %-30s %-10s %-10s %-10s %-10s %-10s %-10s\n";
     	out.printf(format,
+    			"TYPE",
     			"DATE",
     			"IN BYTE",
     			"OUT BYTE",
@@ -217,6 +218,7 @@ public class IMMessageServerCommand extends ConsoleCommand {
     	long oo=outBoundBytes-lastOutBoundBytes;
     	
     	out.printf(format,
+    			"RATE/S",
     			formatDate(new Date()),
     			ii,
     			oo,
@@ -226,5 +228,17 @@ public class IMMessageServerCommand extends ConsoleCommand {
     			oo/(1024*1024));
     	lastInBoundBytes=inBoundBytes;
     	lastOutBoundBytes=outBoundBytes;
+    	//
+    	ii=inBoundBytes;
+    	oo=outBoundBytes;
+    	out.printf(format,
+    			"TOTAL",
+    			formatDate(new Date()),
+    			ii,
+    			oo,
+    			ii/1024,
+    			oo/1024,
+    			ii/(1024*1024),
+    			oo/(1024*1024));
     }
 }

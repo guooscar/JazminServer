@@ -74,10 +74,9 @@ public class RPCServerCommand extends ConsoleCommand {
     	lastSubmitCount=Jazmin.dispatcher.getTotalSubmitCount();
     	maxInvokeTps=0;
     	maxSubmitTps=0;
+    	
     	while(stdin.available()==0){
     		tw.cls();
-    		lastInBoundBytes=rpcServer.getInBoundBytes();
-        	lastOutBoundBytes=rpcServer.getOutBoundBytes();
     		out.println("press any key to quit.");
     		printLine('=', 120);
     		showSessions(5);
@@ -272,8 +271,9 @@ public class RPCServerCommand extends ConsoleCommand {
     private void showNetworkStats0(){
     	long inBoundBytes=rpcServer.getInBoundBytes();
     	long outBoundBytes=rpcServer.getOutBoundBytes();
-    	String format="%-30s %-10s %-10s %-10s %-10s %-10s %-10s\n";
+    	String format="%-10s %-30s %-10s %-10s %-10s %-10s %-10s %-10s\n";
     	out.printf(format,
+    			"TYPE",
     			"DATE",
     			"IN BYTE",
     			"OUT BYTE",
@@ -285,6 +285,7 @@ public class RPCServerCommand extends ConsoleCommand {
     	long oo=outBoundBytes-lastOutBoundBytes;
     	
     	out.printf(format,
+    			"RATE/S",
     			formatDate(new Date()),
     			ii,
     			oo,
@@ -294,6 +295,18 @@ public class RPCServerCommand extends ConsoleCommand {
     			oo/(1024*1024));
     	lastInBoundBytes=inBoundBytes;
     	lastOutBoundBytes=outBoundBytes;
+    	//
+    	ii=inBoundBytes;
+    	oo=outBoundBytes;
+    	out.printf(format,
+    			"TOTAL",
+    			formatDate(new Date()),
+    			ii,
+    			oo,
+    			ii/1024,
+    			oo/1024,
+    			ii/(1024*1024),
+    			oo/(1024*1024));
     }
     
 }
