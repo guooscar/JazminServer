@@ -92,7 +92,7 @@ public class IMMessageServer extends Server{
 		sessionDisconnectedMethod=Dispatcher.getMethod(
 				IMSessionLifecycleListener.class,
 				"sessionDisconnected",IMSession.class);
-		sessionDisconnectedMethod=Dispatcher.getMethod(
+		sessionDestroyedMethod=Dispatcher.getMethod(
 				IMSessionLifecycleListener.class,
 				"sessionDestroyed",IMSession.class);
 	}

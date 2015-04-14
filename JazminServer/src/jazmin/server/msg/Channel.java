@@ -54,6 +54,13 @@ public class Channel {
 		}
 		return s;
 	}
+	/** 
+	 *remove session from channel
+	 */
+	public void removeSession(Session session){
+		sessions.remove(session.getPrincipal());
+		session.leaveChannel(this);
+	}
 	/**
 	 *remove all session from channel.
 	 */

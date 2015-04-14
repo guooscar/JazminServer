@@ -106,10 +106,10 @@ public class MessageServer extends Server{
 				"sessionCreated",Session.class);
 		sessionDisconnectedMethod=Dispatcher.getMethod(
 				SessionLifecycleListener.class,
-				"onConnect",Session.class);
-		sessionDisconnectedMethod=Dispatcher.getMethod(
+				"sessionDisconnected",Session.class);
+		sessionDestroyedMethod=Dispatcher.getMethod(
 				SessionLifecycleListener.class,
-				"onDisconnect",Session.class);
+				"sessionDestroyed",Session.class);
 	}
 	/**
 	 * return port of this server
