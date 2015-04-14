@@ -39,9 +39,24 @@ JazminServer适合被用作大型多人在游戏的服务器、物联网系统�
 <img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image002.jpg?raw=true'/>
 <div alian="center">架构图</div>
 </p>
+<p>
 <img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image003.jpg?raw=true'/>
+<div alian="center">部署结构图</div>
+</p>
+<p>
 <img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image004.jpg?raw=true'/>
+<div alian="center">ConsoleServer-TPS监控</div>
+</p>
+<p>
 <img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image005.jpg?raw=true'/>
+<div alian="center">ConsoleServer</div>
+</p>
+<p>
 <img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image006.jpg?raw=true'/>
+<div alian="center">ConsoleServer-SQL分析</div>
+</p>
+<p>
 <img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image007.gif?raw=true'/>
+<div alian="center">自动部署系统</div>
+</p>
 
