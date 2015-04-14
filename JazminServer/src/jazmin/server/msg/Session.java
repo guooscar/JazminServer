@@ -105,12 +105,17 @@ public class Session {
 	public int getRemotePort() {
 		return remotePort;
 	}
-
-	//
+	/**
+	 * @return last access time
+	 */
 	public long getLastAccessTime(){
 		return lastAccessTime;
 	}
-	//
+	/**
+	 * push message to client
+	 * @param serviceId the message id
+	 * @param payload message payload 
+	 */
 	public void push(String serviceId,Object payload){
 		if(serviceId==null){
 			throw new IllegalArgumentException("serviceId can not be null.");
@@ -125,7 +130,11 @@ public class Session {
 		sendMessage(rsm);
 	}
 	//
-	//
+	/**
+	 * push message to client
+	 * @param serviceId the message id
+	 * @param payload message payload
+	 */
 	public void pushRaw(String serviceId,byte[] payload) {
 		if(serviceId==null){
 			throw new IllegalArgumentException("serviceId can not be null.");
@@ -139,7 +148,10 @@ public class Session {
 		rsp.rawData=payload;
 		sendMessage(rsp);
 	}
-	//
+	/**
+	 * send kick message and close session 
+	 * @param message the message before session kicked
+	 */
 	public void kick(String message){
 		if(logger.isDebugEnabled()){
 			logger.debug("session kicked:{}",message);
@@ -157,17 +169,18 @@ public class Session {
 		return userAgent;
 	}
 	/**
-	 * 
+	 * @return all channel id of session joined 
 	 */
 	public List<String>getChannels(){
 		return new ArrayList<>(channels);
 	}
 	//
-	public boolean isProcessSyncService(){
+	//--------------------------------------------------------------------------
+	//
+	//
+	boolean isProcessSyncService(){
 		return processSyncServiceState.get();
 	}
-	//
-	//--------------------------------------------------------------------------
 	//
 	void enterChannel(Channel c){
 		channels.add(c.id);

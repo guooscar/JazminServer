@@ -56,19 +56,19 @@ public class Context {
 	//--------------------------------------------------------------------------
 	//public interface
 	/**
-	 * get service id
+	 * @return service id
 	 */
 	public String getServiceId(){
 		return requestMessage.serviceId;
 	}
 	/**
-	 * return message server
+	 * @return message server
 	 */
 	public MessageServer getServer(){
 		return messageServer;
 	}
 	/**
-	 * return session of this context.
+	 * @return session of this context.
 	 */
 	public Session getSession(){
 		return session;
@@ -79,7 +79,10 @@ public class Context {
 	public void put(String key,Object v){
 		responseMap.put(key, v);
 	}
-	//
+	/**
+	 * put raw byte date to client side
+	 * @param bytes
+	 */
 	public void putRawData(byte []bytes){
 		rawData=bytes;
 	}

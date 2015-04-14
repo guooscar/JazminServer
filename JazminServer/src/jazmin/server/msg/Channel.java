@@ -110,7 +110,7 @@ public class Channel {
 		return result;
 	}
 	/**
-	 *get channel create time.
+	 *@return channel create time.
 	 */
 	public long getCreateTime(){
 		return createTime;
@@ -134,7 +134,7 @@ public class Channel {
 		});
 	}
 	/** 
-	 *get user object 
+	 *@return user object 
 	 */
 	public Object getUserObject() {
 		return userObject;
