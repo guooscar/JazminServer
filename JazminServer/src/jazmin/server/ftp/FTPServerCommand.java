@@ -17,7 +17,6 @@ public class FTPServerCommand extends ConsoleCommand {
     	id="ftpsrv";
     	desc="ftp server ctrl command";
     	addOption("i",false,"show server information.",this::showServerInfo);
-    	addOption("u",false,"show all user names.",this::showUsers);
     	addOption("stat",false,"show stat info.",this::showStats);
     	addOption("statop",false,"show stat info.",this::showStatsTop);
     	addOption("list",false,"list upload/download files.",this::showList);
@@ -74,23 +73,11 @@ public class FTPServerCommand extends ConsoleCommand {
 		out.printf(format,"idleTimeout",ftpServer.getIdleTimeout());
 		out.printf(format,"implicitSsl",ftpServer.isImplicitSsl());
 		out.printf(format,"serverAddress",ftpServer.getServerAddress());
-		out.printf(format,"adminUser",ftpServer.getAdminUser());
+		out.printf(format,"userManager",ftpServer.getUserManager());
 		out.printf(format,"port",ftpServer.getPort());
 		out.printf(format,"commandListener",ftpServer.getCommandListener());
 	}
-    //
-    private void showUsers(String args){
-    	String users[]=ftpServer.getAllUserNames();
-    	out.format("total %d users\n",users.length);
-    	String format="%-5s : %-30s \n";
-		int i=0;
-		out.format(format,"#","NAME");	
-		for(String s:users){
-			out.format(format,
-					i++,
-					s);
-		};
-    }
+    
     //
     private void showList(String args){
     	List<FileTransferInfo>transferList=ftpServer.getFileTransferInfos();

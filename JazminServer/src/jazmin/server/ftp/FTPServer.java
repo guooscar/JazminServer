@@ -16,8 +16,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
 import jazmin.core.aop.Dispatcher;
-import jazmin.log.Logger;
-import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
 import jazmin.server.console.ConsoleServer;
 
@@ -38,12 +36,10 @@ import org.apache.ftpserver.ssl.SslConfigurationFactory;
  * 26 Mar, 2015
  */
 public class FTPServer extends Server{
-	private static Logger logger=LoggerFactory.get(FTPServer.class);
 	//
 	private FtpServer server;
 	private ListenerFactory factory;
 	private SslConfigurationFactory ssl;
-	private FTPUserManager userManager;
 	private FtpServerFactory serverFactory ;
 	private LinkedHashMap<String,Ftplet>ftplets;
 	private CommandListener commandListener;
@@ -53,12 +49,12 @@ public class FTPServer extends Server{
 	private Method listenerAfterMethod;
 	private Method listenerOnConnectMethod;
 	private Method listenerOnDisConnectMethod;
+	private FTPUserManager userManager;
 	//
 	public FTPServer() {
 		serverFactory=new FtpServerFactory();
 		factory = new ListenerFactory();
 		ssl = new SslConfigurationFactory();
-		userManager=new FTPUserManager("admin");
 		ftplets=new LinkedHashMap<String, Ftplet>();
 		ftplets.put("EX",new ServiceFtplet());
 		fileTransferInfos=new ConcurrentHashMap<String, FileTransferInfo>();
@@ -167,40 +163,6 @@ public class FTPServer extends Server{
 		ssl.setKeystorePassword(keystorePass);
 	}
 	/**
-	 * set ftp server admin user name
-	 * @param adminName admin user name
-	 */
-	public void setAdminUser(String adminName){
-		userManager=new FTPUserManager(adminName);
-	}
-	/**
-	 * return ftp server admin user name
-	 * @return admin user name
-	 */
-	public String getAdminUser(){
-		return userManager.getAdminName();
-	}
-	/**
-	 * add new ftp user
-	 * @param user the new user
-	 * @throws FTPException
-	 */
-	public void addUser(FTPUserInfo user) throws FTPException{
-		userManager.addUser(user);
-	}
-	/**
-	 * return all ftp user names
-	 * @return
-	 */
-	public String[] getAllUserNames(){
-		try {
-			return serverFactory.getUserManager().getAllUserNames();
-		} catch (FtpException e) {
-			logger.catching(e);
-			return new String[]{};
-		}
-	}
-	/**
 	 * @return the commandListener
 	 */
 	public CommandListener getCommandListener() {
@@ -220,6 +182,24 @@ public class FTPServer extends Server{
 	public List<FileTransferInfo>getFileTransferInfos(){
 		return new ArrayList<FileTransferInfo>(fileTransferInfos.values());
 	}
+	/**
+	 * return user manager
+	 * @return
+	 */
+	public FTPUserManager getUserManager() {
+		return userManager;
+	}
+	/**
+	 * set user manager
+	 * @param userManager
+	 */
+	public void setUserManager(FTPUserManager userManager) {
+		if(isInited()){
+			throw new IllegalStateException("set before inited.");
+		}
+		this.userManager = userManager;
+	}
+
 	//--------------------------------------------------------------------------
 	
 	private class ServiceFtplet implements Ftplet{
@@ -346,42 +326,9 @@ public class FTPServer extends Server{
 		.print("idleTimeout",getIdleTimeout())
 		.print("implicitSsl",isImplicitSsl())
 		.print("serverAddress",getServerAddress())
-		.print("adminUser",getAdminUser())
 		.print("port",getPort())
-		.print("commandListener",getCommandListener());
+		.print("commandListener",getCommandListener())
+		.print("userManager",getUserManager());
 		return ib.toString();
 	}
-	//
-	//
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) throws Exception{
-		Jazmin.start();
-		FTPServer server=new FTPServer();
-		server.setPort(2221);
-		//
-		FTPUserInfo admin=new FTPUserInfo();
-		admin.userName="admin";
-		admin.homeDirectory="d:/ftp";
-		admin.userPassword="202CB962AC59075B964B07152D234B70";//123
-		//admin.homedirectory="/";
-		server.addUser(admin);
-		//
-		server.setCommandListener(new CommandAdapter() {
-			@Override
-			public void afterCommand(FTPSession session, FTPRequest req,
-					FTPReply reply) throws Exception {
-				System.out.println(session.getUser()+"/"
-					+req.getRequestLine()
-					+" /"+reply.getCode()
-					+"/"+reply.getMessage());
-			}
-		});
-		//
-		Jazmin.addServer(server);
-		Jazmin.addServer(new ConsoleServer());
-		Jazmin.start();
-	}
-
 }
