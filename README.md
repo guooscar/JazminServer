@@ -56,6 +56,7 @@ JazminServer帮助开发者实现了众多的底层功能，基于JazminServer�
 * <a href="https://www.icloud.com/pages/AwBWCAESEBqRx3Y0b6K60cCDTjv_gqwaKhxr7jmKAHmWIASYPLkXtFgE-ZbrosvMH1797SkOjiYZs-YbVKRW_kPOCgMCUCAQEEIJbquw2jZjPQyheLWKR79lbbmGan_ldQTtuEKJkTIaWG#JazminServer介绍">JazminServer介绍</a>
 * <a href="https://www.icloud.com/pages/AwBWCAESEM7dnqjoCeKVKTsZC3SHYXYaKgoIDSk8UwNlhvlhvDrG7j88UPJEZSXx5xLa_vSPAQpoRkfUIY8sjQ_aDQMCUCAQEEIEd4rlnWXJI2bZ5XSFYT7XJy6u8kL1-Grq37Pw_xRX9U#JazminServer使用指南">JazminServer使用指南</a>
 * <a href="https://www.icloud.com/pages/AwBWCAESEB7ohnqZnWgZORAUX6zosYIaKtaoprUFLmyFJpWCLSg_4tpgbJSJa954o0ojwNUpK51MNBHdayhIRdx6LwMCUCAQEEILtgmcdb5kZH8dnqvzPt4wjU2Un3iVd4xKNAzlxykm09#中间件服务器设计与实现">中间件服务器设计与实现"</a>
+
 # 特性列表
 * Core
 	* Log 统一的全局日志系统
