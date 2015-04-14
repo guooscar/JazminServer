@@ -165,13 +165,13 @@ public class Session {
 	/**
 	 * 
 	 */
-	public void enterChannel(Channel c){
+	void enterChannel(Channel c){
 		channels.add(c.id);
 	}
 	/**
 	 * 
 	 */
-	public void  leaveChannel(Channel c){
+	void  leaveChannel(Channel c){
 		channels.remove(c.id);
 	}
 	/**

@@ -133,13 +133,13 @@ public class IMSession {
 	/**
 	 * 
 	 */
-	public void enterChannel(IMChannel c){
+	void enterChannel(IMChannel c){
 		channels.add(c.id);
 	}
 	/**
 	 * 
 	 */
-	public void  leaveChannel(IMChannel c){
+	void  leaveChannel(IMChannel c){
 		channels.remove(c.id);
 	}
 	/**
