@@ -7,5 +7,4 @@ package jazmin.server.msg;
 public interface SessionLifecycleListener {
 	void sessionCreated(Session session)throws Exception;
 	void sessionDisconnected(Session session)throws Exception;
-	void sessionDestroyed(Session session)throws Exception;
 }

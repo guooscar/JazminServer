@@ -7,5 +7,4 @@ package jazmin.server.im;
 public interface IMSessionLifecycleListener {
 	void sessionCreated(IMSession session)throws Exception;
 	void sessionDisconnected(IMSession session)throws Exception;
-	void sessionDestroyed(IMSession session)throws Exception;
 }

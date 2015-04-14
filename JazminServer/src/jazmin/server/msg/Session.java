@@ -36,7 +36,6 @@ public class Session {
 	int remotePort;
 	int requestId;
 	int totalMessageCount;
-	boolean isActive;
 	Set<String>channels;
 	Date createTime;
 	//
@@ -150,29 +149,12 @@ public class Session {
 			channel.close();	
 		}
 	}
-	/**
-	 * @return the isActive
-	 */
-	public boolean isActive() {
-		return isActive;
-	}
+	
 	/**
 	 * @return the userAgent
 	 */
 	public String getUserAgent() {
 		return userAgent;
-	}
-	/**
-	 * 
-	 */
-	void enterChannel(Channel c){
-		channels.add(c.id);
-	}
-	/**
-	 * 
-	 */
-	void  leaveChannel(Channel c){
-		channels.remove(c.id);
 	}
 	/**
 	 * 
@@ -186,11 +168,13 @@ public class Session {
 	}
 	//
 	//--------------------------------------------------------------------------
-	/**
-	 * @param isActive the isActive to set
-	 */
-	void setActive(boolean isActive) {
-		this.isActive = isActive;
+	//
+	void enterChannel(Channel c){
+		channels.add(c.id);
+	}
+	//
+	void  leaveChannel(Channel c){
+		channels.remove(c.id);
 	}
 	//
 	void lastAccess(){

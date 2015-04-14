@@ -9,6 +9,4 @@ public abstract class IMSessionLifecycleAdapter implements IMSessionLifecycleLis
 	public void sessionCreated(IMSession session)throws Exception {}
 	@Override
 	public void sessionDisconnected(IMSession session) throws Exception{}
-	@Override
-	public void sessionDestroyed(IMSession session)throws Exception {}
 }

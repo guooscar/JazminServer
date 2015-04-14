@@ -89,9 +89,10 @@ public class Channel {
 	/**
 	 *destroy this channel.
 	 */
-	public void destroy(){
-		removeAllSessions();
+	public List<Session> destroy(){
+		List<Session>result=removeAllSessions();
 		messageServer.removeChannelInternal(id);
+		return result;
 	}
 	/**
 	 *get channel create time.
@@ -104,9 +105,7 @@ public class Channel {
 	 */
 	public void broadcast(String serviceId,Object payload){
 		sessions.values().forEach(s->{
-			if(s.isActive()){
 				s.push(serviceId, payload);
-			}
 		});
 	}
 	/**
@@ -114,10 +113,8 @@ public class Channel {
 	 */
 	public void broadcast(String serviceId,Object payload,Set<String>blockPrincipalSet){
 		sessions.values().forEach(s->{
-			if(s.isActive()){
-				if(!blockPrincipalSet.contains(s.principal)){
-					s.push(serviceId, payload);
-				}
+			if(!blockPrincipalSet.contains(s.principal)){
+				s.push(serviceId, payload);
 			}
 		});
 	}

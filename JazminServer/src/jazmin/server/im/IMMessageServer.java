@@ -46,7 +46,6 @@ public class IMMessageServer extends Server{
 	static final int DEFAULT_IDLE_TIME=60*10;//10 min
 	static final int DEFAULT_MAX_SESSION_COUNT=8000;
 	static final int DEFAULT_MAX_CHANNEL_COUNT=1000;
-	static final int DFEAULT_SESSION_TIMEOUT=60*5;//5 min
 	//
 	ServerBootstrap nettyServer;
 	EventLoopGroup bossGroup;
@@ -54,7 +53,6 @@ public class IMMessageServer extends Server{
 	ChannelInitializer<SocketChannel> channelInitializer;
 	int port;
 	int idleTime;
-	int sessionTimeout;
 	int maxSessionCount;
 	int maxChannelCount;
 	NetworkTrafficStat networkTrafficStat;
@@ -68,7 +66,6 @@ public class IMMessageServer extends Server{
 	IMSessionLifecycleListener sessionLifecycleListener;
 	Method sessionCreatedMethod;
 	Method sessionDisconnectedMethod;
-	Method sessionDestroyedMethod;
 	//
 	IMServiceFilter serviceFilter;
 	//
@@ -84,7 +81,6 @@ public class IMMessageServer extends Server{
 		idleTime=DEFAULT_IDLE_TIME;
 		maxSessionCount=DEFAULT_MAX_SESSION_COUNT;
 		maxChannelCount=DEFAULT_MAX_CHANNEL_COUNT;
-		sessionTimeout=DFEAULT_SESSION_TIMEOUT;
 		//
 		sessionCreatedMethod=Dispatcher.getMethod(
 				IMSessionLifecycleListener.class,
@@ -92,9 +88,6 @@ public class IMMessageServer extends Server{
 		sessionDisconnectedMethod=Dispatcher.getMethod(
 				IMSessionLifecycleListener.class,
 				"sessionDisconnected",IMSession.class);
-		sessionDestroyedMethod=Dispatcher.getMethod(
-				IMSessionLifecycleListener.class,
-				"sessionDestroyed",IMSession.class);
 	}
 	/**
 	 * @return the port
@@ -196,7 +189,6 @@ public class IMMessageServer extends Server{
 			for(IMSession session:sessionMap.values()){
 				try{
 					checkPrincipal(currentTime,session);	
-					checkSessionTimeout(currentTime, session);
 				}catch(Exception e){
 					logger.error(e.getMessage(),e);
 				}
@@ -210,16 +202,6 @@ public class IMMessageServer extends Server{
 		if (session.getPrincipal() == null) {
 			if ((currentTime - session.createTime.getTime())> 30 * 1000) {
 				session.kick("principal not set.");
-			}
-		}
-	}
-	/*
-	 * if session is not active,kick it after session timeout reached.
-	 */
-	private void checkSessionTimeout(long currentTime,IMSession session){
-		if(!session.isActive()){
-			if((currentTime-session.getLastAccessTime())>sessionTimeout*1000){
-				sessionDestroyed(session);
 			}
 		}
 	}
@@ -456,7 +438,6 @@ public class IMMessageServer extends Server{
 	}
 	//
 	private void sessionCreated0(IMSession session){
-		session.setActive(true);
 		if(sessionMap.size()>=maxSessionCount){
 			session.kick("too many sessions:"+maxSessionCount);
 			return;
@@ -501,34 +482,8 @@ public class IMMessageServer extends Server{
 			sessionMap.remove(session.id);
 			return;
 		}
-		session.setActive(false);
-		session.lastAccess();
 		if(logger.isDebugEnabled()){
 			logger.debug("session disconnected:"+
-					session.id+"/"+session.principal+"/"+
-					session.remoteHostAddress+":"+
-					session.remotePort);
-		}
-		//fire session disconnect event in thread pool
-		if(sessionLifecycleListener!=null){
-			Jazmin.dispatcher.invokeInPool(
-					session.principal,
-					sessionLifecycleListener,
-					sessionDisconnectedMethod,
-					Dispatcher.EMPTY_CALLBACK,
-					session);
-		}
-	}
-	//
-	void sessionDestroyed(IMSession session){
-		synchronized (session) {
-			sessionDestroyed0(session);
-		}
-	}
-	//
-	private void sessionDestroyed0(IMSession session){
-		if(logger.isDebugEnabled()){
-			logger.debug("session destroyed:"+
 					session.id+"/"+session.principal+"/"+
 					session.remoteHostAddress+":"+
 					session.remotePort);
@@ -550,7 +505,7 @@ public class IMMessageServer extends Server{
 			Jazmin.dispatcher.invokeInPool(
 					session.principal,
 					sessionLifecycleListener,
-					sessionDestroyedMethod,
+					sessionDisconnectedMethod,
 					Dispatcher.EMPTY_CALLBACK,
 					session);
 		}
@@ -597,16 +552,10 @@ public class IMMessageServer extends Server{
 		if(oldSession!=null){
 			principalMap.remove(principal);
 			sessionMap.remove(oldSession.id);
-			if(oldSession.isActive()){
-				oldSession.setPrincipal(null);
-				oldSession.kick("kicked by same principal.");		
-			}
-			//同名用户登录成功以后新session使用老用户的缓存信息
+			oldSession.setPrincipal(null);
+			oldSession.kick("kicked by same principal.");		
 			session.setUserObject(oldSession.userObject);
 		}
-		//NOTE 在old session存在的情况下，新的session会直接替换掉老的session 老的session
-		//不会触发sessionDestroyed事件，这么做的目的是防止出现新用户登录提到同名�?�用�?
-		//业务层收到sessionDestroyed事件认为用户下线，�?�成困扰
 		//
 		principalMap.put(principal,session);
 	}
@@ -616,9 +565,7 @@ public class IMMessageServer extends Server{
 	 */
 	public void broadcast(byte []bb){
 		sessionMap.forEach((id,session)->{
-			if(session.isActive()){
-				session.push(bb);
-			}
+			session.push(bb);
 		});
 	}
 	//
@@ -695,7 +642,6 @@ public class IMMessageServer extends Server{
 		.format("%-50s:%-30s\n")
 		.print("port", port)
 		.print("idleTime", idleTime+" seconds")
-		.print("sessionTimeout", sessionTimeout+" seconds")
 		.print("maxSessionCount", maxSessionCount)
 		.print("maxChannelCount", maxChannelCount)
 		.print("sessionLifecycleListener", sessionLifecycleListener)

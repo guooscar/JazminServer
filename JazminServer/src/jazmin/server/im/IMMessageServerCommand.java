@@ -85,7 +85,6 @@ public class IMMessageServerCommand extends ConsoleCommand {
 		out.printf(format,"id",session.getId());
 		out.printf(format,"principal",session.getPrincipal());
 		out.printf(format,"userAgent",session.getUserAgent());
-		out.printf(format,"isActive",session.isActive());
 		out.printf(format,"remoteHostAddress",session.getRemoteHostAddress());
 		out.printf(format,"remotePort",session.getRemotePort());
 		out.printf(format,"lastAccessTime",formatDate(new Date(session.getLastAccessTime())));
@@ -106,7 +105,7 @@ public class IMMessageServerCommand extends ConsoleCommand {
 	}
     //
     private void showSessions(String args){
-		String format="%-5s: %-5s %-10s %-10s %-10s %-15s %-10s %-10s %-15s %-15s %-10s\n";
+		String format="%-5s: %-5s %-10s %-10s  %-15s %-10s %-10s %-15s %-15s %-10s\n";
 		int i=0;
 		List<IMSession> sessions=messageServer.getSessions();
 		//
@@ -120,7 +119,6 @@ public class IMMessageServerCommand extends ConsoleCommand {
 				"ID",
 				"PRINCIPAL",
 				"USERAGENT",
-				"ACTIVE",
 				"HOST",
 				"PORT",
 				"TOTALMSG",
@@ -133,7 +131,6 @@ public class IMMessageServerCommand extends ConsoleCommand {
 					s.getId(),
 					s.getPrincipal(),
 					s.getUserAgent(),
-					s.isActive(),
 					s.getRemoteHostAddress(),
 					s.getRemotePort(),
 					s.getTotalMessageCount(),

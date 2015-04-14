@@ -82,9 +82,10 @@ public class IMChannel {
 	/**
 	 *destroy this channel.
 	 */
-	public void destroy(){
-		removeAllSessions();
+	public List<IMSession> destroy(){
+		List<IMSession>result=removeAllSessions();
 		messageServer.removeChannelInternal(id);
+		return result;
 	}
 	/**
 	 *get channel create time.
@@ -97,9 +98,7 @@ public class IMChannel {
 	 */
 	public void broadcast(byte bb[]){
 		sessions.values().forEach(s->{
-			if(s.isActive()){
-				s.push(bb);
-			}
+			s.push(bb);
 		});
 	}
 	/**
@@ -107,11 +106,9 @@ public class IMChannel {
 	 */
 	public void broadcast(byte bb[],Set<String>blockPrincipalSet){
 		sessions.values().forEach(s->{
-			if(s.isActive()){
-				if(!blockPrincipalSet.contains(s.principal)){
-					s.push(bb);
-				}
-			}
+			if(!blockPrincipalSet.contains(s.principal)){
+				s.push(bb);
+			}		
 		});
 	}
 	/** 

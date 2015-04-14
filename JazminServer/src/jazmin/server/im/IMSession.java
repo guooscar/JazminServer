@@ -30,7 +30,6 @@ public class IMSession {
 	int remotePort;
 	int requestId;
 	int totalMessageCount;
-	boolean isActive;
 	Set<String>channels;
 	Date createTime;
 	//
@@ -119,12 +118,6 @@ public class IMSession {
 		}
 	}
 	/**
-	 * @return the isActive
-	 */
-	public boolean isActive() {
-		return isActive;
-	}
-	/**
 	 * @return the userAgent
 	 */
 	public String getUserAgent() {
@@ -154,12 +147,6 @@ public class IMSession {
 	}
 	//
 	//--------------------------------------------------------------------------
-	/**
-	 * @param isActive the isActive to set
-	 */
-	void setActive(boolean isActive) {
-		this.isActive = isActive;
-	}
 	//
 	void lastAccess(){
 		lastAccessTime=System.currentTimeMillis();

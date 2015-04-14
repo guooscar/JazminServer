@@ -9,6 +9,4 @@ public abstract class SessionLifecycleAdapter implements SessionLifecycleListene
 	public void sessionCreated(Session session)throws Exception {}
 	@Override
 	public void sessionDisconnected(Session session) throws Exception{}
-	@Override
-	public void sessionDestroyed(Session session)throws Exception {}
 }
