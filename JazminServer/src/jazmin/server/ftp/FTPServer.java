@@ -20,7 +20,6 @@ import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
 import jazmin.server.console.ConsoleServer;
-import jazmin.server.msg.Session;
 
 import org.apache.ftpserver.FtpServer;
 import org.apache.ftpserver.FtpServerFactory;
@@ -65,16 +64,16 @@ public class FTPServer extends Server{
 		fileTransferInfos=new ConcurrentHashMap<String, FileTransferInfo>();
 		listenerBeforeMethod=Dispatcher.getMethod(
 				CommandListener.class,
-				"beforeCommand",Session.class);
+				"beforeCommand",FTPSession.class, FTPRequest.class);
 		listenerAfterMethod=Dispatcher.getMethod(
 				CommandListener.class,
-				"afterCommand",Session.class);
+				"afterCommand",FTPSession.class, FTPRequest.class,FTPReply.class);
 		listenerOnConnectMethod=Dispatcher.getMethod(
 				CommandListener.class,
-				"afterCommand",Session.class);
+				"onConnect",FTPSession.class);
 		listenerOnDisConnectMethod=Dispatcher.getMethod(
 				CommandListener.class,
-				"afterCommand",Session.class);
+				"onDisconnect",FTPSession.class);
 	}
 	//
 	/**
