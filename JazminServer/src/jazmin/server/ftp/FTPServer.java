@@ -5,6 +5,7 @@ package jazmin.server.ftp;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -14,10 +15,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
+import jazmin.core.aop.Dispatcher;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
 import jazmin.server.console.ConsoleServer;
+import jazmin.server.msg.Session;
 
 import org.apache.ftpserver.FtpServer;
 import org.apache.ftpserver.FtpServerFactory;
@@ -47,6 +50,10 @@ public class FTPServer extends Server{
 	private CommandListener commandListener;
 	private FTPStatistics statistics;
 	private Map<String,FileTransferInfo>fileTransferInfos;
+	private Method listenerBeforeMethod;
+	private Method listenerAfterMethod;
+	private Method listenerOnConnectMethod;
+	private Method listenerOnDisConnectMethod;
 	//
 	public FTPServer() {
 		serverFactory=new FtpServerFactory();
@@ -56,6 +63,18 @@ public class FTPServer extends Server{
 		ftplets=new LinkedHashMap<String, Ftplet>();
 		ftplets.put("EX",new ServiceFtplet());
 		fileTransferInfos=new ConcurrentHashMap<String, FileTransferInfo>();
+		listenerBeforeMethod=Dispatcher.getMethod(
+				CommandListener.class,
+				"beforeCommand",Session.class);
+		listenerAfterMethod=Dispatcher.getMethod(
+				CommandListener.class,
+				"afterCommand",Session.class);
+		listenerOnConnectMethod=Dispatcher.getMethod(
+				CommandListener.class,
+				"afterCommand",Session.class);
+		listenerOnDisConnectMethod=Dispatcher.getMethod(
+				CommandListener.class,
+				"afterCommand",Session.class);
 	}
 	//
 	/**
@@ -222,11 +241,9 @@ public class FTPServer extends Server{
 					fileTransferInfos.remove(arg1.hashCode()+"");
 				}
 				//
-				try {
-					commandListener.afterCommand(session, request, reply);
-				} catch (Exception e) {
-					logger.catching(e);
-				}
+				Jazmin.dispatcher.invokeInPool("", 
+						commandListener, 
+						listenerAfterMethod,null,session,request,reply);
 			}
 			return FtpletResult.DEFAULT;
 		}
@@ -251,11 +268,9 @@ public class FTPServer extends Server{
 					ft.type=cmd;
 					fileTransferInfos.put(arg1.hashCode()+"",ft);
 				}
-				try {
-					commandListener.beforeCommand(session, request);
-				} catch (Exception e) {
-					logger.catching(e);
-				}
+				Jazmin.dispatcher.invokeInPool("", 
+						commandListener, 
+						listenerBeforeMethod,null,session,request);
 			}
 			return FtpletResult.DEFAULT;
 		}
@@ -277,11 +292,9 @@ public class FTPServer extends Server{
 			if(commandListener!=null){
 				FTPSession session=new FTPSession();
 				session.session=arg0;
-				try {
-					commandListener.onConnect(session);
-				} catch (Exception e) {
-					logger.catching(e);
-				}
+				Jazmin.dispatcher.invokeInPool("", 
+						commandListener, 
+						listenerOnConnectMethod,null,session);
 			}
 			return FtpletResult.DEFAULT;
 		}
@@ -292,11 +305,9 @@ public class FTPServer extends Server{
 			if(commandListener!=null){
 				FTPSession session=new FTPSession();
 				session.session=arg0;
-				try {
-					commandListener.onDisconnect(session);
-				} catch (Exception e) {
-					logger.catching(e);
-				}
+				Jazmin.dispatcher.invokeInPool("", 
+						commandListener, 
+						listenerOnDisConnectMethod,null,session);
 			}
 			return FtpletResult.DEFAULT;
 		}
