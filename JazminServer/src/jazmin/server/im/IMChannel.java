@@ -54,6 +54,12 @@ public class IMChannel {
 		}
 		return s;
 	}
+	/** 
+	 *remove session from channel
+	 */
+	public void removeSession(IMSession session){
+		removeSession(session.getPrincipal());
+	}
 	/**
 	 *remove all session from channel.
 	 */

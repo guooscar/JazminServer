@@ -493,11 +493,12 @@ public class IMMessageServer extends Server{
 		if(session.principal!=null){
 			principalMap.remove(session.principal);
 		}
+		//
 		//auto remove disconnect session from room
 		session.channels.forEach(cname->{
 			IMChannel cc=getChannel(cname);
 			if(cc!=null){
-				session.leaveChannel(cc);
+				cc.removeSession(session);
 			}
 		});
 		//fire session disconnect event in thread pool

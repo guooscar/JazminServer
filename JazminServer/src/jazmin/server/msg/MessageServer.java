@@ -674,7 +674,7 @@ public class MessageServer extends Server{
 		session.channels.forEach(cname->{
 			Channel cc=getChannel(cname);
 			if(cc!=null){
-				session.leaveChannel(cc);
+				cc.removeSession(session);
 			}
 		});
 		//fire session disconnect event in thread pool
