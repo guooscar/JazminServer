@@ -15,11 +15,13 @@ import io.netty.handler.timeout.IdleStateHandler;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.LongAdder;
 
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
@@ -57,6 +59,8 @@ public class RPCServer extends Server{
 	private Map<String,Method>methodMap;
 	private Map<String,RPCSession>sessionMap;
 	private Map<String,List<RPCSession>>topicSessionMap;
+	private Map<String,LongAdder>pushMessageCountMap;
+	
 	private NetworkTrafficStat networkTrafficStat;
 	private Set<String>acceptRemoteHosts;
 	private IOWorker ioWorker;
@@ -74,6 +78,7 @@ public class RPCServer extends Server{
 		methodMap=new ConcurrentHashMap<String, Method>();
 		sessionMap=new ConcurrentHashMap<String, RPCSession>();
 		topicSessionMap=new ConcurrentHashMap<String, List<RPCSession>>();
+		pushMessageCountMap=new ConcurrentHashMap<String, LongAdder>();
 		acceptRemoteHosts=Collections.synchronizedSet(new TreeSet<String>());
 		networkTrafficStat=new NetworkTrafficStat();
 	}
@@ -136,6 +141,14 @@ public class RPCServer extends Server{
 	public List<RPCSession>getTopicSession(String name){
 		return topicSessionMap.get(name);
 	}
+	/**
+	 * return push message stat count map
+	 * @return push message stat count map
+	 */
+	public Map<String,LongAdder>getPushMessageCountMap(){
+		return new HashMap<String, LongAdder>(pushMessageCountMap);
+	}
+	//
 	/**
 	 * return rpc session of current request
 	 * @return rpc session of current request 
@@ -335,7 +348,9 @@ public class RPCServer extends Server{
 			msg.type=RPCMessage.TYPE_PUSH;
 			msg.payloads=new Object[]{serviceId,payload};
 			session.write(msg);
+			session.pushPackage();
 		});
+		addPushMessageCount(serviceId);
 	}
 	/**
 	 * publish message to rpc client which subscribe specified topic id
@@ -355,9 +370,22 @@ public class RPCServer extends Server{
 			msg.type=RPCMessage.TYPE_PUSH;
 			msg.payloads=new Object[]{topicId,payload};
 			session.write(msg);
+			session.pushPackage();
 		});
+		//
+		addPushMessageCount(topicId);
 	}
 	//
+	private void addPushMessageCount(String id){
+		LongAdder count=null;
+		if(pushMessageCountMap.containsKey(id)){
+			count=pushMessageCountMap.get(id);
+		}else{
+			count=new LongAdder();
+			pushMessageCountMap.put(id, count);
+		}
+		count.increment();
+	}
 	//--------------------------------------------------------------------------
 	//session
 	void sessionCreated(RPCSession session){

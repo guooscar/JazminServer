@@ -67,7 +67,7 @@ public class JazminRPCDriverCommand extends ConsoleCommand {
     }
     //
     private void showSessions(String args){
-		String format="%-5s : %-20s %-20s %-10s %-15s %-10s %-10s %-10s %-10s %-10s\n";
+		String format="%-5s : %-20s %-20s %-10s %-15s %-10s %-10s %-10s %-10s %-10s %-10s\n";
 		int i=0;
 		List<RPCSession> sessions=driver.getSessions();
 		out.println("total "+sessions.size()+" sessions");
@@ -80,6 +80,7 @@ public class JazminRPCDriverCommand extends ConsoleCommand {
 				"DISPUSH",
 				"SEND",
 				"RECEIVE",
+				"PUSH",
 				"CREATETIME");	
 		for(RPCSession s:sessions){
 			out.format(format,
@@ -92,6 +93,7 @@ public class JazminRPCDriverCommand extends ConsoleCommand {
 					s.isDisablePushMessage(),
 					s.getSentPackageCount(),
 					s.getReceivedPackageCount(),
+					s.getPushedPackageCount(),
 					formatDate(s.getCreateTime()));
 		};
     }

@@ -31,16 +31,18 @@ public class RPCSession {
 	Channel channel;
 	Date createTime;
 	boolean disablePushMessage;
-	LongAdder sendPackageCount;
-	LongAdder receivePackageCount;
+	private LongAdder sentPackageCount;
+	private LongAdder receivedPackageCount;
+	private LongAdder pushedPackageCount;
 	String cluster;
 	boolean authed;
 	//
 	public RPCSession(){
 		topics=new TreeSet<String>();
 		createTime=new Date();
-		sendPackageCount=new LongAdder();
-		receivePackageCount=new LongAdder();
+		sentPackageCount=new LongAdder();
+		receivedPackageCount=new LongAdder();
+		pushedPackageCount=new LongAdder();
 		authed=false;
 	}
 	/**
@@ -147,18 +149,28 @@ public class RPCSession {
 	 * @return total received package count in bytes
 	 */
 	public long getReceivedPackageCount(){
-		return receivePackageCount.longValue();
+		return receivedPackageCount.longValue();
+	}
+	/**
+	 * get total pushed package count in bytes
+	 * @return total received package count in bytes
+	 */
+	public long getPushedPackageCount(){
+		return pushedPackageCount.longValue();
 	}
 	/**
 	 * get total sent package count in bytes
 	 * @return total sent package count in bytes
 	 */
 	public long getSentPackageCount(){
-		return sendPackageCount.longValue();
+		return sentPackageCount.longValue();
 	}
 	//
 	void receivePackage(){
-		receivePackageCount.increment();
+		receivedPackageCount.increment();
+	}
+	void pushPackage(){
+		pushedPackageCount.increment();
 	}
 	/**
 	 * subscribe event 
@@ -200,7 +212,7 @@ public class RPCSession {
 	 */
 	void write(RPCMessage message){
 		channel.writeAndFlush(message);
-		sendPackageCount.increment();
+		sentPackageCount.increment();
 	}
 	//
 	@Override

@@ -204,6 +204,7 @@ public class RPCClient {
 	}
 	//
 	private void pushMessageReceived(RPCSession session,RPCMessage msg){
+		session.pushPackage();
 		if(pushMessageCallback!=null){
 			pushMessageCallback.callback(session, msg);
 		}

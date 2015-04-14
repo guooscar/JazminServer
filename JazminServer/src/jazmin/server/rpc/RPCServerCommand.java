@@ -2,7 +2,10 @@ package jazmin.server.rpc;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.LongAdder;
 
 import jazmin.core.Jazmin;
 import jazmin.misc.io.IOWorker;
@@ -79,6 +82,8 @@ public class RPCServerCommand extends ConsoleCommand {
     		printLine('=', 120);
     		showSessions(5);
     		printLine('=', 120);
+    		showPushCount(3);
+    		printLine('=', 120);
     		showNetworkStats0();
     		printLine('=', 120);
     		showIOWorkerInfo();
@@ -88,6 +93,22 @@ public class RPCServerCommand extends ConsoleCommand {
     		TimeUnit.SECONDS.sleep(1);
     	}
       	stdin.read();
+    }
+    //
+    private void showPushCount(int maxCount){
+    	Map<String,LongAdder>topicCount=rpcServer.getPushMessageCountMap();
+    	String format="%-10s %-20s %-10s\n";
+    	out.printf(format,
+    			"#",
+    			"TOPIC",
+    			"COUNT");
+    	int i=0;
+    	for(Entry<String,LongAdder>e:topicCount.entrySet()){
+    		out.printf(format, i++,e.getKey(),e.getValue());
+    		if(i>maxCount){
+    			break;
+    		}
+    	}
     }
     //
     private void showIOWorkerInfo(){
@@ -189,7 +210,7 @@ public class RPCServerCommand extends ConsoleCommand {
     }
     //
     private void showSessions(int maxCount){
-		String format="%-5s: %-20s %-15s %-10s %-10s %-10s %-10s %-10s\n";
+		String format="%-5s: %-20s %-15s %-10s %-10s %-10s %-10s %-10s %-10s\n";
 		int i=0;
 		List<RPCSession> sessions=rpcServer.getSessions();
 		out.println("total "+sessions.size()+" sessions");
@@ -200,6 +221,7 @@ public class RPCServerCommand extends ConsoleCommand {
 				"DISPUSH",
 				"SEND",
 				"RECEIVE",
+				"PUSH",
 				"CREATETIME");	
 		for(RPCSession s:sessions){
 			out.format(format,
@@ -210,6 +232,7 @@ public class RPCServerCommand extends ConsoleCommand {
 					s.isDisablePushMessage(),
 					s.getSentPackageCount(),
 					s.getReceivedPackageCount(),
+					s.getPushedPackageCount(),
 					formatDate(s.getCreateTime()));
 		};
     }
@@ -217,13 +240,15 @@ public class RPCServerCommand extends ConsoleCommand {
     //
     private void showTopics(String args){
 		int i=0;
-		String format="%-5s: %-20s\n";
+		String format="%-5s: %-20s %-10s\n";
 		List<String> topicNames=rpcServer.getTopicNames();
+		Map<String,LongAdder>topicCount=rpcServer.getPushMessageCountMap();
 		out.println("total "+topicNames.size()+" topics");
+		LongAdder zero=new LongAdder();
 		for(String topic:topicNames){
-			out.format(format,i++,topic);
+			out.format(format,i++,topic,topicCount.getOrDefault(topic, zero));
 			for(RPCSession s:rpcServer.getTopicSession(topic)){
-				out.format(format,"",s);
+				out.format(format,"","",s);
 			}
 		}
     }
