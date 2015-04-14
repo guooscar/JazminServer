@@ -138,6 +138,9 @@ public class RPCSession {
 	 */
 	public void close(){
 		try {
+			if(channel==null){
+				return;
+			}
 			channel.close().sync();
 			channel=null;
 		} catch (InterruptedException e) {

@@ -114,7 +114,7 @@ public class RPCServerCommand extends ConsoleCommand {
     	String format="%-10s %-15s %-10s %-15s %-15s %-15s\n";
     	out.printf(format,
     			"POOLSIZE",
-    			"REQUESTQUEUESIZE",
+    			"REQUEUESIZE",
     			"TASKCOUNT",
     			"ACTIVECOUNT",
     			"COMPLETEDTASK",
