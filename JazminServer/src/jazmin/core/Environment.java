@@ -29,13 +29,13 @@ public class Environment extends Lifecycle{
 		map.put(k, v);
 	}
 	/**
-	 * return string value by key
+	 * @return string value by key
 	 */
 	public String getString(String key){
 		return map.get(key);
 	}
 	/**
-	 * return integer value by key
+	 * @return integer value by key
 	 */
 	public Integer getInteger(String key){
 		String v=map.get(key);
@@ -45,7 +45,7 @@ public class Environment extends Lifecycle{
 		return Integer.valueOf(v);
 	}
 	/**
-	 * return boolean value by key
+	 * @return boolean value by key
 	 */
 	public Boolean getBoolean(String key){
 		String v=map.get(key);
@@ -55,7 +55,7 @@ public class Environment extends Lifecycle{
 		return Boolean.valueOf(v);
 	}
 	/**
-	 * return float value by key
+	 * @return float value by key
 	 */
 	public Float getFloat(String key){
 		String v=map.get(key);
@@ -65,7 +65,7 @@ public class Environment extends Lifecycle{
 		return Float.valueOf(v);
 	}
 	/**
-	 * return double value by key
+	 * @return double value by key
 	 */
 	public Double getDouble(String key){
 		String v=map.get(key);
@@ -75,7 +75,7 @@ public class Environment extends Lifecycle{
 		return Double.valueOf(v);
 	}
 	/**
-	 * return long value by key
+	 * @return long value by key
 	 */
 	public Long getLong(String key){
 		String v=map.get(key);
@@ -85,13 +85,13 @@ public class Environment extends Lifecycle{
 		return Long.valueOf(v);
 	}
 	/**
-	 * return all keys
+	 * @return all keys
 	 */
 	public List<String>getKeys(){
 		return new ArrayList<String>(map.keySet());
 	}
 	/**
-	 * return env map
+	 * @return env map
 	 */
 	public Map<String,String>envs(){
 		return map;

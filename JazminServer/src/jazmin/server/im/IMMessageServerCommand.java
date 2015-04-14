@@ -59,7 +59,7 @@ public class IMMessageServerCommand extends ConsoleCommand {
     //
     //
     private void showServices(String args){
-		String format="%-5s : %-30s %-10s %-10s %-10s\n";
+		String format="%-5s : %-30s %-10s %-10s\n";
 		int i=0;
 		List<IMServiceStub> services=messageServer.getServices();
 		Collections.sort(services);

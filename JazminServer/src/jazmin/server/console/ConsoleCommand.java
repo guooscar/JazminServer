@@ -170,7 +170,9 @@ public class ConsoleCommand{
 				this.out.close();
 				this.err.flush();
 				this.err.close();
-			}catch(Exception e){}
+			}catch(Exception e){
+				logger.catching(e);
+			}
 		}
     }
     //

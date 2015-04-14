@@ -216,14 +216,15 @@ public class RPCClient {
 			logger.warn("request:"+msg.id+" already timeout");
 			return;
 		}
-		lock.response=msg;
 		//
 		if(lock.asyncCallback==null){
 			//sync invoke
 			synchronized (lock) {
+				lock.response=msg;
 				lock.notifyAll();
 			}
 		}else{
+			lock.response=msg;
 			lockMap.remove(lock.id);
 			lock.asyncCallback.callback(session,lock.response);
 		}		
