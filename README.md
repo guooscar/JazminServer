@@ -52,6 +52,10 @@ Start a rpc server and register remote service
  JazminServer是基于Java语言开发的统一中间件系统，她为开发者提供了统一的开发平台，帮助开发者快速开发基于Java的大型分布式应用。JazminServer可以被配置成Web服务器，RPC服务器，消息服务器，WebSocket服务器，监控服务器等多种服务器，向客户端提供高效，稳定的服务。并且还集成了声明式事务，依赖注入，AOP日志，JOB/TASK调度等开发中常用的功能。JazminServer还提供了基于Web的自动化配置管理工具和自动化部署工具。
 JazminServer适合被用作大型多人在游戏的服务器、物联网系统的后台服务器、大型网站系统的后台服务器等。
 JazminServer帮助开发者实现了众多的底层功能，基于JazminServer提供的API，开发者可以更专注于业务逻辑实现，快速的构建属于自己的应用。
+# 文档
+* <a href="https://www.icloud.com/pages/AwBWCAESEBqRx3Y0b6K60cCDTjv_gqwaKhxr7jmKAHmWIASYPLkXtFgE-ZbrosvMH1797SkOjiYZs-YbVKRW_kPOCgMCUCAQEEIJbquw2jZjPQyheLWKR79lbbmGan_ldQTtuEKJkTIaWG#JazminServer介绍">JazminServer介绍</a>
+* <a href="https://www.icloud.com/pages/AwBWCAESEM7dnqjoCeKVKTsZC3SHYXYaKgoIDSk8UwNlhvlhvDrG7j88UPJEZSXx5xLa_vSPAQpoRkfUIY8sjQ_aDQMCUCAQEEIEd4rlnWXJI2bZ5XSFYT7XJy6u8kL1-Grq37Pw_xRX9U#JazminServer使用指南">JazminServer使用指南</a>
+* <a href="https://www.icloud.com/pages/AwBWCAESEB7ohnqZnWgZORAUX6zosYIaKtaoprUFLmyFJpWCLSg_4tpgbJSJa954o0ojwNUpK51MNBHdayhIRdx6LwMCUCAQEEILtgmcdb5kZH8dnqvzPt4wjU2Un3iVd4xKNAzlxykm09#中间件服务器设计与实现">中间件服务器设计与实现"</a>
 # 特性列表
 * Core
 	* Log 统一的全局日志系统
