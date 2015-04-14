@@ -37,7 +37,7 @@ JazminServer适合被用作大型多人在游戏的服务器、物联网系统�
 	* REPL env 有完整的交互式的命令行环境
 <p>
 <img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image002.jpg?raw=true'/>
-<span alian="center">架构图</span>
+<div alian="center">架构图</div>
 </p>
 <img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image003.jpg?raw=true'/>
 <img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image004.jpg?raw=true'/>
