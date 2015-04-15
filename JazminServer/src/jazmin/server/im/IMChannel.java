@@ -19,6 +19,8 @@ public class IMChannel {
 	long createTime;
 	Object userObject;
 	IMMessageServer messageServer;
+
+	boolean autoRemoveDisconnectedSession;
 	//
 	IMChannel(IMMessageServer messageServer,String id) {
 		this.id=id;
@@ -128,5 +130,19 @@ public class IMChannel {
 	 */
 	public void setUserObject(Object userObject) {
 		this.userObject = userObject;
+	}
+	/**
+	 * @return is auto remove disconnnected session
+	 */
+	public boolean isAutoRemoveDisconnectedSession() {
+		return autoRemoveDisconnectedSession;
+	}
+	/**
+	 * 
+	 * @param autoRemoveDisconnectedSession
+	 */
+	public void setAutoRemoveDisconnectedSession(
+			boolean autoRemoveDisconnectedSession) {
+		this.autoRemoveDisconnectedSession = autoRemoveDisconnectedSession;
 	}
 }

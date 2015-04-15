@@ -498,7 +498,9 @@ public class IMMessageServer extends Server{
 		session.channels.forEach(cname->{
 			IMChannel cc=getChannel(cname);
 			if(cc!=null){
-				cc.removeSession(session);
+				if(cc.isAutoRemoveDisconnectedSession()){
+					cc.removeSession(session);
+				}
 			}
 		});
 		//fire session disconnect event in thread pool

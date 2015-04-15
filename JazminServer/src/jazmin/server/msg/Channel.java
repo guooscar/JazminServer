@@ -34,12 +34,14 @@ public class Channel {
 	long createTime;
 	Object userObject;
 	MessageServer messageServer;
+	boolean autoRemoveDisconnectedSession;
 	//
 	Channel(MessageServer messageServer,String id) {
 		this.id=id;
 		this.messageServer=messageServer;
 		this.sessions=new ConcurrentHashMap<>();
 		createTime=System.currentTimeMillis();
+		autoRemoveDisconnectedSession=false;
 	}
 	//--------------------------------------------------------------------------
 	//public interface
@@ -145,4 +147,19 @@ public class Channel {
 	public void setUserObject(Object userObject) {
 		this.userObject = userObject;
 	}
+	/**
+	 * @return is auto remove disconnnected session
+	 */
+	public boolean isAutoRemoveDisconnectedSession() {
+		return autoRemoveDisconnectedSession;
+	}
+	/**
+	 * 
+	 * @param autoRemoveDisconnectedSession
+	 */
+	public void setAutoRemoveDisconnectedSession(
+			boolean autoRemoveDisconnectedSession) {
+		this.autoRemoveDisconnectedSession = autoRemoveDisconnectedSession;
+	}
+	
 }

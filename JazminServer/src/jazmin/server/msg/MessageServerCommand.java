@@ -142,16 +142,18 @@ public class MessageServerCommand extends ConsoleCommand {
 		};
     }
     //
+    //
     private void showChannels(String args){
-		String format="%-5s: %-10s %-10s \n";
+		String format="%-5s: %-10s %-20s %-10s \n";
 		int i=0;
 		List<Channel> channels=messageServer.getChannels();
 		out.println("total "+channels.size()+" channels");
-		out.format(format,"#","ID","CREATETIME");	
+		out.format(format,"#","ID","AUTOREMOVESESSION","CREATETIME");	
 		for(Channel s:channels){
 			out.format(format,
 					i++,
 					s.getId(),
+					s.isAutoRemoveDisconnectedSession(),
 					formatDate(new Date(s.getCreateTime())));
 		};
     }
@@ -163,6 +165,7 @@ public class MessageServerCommand extends ConsoleCommand {
     	}
     	String format="%-20s: %-10s\n";
 		out.printf(format,"id",channel.getId());
+		out.printf(format,"autoRemoveDisconnectedSession",channel.isAutoRemoveDisconnectedSession());
 		out.printf(format,"createTime",formatDate(new Date(channel.getCreateTime())));
 		out.printf(format,"userObject",DumpUtil.dump(channel.getUserObject()));		
 	}
