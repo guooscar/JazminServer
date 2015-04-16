@@ -4,6 +4,8 @@
 package jazmin.test.server.ftp;
 
 import jazmin.core.Jazmin;
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
 import jazmin.server.console.ConsoleServer;
 import jazmin.server.ftp.FTPServer;
 import jazmin.server.ftp.FTPUserInfo;
@@ -15,7 +17,7 @@ import jazmin.server.ftp.SimpleUserManager;
  *
  */
 public class TestSimpleAuthFTPServer {
-
+	private static Logger logger=LoggerFactory.get(TestSimpleAuthFTPServer.class);
 	//
 	/**
 	 * @param args
@@ -37,7 +39,7 @@ public class TestSimpleAuthFTPServer {
 		@Override
 		public FTPUserInfo authenticate(String user, String password)
 				throws Exception {
-			System.err.println("authenticate");
+			logger.info("authxxxxx");
 			if(user.equals("admin")&&password.equals("123")){
 				FTPUserInfo uu=new FTPUserInfo();
 				uu.userName="admin";

@@ -21,7 +21,6 @@ import jazmin.server.console.ConsoleServer;
 
 import org.apache.ftpserver.ConnectionConfigFactory;
 import org.apache.ftpserver.FtpServer;
-import org.apache.ftpserver.FtpServerFactory;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpReply;
 import org.apache.ftpserver.ftplet.FtpRequest;
@@ -29,6 +28,8 @@ import org.apache.ftpserver.ftplet.FtpSession;
 import org.apache.ftpserver.ftplet.Ftplet;
 import org.apache.ftpserver.ftplet.FtpletContext;
 import org.apache.ftpserver.ftplet.FtpletResult;
+import org.apache.ftpserver.ftpletcontainer.impl.DefaultFtpletContainer;
+import org.apache.ftpserver.impl.DefaultFtpServer;
 import org.apache.ftpserver.listener.ListenerFactory;
 import org.apache.ftpserver.ssl.SslConfigurationFactory;
 
@@ -41,7 +42,6 @@ public class FTPServer extends Server{
 	private FtpServer server;
 	private ListenerFactory factory;
 	private SslConfigurationFactory ssl;
-	private FtpServerFactory serverFactory ;
 	private ConnectionConfigFactory connectionConfigFactory;
 	private LinkedHashMap<String,Ftplet>ftplets;
 	private CommandListener commandListener;
@@ -55,7 +55,6 @@ public class FTPServer extends Server{
 	private Map<String, FTPSession>sessionMap;
 	//
 	public FTPServer() {
-		serverFactory=new FtpServerFactory();
 		factory = new ListenerFactory();
 		ssl = new SslConfigurationFactory();
 		connectionConfigFactory=new ConnectionConfigFactory();
@@ -413,11 +412,12 @@ public class FTPServer extends Server{
 	@Override
 	public void start() throws Exception {
 		//
-		serverFactory.setFtplets(ftplets);
-		serverFactory.addListener("default", factory.createListener());
-		serverFactory.setUserManager(userManager);
-		serverFactory.setConnectionConfig(connectionConfigFactory.createConnectionConfig());
-		server = serverFactory.createServer(); 
+		ExDefaultFtpServerContext context=new ExDefaultFtpServerContext();
+		context.setFtpletContainer(new DefaultFtpletContainer(ftplets));
+		context.addListener("default", factory.createListener());
+		context.setUserManager(userManager);
+		context.setConnectionConfig(connectionConfigFactory.createConnectionConfig());
+		server = new DefaultFtpServer(context);
 		//
 		server.start();
 	}
