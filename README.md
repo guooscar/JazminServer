@@ -34,6 +34,8 @@ JazminServer is a Java based application/message/rpc server.
 * WebServer
   * Jetty based webserver
   * Simple MVC framework
+* FTPServer
+  * apache ftpserver
 * ConsoleServer
   * SSH based monitor server
   * Piped command
@@ -88,6 +90,8 @@ JazminServer帮助开发者实现了众多的底层功能，基于JazminServer�
 * WebServer
 	* Jetty based webserver  基于Jetty内核
 	* Simple MVC framework 提供简单的MVC框架支持
+* FTPServer
+  	* apache ftpserver 集成apache ftpserver
 * ConsoleServer
 	* SSH based monitor server  基于SSH协议的监控控制台
 	* Piped command 支持管道命令
