@@ -174,10 +174,10 @@ public class MessageServer extends Server{
 		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
-		if(!messageType.equals(MESSAGE_TYPE_AMF3)||
-			!messageType.equals(MESSAGE_TYPE_JSON)||
+		if(!messageType.equals(MESSAGE_TYPE_AMF3)&&
+			!messageType.equals(MESSAGE_TYPE_JSON)&&
 			!messageType.equals(MESSAGE_TYPE_ZJSON)){
-			throw new IllegalArgumentException("bad message type");
+			throw new IllegalArgumentException("bad message type:"+messageType);
 		}
 		this.messageType = messageType;
 	}

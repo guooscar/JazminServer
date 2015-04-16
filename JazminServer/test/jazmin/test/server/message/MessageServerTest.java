@@ -17,6 +17,7 @@ public class MessageServerTest {
 	 */
 	public static void main(String[] args) {
 		MessageServer ms=new MessageServer();
+		ms.setMessageType(MessageServer.MESSAGE_TYPE_ZJSON);
 		ms.registerService(new TestService());
 		Jazmin.addServer(ms);
 		Jazmin.start();
