@@ -156,7 +156,7 @@ public class ReadLine {
 					}
 				}
 			}
-
+			
 			if (b == '\r') {
 				String ccc = charsToString();
 				addHistoryCommand(ccc);
@@ -167,7 +167,7 @@ public class ReadLine {
 				break;
 			}
 
-			if (b == erase) {
+			if (b == erase||b==BS) {
 				if (position > 0) {
 					position--;
 					chars.remove(position);

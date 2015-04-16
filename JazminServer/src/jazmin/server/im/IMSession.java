@@ -14,11 +14,15 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
+
 /**
  * @author yama
  * 25 Dec, 2014
  */
 public class IMSession {
+	private static Logger logger=LoggerFactory.get(IMSession.class);
 	//
 	int id;
 	String principal;
@@ -113,9 +117,11 @@ public class IMSession {
 	//
 	public void kick(String msg){
 		sendError(null,IMResponseMessage.SC_KICKED,msg);
-		if(channel!=null){
-			channel.close();	
-		}
+		try {
+			channel.close().sync();
+		} catch (InterruptedException e) {
+			logger.catching(e);
+		}	
 	}
 	/**
 	 * @return the userAgent

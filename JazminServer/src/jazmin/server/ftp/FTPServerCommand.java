@@ -17,6 +17,7 @@ public class FTPServerCommand extends ConsoleCommand {
     	id="ftpsrv";
     	desc="ftp server ctrl command";
     	addOption("i",false,"show server information.",this::showServerInfo);
+    	addOption("session",false,"show sessions.",this::showSessions);
     	addOption("stat",false,"show stat info.",this::showStats);
     	addOption("statop",false,"show stat info.",this::showStatsTop);
     	addOption("list",false,"list upload/download files.",this::showList);
@@ -68,14 +69,20 @@ public class FTPServerCommand extends ConsoleCommand {
 	    }
     //
     private void showServerInfo(String args){
-    	String format="%-20s: %-10s\n";
+    	String format="%-25s: %-10s\n";
 		out.printf(format,"port",ftpServer.getPort());
 		out.printf(format,"idleTimeout",ftpServer.getIdleTimeout());
 		out.printf(format,"implicitSsl",ftpServer.isImplicitSsl());
 		out.printf(format,"serverAddress",ftpServer.getServerAddress());
-		out.printf(format,"userManager",ftpServer.getUserManager());
 		out.printf(format,"port",ftpServer.getPort());
-		out.printf(format,"commandListener",ftpServer.getCommandListener());
+		out.printf(format,"loginFailureDelay",ftpServer.getLoginFailureDelay());
+		out.printf(format,"maxAnonymousLogins",ftpServer.getMaxAnonymousLogins());
+		out.printf(format,"maxLoginFailures", ftpServer.getMaxLoginFailures());
+		out.printf(format,"maxLogins", ftpServer.getMaxLogins());
+		out.printf(format,"maxThreads", ftpServer.getMaxThreads());
+		out.printf(format,"anonymousLoginEnabled",ftpServer.isAnonymousLoginEnabled());
+		out.printf(format,"commandListener", ftpServer.getCommandListener());
+		out.printf(format,"userManager", ftpServer.getUserManager());
 	}
     
     //
@@ -90,11 +97,44 @@ public class FTPServerCommand extends ConsoleCommand {
 					i++,
 					s.type,
 					s.session.getUser().userName+"@"+
-					s.session.getServerAddress().getHostName()
+					s.session.getClientAddress().getAddress().getHostAddress()
 					+":"+
-					s.session.getServerAddress().getPort(),
+					s.session.getClientAddress().getPort(),
 					formatDate(s.startTime),
 					s.file);
+		};
+    }
+    //
+    private void showSessions(String args){
+    	List<FTPSession>sessions=ftpServer.getSessions();
+    	out.format("total %d sessions\n",sessions.size());
+    	String format="%-5s : %-10s %-20s %-10s %-10s %-15s %-15s %-15s %-10s %-10s %-10s\n";
+		int i=0;
+		out.format(format,
+				"#",
+				"USER",
+				"ADDR",
+				"FLOGINS",
+				"FOFFSET",
+				"CONNTIME",
+				"LASTACCTIME",
+				"LOGINTIME",
+				"MAXIDLE",
+				"ISLOGIN",
+				"ISSECURE");	
+		for(FTPSession s:sessions){
+			out.format(format,
+					i++,
+					s.getUser().userName,
+					s.getClientAddress().getAddress().getHostAddress()+":"+s.getClientAddress().getPort(),
+					s.getFailedLogins(),
+					s.getFileOffset(),
+					formatDate(s.getConnectionTime()),
+					formatDate(s.getLastAccessTime()),
+					formatDate(s.getLoginTime()),
+					s.getMaxIdleTime(),
+					s.isLoggedIn(),
+					s.isSecure());
 		};
     }
 }

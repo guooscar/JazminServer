@@ -19,6 +19,7 @@ import jazmin.core.aop.Dispatcher;
 import jazmin.misc.InfoBuilder;
 import jazmin.server.console.ConsoleServer;
 
+import org.apache.ftpserver.ConnectionConfigFactory;
 import org.apache.ftpserver.FtpServer;
 import org.apache.ftpserver.FtpServerFactory;
 import org.apache.ftpserver.ftplet.FtpException;
@@ -41,6 +42,7 @@ public class FTPServer extends Server{
 	private ListenerFactory factory;
 	private SslConfigurationFactory ssl;
 	private FtpServerFactory serverFactory ;
+	private ConnectionConfigFactory connectionConfigFactory;
 	private LinkedHashMap<String,Ftplet>ftplets;
 	private CommandListener commandListener;
 	private FTPStatistics statistics;
@@ -50,14 +52,17 @@ public class FTPServer extends Server{
 	private Method listenerOnConnectMethod;
 	private Method listenerOnDisConnectMethod;
 	private FTPUserManager userManager;
+	private Map<String, FTPSession>sessionMap;
 	//
 	public FTPServer() {
 		serverFactory=new FtpServerFactory();
 		factory = new ListenerFactory();
 		ssl = new SslConfigurationFactory();
+		connectionConfigFactory=new ConnectionConfigFactory();
 		ftplets=new LinkedHashMap<String, Ftplet>();
 		ftplets.put("EX",new ServiceFtplet());
 		fileTransferInfos=new ConcurrentHashMap<String, FileTransferInfo>();
+		sessionMap=new ConcurrentHashMap<String, FTPSession>();
 		listenerBeforeMethod=Dispatcher.getMethod(
 				CommandListener.class,
 				"beforeCommand",FTPSession.class, FTPRequest.class);
@@ -71,6 +76,103 @@ public class FTPServer extends Server{
 				CommandListener.class,
 				"onDisconnect",FTPSession.class);
 	}
+	
+	/**
+	 * @return
+	 * @see org.apache.ftpserver.ConnectionConfigFactory#getLoginFailureDelay()
+	 */
+	public int getLoginFailureDelay() {
+		return connectionConfigFactory.getLoginFailureDelay();
+	}
+
+	/**
+	 * @return
+	 * @see org.apache.ftpserver.ConnectionConfigFactory#getMaxAnonymousLogins()
+	 */
+	public int getMaxAnonymousLogins() {
+		return connectionConfigFactory.getMaxAnonymousLogins();
+	}
+
+	/**
+	 * @return
+	 * @see org.apache.ftpserver.ConnectionConfigFactory#getMaxLoginFailures()
+	 */
+	public int getMaxLoginFailures() {
+		return connectionConfigFactory.getMaxLoginFailures();
+	}
+
+	/**
+	 * @return
+	 * @see org.apache.ftpserver.ConnectionConfigFactory#getMaxLogins()
+	 */
+	public int getMaxLogins() {
+		return connectionConfigFactory.getMaxLogins();
+	}
+
+	/**
+	 * @return
+	 * @see org.apache.ftpserver.ConnectionConfigFactory#getMaxThreads()
+	 */
+	public int getMaxThreads() {
+		return connectionConfigFactory.getMaxThreads();
+	}
+
+	/**
+	 * @return
+	 * @see org.apache.ftpserver.ConnectionConfigFactory#isAnonymousLoginEnabled()
+	 */
+	public boolean isAnonymousLoginEnabled() {
+		return connectionConfigFactory.isAnonymousLoginEnabled();
+	}
+
+	/**
+	 * @param anonymousLoginEnabled
+	 * @see org.apache.ftpserver.ConnectionConfigFactory#setAnonymousLoginEnabled(boolean)
+	 */
+	public void setAnonymousLoginEnabled(boolean anonymousLoginEnabled) {
+		connectionConfigFactory.setAnonymousLoginEnabled(anonymousLoginEnabled);
+	}
+
+	/**
+	 * @param loginFailureDelay
+	 * @see org.apache.ftpserver.ConnectionConfigFactory#setLoginFailureDelay(int)
+	 */
+	public void setLoginFailureDelay(int loginFailureDelay) {
+		connectionConfigFactory.setLoginFailureDelay(loginFailureDelay);
+	}
+
+	/**
+	 * @param maxAnonymousLogins
+	 * @see org.apache.ftpserver.ConnectionConfigFactory#setMaxAnonymousLogins(int)
+	 */
+	public void setMaxAnonymousLogins(int maxAnonymousLogins) {
+		connectionConfigFactory.setMaxAnonymousLogins(maxAnonymousLogins);
+	}
+
+	/**
+	 * @param maxLoginFailures
+	 * @see org.apache.ftpserver.ConnectionConfigFactory#setMaxLoginFailures(int)
+	 */
+	public void setMaxLoginFailures(int maxLoginFailures) {
+		connectionConfigFactory.setMaxLoginFailures(maxLoginFailures);
+	}
+
+	/**
+	 * @param maxLogins
+	 * @see org.apache.ftpserver.ConnectionConfigFactory#setMaxLogins(int)
+	 */
+	public void setMaxLogins(int maxLogins) {
+		connectionConfigFactory.setMaxLogins(maxLogins);
+	}
+
+	/**
+	 * @param maxThreads
+	 * @see org.apache.ftpserver.ConnectionConfigFactory#setMaxThreads(int)
+	 */
+	public void setMaxThreads(int maxThreads) {
+		connectionConfigFactory.setMaxThreads(maxThreads);
+	}
+
 	//
 	/**
 	 * @return
@@ -199,7 +301,12 @@ public class FTPServer extends Server{
 		}
 		this.userManager = userManager;
 	}
-
+	/**
+	 * @return all sessions
+	 */
+	public List<FTPSession>getSessions(){
+		return new ArrayList<FTPSession>(sessionMap.values());
+	}
 	//--------------------------------------------------------------------------
 	
 	private class ServiceFtplet implements Ftplet{
@@ -222,7 +329,7 @@ public class FTPServer extends Server{
 				//
 				Jazmin.dispatcher.invokeInPool("", 
 						commandListener, 
-						listenerAfterMethod,null,session,request,reply);
+						listenerAfterMethod,Dispatcher.EMPTY_CALLBACK,session,request,reply);
 			}
 			return FtpletResult.DEFAULT;
 		}
@@ -249,7 +356,7 @@ public class FTPServer extends Server{
 				}
 				Jazmin.dispatcher.invokeInPool("", 
 						commandListener, 
-						listenerBeforeMethod,null,session,request);
+						listenerBeforeMethod,Dispatcher.EMPTY_CALLBACK,session,request);
 			}
 			return FtpletResult.DEFAULT;
 		}
@@ -271,9 +378,10 @@ public class FTPServer extends Server{
 			if(commandListener!=null){
 				FTPSession session=new FTPSession();
 				session.session=arg0;
+				sessionMap.put(session.getSessionId().toString(),session);
 				Jazmin.dispatcher.invokeInPool("", 
 						commandListener, 
-						listenerOnConnectMethod,null,session);
+						listenerOnConnectMethod,Dispatcher.EMPTY_CALLBACK,session);
 			}
 			return FtpletResult.DEFAULT;
 		}
@@ -284,9 +392,10 @@ public class FTPServer extends Server{
 			if(commandListener!=null){
 				FTPSession session=new FTPSession();
 				session.session=arg0;
+				sessionMap.remove(session.getSessionId().toString());
 				Jazmin.dispatcher.invokeInPool("", 
 						commandListener, 
-						listenerOnDisConnectMethod,null,session);
+						listenerOnDisConnectMethod,Dispatcher.EMPTY_CALLBACK,session);
 			}
 			return FtpletResult.DEFAULT;
 		}
@@ -307,6 +416,7 @@ public class FTPServer extends Server{
 		serverFactory.setFtplets(ftplets);
 		serverFactory.addListener("default", factory.createListener());
 		serverFactory.setUserManager(userManager);
+		serverFactory.setConnectionConfig(connectionConfigFactory.createConnectionConfig());
 		server = serverFactory.createServer(); 
 		//
 		server.start();
@@ -327,6 +437,12 @@ public class FTPServer extends Server{
 		.print("implicitSsl",isImplicitSsl())
 		.print("serverAddress",getServerAddress())
 		.print("port",getPort())
+		.print("loginFailureDelay",getLoginFailureDelay())
+		.print("maxAnonymousLogins",getMaxAnonymousLogins())
+		.print("maxLoginFailures",getMaxLoginFailures())
+		.print("maxLogins",getMaxLogins())
+		.print("maxThreads",getMaxThreads())
+		.print("anonymousLoginEnabled",isAnonymousLoginEnabled())
 		.print("commandListener",getCommandListener())
 		.print("userManager",getUserManager());
 		return ib.toString();

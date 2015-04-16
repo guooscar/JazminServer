@@ -158,7 +158,11 @@ public class Session {
 		}
 		sendError(null,ResponseMessage.SC_KICKED, message);
 		if(channel!=null){
-			channel.close();	
+			try {
+				channel.close().sync();
+			} catch (InterruptedException e) {
+				logger.catching(e);
+			}	
 		}
 	}
 	
