@@ -295,7 +295,7 @@ public class FTPServer extends Server{
 	 * @param userManager
 	 */
 	public void setUserManager(FTPUserManager userManager) {
-		if(isInited()){
+		if(isStarted()){
 			throw new IllegalStateException("set before inited.");
 		}
 		this.userManager = userManager;
@@ -412,6 +412,9 @@ public class FTPServer extends Server{
 	@Override
 	public void start() throws Exception {
 		//
+		if(userManager==null){
+			throw new IllegalStateException("userManager can not be null.");
+		}
 		ExDefaultFtpServerContext context=new ExDefaultFtpServerContext();
 		context.setFtpletContainer(new DefaultFtpletContainer(ftplets));
 		context.addListener("default", factory.createListener());

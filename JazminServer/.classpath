@@ -33,5 +33,7 @@
 	<classpathentry kind="lib" path="lib/ftplet-api-1.0.6.jar"/>
 	<classpathentry kind="lib" path="lib/ftpserver-core-1.0.6.jar"/>
 	<classpathentry kind="lib" path="lib/mina-core-2.0.4.jar"/>
+	<classpathentry kind="lib" path="lib/jedis-2.7.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-pool2-2.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
