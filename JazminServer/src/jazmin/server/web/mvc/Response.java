@@ -5,8 +5,8 @@ import java.io.IOException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
 
 /**
  * Provides functionality for modifying the response
