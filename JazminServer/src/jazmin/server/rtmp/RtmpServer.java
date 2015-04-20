@@ -10,7 +10,6 @@ import java.util.concurrent.Executors;
 
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
-import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
 import jazmin.server.console.ConsoleServer;
 import jazmin.server.rtmp.rtmp.server.RtmpConfig;
@@ -118,11 +117,4 @@ public class RtmpServer extends Server{
 		.print("serverHome",getServerHome());
 		return ib.toString();
     }
-    //--------------------------------------------------------------------------
-    public static void main(String[] args) throws Exception{
-    	LoggerFactory.setLevel("INFO");
-		Jazmin.addServer(new RtmpServer());
-		Jazmin.addServer(new ConsoleServer());
-		Jazmin.start();
-	}
 }

@@ -40,17 +40,15 @@ public class ServerStream {
         LIVE,
         APPEND,
         RECORD;
-
         public String asString() {
             return this.name().toLowerCase();
         }
-
         public static PublishType parse(final String raw) {
             return PublishType.valueOf(raw.toUpperCase());
         }
 
     }
-    
+    //	
     private final String name;
     private final PublishType publishType;
     private final ChannelGroup subscribers;

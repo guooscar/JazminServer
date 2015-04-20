@@ -26,8 +26,7 @@ import jazmin.server.rtmp.util.ValueToEnum;
 import org.jboss.netty.buffer.ChannelBuffer;
 
 public enum MessageType implements ValueToEnum.IntValue {
-
-    CHUNK_SIZE(0x01),
+	CHUNK_SIZE(0x01),
     ABORT(0x02),
     BYTES_READ(0x03),
     CONTROL(0x04),
@@ -44,7 +43,7 @@ public enum MessageType implements ValueToEnum.IntValue {
     SHARED_OBJECT_AMF0(0x13),
     COMMAND_AMF0(0x14),
     AGGREGATE(0x16);
-
+  
     private final int value;
 
     private MessageType(final int value) {

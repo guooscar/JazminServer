@@ -99,10 +99,12 @@ public class RtmpServerCommand extends ConsoleCommand {
 						+"/"+ss.getPublishType()+"/"+ss.getPublisher()
 						+"/"+formatDate(ss.getCreateTime()));
 				ChannelGroup cgs=ss.getSubscribers();
-				int channelIdx=1;
-				for(Channel c:cgs){
-					out.println("Subscriber-"+(channelIdx++)+":\t"+c+"/"
-								+formatDate(ss.getCreateTime()));
+				if(cgs!=null){
+					int channelIdx=1;
+					for(Channel c:cgs){
+						out.println("Subscriber-"+(channelIdx++)+":\t"+c+"/"
+									+formatDate(ss.getCreateTime()));
+					}	
 				}
 			}
 			printLine('=', 80);

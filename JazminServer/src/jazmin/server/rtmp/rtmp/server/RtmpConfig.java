@@ -25,7 +25,7 @@ package jazmin.server.rtmp.rtmp.server;
  *
  */
 public class RtmpConfig {
-    public static String homeDir = "home";
+    public static String homeDir = "rtmpapp";
     public static int timerTickSize = 100;
     public static int serverPort = 1935;
 }
