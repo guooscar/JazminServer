@@ -40,7 +40,12 @@ JazminServer is a Java based application/message/rpc server.
   * SSH based monitor server
   * Piped command
   * REPL env
-  
+* RTMPServer
+  * RTMP Streaming Server
+  * Video On Demand, seek and pause support
+  * Publish / Broadcast live streams
+  * FLV, F4V / MP4 / H.264 support
+     
 # Demo
 Start a rpc server and register remote service
 <pre>
@@ -96,6 +101,12 @@ JazminServer帮助开发者实现了众多的底层功能，基于JazminServer�
 	* SSH based monitor server  基于SSH协议的监控控制台
 	* Piped command 支持管道命令
 	* REPL env 有完整的交互式的命令行环境
+* RTMPServer
+  * RTMP 流媒体服务器
+  * Video On Demand, seek and pause support 实时视频播放
+  * Publish / Broadcast live streams 流媒体直播
+  * FLV, F4V / MP4 / H.264 support 支持flv，f4v，mp4，h264格式
+    
 <p>
 <img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image002.jpg?raw=true'/>
 <div alian="center">架构图</div>
