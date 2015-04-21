@@ -173,10 +173,10 @@ public class RtmpServerCommand extends ConsoleCommand {
 				StreamBean sb=new StreamBean();
 				sb.name=ss.getName();
 				sb.createTime=ss.getCreateTime();
-				sb.publishType=ss.getPublishType().asString();
 				Channel publisher=ss.getPublisher();
 				if(publisher!=null){
 					InetSocketAddress sa=(InetSocketAddress) ss.getPublisher().getRemoteAddress();
+					sb.publishType=ss.getPublishType().asString();
 					sb.host=sa.getAddress().getHostAddress();
 					sb.port=sa.getPort();
 				}

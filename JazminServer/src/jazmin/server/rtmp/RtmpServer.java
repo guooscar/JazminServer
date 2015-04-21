@@ -1,5 +1,6 @@
 package jazmin.server.rtmp;
 
+import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,6 +46,13 @@ public class RtmpServer extends Server{
 		if(isStarted()){
 			throw new IllegalStateException("set before started");
 		} 
+		File homeDir=new File(home);
+		if(!homeDir.exists()){
+			throw new IllegalArgumentException("home dir:"+home+" not exists");
+		}
+		if(homeDir.isFile()){
+			throw new IllegalArgumentException("home dir:"+home+" is not directory");
+		}
 		RtmpConfig.homeDir=home;
 	}
 	//
@@ -83,6 +91,16 @@ public class RtmpServer extends Server{
 	static void removeHandler(ServerHandler handler){
 		handlers.remove(handler);
 	}
+	//
+	static ServerApplication getApplication(final String rawName) {
+		final String appName = Utils.trimSlashes(rawName).toLowerCase();
+		ServerApplication app = RtmpServer.applications.get(appName);
+		if (app == null) {
+			app = new ServerApplication(appName);
+			RtmpServer.applications.put(appName, app);
+		}
+		return app;
+	}
 	//--------------------------------------------------------------------------
 	@Override
 	public void init() throws Exception {
@@ -102,16 +120,6 @@ public class RtmpServer extends Server{
         bootstrap.setOption("child.keepAlive", true);
         final InetSocketAddress socketAddress = new InetSocketAddress(RtmpConfig.serverPort);
         bootstrap.bind(socketAddress);
-	}
-	//
-	public static ServerApplication getApplication(final String rawName) {
-		final String appName = Utils.trimSlashes(rawName).toLowerCase();
-		ServerApplication app = RtmpServer.applications.get(appName);
-		if (app == null) {
-			app = new ServerApplication(appName);
-			RtmpServer.applications.put(appName, app);
-		}
-		return app;
 	}
     //
 	@Override

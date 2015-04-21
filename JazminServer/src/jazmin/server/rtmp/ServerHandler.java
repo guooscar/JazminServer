@@ -62,13 +62,13 @@ public class ServerHandler extends SimpleChannelHandler {
     
     private static final Logger logger = LoggerFactory.getLogger(ServerHandler.class);
     //
-    private int bytesReadWindow = 1500000;
+    private int bytesReadWindow = 2500000;
     //private int bytesReadWindow = 15000;
     private long bytesRead;
     private long bytesReadLastSent;
     private long bytesWritten;
     //private int bytesWrittenWindow = 15000;
-    private int bytesWrittenWindow = 1500000;
+    private int bytesWrittenWindow = 2500000;
     private ServerApplication application;
     private String clientId;
     private String playName;
@@ -193,7 +193,9 @@ public class ServerHandler extends SimpleChannelHandler {
         final RtmpMessage message = (RtmpMessage) me.getMessage();
         bytesRead += message.getHeader().getSize();
         if((bytesRead - bytesReadLastSent) > bytesReadWindow) {
-            logger.info("sending bytes read ack after: {}", bytesRead);
+        	//if(logger.isDebugEnabled()){
+        	//	logger.debug("sending bytes read ack after: {}", bytesRead);
+        	//}
             BytesRead ack = new BytesRead(bytesRead);
             channel.write(ack);
             bytesReadLastSent = bytesRead;
@@ -232,7 +234,7 @@ public class ServerHandler extends SimpleChannelHandler {
                     // TODO ?
                 } else if(name.equals("closeStream")) {
                     final int clientStreamId = command.getHeader().getStreamId();
-                    logger.info("closing stream id: {}", clientStreamId); // TODO
+                    logger.info("closing stream id: {}", clientStreamId); // TODO close stream
                     unpublishIfLive();
                 } else if(name.equals("pause")) {                    
                     pauseResponse(channel, command);
@@ -267,8 +269,7 @@ public class ServerHandler extends SimpleChannelHandler {
                 break;
             case BYTES_READ:
                 final BytesRead bytesReadByClient = (BytesRead) message;                
-                //bytesWrittenLastReceived = bytesReadByClient.getValue();
-                logger.debug("bytes read ack from client: {}, actual: {}", bytesReadByClient, bytesWritten);
+                bytesReadByClient.getValue();
                 break;
             case WINDOW_ACK_SIZE:
                 WindowAckSize was = (WindowAckSize) message;
@@ -375,7 +376,7 @@ public class ServerHandler extends SimpleChannelHandler {
         final String clientPlayName = (String) play.getArg(0);
         final ServerStream stream = application.getStream(clientPlayName);
         logger.debug("play name {}, start {}, length {}, reset {}",
-                new Object[]{clientPlayName, playStart, playLength, playReset});
+                clientPlayName, playStart, playLength, playReset);
         //
         if(RtmpServer.sessionListener!=null){
         	RtmpSession session=new RtmpSession();
@@ -401,6 +402,7 @@ public class ServerHandler extends SimpleChannelHandler {
             logger.info("client requested live stream: {}, added to stream: {}", clientPlayName, stream);
             return;
         }
+        //
         if(!clientPlayName.equals(playName)) {
             playName = clientPlayName;                        
             final RtmpReader reader = application.getReader(playName);
