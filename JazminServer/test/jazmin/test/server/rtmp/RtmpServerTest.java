@@ -12,6 +12,7 @@ import jazmin.server.rtmp.RtmpServer;
  */
 public class RtmpServerTest {
 	/*
+	 * ffmpeg -f avfoundation -i "0:0" -vcodec libx264  -s 640x480 -tune zerolatency -b 500k  -f flv rtmp://localhost/live/test
 	 *use ffmpeg to publish local file to live stream
 	 *ffmpeg -re -i test.mov  -c copy -f flv rtmp://localhost/live/test
 	 */
