@@ -281,18 +281,18 @@ public class RPCServerCommand extends ConsoleCommand {
     			"OUT KB",
     			"IN MB",
     			"OUT MB");
-    	long ii=inBoundBytes-lastInBoundBytes;
-    	long oo=outBoundBytes-lastOutBoundBytes;
+    	double ii=inBoundBytes-lastInBoundBytes;
+    	double oo=outBoundBytes-lastOutBoundBytes;
     	
     	out.printf(format,
     			"RATE/S",
     			formatDate(new Date()),
     			ii,
     			oo,
-    			ii/1024,
-    			oo/1024,
-    			ii/(1024*1024),
-    			oo/(1024*1024));
+    			String.format("%.2f",ii/1024),
+    			String.format("%.2f",oo/1024),
+    			String.format("%.2f",ii/(1024*1024)),
+    			String.format("%.2f",oo/(1024*1024)));
     	lastInBoundBytes=inBoundBytes;
     	lastOutBoundBytes=outBoundBytes;
     	//
@@ -303,10 +303,10 @@ public class RPCServerCommand extends ConsoleCommand {
     			formatDate(new Date()),
     			ii,
     			oo,
-    			ii/1024,
-    			oo/1024,
-    			ii/(1024*1024),
-    			oo/(1024*1024));
+    			String.format("%.2f",ii/1024),
+    			String.format("%.2f",oo/1024),
+    			String.format("%.2f",ii/(1024*1024)),
+    			String.format("%.2f",oo/(1024*1024)));
     }
     
 }

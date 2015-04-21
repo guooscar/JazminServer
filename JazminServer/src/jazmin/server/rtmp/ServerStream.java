@@ -16,15 +16,18 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Flazr.  If not, see <http://www.gnu.org/licenses/>.
  */
-package jazmin.server.rtmp.rtmp.server;
+package jazmin.server.rtmp;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.rtmp.rtmp.RtmpMessage;
+import jazmin.server.rtmp.rtmp.message.Metadata;
 import jazmin.server.rtmp.util.Utils;
 
 import org.jboss.netty.channel.Channel;
@@ -34,7 +37,7 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
  * 
  */
 public class ServerStream {
-
+    private static final Logger logger = LoggerFactory.getLogger(ServerStream.class);
 	//
     public static enum PublishType {
         LIVE,
@@ -46,7 +49,6 @@ public class ServerStream {
         public static PublishType parse(final String raw) {
             return PublishType.valueOf(raw.toUpperCase());
         }
-
     }
     //	
     private final String name;
@@ -55,9 +57,10 @@ public class ServerStream {
     private final List<RtmpMessage> configMessages;
     private final Date createTime;
     private Channel publisher;
-
-    private static final Logger logger = LoggerFactory.getLogger(ServerStream.class);
-
+    private Map<String, String> metadata;
+    //
+    
+    //
     public ServerStream(final String rawName, final String typeString) {        
         this.name = Utils.trimSlashes(rawName).toLowerCase();
         createTime=new Date();
@@ -70,6 +73,7 @@ public class ServerStream {
             subscribers = null;
             configMessages = null;
         }
+        metadata=new HashMap<String, String>();
         logger.info("Created ServerStream {}", this);
     }
 
@@ -110,7 +114,29 @@ public class ServerStream {
         return publisher;
     }
 
-    @Override
+    /**
+	 * @return the metadata
+	 */
+	public Map<String, String> getMetadata() {
+		return metadata;
+	}
+
+	/**
+	 * @param metadata the metadata to set
+	 */
+	public void setMetadata(Metadata metadata) {
+		this.metadata.put("duration", metadata.getInnerValue("duration"));
+		this.metadata.put("width", metadata.getInnerValue("width"));
+		this.metadata.put("height", metadata.getInnerValue("height"));
+		this.metadata.put("videodatarate", metadata.getInnerValue("videodatarate"));
+		this.metadata.put("framerate", metadata.getInnerValue("framerate"));
+		this.metadata.put("videocodecid", metadata.getInnerValue("videocodecid"));
+		this.metadata.put("encoder", metadata.getInnerValue("encoder"));
+		this.metadata.put("filesize", metadata.getInnerValue("filesize"));
+		
+	}
+
+	@Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();        
         sb.append("[name: '").append(name);

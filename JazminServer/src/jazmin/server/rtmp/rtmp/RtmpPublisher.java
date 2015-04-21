@@ -25,7 +25,6 @@ import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.rtmp.io.f4v.F4vReader;
 import jazmin.server.rtmp.io.flv.FlvReader;
-import jazmin.server.rtmp.rtmp.server.RtmpConfig;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -36,7 +35,11 @@ import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
-
+/**
+ * 
+ * 
+ *
+ */
 public abstract class RtmpPublisher {
 
     private static final Logger logger = LoggerFactory.getLogger(RtmpPublisher.class);
@@ -56,20 +59,70 @@ public abstract class RtmpPublisher {
     private boolean paused;
     private int bufferDuration;
 
-    public static class Event {
+    /**
+	 * @return the timerTickSize
+	 */
+	public int getTimerTickSize() {
+		return timerTickSize;
+	}
 
-        private final int conversationId;
+	/**
+	 * @return the aggregateModeEnabled
+	 */
+	public boolean isAggregateModeEnabled() {
+		return aggregateModeEnabled;
+	}
 
-        public Event(final int conversationId) {
-            this.conversationId = conversationId;
-        }
+	/**
+	 * @return the streamId
+	 */
+	public int getStreamId() {
+		return streamId;
+	}
 
-        public int getConversationId() {
-            return conversationId;
-        }
+	/**
+	 * @return the startTime
+	 */
+	public long getStartTime() {
+		return startTime;
+	}
 
-    }
+	/**
+	 * @return the seekTime
+	 */
+	public long getSeekTime() {
+		return seekTime;
+	}
 
+	/**
+	 * @return the timePosition
+	 */
+	public long getTimePosition() {
+		return timePosition;
+	}
+
+	/**
+	 * @return the currentConversationId
+	 */
+	public int getCurrentConversationId() {
+		return currentConversationId;
+	}
+
+	/**
+	 * @return the playLength
+	 */
+	public int getPlayLength() {
+		return playLength;
+	}
+
+	/**
+	 * @return the bufferDuration
+	 */
+	public int getBufferDuration() {
+		return bufferDuration;
+	}
+
+	//
     public RtmpPublisher(final RtmpReader reader, final int streamId, final int bufferDuration, 
             boolean useSharedTimer, boolean aggregateModeEnabled) {
         this.aggregateModeEnabled = aggregateModeEnabled;
@@ -242,5 +295,21 @@ public abstract class RtmpPublisher {
     }
 
     protected abstract RtmpMessage[] getStopMessages(long timePosition);
+    /**
+     * 
+     * @author yama
+     *
+     */
+    public static class Event {
+        private final int conversationId;
 
+        public Event(final int conversationId) {
+            this.conversationId = conversationId;
+        }
+
+        public int getConversationId() {
+            return conversationId;
+        }
+
+    }
 }

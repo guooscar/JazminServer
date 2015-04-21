@@ -17,7 +17,7 @@
  * along with Flazr.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package jazmin.server.rtmp.rtmp.server;
+package jazmin.server.rtmp;
 
 import java.util.Arrays;
 
@@ -36,7 +36,11 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.handler.codec.frame.FrameDecoder;
-
+/**
+ * 
+ * @author yama
+ *
+ */
 public class ServerHandshakeHandler extends FrameDecoder implements ChannelDownstreamHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerHandshakeHandler.class);

@@ -20,7 +20,11 @@
 package jazmin.server.rtmp.rtmp;
 
 import org.jboss.netty.buffer.ChannelBuffer;
-
+/**
+ * 
+ * @author yama
+ *
+ */
 public interface RtmpMessage {
 
     RtmpHeader getHeader();

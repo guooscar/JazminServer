@@ -12,10 +12,7 @@ import jazmin.core.Jazmin;
 import jazmin.core.Server;
 import jazmin.misc.InfoBuilder;
 import jazmin.server.console.ConsoleServer;
-import jazmin.server.rtmp.rtmp.server.RtmpConfig;
-import jazmin.server.rtmp.rtmp.server.ServerApplication;
-import jazmin.server.rtmp.rtmp.server.ServerHandler;
-import jazmin.server.rtmp.rtmp.server.ServerPipelineFactory;
+import jazmin.server.rtmp.rtmp.RtmpConfig;
 import jazmin.server.rtmp.util.Utils;
 
 import org.jboss.netty.bootstrap.ServerBootstrap;
@@ -29,7 +26,9 @@ public class RtmpServer extends Server{
 	private static Map<String, ServerApplication> applications;
     private static ChannelFactory factory;
     private static List<ServerHandler>handlers;
-	public RtmpServer() {
+    static RtmpSessionListener sessionListener;
+	//
+    public RtmpServer() {
 		applications = new ConcurrentHashMap<String, ServerApplication>();
 	    handlers=Collections.synchronizedList(new ArrayList<>());
 	}
@@ -45,7 +44,7 @@ public class RtmpServer extends Server{
 	public void setServerHome(String home){
 		if(isStarted()){
 			throw new IllegalStateException("set before started");
-		}
+		} 
 		RtmpConfig.homeDir=home;
 	}
 	//
@@ -64,12 +63,24 @@ public class RtmpServer extends Server{
 	public List<ServerHandler>getHandlers(){
 		return new ArrayList<>(handlers);
 	}
+	/**
+	 * @return the sessionListener
+	 */
+	public  RtmpSessionListener getSessionListener() {
+		return sessionListener;
+	}
+	/**
+	 * @param sessionListener the sessionListener to set
+	 */
+	public  void setSessionListener(RtmpSessionListener sessionListener) {
+		RtmpServer.sessionListener = sessionListener;
+	}
 	//--------------------------------------------------------------------------
-	public static void addHandler(ServerHandler handler){
+	static void addHandler(ServerHandler handler){
 		handlers.add(handler);
 	}
 	//
-	public static void removeHandler(ServerHandler handler){
+	static void removeHandler(ServerHandler handler){
 		handlers.remove(handler);
 	}
 	//--------------------------------------------------------------------------
@@ -114,7 +125,8 @@ public class RtmpServer extends Server{
 		ib.section("info")
 		.format("%-30s:%-30s\n")
 		.print("port",getPort())
-		.print("serverHome",getServerHome());
+		.print("serverHome",getServerHome())
+		.print("sessionListener",getSessionListener());
 		return ib.toString();
     }
 }

@@ -17,7 +17,7 @@
  * along with Flazr.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package jazmin.server.rtmp.rtmp.server;
+package jazmin.server.rtmp.rtmp;
 
 /**
  * 

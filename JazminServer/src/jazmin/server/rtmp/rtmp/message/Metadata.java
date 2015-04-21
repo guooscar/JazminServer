@@ -32,7 +32,11 @@ import jazmin.server.rtmp.io.f4v.box.STSD.VideoSD;
 import jazmin.server.rtmp.rtmp.RtmpHeader;
 
 import org.jboss.netty.buffer.ChannelBuffer;
-
+/**
+ * 
+ * @author yama
+ *
+ */
 public abstract class Metadata extends AbstractMessage {
 
     protected String name;
@@ -81,7 +85,7 @@ public abstract class Metadata extends AbstractMessage {
     }
 
     public String getString(String key) {
-        return (String) getValue(key);
+        return (String)getValue(key);
     }
 
     public Boolean getBoolean(String key) {
@@ -91,7 +95,22 @@ public abstract class Metadata extends AbstractMessage {
     public Double getDouble(String key) {
         return (Double) getValue(key);
     }
-
+    //
+    public String getInnerValue(String key){
+    	if(data == null || data.length == 1) {
+    		 return "null";
+        }
+        final Map<String, Object> map = getMap(1);
+        if(map == null) {
+            return "null";
+        }
+        final Object o = map.get(key);
+        if(o == null) {
+            return "null";
+        }
+        return o+"";
+    }
+    //
     public double getDuration() {
         if(data == null || data.length == 0) {
             return -1;

@@ -26,7 +26,11 @@ import jazmin.server.rtmp.amf.Amf0Object;
 import jazmin.server.rtmp.rtmp.RtmpHeader;
 
 import org.jboss.netty.buffer.ChannelBuffer;
-
+/**
+ * 
+ * @author yama
+ *
+ */
 public abstract class Command extends AbstractMessage {
     
     protected String name;

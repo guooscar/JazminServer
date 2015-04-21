@@ -87,7 +87,7 @@ public class RtmpEncoder extends SimpleChannelDownstreamHandler {
         }
         channelPrevHeaders[channelId] = header;        
         if(logger.isDebugEnabled()) {
-            logger.debug(">> {}", message);
+            //logger.debug(">> {}", message);
         }                
         final ChannelBuffer out = ChannelBuffers.buffer(
                 RtmpHeader.MAX_ENCODED_SIZE + header.getSize() + header.getSize() / chunkSize);

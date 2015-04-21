@@ -104,9 +104,9 @@ public class Amf0Value {
     @SuppressWarnings("unchecked")
 	public static void encode(final ChannelBuffer out, final Object value) {
         final Type type = Type.getType(value);
-        if(logger.isDebugEnabled()) {
-            logger.debug(">> " + toString(type, value));
-        }
+        //if(logger.isDebugEnabled()) {
+        //    logger.debug(">> " + toString(type, value));
+        //}
         out.writeByte((byte) type.value);
         switch (type) {
             case NUMBER:
@@ -186,9 +186,9 @@ public class Amf0Value {
     public static Object decode(final ChannelBuffer in) {
         final Type type = Type.valueToEnum(in.readByte());
         final Object value = decode(in, type);
-        if(logger.isDebugEnabled()) {
-            logger.debug("<< " + toString(type, value));
-        }
+        // if(logger.isDebugEnabled()) {
+        //    logger.debug("<< " + toString(type, value));
+        //}
         return value;
     }
 
@@ -260,7 +260,7 @@ public class Amf0Value {
         }
     }
     
-    private static String toString(final Type type, final Object value) {
+    protected static String toString(final Type type, final Object value) {
         StringBuilder sb = new StringBuilder();
         sb.append('[').append(type).append(" ");
         if(type == Type.ARRAY) {

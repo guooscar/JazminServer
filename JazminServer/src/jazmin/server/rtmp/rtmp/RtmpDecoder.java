@@ -79,9 +79,9 @@ public class RtmpDecoder extends ReplayingDecoder<DecoderState> {
                     header.setTime(prevHeader.getTime() + header.getDeltaTime());
                 }
                 final RtmpMessage message = MessageType.decode(header, payload);
-                // if(logger.isDebugEnabled()) {
-                //    logger.debug("<< {}", message);
-                // }
+                 if(logger.isDebugEnabled()) {
+                    //logger.debug("<< {}", message);
+                 }
                 payload = null;
                 if(header.isChunkSize()) {
                     final ChunkSize csMessage = (ChunkSize) message;

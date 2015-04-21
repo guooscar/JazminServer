@@ -17,7 +17,7 @@
  * along with Flazr.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package jazmin.server.rtmp.rtmp.server;
+package jazmin.server.rtmp;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,6 +30,7 @@ import jazmin.log.LoggerFactory;
 import jazmin.server.rtmp.io.f4v.F4vReader;
 import jazmin.server.rtmp.io.flv.FlvReader;
 import jazmin.server.rtmp.io.flv.FlvWriter;
+import jazmin.server.rtmp.rtmp.RtmpConfig;
 import jazmin.server.rtmp.rtmp.RtmpReader;
 import jazmin.server.rtmp.rtmp.RtmpWriter;
 import jazmin.server.rtmp.util.Utils;
@@ -50,8 +51,6 @@ public class ServerApplication {
         streams = new ConcurrentHashMap<String, ServerStream>();        
         createTime=new Date();
     }
-    //
-    
     //
     public String getName() {
         return name;

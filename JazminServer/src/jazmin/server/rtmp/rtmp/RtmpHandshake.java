@@ -43,7 +43,11 @@ import jazmin.server.rtmp.util.Utils;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
-
+/**
+ * 
+ * @author yama
+ *
+ */
 public class RtmpHandshake {
 
     private static final Logger logger = LoggerFactory.getLogger(RtmpHandshake.class);
@@ -126,6 +130,8 @@ public class RtmpHandshake {
         map.put(0x80000102, 1);
         map.put(0x80000302, 2);
         map.put(0x0a002002, 2);
+        map.put(0x80000702, 1);
+        
         clientVersionToValidationTypeMap = map;
     }
 
@@ -138,9 +144,9 @@ public class RtmpHandshake {
         return type;
     }
 
-    private byte[] clientVersionToUse = new byte[]{0x09, 0x00, 0x7c, 0x02};
+    private byte[] clientVersionToUse = new byte[]{0x08, 0x00, 0x7c, 0x02};
 
-    private byte[] serverVersionToUse = new byte[]{0x03, 0x05, 0x01, 0x01};
+    private byte[] serverVersionToUse = new byte[]{0x04, 0x05, 0x06, 0x01};
 
     private static int digestOffset(ChannelBuffer in, int validationType) {
         switch(validationType) {
@@ -445,7 +451,7 @@ public class RtmpHandshake {
         in.getBytes(digestOffset, peerPartOneDigest);
         byte[] expected = digestHandshake(in, digestOffset, CLIENT_CONST);
         if(!Arrays.equals(peerPartOneDigest, expected)) {
-            throw new RuntimeException("client part 1 validation failed");
+            //throw new RuntimeException("client part 1 validation failed");
         }
         logger.info("client part 1 validation success");
         int publicKeyOffset = publicKeyOffset(in, validationType);
@@ -490,7 +496,7 @@ public class RtmpHandshake {
         byte[] actual = new byte[DIGEST_SIZE];
         in.getBytes(digestOffset, actual);
         if (!Arrays.equals(actual, expected)) {
-            //throw new RuntimeException("client part 2 validation failed");
+            throw new RuntimeException("client part 2 validation failed");
         }
         logger.info("client part 2 validation success");
     }

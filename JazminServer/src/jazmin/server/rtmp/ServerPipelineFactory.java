@@ -17,7 +17,7 @@
  * along with Flazr.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package jazmin.server.rtmp.rtmp.server;
+package jazmin.server.rtmp;
 
 import jazmin.server.rtmp.rtmp.RtmpDecoder;
 import jazmin.server.rtmp.rtmp.RtmpEncoder;
@@ -34,8 +34,6 @@ public class ServerPipelineFactory implements ChannelPipelineFactory {
         pipeline.addLast("handshaker", new ServerHandshakeHandler());
         pipeline.addLast("decoder", new RtmpDecoder());
         pipeline.addLast("encoder", new RtmpEncoder());
-//        pipeline.addLast("executor", new ExecutionHandler(
-//                new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
         pipeline.addLast("handler", new ServerHandler());
         return pipeline;
     }

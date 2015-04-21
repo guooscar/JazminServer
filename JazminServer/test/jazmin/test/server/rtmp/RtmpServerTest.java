@@ -17,8 +17,13 @@ public class RtmpServerTest {
 	 */
 	 //--------------------------------------------------------------------------
     public static void main(String[] args) throws Exception{
-    	LoggerFactory.setLevel("INFO");
-		Jazmin.addServer(new RtmpServer());
+    	//
+    	LoggerFactory.setLevel("DEBUG");
+    	RtmpServer rtmpServer=new RtmpServer();
+    	rtmpServer.setServerHome("D:/rtmp-home/");
+    	
+    	//
+		Jazmin.addServer(rtmpServer);
 		Jazmin.addServer(new ConsoleServer());
 		Jazmin.start();
 	}
