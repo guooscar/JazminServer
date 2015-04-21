@@ -217,7 +217,7 @@ public class ServerHandler extends SimpleChannelHandler {
                 break;
             case COMMAND_AMF0:
             case COMMAND_AMF3:
-                final Command command = (Command) message;
+            	final Command command = (Command) message;
                 final String name = command.getName();
                 if(name.equals("connect")) {
                     connectResponse(channel, command);
@@ -247,7 +247,7 @@ public class ServerHandler extends SimpleChannelHandler {
                 return; // NOT break
             case METADATA_AMF0:
             case METADATA_AMF3:
-                final Metadata meta = (Metadata) message;
+            	final Metadata meta = (Metadata) message;
                 logger.info("onMetaData message: {}", meta);
                 subscriberStream.setMetadata(meta);
                 if(meta.getName().equals("onMetaData")) {

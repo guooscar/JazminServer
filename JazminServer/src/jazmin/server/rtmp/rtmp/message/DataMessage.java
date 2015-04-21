@@ -23,7 +23,11 @@ import jazmin.server.rtmp.rtmp.RtmpHeader;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
-
+/**
+ * 
+ * @author yama
+ *
+ */
 public abstract class DataMessage extends AbstractMessage {
 
     private boolean encoded;

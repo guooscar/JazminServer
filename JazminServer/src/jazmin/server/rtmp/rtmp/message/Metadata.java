@@ -161,6 +161,20 @@ public abstract class Metadata extends AbstractMessage {
     //==========================================================================
 
     /**
+     * 
+     *  videocodecid id
+     *  
+     *	H263:uint = 2;
+		SCREEN:uint = 3;
+		VP6:uint = 4;
+		VP6ALPHA:uint = 5;
+		SCREENV2:uint = 6;
+     	H264:uint = 7;
+    
+     * 
+     * 
+     * 
+     * 
     [ (map){
         duration=112.384, moovPosition=28.0, width=640.0, height=352.0, videocodecid=avc1,
         audiocodecid=mp4a, avcprofile=100.0, avclevel=30.0, aacaot=2.0, videoframerate=29.97002997002997,
