@@ -329,6 +329,19 @@ public class Jazmin {
 		return scheduledExecutorService.scheduleWithFixedDelay(command,
 				initialDelay, delay, unit);
 	}
+	
+	/**
+	 * @param command
+	 * @param delay
+	 * @param unit
+	 * @return
+	 * @see java.util.concurrent.ScheduledExecutorService#schedule(
+	 * java.lang.Runnable, long, java.util.concurrent.TimeUnit)
+	 */
+	public static ScheduledFuture<?> schedule(Runnable command, long delay,
+			TimeUnit unit) {
+		return scheduledExecutorService.schedule(command, delay, unit);
+	}
 	//
 	// --------------------------------------------------------------------------
 	/**
