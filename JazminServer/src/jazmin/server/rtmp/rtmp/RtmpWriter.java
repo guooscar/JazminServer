@@ -18,7 +18,10 @@
  */
 
 package jazmin.server.rtmp.rtmp;
-
+/**
+ * 
+ *
+ */
 public interface RtmpWriter {
 
     void write(RtmpMessage message);

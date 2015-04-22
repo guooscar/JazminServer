@@ -20,7 +20,10 @@
 package jazmin.server.rtmp.rtmp;
 
 import jazmin.server.rtmp.rtmp.message.Metadata;
-
+/**
+ * 
+ *
+ */
 public interface RtmpReader {
 
     Metadata getMetadata();

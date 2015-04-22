@@ -84,7 +84,7 @@ public class RtmpHeader {
         headerType = Type.valueToEnum(headerTypeInt);
         //========================= REMAINING HEADER ===========================
         final RtmpHeader prevHeader = incompleteHeaders[channelId];
-        // logger.debug("so far: {}, prev {}", this, prevHeader);
+       
         switch(headerType) {
             case LARGE:
                 time = in.readMedium();

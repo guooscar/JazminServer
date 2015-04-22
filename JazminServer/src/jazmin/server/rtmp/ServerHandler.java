@@ -62,13 +62,13 @@ public class ServerHandler extends SimpleChannelHandler {
     
     private static final Logger logger = LoggerFactory.getLogger(ServerHandler.class);
     //
-    private int bytesReadWindow = 2500000;
+    private int bytesReadWindow = 150000;
     //private int bytesReadWindow = 15000;
     private long bytesRead;
     private long bytesReadLastSent;
     private long bytesWritten;
     //private int bytesWrittenWindow = 15000;
-    private int bytesWrittenWindow = 2500000;
+    private int bytesWrittenWindow = 150000;
     private ServerApplication application;
     private String clientId;
     private String playName;
@@ -193,9 +193,9 @@ public class ServerHandler extends SimpleChannelHandler {
         final RtmpMessage message = (RtmpMessage) me.getMessage();
         bytesRead += message.getHeader().getSize();
         if((bytesRead - bytesReadLastSent) > bytesReadWindow) {
-        	//if(logger.isDebugEnabled()){
-        	//	logger.debug("sending bytes read ack after: {}", bytesRead);
-        	//}
+        	if(logger.isDebugEnabled()){
+        		logger.debug("sending bytes read ack after: {}", bytesRead);
+        	}
             BytesRead ack = new BytesRead(bytesRead);
             channel.write(ack);
             bytesReadLastSent = bytesRead;
@@ -269,7 +269,10 @@ public class ServerHandler extends SimpleChannelHandler {
                 break;
             case BYTES_READ:
                 final BytesRead bytesReadByClient = (BytesRead) message;                
-                bytesReadByClient.getValue();
+                long byteRead=bytesReadByClient.getValue();
+                if(logger.isDebugEnabled()){
+                	logger.debug("client bytes read:{}",byteRead);
+                }
                 break;
             case WINDOW_ACK_SIZE:
                 WindowAckSize was = (WindowAckSize) message;
