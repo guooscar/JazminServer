@@ -12,7 +12,7 @@ import jazmin.driver.process.ProcessLifecycleListener;
 import jazmin.server.console.ConsoleServer;
 
 /**
- * @author g2131
+ * @author yama
  *
  */
 public class ProcessDriverTest {

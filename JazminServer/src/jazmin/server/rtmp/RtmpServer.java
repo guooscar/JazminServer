@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 
 import jazmin.core.Jazmin;
+import jazmin.core.JazminThreadFactory;
 import jazmin.core.Server;
 import jazmin.misc.InfoBuilder;
 import jazmin.server.console.ConsoleServer;
@@ -112,8 +113,8 @@ public class RtmpServer extends Server{
 	@Override
     public void start() throws Exception {
         factory = new NioServerSocketChannelFactory(
-                Executors.newCachedThreadPool(),
-                Executors.newCachedThreadPool());
+                Executors.newCachedThreadPool(new JazminThreadFactory("RtmpBoss")),
+                Executors.newCachedThreadPool(new JazminThreadFactory("RtmpWorker")));
         final ServerBootstrap bootstrap = new ServerBootstrap(factory);
         bootstrap.setPipelineFactory(new ServerPipelineFactory());
         bootstrap.setOption("child.tcpNoDelay", true);
