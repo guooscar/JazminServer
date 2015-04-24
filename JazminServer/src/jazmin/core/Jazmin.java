@@ -356,7 +356,10 @@ public class Jazmin {
 	public static void start(){
 		logger.info("\n"+LOGO);
 		//
-		serverName=System.getProperty("jazmin.server.name");
+		String propServerName=System.getProperty("jazmin.server.name");
+		if(propServerName!=null){
+			serverName=propServerName;
+		}
 		if(serverName==null){
 			serverName="default";
 		}
