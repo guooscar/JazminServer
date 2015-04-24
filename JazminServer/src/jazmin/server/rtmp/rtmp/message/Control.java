@@ -19,6 +19,7 @@
 
 package jazmin.server.rtmp.rtmp.message;
 
+import jazmin.server.rtmp.amf.IntValue;
 import jazmin.server.rtmp.rtmp.RtmpHeader;
 import jazmin.server.rtmp.util.Utils;
 import jazmin.server.rtmp.util.ValueToEnum;
@@ -30,7 +31,7 @@ import org.jboss.netty.buffer.ChannelBuffers;
  */
 public class Control extends AbstractMessage {
 
-    public static enum Type implements ValueToEnum.IntValue {
+    public static enum Type implements IntValue {
         
         STREAM_BEGIN(0),
         STREAM_EOF(1),

@@ -3,8 +3,8 @@
  */
 package jazmin.server.sip.stack;
 
+import jazmin.server.sip.io.pkts.packet.sip.SipMessage;
 import io.netty.channel.ChannelPipeline;
-import io.pkts.packet.sip.SipMessage;
 
 /**
  * Whenever a {@link SipMessage} is received it will be framed and a

@@ -19,6 +19,7 @@
 
 package jazmin.server.rtmp.io.flv;
 
+import jazmin.server.rtmp.amf.IntValue;
 import jazmin.server.rtmp.util.ValueToEnum;
 
 public class VideoTag {
@@ -43,7 +44,7 @@ public class VideoTag {
         return codecType;
     }
 
-    public static enum FrameType implements ValueToEnum.IntValue {
+    public static enum FrameType implements IntValue {
         
         KEY(1),
         INTER(2),
@@ -70,7 +71,7 @@ public class VideoTag {
 
     }
 
-    public static enum CodecType implements ValueToEnum.IntValue {
+    public static enum CodecType implements IntValue {
         
         JPEG(1),
         H263(2),

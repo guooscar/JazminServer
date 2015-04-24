@@ -421,10 +421,7 @@ public class DeployManager {
 			return null;
 		}
 		String suffex="";
-		if(ins.type.equals(Instance.TYPE_JAZMIN_RPC)
-				||ins.type.equals(Instance.TYPE_JAZMIN_MSG)){
-			suffex=".jaz";
-		}
+		suffex=".jaz";
 		if(ins.type.equals(Instance.TYPE_JAZMIN_WEB)){
 			suffex=".war";
 		}

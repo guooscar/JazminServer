@@ -6,14 +6,15 @@ package jazmin.server.sip.stack;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.pkts.buffer.Buffer;
-import io.pkts.packet.sip.SipMessage;
-import io.pkts.packet.sip.impl.SipParser;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+
+import jazmin.server.sip.io.pkts.buffer.Buffer;
+import jazmin.server.sip.io.pkts.packet.sip.SipMessage;
+import jazmin.server.sip.io.pkts.packet.sip.impl.SipParser;
 
 /**
  * @author jonas@jonasborjesson.com

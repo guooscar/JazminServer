@@ -4,9 +4,10 @@
 package jazmin.server.sip.stack;
 
 import io.netty.channel.Channel;
-import io.pkts.packet.sip.SipMessage;
 
 import java.net.InetSocketAddress;
+
+import jazmin.server.sip.io.pkts.packet.sip.SipMessage;
 
 /**
  * @author jonas@jonasborjesson.com

@@ -19,13 +19,14 @@
 
 package jazmin.server.rtmp.rtmp.message;
 
+import jazmin.server.rtmp.amf.IntValue;
 import jazmin.server.rtmp.rtmp.RtmpHeader;
 import jazmin.server.rtmp.rtmp.RtmpMessage;
 import jazmin.server.rtmp.util.ValueToEnum;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 
-public enum MessageType implements ValueToEnum.IntValue {
+public enum MessageType implements IntValue {
 	CHUNK_SIZE(0x01),
     ABORT(0x02),
     BYTES_READ(0x03),

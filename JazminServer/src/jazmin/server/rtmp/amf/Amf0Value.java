@@ -22,7 +22,7 @@ public class Amf0Value {
 	private Amf0Value() {
 	}
 
-	public static enum Type implements ValueToEnum.IntValue {
+	public static enum Type implements IntValue {
 		NUMBER(0x00),
 		BOOLEAN(0x01), 
 		STRING(0x02),

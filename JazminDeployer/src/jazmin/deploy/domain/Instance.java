@@ -11,6 +11,10 @@ public class Instance {
 	public static final String TYPE_JAZMIN_RPC="jazmin-rpc";
 	public static final String TYPE_JAZMIN_WEB="jazmin-web";
 	public static final String TYPE_JAZMIN_MSG="jazmin-msg";
+	public static final String TYPE_JAZMIN_FTP="jazmin-ftp";
+	public static final String TYPE_JAZMIN_RTMP="jazmin-rtmp";
+	public static final String TYPE_JAZMIN_SIP="jazmin-sip";
+	
 	public static final String TYPE_MYSQL="mysql";
 	public static final String TYPE_MEMCACHED="memcached";
 	public static final String TYPE_HAPROXY="haproxy";

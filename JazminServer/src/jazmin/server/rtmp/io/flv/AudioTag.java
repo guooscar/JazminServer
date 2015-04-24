@@ -19,6 +19,7 @@
 
 package jazmin.server.rtmp.io.flv;
 
+import jazmin.server.rtmp.amf.IntValue;
 import jazmin.server.rtmp.util.ValueToEnum;
 
 public class AudioTag {
@@ -57,7 +58,7 @@ public class AudioTag {
         return stereo;
     }
 
-    public static enum CodecType implements ValueToEnum.IntValue {
+    public static enum CodecType implements IntValue {
 
         ADPCM(1),
         MP3(2),
@@ -92,7 +93,7 @@ public class AudioTag {
 
     }
 
-    public static enum SampleRate implements ValueToEnum.IntValue {
+    public static enum SampleRate implements IntValue {
 
         KHZ_5(0),
         KHZ_11(1),

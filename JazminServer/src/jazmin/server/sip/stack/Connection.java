@@ -4,9 +4,11 @@
 package jazmin.server.sip.stack;
 
 import io.netty.channel.Channel;
-import io.pkts.packet.sip.SipMessage;
 
 import java.net.InetSocketAddress;
+
+import jazmin.server.sip.io.pkts.packet.sip.SipMessage;
+import jazmin.util.DumpIgnore;
 
 /**
  * Represents a connection between two end-points and its primary purpose is to
@@ -15,6 +17,7 @@ import java.net.InetSocketAddress;
  * 
  * @author jonas@jonasborjesson.com
  */
+@DumpIgnore
 public interface Connection {
 
     /**

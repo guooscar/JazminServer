@@ -19,6 +19,7 @@
 
 package jazmin.server.rtmp.rtmp;
 
+import jazmin.server.rtmp.amf.IntValue;
 import jazmin.server.rtmp.rtmp.message.MessageType;
 import jazmin.server.rtmp.util.Utils;
 import jazmin.server.rtmp.util.ValueToEnum;
@@ -31,7 +32,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
  */
 public class RtmpHeader {
 
-    public static enum Type implements ValueToEnum.IntValue {
+    public static enum Type implements IntValue {
         LARGE(0), MEDIUM(1), SMALL(2), TINY(3);
         private final int value;
         private Type(int value) {

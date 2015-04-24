@@ -3,7 +3,6 @@ package jazmin.server.sip;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.pkts.packet.sip.SipMessage;
 
 import java.io.IOException;
 
@@ -19,6 +18,10 @@ import jazmin.server.sip.stack.SipMessageEvent;
 public final class SipHandler extends SimpleChannelInboundHandler<SipMessageEvent> {
 	//
 	private static Logger logger=LoggerFactory.get(SipHandler.class);
+	SipServer sipServer;
+	SipHandler(SipServer server){
+		this.sipServer=server;
+	}
 	//
 	@Override
     public void channelInactive(ChannelHandlerContext ctx) 
@@ -31,13 +34,6 @@ public final class SipHandler extends SimpleChannelInboundHandler<SipMessageEven
 			throws Exception {
 		logger.debug("channelActive:"+ctx.channel());	
 	}
-	//
-	@Override
-	public void messageReceived(ChannelHandlerContext ctx,
-			SipMessageEvent event) throws Exception {
-		 final SipMessage msg = event.getMessage();
-		 logger.debug(msg); 
-	}
 	 //
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) 
@@ -49,4 +45,11 @@ public final class SipHandler extends SimpleChannelInboundHandler<SipMessageEven
     	}
     	ctx.close();
     }
+	//--------------------------------------------------------------------------
+	@Override
+	public void messageReceived(
+			ChannelHandlerContext ctx,
+			SipMessageEvent event) throws Exception {
+		sipServer.messageReceived(event.getConnection(),event.getMessage());
+	}
 }

@@ -4,12 +4,15 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageDecoder;
-import io.pkts.buffer.Buffer;
-import io.pkts.buffer.Buffers;
-import io.pkts.packet.sip.SipMessage;
-import io.pkts.packet.sip.impl.SipParser;
 
 import java.util.List;
+
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
+import jazmin.server.sip.io.pkts.buffer.Buffer;
+import jazmin.server.sip.io.pkts.buffer.Buffers;
+import jazmin.server.sip.io.pkts.packet.sip.SipMessage;
+import jazmin.server.sip.io.pkts.packet.sip.impl.SipParser;
 
 /**
  * The {@link SipMessageDatagramDecoder} will frame an incoming UDP packet into
@@ -22,7 +25,7 @@ import java.util.List;
  * @author jonas@jonasborjesson.com
  */
 public final class SipMessageDatagramDecoder extends MessageToMessageDecoder<DatagramPacket> {
-
+	private static Logger logger=LoggerFactory.get(SipMessageDatagramDecoder.class);
     private final Clock clock;
 
     public SipMessageDatagramDecoder() {
@@ -79,7 +82,9 @@ public final class SipMessageDatagramDecoder extends MessageToMessageDecoder<Dat
         // } else {
         // sipMessage = new SipResponseImpl(initialLine.toResponseLine(), headers, buffer);
         // }
-
+        if(logger.isDebugEnabled()){
+			logger.debug("<<<<<<<<<<\n{}",sipMessage);
+		}
         final Connection connection = new UdpConnection(ctx.channel(), msg.sender());
         final SipMessageEvent event = new DefaultSipMessageEvent(connection, sipMessage, arrivalTime);
         out.add(event);

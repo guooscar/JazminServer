@@ -29,7 +29,9 @@ import org.apache.ftpserver.ftplet.Ftplet;
 import org.apache.ftpserver.ftplet.FtpletContext;
 import org.apache.ftpserver.ftplet.FtpletResult;
 import org.apache.ftpserver.ftpletcontainer.impl.DefaultFtpletContainer;
+import org.apache.ftpserver.impl.DefaultDataConnectionConfiguration;
 import org.apache.ftpserver.impl.DefaultFtpServer;
+import org.apache.ftpserver.impl.PassivePorts;
 import org.apache.ftpserver.listener.ListenerFactory;
 import org.apache.ftpserver.ssl.SslConfigurationFactory;
 
@@ -53,6 +55,17 @@ public class FTPServer extends Server{
 	private Method listenerOnDisConnectMethod;
 	private FTPUserManager userManager;
 	private Map<String, FTPSession>sessionMap;
+	private DefaultDataConnectionConfiguration dataConnectionConfiguration;
+	//
+	private int idleTime;
+	private boolean activeEnabled;
+	private boolean activeIpCheck;
+	private String activeLocalAddress;
+	private int activeLocalPort;
+	private String passiveAddress;
+	private String passivePorts;
+	private String passiveExternalAddress;
+	private boolean implicitSsl;
 	//
 	public FTPServer() {
 		factory = new ListenerFactory();
@@ -75,7 +88,6 @@ public class FTPServer extends Server{
 				CommandListener.class,
 				"onDisconnect",FTPSession.class);
 	}
-	
 	/**
 	 * @return
 	 * @see org.apache.ftpserver.ConnectionConfigFactory#getLoginFailureDelay()
@@ -417,6 +429,18 @@ public class FTPServer extends Server{
 		}
 		ExDefaultFtpServerContext context=new ExDefaultFtpServerContext();
 		context.setFtpletContainer(new DefaultFtpletContainer(ftplets));
+		/*dataConnectionConfiguration=new DefaultDataConnectionConfiguration(
+				idleTime, 
+				ssl.createSslConfiguration(), 
+				activeEnabled,
+				activeIpCheck,
+				activeLocalAddress, 
+				activeLocalPort, 
+				passiveAddress, 
+				new PassivePorts(passivePorts,true),
+				passiveExternalAddress, 
+				implicitSsl);
+		factory.setDataConnectionConfiguration(dataConnectionConfiguration);*/
 		context.addListener("default", factory.createListener());
 		context.setUserManager(userManager);
 		context.setConnectionConfig(connectionConfigFactory.createConnectionConfig());
@@ -428,7 +452,9 @@ public class FTPServer extends Server{
 	//
 	@Override
 	public void stop() throws Exception {
-		server.stop();
+		if(server!=null){
+			server.stop();
+		}
 	}
 	//
 	@Override

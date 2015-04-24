@@ -139,6 +139,12 @@ public class Jazmin {
 		return serverName;
 	}
 	/**
+	 * return server name
+	 */
+	public static void setServerName(String name){
+		serverName=name;
+	}
+	/**
 	 * return boot file path
 	 */
 	public static String getBootFile(){

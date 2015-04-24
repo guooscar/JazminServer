@@ -7,25 +7,29 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import io.pkts.buffer.Buffer;
-import io.pkts.packet.sip.SipMessage;
-import io.pkts.packet.sip.SipParseException;
-import io.pkts.packet.sip.impl.SipInitialLine;
-import io.pkts.packet.sip.impl.SipRequestImpl;
-import io.pkts.packet.sip.impl.SipRequestLine;
-import io.pkts.packet.sip.impl.SipResponseImpl;
-import io.pkts.packet.sip.impl.SipResponseLine;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
+
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
+import jazmin.server.sip.io.pkts.buffer.Buffer;
+import jazmin.server.sip.io.pkts.packet.sip.SipMessage;
+import jazmin.server.sip.io.pkts.packet.sip.SipParseException;
+import jazmin.server.sip.io.pkts.packet.sip.impl.SipInitialLine;
+import jazmin.server.sip.io.pkts.packet.sip.impl.SipRequestImpl;
+import jazmin.server.sip.io.pkts.packet.sip.impl.SipRequestLine;
+import jazmin.server.sip.io.pkts.packet.sip.impl.SipResponseImpl;
+import jazmin.server.sip.io.pkts.packet.sip.impl.SipResponseLine;
 
 /**
  * @author jonas
  * 
  */
 public class SipMessageStreamDecoder extends ByteToMessageDecoder {
-
+	
+	private static Logger logger=LoggerFactory.get(SipMessageStreamDecoder.class);
     /**
      * The maximum allowed initial line. If we pass this threshold we will drop
      * the message and close down the connection (if we are using a connection
@@ -84,6 +88,9 @@ public class SipMessageStreamDecoder extends ByteToMessageDecoder {
         if (this.message.isComplete()) {
             final long arrivalTime = this.clock.getCurrentTimeMillis();
             final SipMessage msg = toSipMessage(this.message);
+            if(logger.isDebugEnabled()){
+    			logger.debug("---------------------------------------------<\n{}",msg);
+    		}
             final Channel channel = ctx.channel();
             final Connection connection = new TcpConnection(channel, (InetSocketAddress) channel.remoteAddress());
             out.add(new DefaultSipMessageEvent(connection, msg, arrivalTime));
