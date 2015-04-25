@@ -39,7 +39,7 @@ public final class UdpConnection extends AbstractConnection {
     @Override
     public void send(final SipMessage msg) {
     	if(logger.isDebugEnabled()){
-			logger.debug(">>>>>>>>>>\n{}",msg);
+			logger.debug(">>>>>>>>>>send to {}\n{}",getRemoteAddress(),msg);
 		}
         final DatagramPacket pkt = new DatagramPacket(toByteBuf(msg), getRemoteAddress());
         channel().writeAndFlush(pkt);

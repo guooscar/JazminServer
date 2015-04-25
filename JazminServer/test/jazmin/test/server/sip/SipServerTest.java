@@ -21,8 +21,8 @@ public class SipServerTest {
 	public static void main(String[] args) throws Exception{
 		LoggerFactory.setLevel("DEBUG");
 		SipServer server=new SipServer();
-		server.setIp("10.44.218.63");
-		server.setMessageHandler(new TestSipMessageHandler());
+		server.setIp("192.168.3.100");
+		server.setMessageHandler(new B2BUAMessageHandler());
 		Jazmin.addServer(server);
 		Jazmin.start();
 	}

@@ -214,7 +214,7 @@ public class SipServer extends Server{
 			if(message.isResponse()){
 				return;
 			}
-			SipResponse rsp=message.toRequest().createResponse(
+			SipResponse rsp=message.createResponse(
 					SipStatusCode.SC_SERVICE_UNAVAILABLE);
 			conn.send(rsp);
 			return;
@@ -233,7 +233,7 @@ public class SipServer extends Server{
 			messageHandler.after(ctx);
 		}catch(Exception e){
 			logger.catching(e);
-			SipResponse rsp=message.toRequest().createResponse(
+			SipResponse rsp=message.createResponse(
 					SipStatusCode.SC_SERVER_INTERNAL_ERROR);
 			conn.send(rsp);
 		}

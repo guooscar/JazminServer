@@ -7,6 +7,7 @@ import jazmin.server.sip.io.pkts.buffer.Buffer;
 import jazmin.server.sip.io.pkts.buffer.Buffers;
 import jazmin.server.sip.io.pkts.packet.sip.SipMessage;
 import jazmin.server.sip.io.pkts.packet.sip.SipRequest;
+import jazmin.server.sip.io.pkts.packet.sip.SipResponse;
 import jazmin.server.sip.io.pkts.packet.sip.address.SipURI;
 import jazmin.server.sip.io.pkts.packet.sip.header.ViaHeader;
 import jazmin.server.sip.stack.Connection;
@@ -21,6 +22,16 @@ public class SipContext {
 	Connection connection;
 	SipMessage message;
 	SipServer server;
+	/**
+	 * 
+	 * @param msg
+	 */
+	public void proxy(final SipResponse msg) {
+		final ViaHeader via = msg.getViaHeader();
+		final Connection connection =connect(via.getHost().toString(),
+				via.getPort());
+		connection.send(msg);
+	}
 	//
 	/**
      * Whenever we proxy a request we must also add a Via-header, which essentially says that the
@@ -47,17 +58,24 @@ public class SipContext {
         //
         // See section 16.11 in RFC3263 for more information.
         final Buffer otherBranch = msg.getViaHeader().getBranch();
-        final Buffer myBranch = Buffers.createBuffer(otherBranch.getReadableBytes() + 4);
+        final Buffer myBranch = Buffers.createBuffer(otherBranch.getReadableBytes() + 7);
         otherBranch.getBytes(myBranch);
-        myBranch.write((byte) '-');
-        myBranch.write((byte) 'a');
-        myBranch.write((byte) 'b');
-        myBranch.write((byte) 'c');
-        final ViaHeader via = ViaHeader.with().host("10.0.1.28").port(5060).transportUDP().branch(myBranch).build();
-
+        myBranch.write((byte) 'z');
+        myBranch.write((byte) ';');
+        myBranch.write((byte) 'r');
+        myBranch.write((byte) 'p');
+        myBranch.write((byte) 'o');
+        myBranch.write((byte) 'r');
+        myBranch.write((byte) 't');
+        
+        final ViaHeader via = ViaHeader.with().host(server.getIp()).
+        		port(server.getPort()).
+        		transportUDP().
+        		branch(myBranch).build();
         // This is how you should generate the branch parameter if you are a stateful proxy:
         // Note the ViaHeader.generateBranch()...
-        // ViaHeader.with().host("10.0.1.28").port(5060).transportUDP().branch(ViaHeader.generateBranch()).build();
+        // ViaHeader.with().host("10.0.1.28").port(5060).transportUDP()
+        //.branch(ViaHeader.generateBranch()).build();
         msg.addHeaderFirst(via);
         connection.send(msg);
     }

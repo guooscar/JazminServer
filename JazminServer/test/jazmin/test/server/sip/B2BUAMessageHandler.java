@@ -7,8 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-
-
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.sip.SipContext;
@@ -24,15 +22,14 @@ import jazmin.server.sip.io.pkts.packet.sip.address.SipURI;
 import jazmin.server.sip.io.pkts.packet.sip.address.URI;
 import jazmin.server.sip.io.pkts.packet.sip.header.ContactHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.ExpiresHeader;
-import jazmin.server.sip.io.pkts.packet.sip.header.ToHeader;
 
 /**
  * 
  * @author yama
  *
  */
-public class TestSipMessageHandler extends SipMessageAdapter {
-	private static Logger logger=LoggerFactory.get(TestSipMessageHandler.class);
+public class B2BUAMessageHandler extends SipMessageAdapter {
+	private static Logger logger=LoggerFactory.get(B2BUAMessageHandler.class);
 
 	private final Map<SipURI, List<Binding>> locationStore = new HashMap<SipURI, List<Binding>>();
 	//
@@ -51,6 +48,21 @@ public class TestSipMessageHandler extends SipMessageAdapter {
 		}
 		//
 		ctx.getConnection().send(message.createResponse(SipStatusCode.SC_OK));
+	}
+	//
+	@Override
+	public void handleResponse(SipContext ctx, SipResponse response)
+			throws Exception {
+		SessionStatus ss=(SessionStatus) ctx.getSession().getUserObject();
+		if(ss==null){
+			return;
+		}
+		response.popViaHeader();
+		ctx.proxy(response);
+		//
+		if(response.isRinging()){
+			//change response 
+		}
 	}
 	//
 	private void dumpStore(){
@@ -77,13 +89,8 @@ public class TestSipMessageHandler extends SipMessageAdapter {
 		SessionStatus ss=new SessionStatus();
 		ss.originalRequest=message;
 		session.setUserObject(ss);
-		SipRequest forkedRequest=message.clone();
-		ToHeader toHeader=ToHeader.with(toAddress).build();
-		forkedRequest.setHeader(toHeader);
+		SipRequest forkedRequest=message;
 		ctx.proxyTo(toBinding.get(0).getContact(),forkedRequest);
-		//
-		//send trying
-		ctx.getConnection().send(message.createResponse(SipStatusCode.SC_TRYING));
 	}
 	//
 	/**

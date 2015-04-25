@@ -83,7 +83,7 @@ public final class SipMessageDatagramDecoder extends MessageToMessageDecoder<Dat
         // sipMessage = new SipResponseImpl(initialLine.toResponseLine(), headers, buffer);
         // }
         if(logger.isDebugEnabled()){
-			logger.debug("<<<<<<<<<<\n{}",sipMessage);
+			logger.debug("<<<<<<<<<<receive from {}\n{}",msg.sender(),sipMessage);
 		}
         final Connection connection = new UdpConnection(ctx.channel(), msg.sender());
         final SipMessageEvent event = new DefaultSipMessageEvent(connection, sipMessage, arrivalTime);
