@@ -104,8 +104,8 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 	 */
 	private SipResponse processRegisterRequest(final SipRequest request)
 			throws NumberFormatException, IOException {
-		final SipURI requestURI = (SipURI) request.getRequestUri();
-		final Buffer domain = requestURI.getHost();
+		//final SipURI requestURI = (SipURI) request.getRequestUri();
+		//final Buffer domain = requestURI.getHost();
 		final SipURI aor = getAOR(request);
 
 		// the aor is not allowed to register under this domain

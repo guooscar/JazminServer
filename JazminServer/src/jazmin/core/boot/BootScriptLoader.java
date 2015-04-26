@@ -42,11 +42,17 @@ public class BootScriptLoader {
 		//
 		String importScript=
 				"load('nashorn:mozilla_compat.js');"+
+				//drivers
 				"importPackage(Packages.jazmin.driver.jdbc);"+
 				"importPackage(Packages.jazmin.driver.memcached);"+
 				"importPackage(Packages.jazmin.driver.mcache);"+
 				"importPackage(Packages.jazmin.driver.rpc);"+
 				"importPackage(Packages.jazmin.driver.lucene);"+
+				"importPackage(Packages.jazmin.driver.process);"+
+				"importPackage(Packages.jazmin.driver.redis);"+
+				"importPackage(Packages.jazmin.driver.http);"+
+				"importPackage(Packages.jazmin.driver.mail);"+
+				//servers
 				"importPackage(Packages.jazmin.server.console);"+
 				"importPackage(Packages.jazmin.server.jmx);"+
 				"importPackage(Packages.jazmin.server.msg);"+
@@ -55,6 +61,8 @@ public class BootScriptLoader {
 				"importPackage(Packages.jazmin.server.sip);"+
 				"importPackage(Packages.jazmin.server.rpc);"+
 				"importPackage(Packages.jazmin.server.ftp);"+
+				"importPackage(Packages.jazmin.server.stun);"+
+				"importPackage(Packages.jazmin.server.turn);"+
 				"importPackage(Packages.jazmin.server.proxy);"+
 				"importPackage(Packages.jazmin.server.web);\n";
 		String script=IOUtil.getContent(inputStream);
