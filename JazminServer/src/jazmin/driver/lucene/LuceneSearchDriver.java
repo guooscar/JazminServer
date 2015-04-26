@@ -43,13 +43,13 @@ public class LuceneSearchDriver extends Driver{
 	private Analyzer analyzer;
 	private String indexPath;
 	//
-	public void indexPath(String path){
+	public void setIndexPath(String path){
 		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		this.indexPath=path;
 	}
-	//
+	//--------------------------------------------------------------------------
 	@Override
 	public void init() throws Exception {
 		analyzer=new ComplexAnalyzer();

@@ -21,18 +21,31 @@ import java.net.InetSocketAddress;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 
 import jazmin.core.Jazmin;
+import jazmin.core.JazminThreadFactory;
 import jazmin.core.Server;
 import jazmin.core.aop.Dispatcher;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
 import jazmin.misc.io.IOWorker;
+import jazmin.server.sip.io.pkts.buffer.Buffer;
+import jazmin.server.sip.io.pkts.buffer.Buffers;
 import jazmin.server.sip.io.pkts.packet.sip.SipMessage;
+import jazmin.server.sip.io.pkts.packet.sip.SipRequest;
 import jazmin.server.sip.io.pkts.packet.sip.SipResponse;
+import jazmin.server.sip.io.pkts.packet.sip.address.SipURI;
+import jazmin.server.sip.io.pkts.packet.sip.header.CSeqHeader;
+import jazmin.server.sip.io.pkts.packet.sip.header.FromHeader;
+import jazmin.server.sip.io.pkts.packet.sip.header.ToHeader;
+import jazmin.server.sip.io.pkts.packet.sip.header.ViaHeader;
 import jazmin.server.sip.stack.Connection;
 import jazmin.server.sip.stack.SipMessageDatagramDecoder;
 import jazmin.server.sip.stack.SipMessageEncoder;
@@ -46,7 +59,7 @@ import jazmin.server.sip.stack.UdpConnection;
 public class SipServer extends Server{
 	private static Logger logger=LoggerFactory.get(SipServer.class);
 	//
-	private String ip;
+	private String address;
     private int port;
     private int sessionTimeout;
     private static final int MIN_SESSION_TIMEOUT=60;
@@ -62,8 +75,14 @@ public class SipServer extends Server{
     private  Map<String,SipSession>sessionMap;
     private  LongAdder sessionIdLongAdder;
     //
+    private static ScheduledExecutorService scheduledExecutorService=
+			new ScheduledThreadPoolExecutor(
+					3,
+					new JazminThreadFactory("SipScheduledExecutor"),
+					new ThreadPoolExecutor.AbortPolicy());
+    //
     public SipServer() {
-        this.ip = "127.0.0.1";
+        this.address = "127.0.0.1";
         this.port = 5060;
         handlerMethod=Dispatcher.getMethod(
         		SipServer.class,"handleMessage",
@@ -72,14 +91,10 @@ public class SipServer extends Server{
         sessionIdLongAdder=new LongAdder();
         sessionTimeout=60;
     }
-    //
-    public Connection connect(final String ip, final int port) {
-        final InetSocketAddress remoteAddress = new InetSocketAddress(ip, port);
-        return new UdpConnection(this.udpListeningPoint, remoteAddress);
-    }
+   
     //
     private void startNetty() throws Exception {
-    	final InetSocketAddress socketAddress = new InetSocketAddress(this.ip, this.port);
+    	final InetSocketAddress socketAddress = new InetSocketAddress(this.address, this.port);
         this.udpListeningPoint = this.bootstrap.bind(socketAddress).sync().channel();
         this.serverBootstrap.bind(socketAddress).sync();
     }
@@ -124,18 +139,18 @@ public class SipServer extends Server{
     /**
 	 * @return the ip
 	 */
-	public String getIp() {
-		return ip;
+	public String getHostAddress() {
+		return address;
 	}
 
 	/**
 	 * @param ip the ip to set
 	 */
-	public void setIp(String ip) {
+	public void setHostAddress(String ip) {
 		if(isInited()){
 			throw new IllegalStateException("set before inited");
 		}
-		this.ip = ip;
+		this.address = ip;
 	}
 
 	/**
@@ -187,8 +202,133 @@ public class SipServer extends Server{
 	public void setMessageHandler(SipMessageHandler messageHandler) {
 		this.messageHandler = messageHandler;
 	}
+	//--------------------------------------------------------------------------
+	public SipRequest createRequest(String method,SipURI from,SipURI to){
+		SipURI requestURI=SipURI.with().host(getHostAddress()).port(getPort()).useUDP().build();
+		SipRequest req=SipRequest.request(Buffers.wrap(method), requestURI.toString())
+				.cseq(CSeqHeader.with().cseq(0).build())
+				.from(FromHeader.with().host(from.getHost()).port(from.getPort()).user(from.getUser()).build())
+				.to(ToHeader.with().host(to.getHost()).port(to.getPort()).user(from.getUser()).build())
+				.build();
+		return req;
+	}
+	//
+	/**
+	 * connect to remote address with UDP connection
+	 * @param ip
+	 * @param port
+	 * @return
+	 */
+    public Connection connect(final String ip, final int port) {
+        final InetSocketAddress remoteAddress = new InetSocketAddress(ip, port);
+        return new UdpConnection(this.udpListeningPoint, remoteAddress);
+    }
+    /**
+	 * 
+	 * @param msg
+	 */
+	public void send(String host,int port,final SipMessage msg) {
+		final Connection connection =connect(host,port);
+		connection.send(msg);
+	}
+	/**
+	 * 
+	 * @param msg
+	 */
+	public void proxy(final SipResponse msg) {
+		final ViaHeader via = msg.getViaHeader();
+		final Connection connection =connect(via.getHost().toString(),
+				via.getPort());
+		connection.send(msg);
+	}
+	//
+	/**
+     * Whenever we proxy a request we must also add a Via-header, which essentially says that the
+     * request went "via this network address using this protocol". The {@link ViaHeader}s are used
+     * for responses to find their way back the exact same path as the request took.
+     * 
+     * @param destination
+     * @param msg
+     */
+    public void proxyTo(final SipURI destination, final SipRequest msg) {
+        final int port = destination.getPort();
+        final Connection connection = connect(
+        		destination.getHost().toString(), port == -1 ? 5060 : port);
+
+        // SIP is pretty powerful but there are a lot of little details to get things working.
+        // E.g., this sample application is acting as a stateless proxy and in order to
+        // correctly relay re-transmissions or e.g. CANCELs we have to make sure to always
+        // generate the same branch-id of the same request. Since a CANCEL will have the same
+        // branch-id as the request it cancels, we must ensure we generate the same branch-id as
+        // we did when we proxied the initial INVITE. If we don't, then the cancel will not be
+        // matched by the "other" side and their phone wouldn't stop ringing.
+        // SO, for this example, we'll just grab the previous value and append "-abc" to it so
+        // now we are relying on the upstream element to do the right thing :-)
+        //
+        // See section 16.11 in RFC3263 for more information.
+        final Buffer otherBranch = msg.getViaHeader().getBranch();
+        final Buffer myBranch = Buffers.createBuffer(otherBranch.getReadableBytes() + 7);
+        otherBranch.getBytes(myBranch);
+        myBranch.write((byte) 'z');
+        myBranch.write((byte) ';');
+        myBranch.write((byte) 'r');
+        myBranch.write((byte) 'p');
+        myBranch.write((byte) 'o');
+        myBranch.write((byte) 'r');
+        myBranch.write((byte) 't');
+        
+        final ViaHeader via = ViaHeader.with().host(getHostAddress()).
+        		port(getPort()).
+        		transportUDP().
+        		branch(myBranch).build();
+        // This is how you should generate the branch parameter if you are a stateful proxy:
+        // Note the ViaHeader.generateBranch()...
+        msg.addHeaderFirst(via);
+        connection.send(msg);
+    }
+
+	/**
+	 * @param command
+	 * @param delay
+	 * @param unit
+	 * @return
+	 * @see java.util.concurrent.ScheduledExecutorService#schedule(java.lang.Runnable, long, java.util.concurrent.TimeUnit)
+	 */
+	public ScheduledFuture<?> schedule(Runnable command, long delay,
+			TimeUnit unit) {
+		return scheduledExecutorService.schedule(command, delay, unit);
+	}
+
+	/**
+	 * @param command
+	 * @param initialDelay
+	 * @param period
+	 * @param unit
+	 * @return
+	 * @see java.util.concurrent.ScheduledExecutorService#scheduleAtFixedRate(java.lang.Runnable, long, long, java.util.concurrent.TimeUnit)
+	 */
+	public ScheduledFuture<?> scheduleAtFixedRate(Runnable command,
+			long initialDelay, long period, TimeUnit unit) {
+		return scheduledExecutorService.scheduleAtFixedRate(command,
+				initialDelay, period, unit);
+	}
+
+	/**
+	 * @param command
+	 * @param initialDelay
+	 * @param delay
+	 * @param unit
+	 * @return
+	 * @see java.util.concurrent.ScheduledExecutorService#scheduleWithFixedDelay(java.lang.Runnable, long, long, java.util.concurrent.TimeUnit)
+	 */
+	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command,
+			long initialDelay, long delay, TimeUnit unit) {
+		return scheduledExecutorService.scheduleWithFixedDelay(command,
+				initialDelay, delay, unit);
+	}
 	//-------------------------------------------------------------------------
 	
+
 	void messageReceived(Connection conn,SipMessage message){
 		SipContext ctx=new SipContext();
 		ctx.server=this;
@@ -306,8 +446,8 @@ public class SipServer extends Server{
     	InfoBuilder ib=InfoBuilder.create();
 		ib.section("info")
 		.format("%-30s:%-30s\n")
+		.print("hostAddress",getHostAddress())
 		.print("port",getPort())
-		.print("ip",getIp())
 		.print("sessionTimeout",getSessionTimeout())
 		.print("messageHandler",getMessageHandler());
 		return ib.toString();

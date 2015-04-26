@@ -28,6 +28,7 @@ import jazmin.misc.InfoBuilder;
 public class StunServer extends Server{
 	//
 	List<DatagramSocket> sockets;
+	List<StunServerReceiverThread>receiverThreads;
 	private String primaryAddress;
 	private int primaryPort;
 	private String secondaryAddress;
@@ -39,6 +40,7 @@ public class StunServer extends Server{
 		secondaryAddress="127.0.0.1";
 		secondaryPort=3479;
 		sockets = new ArrayList<DatagramSocket>();
+		receiverThreads=new ArrayList<StunServerReceiverThread>();
 	}
 	
 	/**
@@ -136,14 +138,20 @@ public class StunServer extends Server{
 			socket.setReceiveBufferSize(2000);
 			StunServerReceiverThread ssrt = new StunServerReceiverThread(socket,sockets);
 			ssrt.start();
+			receiverThreads.add(ssrt);
 		}
 	}
 	//
 	@Override
 	public void stop() throws Exception {
+		for (StunServerReceiverThread t : receiverThreads) {
+			t.isStop=true;
+		}
+		//
 		for (DatagramSocket socket : sockets) {
 			socket.close();
 		}
+		
 	}
 	//
     @Override

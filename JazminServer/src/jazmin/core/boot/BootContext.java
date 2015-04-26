@@ -22,13 +22,13 @@ public interface BootContext{
 	 * set log level,ALL/DEBUG/INFO/WARN/ERROR/FATAL
 	 * @param level the level to set 
 	 */
-	void logLevel(String level);
+	void setLogLevel(String level);
 	/**
 	 * set log file
 	 * @param logFile the log file 
 	 * @param immdiateFlush if flush to file  immediately
 	 */
-	void logFile(String logFile,boolean immdiateFlush);
+	void setLogFile(String logFile,boolean immdiateFlush);
 	/**
 	 * stop server and print message 
 	 * @param msg the message to print

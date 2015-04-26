@@ -67,7 +67,6 @@ public final class RawMessage {
     private State state = State.INIT;
 
     private boolean done = false;
-
     /**
      * Used for detecting the content-length header
      */

@@ -11,5 +11,6 @@ import jazmin.server.sip.io.pkts.packet.sip.SipRequest;
  */
 public class SessionStatus {
 	public SipRequest originalRequest;
-	
+	public String remoteAddress;
+	public int remotePort;
 }

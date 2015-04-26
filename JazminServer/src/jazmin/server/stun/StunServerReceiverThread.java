@@ -30,6 +30,7 @@ public class StunServerReceiverThread extends Thread {
 	private DatagramSocket changedPort;
 	private DatagramSocket changedIP;
 	private DatagramSocket changedPortIP;
+	volatile boolean isStop=false;
 	//
 	private static Logger logger=LoggerFactory.get(StunServerReceiverThread.class);
 	//
@@ -213,7 +214,7 @@ public class StunServerReceiverThread extends Thread {
 
 	//
 	public void run() {
-		while (true) {
+		while (!isStop) {
 			try {
 				DatagramPacket receive = new DatagramPacket(new byte[200], 200);
 				receiverSocket.receive(receive);

@@ -72,16 +72,7 @@ public final class SipMessageDatagramDecoder extends MessageToMessageDecoder<Dat
         final Buffer buffer = Buffers.wrap(b);
         SipParser.consumeSWS(buffer);
         final SipMessage sipMessage = SipParser.frame(buffer);
-        // System.err.println("CSeq header: " + sipMessage.getCSeqHeader());
-
-        // final SipInitialLine initialLine = SipInitialLine.parse(buffer.readLine());
-        // final Buffer headers = buffer.readUntilDoubleCRLF();
-        // SipMessage sipMessage = null;
-        // if (initialLine.isRequestLine()) {
-        // sipMessage = new SipRequestImpl(initialLine.toRequestLine(), headers, buffer);
-        // } else {
-        // sipMessage = new SipResponseImpl(initialLine.toResponseLine(), headers, buffer);
-        // }
+        //
         if(logger.isDebugEnabled()){
 			logger.debug("<<<<<<<<<<receive from {}\n{}",msg.sender(),sipMessage);
 		}

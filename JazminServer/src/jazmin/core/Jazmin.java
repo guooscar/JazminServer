@@ -350,11 +350,13 @@ public class Jazmin {
 	}
 	//
 	// --------------------------------------------------------------------------
+	static void dumpLogo(){
+		logger.info("\n"+LOGO);	
+	}
 	/**
 	 * start jazmin server
 	 */
 	public static void start(){
-		logger.info("\n"+LOGO);
 		//
 		String propServerName=System.getProperty("jazmin.server.name");
 		if(propServerName!=null){
@@ -505,6 +507,7 @@ public class Jazmin {
 		Thread shutdownThread=new Thread(Jazmin::stop);
 		shutdownThread.setName("ShutdownHook");
 		Runtime.getRuntime().addShutdownHook(shutdownThread);
+		Jazmin.dumpLogo();
 		Jazmin.start();
 	}
 }

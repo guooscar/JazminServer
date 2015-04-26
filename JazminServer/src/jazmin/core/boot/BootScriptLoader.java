@@ -62,7 +62,7 @@ public class BootScriptLoader {
 				"importPackage(Packages.jazmin.server.rpc);"+
 				"importPackage(Packages.jazmin.server.ftp);"+
 				"importPackage(Packages.jazmin.server.stun);"+
-				"importPackage(Packages.jazmin.server.turn);"+
+				"importPackage(Packages.jazmin.server.relay);"+
 				"importPackage(Packages.jazmin.server.proxy);"+
 				"importPackage(Packages.jazmin.server.web);\n";
 		String script=IOUtil.getContent(inputStream);
@@ -85,11 +85,11 @@ public class BootScriptLoader {
 		}
 		/*set log level*/
 		@Override
-		public void logLevel(String level) {
+		public void setLogLevel(String level) {
 			LoggerFactory.setLevel(level);
 		}
 		@Override
-		public void logFile(String logFile,boolean immdiateFlush) {
+		public void setLogFile(String logFile,boolean immdiateFlush) {
 			LoggerFactory.setFile(logFile,immdiateFlush);
 		}
 		@Override
