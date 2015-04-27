@@ -27,6 +27,8 @@ import jazmin.server.sip.io.pkts.packet.sip.header.ExpiresHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.ViaHeader;
 import jazmin.server.sip.io.sdp.SessionDescription;
 import jazmin.server.sip.io.sdp.SessionDescriptionParser;
+import jazmin.server.sip.io.sdp.fields.ConnectionField;
+import jazmin.server.sip.io.sdp.fields.MediaDescriptionField;
 
 /**
  * 
@@ -125,10 +127,20 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 		//change sdp ip address and media port to relay server
 		String sdp=new String(message.getRawContent().getArray(),"utf-8");
 		SessionDescription s=SessionDescriptionParser.parse(sdp);
-		s.getConnection("c").setAddress(host);
-		s.getOrigin().setAddress(host);
-		s.getMediaDescription("audio").setPort(port);
+		ConnectionField cf=s.getConnection();
+		if(cf!=null){
+			cf.setAddress(host);
+		}
+		ConnectionField audioConneion=s.getConnection("audio");
+		if(audioConneion!=null){
+			audioConneion.setAddress(host);
+		}
 		//
+		s.getOrigin().setAddress(host);
+		MediaDescriptionField audioField=s.getMediaDescription("audio");
+		if(audioField!=null){
+			audioField.setPort(port);
+		}	
 		byte newSdpBytes[]=s.toBytes();
 		message.setRawContent(Buffers.wrap(newSdpBytes));
 		ContentLengthHeader clh=message.getContentLengthHeader();

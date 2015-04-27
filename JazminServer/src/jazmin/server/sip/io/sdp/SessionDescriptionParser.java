@@ -70,7 +70,9 @@ public class SessionDescriptionParser {
 			try {
 				// Get type of field to check whether its an sdp attribute or
 				// not
+				line=line.trim();
 				char fieldType = line.charAt(0);
+				
 				switch (fieldType) {
 				case AttributeField.FIELD_TYPE:
 					// The field is an attribute

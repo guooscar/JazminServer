@@ -81,10 +81,17 @@ public class FTPServerCommand extends ConsoleCommand {
 		out.printf(format,"maxLogins", ftpServer.getMaxLogins());
 		out.printf(format,"maxThreads", ftpServer.getMaxThreads());
 		out.printf(format,"anonymousLoginEnabled",ftpServer.isAnonymousLoginEnabled());
+		out.printf(format,"activeLocalAddress",ftpServer.getActiveLocalAddress());
+		out.printf(format,"activeLocalPort",ftpServer.getActiveLocalPort());
+		out.printf(format,"idleTime",ftpServer.getIdleTime());
+		out.printf(format,"passiveAddress",ftpServer.getPassiveAddress());
+		out.printf(format,"passiveExternalAddress",ftpServer.getPassiveExternalAddress());
+		out.printf(format,"passivePorts",ftpServer.getPassivePorts());
+		out.printf(format,"activeEnabled",ftpServer.isActiveEnabled());
+		out.printf(format,"activeIpCheck",ftpServer.isActiveIpCheck());
 		out.printf(format,"commandListener", ftpServer.getCommandListener());
 		out.printf(format,"userManager", ftpServer.getUserManager());
-	}
-    
+    }
     //
     private void showList(String args){
     	List<FileTransferInfo>transferList=ftpServer.getFileTransferInfos();

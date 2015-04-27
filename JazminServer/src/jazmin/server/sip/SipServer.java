@@ -65,7 +65,7 @@ public class SipServer extends Server{
 	private String address;
     private int port;
     private int sessionTimeout;
-    private static final int MIN_SESSION_TIMEOUT=60;
+    static final int MIN_SESSION_TIMEOUT=60;
     private  EventLoopGroup bossGroup;
     private  EventLoopGroup workerGroup;
     private  EventLoopGroup udpGroup;
@@ -279,7 +279,7 @@ public class SipServer extends Server{
         myBranch.write((byte) 'o');
         myBranch.write((byte) 'r');
         myBranch.write((byte) 't');
-        
+        //
         final ViaHeader via = ViaHeader.with().host(getHostAddress()).
         		port(getPort()).
         		transportUDP().
@@ -355,7 +355,7 @@ public class SipServer extends Server{
 				Dispatcher.EMPTY_CALLBACK,ctx);
 	}
 	//
-	void handleMessage(SipContext ctx){
+	public void handleMessage(SipContext ctx){
 		SipMessage message=ctx.message;
 		Connection conn=ctx.connection;
 		if(messageHandler==null){
@@ -397,6 +397,7 @@ public class SipServer extends Server{
 		}
 		if(create){
 			SipSession session=new SipSession(this);
+			session.setSessionTimeout(sessionTimeout);
 			sessionIdLongAdder.increment();
 			session.sessionId=sessionIdLongAdder.longValue();
 			session.callId=callId;
@@ -414,7 +415,7 @@ public class SipServer extends Server{
 	void checkSessionTimeout(){
 		long now=System.currentTimeMillis();
 		for(SipSession session:sessionMap.values()){
-			if((now-session.lastAccessTime.getTime())>sessionTimeout*1000){
+			if((now-session.lastAccessTime.getTime())>session.getSessionTimeout()*1000){
 				removeSession(session.callId);
 			}
 		}

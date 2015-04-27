@@ -20,6 +20,7 @@ import jazmin.misc.InfoBuilder;
 import jazmin.server.console.ConsoleServer;
 
 import org.apache.ftpserver.ConnectionConfigFactory;
+import org.apache.ftpserver.DataConnectionConfigurationFactory;
 import org.apache.ftpserver.FtpServer;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpReply;
@@ -29,9 +30,7 @@ import org.apache.ftpserver.ftplet.Ftplet;
 import org.apache.ftpserver.ftplet.FtpletContext;
 import org.apache.ftpserver.ftplet.FtpletResult;
 import org.apache.ftpserver.ftpletcontainer.impl.DefaultFtpletContainer;
-import org.apache.ftpserver.impl.DefaultDataConnectionConfiguration;
 import org.apache.ftpserver.impl.DefaultFtpServer;
-import org.apache.ftpserver.impl.PassivePorts;
 import org.apache.ftpserver.listener.ListenerFactory;
 import org.apache.ftpserver.ssl.SslConfigurationFactory;
 
@@ -55,17 +54,7 @@ public class FTPServer extends Server{
 	private Method listenerOnDisConnectMethod;
 	private FTPUserManager userManager;
 	private Map<String, FTPSession>sessionMap;
-	private DefaultDataConnectionConfiguration dataConnectionConfiguration;
-	//
-	private int idleTime;
-	private boolean activeEnabled;
-	private boolean activeIpCheck;
-	private String activeLocalAddress;
-	private int activeLocalPort;
-	private String passiveAddress;
-	private String passivePorts;
-	private String passiveExternalAddress;
-	private boolean implicitSsl;
+	private DataConnectionConfigurationFactory dataConnectionConfigurationFactory;
 	//
 	public FTPServer() {
 		factory = new ListenerFactory();
@@ -74,6 +63,7 @@ public class FTPServer extends Server{
 		ftplets=new LinkedHashMap<String, Ftplet>();
 		ftplets.put("EX",new ServiceFtplet());
 		fileTransferInfos=new ConcurrentHashMap<String, FileTransferInfo>();
+		dataConnectionConfigurationFactory=new DataConnectionConfigurationFactory();
 		sessionMap=new ConcurrentHashMap<String, FTPSession>();
 		listenerBeforeMethod=Dispatcher.getMethod(
 				CommandListener.class,
@@ -88,6 +78,136 @@ public class FTPServer extends Server{
 				CommandListener.class,
 				"onDisconnect",FTPSession.class);
 	}
+	
+	/**
+	 * @return
+	 * @see org.apache.ftpserver.DataConnectionConfigurationFactory#getActiveLocalAddress()
+	 */
+	public String getActiveLocalAddress() {
+		return dataConnectionConfigurationFactory.getActiveLocalAddress();
+	}
+
+	/**
+	 * @return
+	 * @see org.apache.ftpserver.DataConnectionConfigurationFactory#getActiveLocalPort()
+	 */
+	public int getActiveLocalPort() {
+		return dataConnectionConfigurationFactory.getActiveLocalPort();
+	}
+
+	/**
+	 * @return
+	 * @see org.apache.ftpserver.DataConnectionConfigurationFactory#getIdleTime()
+	 */
+	public int getIdleTime() {
+		return dataConnectionConfigurationFactory.getIdleTime();
+	}
+
+	/**
+	 * @return
+	 * @see org.apache.ftpserver.DataConnectionConfigurationFactory#getPassiveAddress()
+	 */
+	public String getPassiveAddress() {
+		return dataConnectionConfigurationFactory.getPassiveAddress();
+	}
+
+	/**
+	 * @return
+	 * @see org.apache.ftpserver.DataConnectionConfigurationFactory#getPassiveExternalAddress()
+	 */
+	public String getPassiveExternalAddress() {
+		return dataConnectionConfigurationFactory.getPassiveExternalAddress();
+	}
+
+	/**
+	 * @return
+	 * @see org.apache.ftpserver.DataConnectionConfigurationFactory#getPassivePorts()
+	 */
+	public String getPassivePorts() {
+		return dataConnectionConfigurationFactory.getPassivePorts();
+	}
+	/**
+	 * @return
+	 * @see org.apache.ftpserver.DataConnectionConfigurationFactory#isActiveEnabled()
+	 */
+	public boolean isActiveEnabled() {
+		return dataConnectionConfigurationFactory.isActiveEnabled();
+	}
+
+	/**
+	 * @return
+	 * @see org.apache.ftpserver.DataConnectionConfigurationFactory#isActiveIpCheck()
+	 */
+	public boolean isActiveIpCheck() {
+		return dataConnectionConfigurationFactory.isActiveIpCheck();
+	}
+
+	/**
+	 * @param activeEnabled
+	 * @see org.apache.ftpserver.DataConnectionConfigurationFactory#setActiveEnabled(boolean)
+	 */
+	public void setActiveEnabled(boolean activeEnabled) {
+		dataConnectionConfigurationFactory.setActiveEnabled(activeEnabled);
+	}
+
+	/**
+	 * @param activeIpCheck
+	 * @see org.apache.ftpserver.DataConnectionConfigurationFactory#setActiveIpCheck(boolean)
+	 */
+	public void setActiveIpCheck(boolean activeIpCheck) {
+		dataConnectionConfigurationFactory.setActiveIpCheck(activeIpCheck);
+	}
+
+	/**
+	 * @param activeLocalAddress
+	 * @see org.apache.ftpserver.DataConnectionConfigurationFactory#setActiveLocalAddress(java.lang.String)
+	 */
+	public void setActiveLocalAddress(String activeLocalAddress) {
+		dataConnectionConfigurationFactory
+				.setActiveLocalAddress(activeLocalAddress);
+	}
+
+	/**
+	 * @param activeLocalPort
+	 * @see org.apache.ftpserver.DataConnectionConfigurationFactory#setActiveLocalPort(int)
+	 */
+	public void setActiveLocalPort(int activeLocalPort) {
+		dataConnectionConfigurationFactory.setActiveLocalPort(activeLocalPort);
+	}
+
+	/**
+	 * @param idleTime
+	 * @see org.apache.ftpserver.DataConnectionConfigurationFactory#setIdleTime(int)
+	 */
+	public void setIdleTime(int idleTime) {
+		dataConnectionConfigurationFactory.setIdleTime(idleTime);
+	}
+
+	/**
+	 * @param passiveAddress
+	 * @see org.apache.ftpserver.DataConnectionConfigurationFactory#setPassiveAddress(java.lang.String)
+	 */
+	public void setPassiveAddress(String passiveAddress) {
+		dataConnectionConfigurationFactory.setPassiveAddress(passiveAddress);
+	}
+
+	/**
+	 * @param passiveExternalAddress
+	 * @see org.apache.ftpserver.DataConnectionConfigurationFactory#setPassiveExternalAddress(java.lang.String)
+	 */
+	public void setPassiveExternalAddress(String passiveExternalAddress) {
+		dataConnectionConfigurationFactory
+				.setPassiveExternalAddress(passiveExternalAddress);
+	}
+
+	/**
+	 * @param passivePorts
+	 * @see org.apache.ftpserver.DataConnectionConfigurationFactory#setPassivePorts(java.lang.String)
+	 */
+	public void setPassivePorts(String passivePorts) {
+		dataConnectionConfigurationFactory.setPassivePorts(passivePorts);
+	}
+
 	/**
 	 * @return
 	 * @see org.apache.ftpserver.ConnectionConfigFactory#getLoginFailureDelay()
@@ -429,18 +549,8 @@ public class FTPServer extends Server{
 		}
 		ExDefaultFtpServerContext context=new ExDefaultFtpServerContext();
 		context.setFtpletContainer(new DefaultFtpletContainer(ftplets));
-		/*dataConnectionConfiguration=new DefaultDataConnectionConfiguration(
-				idleTime, 
-				ssl.createSslConfiguration(), 
-				activeEnabled,
-				activeIpCheck,
-				activeLocalAddress, 
-				activeLocalPort, 
-				passiveAddress, 
-				new PassivePorts(passivePorts,true),
-				passiveExternalAddress, 
-				implicitSsl);
-		factory.setDataConnectionConfiguration(dataConnectionConfiguration);*/
+		factory.setDataConnectionConfiguration(
+				dataConnectionConfigurationFactory.createDataConnectionConfiguration());
 		context.addListener("default", factory.createListener());
 		context.setUserManager(userManager);
 		context.setConnectionConfig(connectionConfigFactory.createConnectionConfig());
@@ -470,7 +580,14 @@ public class FTPServer extends Server{
 		.print("maxAnonymousLogins",getMaxAnonymousLogins())
 		.print("maxLoginFailures",getMaxLoginFailures())
 		.print("maxLogins",getMaxLogins())
-		.print("maxThreads",getMaxThreads())
+		.print("activeLocalAddress",getActiveLocalAddress())
+		.print("activeLocalPort",getActiveLocalPort())
+		.print("idleTime",getIdleTime())
+		.print("passiveAddress",getPassiveAddress())
+		.print("passiveExternalAddress",getPassiveExternalAddress())
+		.print("passivePorts",getPassivePorts())
+		.print("activeEnabled",isActiveEnabled())
+		.print("activeIpCheck",isActiveIpCheck())
 		.print("anonymousLoginEnabled",isAnonymousLoginEnabled())
 		.print("commandListener",getCommandListener())
 		.print("userManager",getUserManager());

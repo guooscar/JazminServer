@@ -23,6 +23,7 @@ import jazmin.core.Server;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
+import jazmin.misc.io.IOWorker;
 import jazmin.server.console.ConsoleServer;
 
 /**
@@ -46,7 +47,9 @@ public class RelayServer extends Server{
 		minStartPort=10000;
 		maxStartPort=30000;
 		idleTime=30;//30sec
-		group = new NioEventLoopGroup();
+		IOWorker ioWorker=new IOWorker("RelayIOWorker",
+    			Runtime.getRuntime().availableProcessors()*2+1);
+		group = new NioEventLoopGroup(0,ioWorker);
 		relayChannels=Collections.synchronizedList(new LinkedList<RelayChannel>());
 		Jazmin.scheduleAtFixedRate(this::checkIdleChannel,idleTime/2,idleTime/2, 
 				TimeUnit.SECONDS);

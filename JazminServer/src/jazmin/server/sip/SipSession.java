@@ -19,6 +19,7 @@ public class SipSession {
 	Object userObject;
 	Date createTime;
 	Date lastAccessTime;
+	int sessionTimeout;
 	//
 	SipSession(SipServer server) {
 		this.server=server;
@@ -77,6 +78,24 @@ public class SipSession {
 	public Date getLastAccessTime() {
 		return lastAccessTime;
 	}
+	
+	/**
+	 * @return the sessionTimeout
+	 */
+	public int getSessionTimeout() {
+		return sessionTimeout;
+	}
+
+	/**
+	 * @param sessionTimeout the sessionTimeout to set
+	 */
+	public void setSessionTimeout(int sessionTimeout) {
+		if(sessionTimeout<SipServer.MIN_SESSION_TIMEOUT){
+			throw new IllegalArgumentException("session timeout must >="+SipServer.MIN_SESSION_TIMEOUT);
+		}
+		this.sessionTimeout = sessionTimeout;
+	}
+
 	//
 	public void invalidate(){
 		

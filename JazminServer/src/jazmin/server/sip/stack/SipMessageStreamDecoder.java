@@ -15,15 +15,10 @@ import java.util.List;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.sip.io.pkts.buffer.Buffer;
-import jazmin.server.sip.io.pkts.buffer.Buffers;
 import jazmin.server.sip.io.pkts.packet.sip.SipMessage;
-import jazmin.server.sip.io.pkts.packet.sip.SipParseException;
 import jazmin.server.sip.io.pkts.packet.sip.impl.SipInitialLine;
-import jazmin.server.sip.io.pkts.packet.sip.impl.SipParser;
 import jazmin.server.sip.io.pkts.packet.sip.impl.SipRequestImpl;
-import jazmin.server.sip.io.pkts.packet.sip.impl.SipRequestLine;
 import jazmin.server.sip.io.pkts.packet.sip.impl.SipResponseImpl;
-import jazmin.server.sip.io.pkts.packet.sip.impl.SipResponseLine;
 
 /**
  * @author jonas
@@ -88,22 +83,30 @@ public class SipMessageStreamDecoder extends ByteToMessageDecoder {
         }
 
         if (this.message.isComplete()) {
-            //TODO tcp protocel
-        	//final long arrivalTime = this.clock.getCurrentTimeMillis();
-            //final Buffer bb = Buffers.wrap(message.);
-            //SipParser.consumeSWS(buffer);
-            //final SipMessage sipMessage = SipParser.frame(buffer);
+        	
+        	final long arrivalTime = this.clock.getCurrentTimeMillis();
+        	SipMessage sipMessage=null;
+        	Buffer rawInitialLine=message.getInitialLine();
+        	if (SipInitialLine.isResponseLine(rawInitialLine)) {
+        		sipMessage =new SipResponseImpl(rawInitialLine,
+        				message.getHeaders(),message.getPayload());
+            } else {
+            	sipMessage =new SipRequestImpl(rawInitialLine,
+            			message.getHeaders(),message.getPayload());
+            }
+          
             if(logger.isDebugEnabled()){
-    		//	logger.debug("<<<<<<<<<<receive from {}\n{}",ctx.channel(),msg);
+    			logger.debug("<<<<<<<<<<receive from {}\n{}",ctx.channel(),sipMessage);
     		}
             final Channel channel = ctx.channel();
             final Connection connection = new TcpConnection(channel, (InetSocketAddress) channel.remoteAddress());
-            //out.add(new DefaultSipMessageEvent(connection, msg, arrivalTime));
+            out.add(new DefaultSipMessageEvent(connection, sipMessage, arrivalTime));
             reset();
         }
     }
     //
     private void dropConnection(final ChannelHandlerContext ctx, final String reason) {
+    	ctx.close();
     }
     //
     private void reset() {
