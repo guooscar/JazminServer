@@ -3,20 +3,6 @@
  */
 package jazmin.server.relay;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
-
-import jazmin.core.Jazmin;
-import jazmin.log.Logger;
-import jazmin.log.LoggerFactory;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
@@ -24,30 +10,52 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import jazmin.core.Jazmin;
+import jazmin.core.Server;
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
+import jazmin.misc.InfoBuilder;
+import jazmin.server.console.ConsoleServer;
+
 /**
  * relay UDP package for NAT through
  * @author yama 26 Apr, 2015
  */
-public class RelayServer {
+public class RelayServer extends Server{
 	private static Logger logger=LoggerFactory.get(RelayServer.class);
 	//
 	private EventLoopGroup group;
 	private List<RelayChannel>relayChannels;
 	private int idleTime;
-	private int minPort;
-	private int maxPort;
+	private int minStartPort;
+	private int maxStartPort;
+	private String hostAddress;
 	//
 	private boolean portPool[];
+	//
 	public RelayServer() {
-		minPort=10000;
-		maxPort=60000;
+		hostAddress="127.0.0.1";
+		minStartPort=10000;
+		maxStartPort=30000;
 		idleTime=30;//30sec
 		group = new NioEventLoopGroup();
 		relayChannels=Collections.synchronizedList(new LinkedList<RelayChannel>());
 		Jazmin.scheduleAtFixedRate(this::checkIdleChannel,idleTime/2,idleTime/2, 
 				TimeUnit.SECONDS);
-		portPool=new boolean[maxPort-minPort];
+		portPool=new boolean[maxStartPort-minStartPort];
 		Arrays.fill(portPool, false);
+	}
+	//
+	public List<RelayChannel>getChannels(){
+		return new ArrayList<RelayChannel>(relayChannels);
 	}
 	//
 	public RelayChannel createRelayChannel() throws Exception {
@@ -64,13 +72,13 @@ public class RelayServer {
 			}
 			//
 			portPool[nextPortIdx]=true;
-			portPool[nextPortIdx+1]=true;
-			return createRelayChannel(minPort+nextPortIdx, minPort+nextPortIdx+1);
+			return createRelayChannel(minStartPort+nextPortIdx, maxStartPort+nextPortIdx);
 		}
 	}
 	//
 	private RelayChannel createRelayChannel(int portA,int portB) throws Exception {
 		RelayChannel rc = new RelayChannel();
+		rc.localHostAddress=hostAddress;
 		rc.localPeerPortA = portA;
 		rc.localPeerPortB = portB;
 		// binding port
@@ -102,8 +110,7 @@ public class RelayServer {
 	//
 	void relayChannelClosed(RelayChannel channel){
 		synchronized (channel) {
-			portPool[channel.localPeerPortA-minPort]=false;
-			portPool[channel.localPeerPortB-minPort]=false;
+			portPool[channel.localPeerPortA-minStartPort]=false;
 		}
 	}
 	//
@@ -112,16 +119,75 @@ public class RelayServer {
 		b.group(group).channel(NioDatagramChannel.class)
 			.option(ChannelOption.SO_BROADCAST, true)
 			.handler(new RelayChannelHandler(rc,port));
-		return b.bind(port).sync().channel();
+		return b.bind(hostAddress,port).sync().channel();
+	}
+	//--------------------------------------------------------------------------
+	/**
+	 * @return the idleTime
+	 */
+	public int getIdleTime() {
+		return idleTime;
+	}
+	/**
+	 * @param idleTime the idleTime to set
+	 */
+	public void setIdleTime(int idleTime) {
+		this.idleTime = idleTime;
+	}
+	
+	/**
+	 * @return the minStartPort
+	 */
+	public int getMinStartPort() {
+		return minStartPort;
+	}
+	/**
+	 * @param minStartPort the minStartPort to set
+	 */
+	public void setMinStartPort(int minStartPort) {
+		this.minStartPort = minStartPort;
+	}
+	/**
+	 * @return the maxStartPort
+	 */
+	public int getMaxStartPort() {
+		return maxStartPort;
+	}
+	/**
+	 * @param maxStartPort the maxStartPort to set
+	 */
+	public void setMaxStartPort(int maxStartPort) {
+		this.maxStartPort = maxStartPort;
+	}
+	/**
+	 * @return the hostAddress
+	 */
+	public String getHostAddress() {
+		return hostAddress;
+	}
+	/**
+	 * @param hostAddress the hostAddress to set
+	 */
+	public void setHostAddress(String hostAddress) {
+		this.hostAddress = hostAddress;
+	}
+	//--------------------------------------------------------------------------
+	@Override
+	public void init() throws Exception {
+		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
+		if(cs!=null){
+			cs.registerCommand(new RelayServerCommand());
+		}
 	}
 	//
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args)throws Exception {
-		Jazmin.start();
-		RelayServer server=new RelayServer();
-		server.createRelayChannel();
+	@Override
+	public String info() {
+		InfoBuilder ib = InfoBuilder.create();
+		ib.section("info").format("%-30s:%-30s\n")
+				.print("minStartPort", getMinStartPort())
+				.print("maxStartPort", getMaxStartPort())
+				.print("idleTime", getIdleTime())
+				.print("hostAddress", getHostAddress());
+		return ib.toString();
 	}
-
 }

@@ -11,6 +11,7 @@ import jazmin.server.sip.io.pkts.buffer.Buffers;
 import jazmin.server.sip.io.pkts.packet.sip.header.CSeqHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.CallIdHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.ContactHeader;
+import jazmin.server.sip.io.pkts.packet.sip.header.ContentLengthHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.ContentTypeHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.ExpiresHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.FromHeader;
@@ -126,6 +127,9 @@ public interface SipMessage extends Cloneable {
      * @return
      */
     Buffer getRawContent();
+    
+    
+    void setRawContent(Buffer buffer);
 
     /**
      * Checks whether this {@link SipMessage} is carrying anything in its
@@ -308,6 +312,7 @@ public interface SipMessage extends Cloneable {
      */
     CSeqHeader getCSeqHeader() throws SipParseException;
 
+	ContentLengthHeader getContentLengthHeader() throws SipParseException;
     /**
      * Convenience method for determining whether the method of this message is
      * an INVITE or not. Hence, this is NOT to the method to determine whether
@@ -492,5 +497,6 @@ public interface SipMessage extends Cloneable {
         assertNotEmpty(buffer, "Buffer cannot be null or the empty string");
         return SipParser.frame(Buffers.wrap(buffer));
     }
+
 
 }

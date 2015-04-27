@@ -14,7 +14,7 @@
  * the License.
  */
 
-package jazmin.server.sip.io.pkts;
+package jazmin.misc;
 
 public class HexDump {
     private final static char[] HEX_DIGITS = {

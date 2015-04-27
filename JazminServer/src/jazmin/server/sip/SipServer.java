@@ -18,7 +18,9 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
@@ -36,6 +38,7 @@ import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
 import jazmin.misc.io.IOWorker;
+import jazmin.server.console.ConsoleServer;
 import jazmin.server.sip.io.pkts.buffer.Buffer;
 import jazmin.server.sip.io.pkts.buffer.Buffers;
 import jazmin.server.sip.io.pkts.packet.sip.SipMessage;
@@ -326,9 +329,15 @@ public class SipServer extends Server{
 		return scheduledExecutorService.scheduleWithFixedDelay(command,
 				initialDelay, delay, unit);
 	}
+	//
+	public List<SipSession>getSessions(){
+		return new ArrayList<SipSession>(sessionMap.values());
+	}
+	public SipSession getSession(String callId){
+		return sessionMap.get(callId);
+	}
 	//-------------------------------------------------------------------------
 	
-
 	void messageReceived(Connection conn,SipMessage message){
 		SipContext ctx=new SipContext();
 		ctx.server=this;
@@ -346,7 +355,7 @@ public class SipServer extends Server{
 				Dispatcher.EMPTY_CALLBACK,ctx);
 	}
 	//
-	public void handleMessage(SipContext ctx){
+	void handleMessage(SipContext ctx){
 		SipMessage message=ctx.message;
 		Connection conn=ctx.connection;
 		if(messageHandler==null){
@@ -373,9 +382,11 @@ public class SipServer extends Server{
 			messageHandler.after(ctx);
 		}catch(Exception e){
 			logger.catching(e);
-			SipResponse rsp=message.createResponse(
-					SipStatusCode.SC_SERVER_INTERNAL_ERROR);
-			conn.send(rsp);
+			if(message.isRequest()){
+				SipResponse rsp=message.createResponse(
+						SipStatusCode.SC_SERVER_INTERNAL_ERROR);
+				conn.send(rsp);
+			}
 		}
 	}
 	//
@@ -409,7 +420,14 @@ public class SipServer extends Server{
 		}
 	}
     //-------------------------------------------------------------------------
-    //
+   @Override
+   public void init() throws Exception {
+	   ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
+		if(cs!=null){
+			cs.registerCommand(new SipServerCommand());
+		}
+   }	
+   //
 	@Override
     public void start() throws Exception{
     	handler=new SipHandler(this);

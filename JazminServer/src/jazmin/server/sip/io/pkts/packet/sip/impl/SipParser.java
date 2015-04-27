@@ -18,6 +18,7 @@ import jazmin.server.sip.io.pkts.packet.sip.SipParseException;
 import jazmin.server.sip.io.pkts.packet.sip.header.CSeqHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.CallIdHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.ContactHeader;
+import jazmin.server.sip.io.pkts.packet.sip.header.ContentLengthHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.ContentTypeHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.ExpiresHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.FromHeader;
@@ -176,6 +177,7 @@ public class SipParser {
         framers.put(ContentTypeHeader.NAME, header -> ContentTypeHeader.frame(header.getValue()));
         framers.put(CSeqHeader.NAME, header -> CSeqHeader.frame(header.getValue()));
         framers.put(ExpiresHeader.NAME, header -> ExpiresHeader.frame(header.getValue()));
+        framers.put(ContentLengthHeader.NAME, header -> ContentLengthHeader.frame(header.getValue()));
         framers.put(FromHeader.NAME, header -> FromHeader.frame(header.getValue()));
         framers.put(MaxForwardsHeader.NAME, header -> MaxForwardsHeader.frame(header.getValue()));
         framers.put(RecordRouteHeader.NAME, header -> RecordRouteHeader.frame(header.getValue()));

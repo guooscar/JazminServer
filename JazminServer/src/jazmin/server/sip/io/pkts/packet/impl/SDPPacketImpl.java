@@ -7,12 +7,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import jazmin.server.sip.io.pkts.buffer.Buffer;
+import jazmin.server.sip.io.pkts.buffer.Buffers;
 import jazmin.server.sip.io.pkts.packet.Packet;
 import jazmin.server.sip.io.pkts.packet.SDPPacket;
 import jazmin.server.sip.io.pkts.packet.UDPPacket;
 import jazmin.server.sip.io.pkts.packet.sip.SipPacket;
 import jazmin.server.sip.io.pkts.protocol.Protocol;
-import jazmin.server.sip.io.pkts.sdp.SDP;
+import jazmin.server.sip.io.sdp.SessionDescription;
 
 /**
  * @author jonas@jonasborjesson.com
@@ -20,7 +21,7 @@ import jazmin.server.sip.io.pkts.sdp.SDP;
 public final class SDPPacketImpl extends AbstractPacket implements SDPPacket {
 
     private final Packet parent;
-    private final SDP sdp;
+    private final SessionDescription sdp;
 
     /**
      * 
@@ -32,7 +33,7 @@ public final class SDPPacketImpl extends AbstractPacket implements SDPPacket {
      * @param actualSDP
      *            the underlying actual SDP
      */
-    public SDPPacketImpl(final Packet parent, final SDP actualSDP) {
+    public SDPPacketImpl(final Packet parent, final SessionDescription actualSDP) {
         super(Protocol.SDP, parent, null);
         this.parent = parent;
         this.sdp = actualSDP;
@@ -56,7 +57,7 @@ public final class SDPPacketImpl extends AbstractPacket implements SDPPacket {
 
     @Override
     public Buffer toBuffer() {
-        return this.sdp.toBuffer();
+        return Buffers.wrap(sdp.toString());
     }
 
     @Override
@@ -67,13 +68,11 @@ public final class SDPPacketImpl extends AbstractPacket implements SDPPacket {
     @Override
     public SDPPacket clone() {
         final Packet p = this.parent.clone();
-        // TODO: clone
         return new SDPPacketImpl(p, this.sdp);
     }
 
     @Override
     public Packet getNextPacket() throws IOException {
-        // No next packet for an SDP
         return null;
     }
 

@@ -4,10 +4,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.mail.search.ReceivedDateTerm;
-
+import jazmin.core.Jazmin;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
+import jazmin.server.relay.RelayChannel;
+import jazmin.server.relay.RelayServer;
 import jazmin.server.sip.SipContext;
 import jazmin.server.sip.SipMessageAdapter;
 import jazmin.server.sip.SipSession;
@@ -21,8 +22,11 @@ import jazmin.server.sip.io.pkts.packet.sip.address.Address;
 import jazmin.server.sip.io.pkts.packet.sip.address.SipURI;
 import jazmin.server.sip.io.pkts.packet.sip.address.URI;
 import jazmin.server.sip.io.pkts.packet.sip.header.ContactHeader;
+import jazmin.server.sip.io.pkts.packet.sip.header.ContentLengthHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.ExpiresHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.ViaHeader;
+import jazmin.server.sip.io.sdp.SessionDescription;
+import jazmin.server.sip.io.sdp.SessionDescriptionParser;
 
 /**
  * 
@@ -65,6 +69,14 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 			return;
 		}
 		response.popViaHeader();
+		//
+		if(response.isInvite()&&response.hasContent()){
+			//change sdp ip address and media port to relay server
+			changeSDP(response, 
+					ss.relayChannel.getLocalHostAddress(),
+					ss.relayChannel.getLocalPeerPortB());
+		}
+		//
 		ctx.getServer().send(ss.remoteAddress, ss.remotePort, response);
 	}
 	//
@@ -87,15 +99,40 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 			ctx.getConnection().send(notFoundMsg);
 			return;
 		}
+		if(ctx.getSession(false)==null){
+			SipSession session=ctx.getSession();
+			SessionStatus ss=new SessionStatus();
+			ss.originalRequest=message;
+			ss.remoteAddress=ctx.getConnection().getRemoteIpAddress();
+			ss.remotePort=ctx.getConnection().getRemotePort();
+			session.setUserObject(ss);
+			//
+			RelayServer relayServer=Jazmin.getServer(RelayServer.class);
+			RelayChannel relayChannel=relayServer.createRelayChannel();
+			ss.relayChannel=relayChannel;
+		}
 		//
-		SipSession session=ctx.getSession();
-		SessionStatus ss=new SessionStatus();
-		ss.originalRequest=message;
-		ss.remoteAddress=ctx.getConnection().getRemoteIpAddress();
-		ss.remotePort=ctx.getConnection().getRemotePort();
-		session.setUserObject(ss);
-		SipRequest forkedRequest=message;
-		ctx.getServer().proxyTo(toBinding.getContact(),forkedRequest);
+		SessionStatus ss=(SessionStatus) ctx.getSession().getUserObject();
+		
+		changeSDP(message, 
+				ss.relayChannel.getLocalHostAddress(),
+				ss.relayChannel.getLocalPeerPortA());
+		//
+		ctx.getServer().proxyTo(toBinding.getContact(),message);
+	}
+	//
+	private void changeSDP(SipMessage message,String host,int port)throws Exception{
+		//change sdp ip address and media port to relay server
+		String sdp=new String(message.getRawContent().getArray(),"utf-8");
+		SessionDescription s=SessionDescriptionParser.parse(sdp);
+		s.getConnection("c").setAddress(host);
+		s.getOrigin().setAddress(host);
+		s.getMediaDescription("audio").setPort(port);
+		//
+		byte newSdpBytes[]=s.toBytes();
+		message.setRawContent(Buffers.wrap(newSdpBytes));
+		ContentLengthHeader clh=message.getContentLengthHeader();
+		clh.setContentLength(newSdpBytes.length);
 	}
 	//
 	private void doRegister(SipContext ctx, SipRequest message)throws Exception{

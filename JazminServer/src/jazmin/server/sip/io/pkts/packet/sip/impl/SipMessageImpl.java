@@ -21,6 +21,7 @@ import jazmin.server.sip.io.pkts.packet.sip.SipResponse;
 import jazmin.server.sip.io.pkts.packet.sip.header.CSeqHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.CallIdHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.ContactHeader;
+import jazmin.server.sip.io.pkts.packet.sip.header.ContentLengthHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.ContentTypeHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.ExpiresHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.FromHeader;
@@ -30,9 +31,6 @@ import jazmin.server.sip.io.pkts.packet.sip.header.RouteHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.SipHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.ToHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.ViaHeader;
-import jazmin.server.sip.io.pkts.sdp.SDPFactory;
-import jazmin.server.sip.io.pkts.sdp.SdpException;
-import jazmin.server.sip.io.pkts.sdp.SdpParseException;
 
 /**
  * @author jonas@jonasborjesson.com
@@ -48,7 +46,6 @@ public abstract class SipMessageImpl implements SipMessage {
 
     public static final Buffer CSEQ_HEADER = Buffers.wrap("CSeq".getBytes());
 
-    private final SDPFactory sdpFactory = SDPFactory.getInstance();
 
     /**
      * The initial line of the sip message, which is either a request or a
@@ -69,7 +66,7 @@ public abstract class SipMessageImpl implements SipMessage {
     /**
      * The payload, which may be null
      */
-    private final Buffer payload;
+    private  Buffer payload;
 
     /**
      * Map with parsed headers. Need to change since there are many headers that
@@ -451,7 +448,14 @@ public abstract class SipMessageImpl implements SipMessage {
         final SipHeader header = getHeaderInternal(ExpiresHeader.NAME, true);
         return (ExpiresHeader) header;
     }
-
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContentLengthHeader getContentLengthHeader() throws SipParseException {
+        final SipHeader header = getHeaderInternal(ContentLengthHeader.NAME, true);
+        return (ContentLengthHeader) header;
+    }
     /**
      * {@inheritDoc}
      */
@@ -507,7 +511,6 @@ public abstract class SipMessageImpl implements SipMessage {
      */
     @Override
     public void verify() {
-        // TODO Auto-generated method stub
     }
 
     /**
@@ -631,26 +634,7 @@ public abstract class SipMessageImpl implements SipMessage {
         if (!hasContent()) {
             return null;
         }
-
-        try {
-            final ContentTypeHeader contentType = getContentTypeHeader();
-            if (contentType == null) {
-                return null;
-            }
-
-            if (contentType.isSDP()) {
-                try {
-                    return this.sdpFactory.parse(this.payload);
-                } catch (final SdpParseException e) {
-                    throw new SipParseException(e.getCharOffset(), e.getMessage(), e);
-                } catch (final SdpException e) {
-                    throw new SipParseException(0, "Unable to parse the content as an SDP", e);
-                }
-            }
-            return this.payload;
-        } catch (final SipParseException e) {
-            throw new SipParseException(e.getErrorOffset(), "Unable to process the Content-Type header", e);
-        }
+        return this.payload;
     }
 
     @Override
@@ -661,7 +645,11 @@ public abstract class SipMessageImpl implements SipMessage {
 
         return this.payload.slice();
     }
-
+    //
+    public void setRawContent(Buffer buffer){
+    	this.payload=buffer;
+    }
+    //
     @Override
     public final boolean hasContent() {
         return this.payload != null && this.payload.hasReadableBytes();

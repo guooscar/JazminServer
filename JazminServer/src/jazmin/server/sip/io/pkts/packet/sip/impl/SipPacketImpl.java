@@ -31,7 +31,7 @@ import jazmin.server.sip.io.pkts.packet.sip.header.SipHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.ToHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.ViaHeader;
 import jazmin.server.sip.io.pkts.protocol.Protocol;
-import jazmin.server.sip.io.pkts.sdp.SDP;
+import jazmin.server.sip.io.sdp.SessionDescription;
 
 /**
  * @author jonas@jonasborjesson.com
@@ -691,11 +691,10 @@ public abstract class SipPacketImpl extends AbstractPacket implements SipPacket 
     public Packet getNextPacket() throws IOException {
         try {
             final Object content = this.msg.getContent();
-            if (content instanceof SDP) {
-                return new SDPPacketImpl(this, (SDP) content);
+            if (content instanceof SessionDescription) {
+                return new SDPPacketImpl(this, (SessionDescription) content);
             }
         } catch (final SipParseException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;
