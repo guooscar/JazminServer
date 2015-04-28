@@ -34,7 +34,6 @@
 	<classpathentry kind="lib" path="lib/commons-pool2-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/netty-3.1.5.GA.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/nist-sdp-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/jain-sip-ri-1.2.234.jar"/>
 	<classpathentry kind="lib" path="lib/ice4j.jar"/>
 	<classpathentry kind="output" path="bin"/>

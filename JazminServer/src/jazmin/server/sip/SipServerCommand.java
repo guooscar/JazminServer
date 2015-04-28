@@ -19,6 +19,7 @@ public class SipServerCommand extends ConsoleCommand {
 		desc = "sip server ctrl command";
 		addOption("i", false, "show server information.", this::showServerInfo);
 		addOption("s", false, "show server sessions.", this::showSessions);
+		addOption("l", false, "show location store.", this::showLocationStore);
 		addOption("sa", true, "show  session object.", this::showSessionObject);
 		//
 		server = Jazmin.getServer(SipServer.class);
@@ -27,7 +28,7 @@ public class SipServerCommand extends ConsoleCommand {
 	@Override
 	public void run() throws Exception {
 		if (server == null) {
-			err.println("can not find RtmpServer.");
+			err.println("can not find SipServer.");
 
 			return;
 		}
@@ -42,28 +43,51 @@ public class SipServerCommand extends ConsoleCommand {
 		out.printf(format, "messageHandler", server.getMessageHandler());
 	}
 	//
+	private void showLocationStore(String args){
+    	List<SipLocationBinding>bindings=server.getLocationBindings();
+    	out.format("total %d bindings\n",bindings.size());
+    	String format="%-5s %-25s %-25s  %-10s %-15s %-40s\n";
+    	out.printf(format,
+				"#",
+				"AOR",
+				"CONTACT",
+    			"EXPIRES",
+    			"CREATETIME",
+    			"CALLID");
+    	int idx=1;
+    	for(SipLocationBinding b:bindings){
+    		out.printf(format,
+        			idx++,
+        			b.getAor(),
+        			b.getContact(),
+        			b.getExpires(),
+        			formatDate(b.getCreateTime()),
+        			b.getCallId());
+    	}
+    }
+	//
 	private void showSessions(String args){
     	List<SipSession>sessions=server.getSessions();
     	out.format("total %d sessions\n",sessions.size());
-    	String format="%-5s -10s %-30s %-20s %-5s %-15s %-15s\n";
+    	String format="%-5s %-10s %-20s %-5s %-15s %-15s  %-30s\n";
     	out.printf(format,
 				"#",
 				"SESSIONID",
-    			"CALLID",
     			"REMOTEADDRESS",
     			"REMOTE PORT",
     			"CREATETIME",
-    			"LASTACCTIME");
+    			"LASTACCTIME",
+    			"CALLID");
     	int idx=1;
     	for(SipSession s:sessions){
     		out.printf(format,
         			idx++,
         			s.getSessionId(),
-        			s.getCallId(),
         			s.getRemoteAddress(),
         			s.getRemotePort(),
         			formatDate(s.getCreateTime()),
-        			formatDate(s.getLastAccessTime()));
+        			formatDate(s.getLastAccessTime()),
+        			s.getCallId());
     	}
     }
 	//

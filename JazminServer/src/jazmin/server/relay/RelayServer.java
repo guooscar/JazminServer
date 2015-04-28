@@ -39,11 +39,12 @@ public class RelayServer extends Server{
 	private int minStartPort;
 	private int maxStartPort;
 	private String hostAddress;
+	private List<String>hostAddresses;
 	//
 	private boolean portPool[];
 	//
 	public RelayServer() {
-		hostAddress="127.0.0.1";
+		hostAddress="0.0.0.0";
 		minStartPort=10000;
 		maxStartPort=30000;
 		idleTime=30;//30sec
@@ -55,7 +56,23 @@ public class RelayServer extends Server{
 				TimeUnit.SECONDS);
 		portPool=new boolean[maxStartPort-minStartPort];
 		Arrays.fill(portPool, false);
+		hostAddresses=new ArrayList<>();
 	}
+	
+	/**
+	 * @return the hostAddresses
+	 */
+	public List<String> getHostAddresses() {
+		return hostAddresses;
+	}
+
+	/**
+	 * @param hostAddresses the hostAddresses to set
+	 */
+	public void addHostAddress(String addr) {
+		this.hostAddresses.add(addr);
+	}
+
 	//
 	public List<RelayChannel>getChannels(){
 		return new ArrayList<RelayChannel>(relayChannels);

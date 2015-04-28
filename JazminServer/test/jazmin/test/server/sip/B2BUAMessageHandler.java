@@ -1,8 +1,6 @@
 package jazmin.test.server.sip;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import jazmin.core.Jazmin;
 import jazmin.log.Logger;
@@ -10,6 +8,7 @@ import jazmin.log.LoggerFactory;
 import jazmin.server.relay.RelayChannel;
 import jazmin.server.relay.RelayServer;
 import jazmin.server.sip.SipContext;
+import jazmin.server.sip.SipLocationBinding;
 import jazmin.server.sip.SipMessageAdapter;
 import jazmin.server.sip.SipSession;
 import jazmin.server.sip.SipStatusCode;
@@ -38,14 +37,18 @@ import jazmin.server.sip.io.sdp.fields.MediaDescriptionField;
 public class B2BUAMessageHandler extends SipMessageAdapter {
 	private static Logger logger=LoggerFactory.get(B2BUAMessageHandler.class);
 
-	private final Map<SipURI, Binding> locationStore = new HashMap<SipURI, Binding>();
+	
+	RelayServer relayServer;
+	public B2BUAMessageHandler(){
+		relayServer=Jazmin.getServer(RelayServer.class);
+	}
 	//
 	@Override
 	public void handleRequest(SipContext ctx, SipRequest message)
 			throws Exception {
 		if (message.isRegister()) {
 			doRegister(ctx, message);
-			dumpStore();
+			dumpStore(ctx);
 			return;
 		}
 		//
@@ -75,27 +78,27 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 		if(response.isInvite()&&response.hasContent()){
 			//change sdp ip address and media port to relay server
 			changeSDP(response, 
-					ss.relayChannel.getLocalHostAddress(),
+					relayServer.getHostAddresses().get(1),
 					ss.relayChannel.getLocalPeerPortB());
 		}
 		//
 		ctx.getServer().send(ss.remoteAddress, ss.remotePort, response);
 	}
 	//
-	private void dumpStore(){
+	private void dumpStore(SipContext ctx){
 		StringBuilder sb=new StringBuilder();
-		locationStore.forEach((uri,blist)->{
-			sb.append(uri+"\t->\t"+blist);
+		ctx.getServer().getLocationBindings().forEach(b->{
+			sb.append(b.getAor()+"\t->\t"+b);
 			sb.append("\n");
 		});
 		logger.debug("\n"+sb);
 	}
 	//
 	private void doInvite(SipContext ctx,SipRequest message)throws Exception{
-		dumpStore();
+		dumpStore(ctx);
 		Address toAddress=message.getToHeader().getAddress();
 		URI toURI=toAddress.getURI();
-		Binding toBinding=locationStore.get(toURI);
+		SipLocationBinding toBinding=ctx.getServer().getLocationBinding((SipURI) toURI);
 		if(toBinding==null){
 			SipMessage notFoundMsg=message.createResponse(SipStatusCode.SC_NOT_FOUND);
 			ctx.getConnection().send(notFoundMsg);
@@ -109,7 +112,6 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 			ss.remotePort=ctx.getConnection().getRemotePort();
 			session.setUserObject(ss);
 			//
-			RelayServer relayServer=Jazmin.getServer(RelayServer.class);
 			RelayChannel relayChannel=relayServer.createRelayChannel();
 			ss.relayChannel=relayChannel;
 		}
@@ -117,7 +119,7 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 		SessionStatus ss=(SessionStatus) ctx.getSession().getUserObject();
 		
 		changeSDP(message, 
-				ss.relayChannel.getLocalHostAddress(),
+				relayServer.getHostAddresses().get(0),
 				ss.relayChannel.getLocalPeerPortA());
 		//
 		ctx.getServer().proxyTo(toBinding.getContact(),message);
@@ -165,7 +167,7 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 	private SipResponse processRegisterRequest(SipContext ctx,final SipRequest request)
 			throws NumberFormatException, IOException {
 		final SipURI aor = getAOR(request);
-		final Binding.Builder builder = Binding.with();
+		final SipLocationBinding.Builder builder = SipLocationBinding.with();
 		builder.aor(aor);
 		builder.callId(request.getCallIDHeader());
 		builder.expires(getExpires(request));
@@ -178,11 +180,11 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 				port(ctx.getConnection().getRemotePort()).
 				build();
 		builder.contact(newURI);
-		final Binding binding = builder.build();
-		final Binding b = updateBindings(binding);
+		final SipLocationBinding binding = builder.build();
+		ctx.getServer().updateLocationBinding(binding);
 		final SipResponse response = request.createResponse(200);
-		final SipURI contactURI = b.getContact();
-		contactURI.setParameter("expires", b.getExpires());
+		final SipURI contactURI = binding.getContact();
+		contactURI.setParameter("expires", binding.getExpires());
 		ViaHeader vh=response.getViaHeader();
 		vh.setRPort(ctx.getConnection().getRemotePort());
 		vh.setReceived(Buffers.wrap(ctx.getConnection().getRemoteIpAddress()));
@@ -190,25 +192,6 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 		return response;
 	}
 
-	/**
-	 * See RFC3261 of how it is actually supposed to be done but the short
-	 * version is:
-	 * 
-	 * For the AOR, compare the contact URI of all known bidnings and
-	 * update/create/delete as needed.
-	 * 
-	 * 
-	 * @param binding
-	 * @return
-	 */
-	private Binding updateBindings(final Binding binding) {
-		if(binding.getExpires()==0){
-			locationStore.remove(binding);
-		}else{
-			locationStore.put(binding.getAor(),binding);
-		}
-		return binding;
-	}
 	//
 	private int getExpires(final SipRequest request)
 			throws NumberFormatException, IOException {
@@ -232,10 +215,8 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 	 * @return
 	 */
 	private SipURI getAOR(final SipRequest request) {
-		final SipURI sipURI = (SipURI) request.getToHeader().getAddress()
-				.getURI();
-		return SipURI.with().user(sipURI.getUser()).host(sipURI.getHost())
-				.build();
+		final SipURI sipURI = (SipURI) request.getToHeader().getAddress().getURI();
+		return SipURI.with().user(sipURI.getUser()).host(sipURI.getHost()).build();
 	}
 
 }

@@ -77,12 +77,9 @@ public class SipServer extends Server{
     private  Method handlerMethod;
     private  Map<String,SipSession>sessionMap;
     private  LongAdder sessionIdLongAdder;
+    private  Map<SipURI, SipLocationBinding> locationStore;
     //
-    private static ScheduledExecutorService scheduledExecutorService=
-			new ScheduledThreadPoolExecutor(
-					3,
-					new JazminThreadFactory("SipScheduledExecutor"),
-					new ThreadPoolExecutor.AbortPolicy());
+    private ScheduledExecutorService scheduledExecutorService;
     //
     public SipServer() {
         this.address = "127.0.0.1";
@@ -91,8 +88,13 @@ public class SipServer extends Server{
         		SipServer.class,"handleMessage",
         		SipContext.class);
         sessionMap=new ConcurrentHashMap<String, SipSession>();
+        locationStore=new ConcurrentHashMap<SipURI, SipLocationBinding>();
         sessionIdLongAdder=new LongAdder();
         sessionTimeout=60;
+        scheduledExecutorService=new ScheduledThreadPoolExecutor(
+				3,
+				new JazminThreadFactory("SipScheduledExecutor"),
+				new ThreadPoolExecutor.AbortPolicy());
     }
    
     //
@@ -336,6 +338,35 @@ public class SipServer extends Server{
 	public SipSession getSession(String callId){
 		return sessionMap.get(callId);
 	}
+	/**
+	 * See RFC3261 of how it is actually supposed to be done but the short
+	 * version is:
+	 * 
+	 * For the AOR, compare the contact URI of all known bidnings and
+	 * update/create/delete as needed.
+	 * @param binding
+	 */
+	public void updateLocationBinding(final SipLocationBinding binding) {
+		if(binding.getExpires()==0){
+			locationStore.remove(binding);
+		}else{
+			locationStore.put(binding.getAor(),binding);
+		}
+	}
+	/**
+	 * get location binding by uri
+	 * @param uri
+	 * @return
+	 */
+	public SipLocationBinding getLocationBinding(SipURI uri){
+		return locationStore.get(uri);
+	}
+	/**
+	 * @return all location bindings
+	 */
+	public List<SipLocationBinding>getLocationBindings(){
+		return new ArrayList<SipLocationBinding>(locationStore.values());
+	}
 	//-------------------------------------------------------------------------
 	
 	void messageReceived(Connection conn,SipMessage message){
@@ -420,6 +451,14 @@ public class SipServer extends Server{
 			}
 		}
 	}
+	void checkBindingExpires(){
+		long now=System.currentTimeMillis();
+		for(SipLocationBinding binding:locationStore.values()){
+			if((now-binding.getCreateTime().getTime())>binding.getExpires()*1000){
+				locationStore.remove(binding.getAor());
+			}
+		}
+	}
     //-------------------------------------------------------------------------
    @Override
    public void init() throws Exception {
@@ -444,6 +483,10 @@ public class SipServer extends Server{
         Jazmin.scheduleAtFixedRate(this::checkSessionTimeout,
         		MIN_SESSION_TIMEOUT/2,
         		MIN_SESSION_TIMEOUT/2,TimeUnit.SECONDS);
+        //location store timeout checker
+        Jazmin.scheduleAtFixedRate(this::checkBindingExpires,
+        		10,
+        		10,TimeUnit.SECONDS);
     }
 	
 	//

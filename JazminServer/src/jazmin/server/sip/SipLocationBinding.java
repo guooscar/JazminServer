@@ -1,36 +1,32 @@
-package jazmin.test.server.sip;
+package jazmin.server.sip;
+import java.util.Date;
+
 import jazmin.server.sip.io.pkts.packet.sip.address.SipURI;
 import jazmin.server.sip.io.pkts.packet.sip.header.CSeqHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.CallIdHeader;
 /**
- * Represents an association between the AOR and a contact address where this AOR can be reached.
  * 
- * Note, this is a simplified version and doesn't contain e.g. Path headers, which are crucial for a
- * real network.
- * 
- * @author jonas@jonasborjesson.com
+ * @author yama
+ *
  */
-public class Binding {
-
+public class SipLocationBinding {
     private final SipURI aor;
-
     private final int expires;
-
     private final CSeqHeader cseq;
-
     private final SipURI contact;
-
     private final CallIdHeader callId;
-
-    private Binding(final SipURI aor, final int expires, final CSeqHeader cseq, final SipURI contact,
+    private final Date createTime;
+    //
+    private SipLocationBinding(final SipURI aor, final int expires, final CSeqHeader cseq, final SipURI contact,
             final CallIdHeader callId) {
         this.aor = aor;
         this.expires = expires;
         this.cseq = cseq;
         this.contact = contact.clone();
         this.callId = callId;
+        this.createTime=new Date();
     }
-
+    //
     public SipURI getAor() {
         return this.aor;
     }
@@ -51,7 +47,13 @@ public class Binding {
         return this.callId;
     }
 
-    @Override
+    /**
+	 * @return the createTime
+	 */
+	public Date getCreateTime() {
+		return createTime;
+	}
+	@Override
     public String toString() {
         return this.contact.toString();
     }
@@ -59,7 +61,7 @@ public class Binding {
     public static Builder with() {
         return new Builder();
     }
-
+    //--------------------------------------------------------------------------
     public static class Builder {
 
         private SipURI aor;
@@ -101,11 +103,11 @@ public class Binding {
             return this;
         }
 
-        public Binding build() {
+        public SipLocationBinding build() {
             // of course, we really should validate things here
             // but since this is a basic example, we will ignore
             // this for now
-            return new Binding(this.aor, this.expires, this.cseq, this.contact, this.callId);
+            return new SipLocationBinding(this.aor, this.expires, this.cseq, this.contact, this.callId);
         }
 
     }
