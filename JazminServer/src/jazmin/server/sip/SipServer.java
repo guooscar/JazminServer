@@ -49,10 +49,12 @@ import jazmin.server.sip.io.pkts.packet.sip.header.CSeqHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.FromHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.ToHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.ViaHeader;
+import jazmin.server.sip.io.pkts.packet.sip.header.ViaHeader.ViaHeaderBuilder;
 import jazmin.server.sip.stack.Connection;
 import jazmin.server.sip.stack.SipMessageDatagramDecoder;
 import jazmin.server.sip.stack.SipMessageEncoder;
 import jazmin.server.sip.stack.SipMessageStreamDecoder;
+import jazmin.server.sip.stack.TcpConnection;
 import jazmin.server.sip.stack.UdpConnection;
 
 /**
@@ -64,6 +66,9 @@ public class SipServer extends Server{
 	//
 	private String address;
     private int port;
+	private String publicAddress;
+	private int publicPort;
+	
     private int sessionTimeout;
     static final int MIN_SESSION_TIMEOUT=60;
     private  EventLoopGroup bossGroup;
@@ -148,6 +153,35 @@ public class SipServer extends Server{
 		return address;
 	}
 
+
+	/**
+	 * @return the publicAddress
+	 */
+	public String getPublicAddress() {
+		return publicAddress;
+	}
+
+	/**
+	 * @param publicAddress the publicAddress to set
+	 */
+	public void setPublicAddress(String publicAddress) {
+		this.publicAddress = publicAddress;
+	}
+
+	/**
+	 * @return the publicPort
+	 */
+	public int getPublicPort() {
+		return publicPort;
+	}
+
+	/**
+	 * @param publicPort the publicPort to set
+	 */
+	public void setPublicPort(int publicPort) {
+		this.publicPort = publicPort;
+	}
+
 	/**
 	 * @param ip the ip to set
 	 */
@@ -200,16 +234,32 @@ public class SipServer extends Server{
 	public SipMessageHandler getMessageHandler() {
 		return messageHandler;
 	}
-
 	/**
 	 * @param messageHandler the messageHandler to set
 	 */
 	public void setMessageHandler(SipMessageHandler messageHandler) {
 		this.messageHandler = messageHandler;
 	}
+	//
+	//
+	String getServerHost(){
+		String serverHost=getHostAddress();
+		if(publicAddress!=null){
+			serverHost=publicAddress;
+		}
+		return serverHost;
+	}
+	//
+	int getServerPort(){
+		int serverPort=getPort();
+		if(publicAddress!=null){
+			serverPort=publicPort;
+		}
+		return serverPort;
+	}
 	//--------------------------------------------------------------------------
 	public SipRequest createRequest(String method,SipURI from,SipURI to){
-		SipURI requestURI=SipURI.with().host(getHostAddress()).port(getPort()).useUDP().build();
+		SipURI requestURI=SipURI.with().host(getServerHost()).port(getServerPort()).useUDP().build();
 		SipRequest req=SipRequest.request(Buffers.wrap(method), requestURI.toString())
 				.cseq(CSeqHeader.with().cseq(0).build())
 				.from(FromHeader.with().host(from.getHost()).port(from.getPort()).user(from.getUser()).build())
@@ -224,26 +274,15 @@ public class SipServer extends Server{
 	 * @param port
 	 * @return
 	 */
-    public Connection connect(final String ip, final int port) {
+    public Connection connectUDP(final String ip, final int port) {
         final InetSocketAddress remoteAddress = new InetSocketAddress(ip, port);
         return new UdpConnection(this.udpListeningPoint, remoteAddress);
     }
-    /**
-	 * 
-	 * @param msg
-	 */
-	public void send(String host,int port,final SipMessage msg) {
-		final Connection connection =connect(host,port);
-		connection.send(msg);
-	}
 	/**
 	 * 
 	 * @param msg
 	 */
-	public void proxy(final SipResponse msg) {
-		final ViaHeader via = msg.getViaHeader();
-		final Connection connection =connect(via.getHost().toString(),
-				via.getPort());
+	public void proxy(Connection connection,SipResponse msg) {
 		connection.send(msg);
 	}
 	//
@@ -255,10 +294,10 @@ public class SipServer extends Server{
      * @param destination
      * @param msg
      */
-    public void proxyTo(final SipURI destination, final SipRequest msg) {
-        final int port = destination.getPort();
-        final Connection connection = connect(
-        		destination.getHost().toString(), port == -1 ? 5060 : port);
+    public void proxyTo(Connection connection, final SipRequest msg) {
+        //final int port = destination.getPort();
+        //final Connection connection = connect(
+        //		destination.getHost().toString(), port == -1 ? 5060 : port);
 
         // SIP is pretty powerful but there are a lot of little details to get things working.
         // E.g., this sample application is acting as a stateless proxy and in order to
@@ -282,10 +321,17 @@ public class SipServer extends Server{
         myBranch.write((byte) 'r');
         myBranch.write((byte) 't');
         //
-        final ViaHeader via = ViaHeader.with().host(getHostAddress()).
-        		port(getPort()).
-        		transportUDP().
-        		branch(myBranch).build();
+        ViaHeaderBuilder builder=ViaHeader.with().
+        		host(getServerHost()).
+        		port(getServerPort());
+        if(connection.isUDP()){
+        	builder.transportUDP();
+        }else if(connection.isTCP()){
+        	builder.transportTCP();
+        }else{
+        	throw new IllegalArgumentException("not implement");
+        }
+        ViaHeader via = builder.branch(myBranch).build();
         // This is how you should generate the branch parameter if you are a stateful proxy:
         // Note the ViaHeader.generateBranch()...
         msg.addHeaderFirst(via);
@@ -510,6 +556,8 @@ public class SipServer extends Server{
 		.format("%-30s:%-30s\n")
 		.print("hostAddress",getHostAddress())
 		.print("port",getPort())
+		.print("publicAddress",getPublicAddress())
+		.print("publicPort",getPublicPort())
 		.print("sessionTimeout",getSessionTimeout())
 		.print("messageHandler",getMessageHandler());
 		return ib.toString();

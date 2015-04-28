@@ -65,13 +65,13 @@ public class ConsoleServer extends Server{
 	//
 	private void resetBanner() {
 		String welcomeMsg =
-		"----------------------------------------------------------------------\n"
-		+ "\n"
+		"----------------------------------------------------------------------\r\n"
+		+ "\r\n"
 		+ Jazmin.LOGO
-		+ "\n"
-		+ "\t\tWelcome to JazminServer\n"
-		+ "\t\ttype 'help' for more information.\n"
-		+ "----------------------------------------------------------------------\n";
+		+ "\r\n"
+		+ "\t\tWelcome to JazminServer\r\n"
+		+ "\t\ttype 'help' for more information.\r\n"
+		+ "----------------------------------------------------------------------\r\n";
 		//
 		sshServer.getProperties().put(SshServer.WELCOME_BANNER, welcomeMsg);
 	}

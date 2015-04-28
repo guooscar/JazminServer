@@ -136,5 +136,26 @@ public abstract class AbstractConnection implements Connection {
             throw new RuntimeException("Unable to convert SipMessage to a ByteBuf due to IOException", e);
         }
     }
-
+    
+    //
+    @Override
+    public String toString() {
+    	String type="";
+    	if(isTCP()){
+    		type="tcp";
+    	}
+    	if(isUDP()){
+    		type="udp";
+    	}
+    	if(isTLS()){
+    		type="tls";
+    	}
+    	if(isSCTP()){
+    		type="sctp";
+    	}
+    	if(isWS()){
+    		type="ws";
+    	}
+    	return type+"["+getLocalIpAddress()+":"+getLocalPort()+"->"+getRemoteIpAddress()+":"+getRemotePort()+"]";
+    }
 }

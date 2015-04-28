@@ -5,6 +5,7 @@ package jazmin.test.server.sip;
 
 import jazmin.server.relay.RelayChannel;
 import jazmin.server.sip.io.pkts.packet.sip.SipRequest;
+import jazmin.server.sip.stack.Connection;
 
 /**
  * @author yama
@@ -12,7 +13,6 @@ import jazmin.server.sip.io.pkts.packet.sip.SipRequest;
  */
 public class SessionStatus {
 	public SipRequest originalRequest;
-	public String remoteAddress;
-	public int remotePort;
+	public Connection connection;
 	public RelayChannel relayChannel;
 }

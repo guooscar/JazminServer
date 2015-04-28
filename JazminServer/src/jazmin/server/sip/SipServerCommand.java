@@ -39,6 +39,8 @@ public class SipServerCommand extends ConsoleCommand {
 		String format = "%-25s: %-10s\n";
 		out.printf(format, "hostAddress", server.getHostAddress());
 		out.printf(format, "port", server.getPort());
+		out.printf(format, "publicAddress", server.getPublicAddress());
+		out.printf(format, "publicPort", server.getPublicPort());
 		out.printf(format, "sessionTimeout", server.getSessionTimeout());
 		out.printf(format, "messageHandler", server.getMessageHandler());
 	}
@@ -46,13 +48,14 @@ public class SipServerCommand extends ConsoleCommand {
 	private void showLocationStore(String args){
     	List<SipLocationBinding>bindings=server.getLocationBindings();
     	out.format("total %d bindings\n",bindings.size());
-    	String format="%-5s %-25s %-25s  %-10s %-15s %-40s\n";
+    	String format="%-5s %-25s %-25s %-10s %-15s %-40s %-40s\n";
     	out.printf(format,
 				"#",
 				"AOR",
 				"CONTACT",
-    			"EXPIRES",
+				"EXPIRES",
     			"CREATETIME",
+    			"CONNECTION",
     			"CALLID");
     	int idx=1;
     	for(SipLocationBinding b:bindings){
@@ -62,6 +65,7 @@ public class SipServerCommand extends ConsoleCommand {
         			b.getContact(),
         			b.getExpires(),
         			formatDate(b.getCreateTime()),
+        			b.getConnection(),
         			b.getCallId());
     	}
     }

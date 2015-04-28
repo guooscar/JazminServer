@@ -38,9 +38,9 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 	private static Logger logger=LoggerFactory.get(B2BUAMessageHandler.class);
 
 	
-	RelayServer relayServer;
+	
 	public B2BUAMessageHandler(){
-		relayServer=Jazmin.getServer(RelayServer.class);
+		
 	}
 	//
 	@Override
@@ -76,13 +76,13 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 		response.popViaHeader();
 		//
 		if(response.isInvite()&&response.hasContent()){
+			RelayServer relayServer=Jazmin.getServer(RelayServer.class);
 			//change sdp ip address and media port to relay server
 			changeSDP(response, 
 					relayServer.getHostAddresses().get(1),
 					ss.relayChannel.getLocalPeerPortB());
 		}
-		//
-		ctx.getServer().send(ss.remoteAddress, ss.remotePort, response);
+		ss.connection.send(response);
 	}
 	//
 	private void dumpStore(SipContext ctx){
@@ -104,12 +104,13 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 			ctx.getConnection().send(notFoundMsg);
 			return;
 		}
+		RelayServer relayServer=Jazmin.getServer(RelayServer.class);
+		
 		if(ctx.getSession(false)==null){
 			SipSession session=ctx.getSession();
 			SessionStatus ss=new SessionStatus();
 			ss.originalRequest=message;
-			ss.remoteAddress=ctx.getConnection().getRemoteIpAddress();
-			ss.remotePort=ctx.getConnection().getRemotePort();
+			ss.connection=ctx.getConnection();
 			session.setUserObject(ss);
 			//
 			RelayChannel relayChannel=relayServer.createRelayChannel();
@@ -117,12 +118,11 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 		}
 		//
 		SessionStatus ss=(SessionStatus) ctx.getSession().getUserObject();
-		
 		changeSDP(message, 
 				relayServer.getHostAddresses().get(0),
 				ss.relayChannel.getLocalPeerPortA());
 		//
-		ctx.getServer().proxyTo(toBinding.getContact(),message);
+		ctx.getServer().proxyTo(toBinding.getConnection(),message);
 	}
 	//
 	private void changeSDP(SipMessage message,String host,int port)throws Exception{
@@ -172,7 +172,7 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 		builder.callId(request.getCallIDHeader());
 		builder.expires(getExpires(request));
 		builder.cseq(request.getCSeqHeader());
-
+		builder.connection(ctx.getConnection());
 		// NOTE: this is also cheating. There may be multiple contacts
 		// and they must all get processed but whatever...
 		SipURI newURI=SipURI.with().

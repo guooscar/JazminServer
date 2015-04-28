@@ -54,43 +54,43 @@ public class Jazmin {
 	//
 	public static final String VERSION;
 	public static final String LOGO=            
-"                                                                           \n"+
-"                                      .                c,                  \n"+
-"                                    .xMXl           .oNMO                  \n"+
-"                                   lNMMMMX'      ,o0MMMMO                  \n"+
-"                                 lNMMMMMMMN. .d0WMMMMMMMd           ..     \n"+
-"                               ,XMMMMMMMMMM. ,MMMWXOdc;,.    .;ldOXWN.     \n"+
-"                     oOKNWWk  :WMMMMMMMMMMx  kkl'    .,cok0NMMMMMMMN,      \n"+
-"                     dMMMMK  .WMMMMMMMMMWo     .;oOXWMMMMMMMMMMMMMO.       \n"+
-"                     ;0KWMk  oMMMMMMMMM0'   .l0WMMMMMMMMMMMMMMMMK,         \n"+
-"                  .','.  .l. ,WMMMMMMX:   'kWMMMMZJLMMMMMMMMMWx'           \n"+
-"             ,lkKWMMMMMNO:    .0W0K0;   .OMMMMMMMMMMMMMMMMNk:.  ..         \n"+
-"         .c0WMMMMMMMMMMMMMX,    .      lWMMMMMMMMMMMMN0d:.    ,0MMMWX0kdl; \n"+
-"         'kMMMMMMMMMMMMMMMMk          ;0MMMMMWN0ko:'.     .,oXMMMMMMMMMXd' \n"+
-"           ,XMMMMMMMMMMMXd;            .dl:,.       .';lkXMMMMMMMMMMXd'    \n"+
-"             :kXWMMMN0o.                      .;dOKNMMMMMMMMMMMMW0l.       \n"+
-"            .    ..      .        ,0KK00Oxdc,.   :KMMMMMMMMMNOo,.          \n"+
-"         .oNMNko'   .ckXWW0d    lNMMMMMMMMMMMWKl   cddolc;'.               \n"+
-"        oWMMMXc  .lXMMMMMMMd    NMMMMMMMMMMMMMMMX.                         \n"+
-"      .KMMMX;  ,kWMMMMMMMMM;   .WMMMMMMMMMMMMMMMMX.                        \n"+
-"      ,,,,,  '0MMMMMMMMMMMK  ;  XMMMMMMMMMMMMMMMMMO                        \n"+
-"           .kMMMMMMMMMMMMN. .N: :MMMMMMMMMMMMMMMMMMl                       \n"+
-"          'NMMMMMMMMMMMMO. 'NMN. xMMMMMMMMMMMMMMMMMW'                      \n"+
-"         .XMMMMMMMMMMKd' .oWMMMK. oWMMMMMMMMMMMMMMMMK                      \n"+
-"         OMMMMMMMNx;.   dWMMMMMMN: .oKMMMMMMMMMMMMMMMO                     \n"+
-"        :MMMMMKo'       lMMMMMMMMMK,  .;oOXWMMMMMMMMMMk                    \n"+
-"        OMW0l.           cWMMMMMMMK.        .,:ldkOKXNWx                   \n"+
-"       .Xo.               .KMMMMMO                                         \n"+
-"                            cXMMO                                          \n"+
-"                              ,x.                                          \n"+
-"        																	\n"+
-"	      ___  _______  _______  __   __  ___   __    _ 					\n"+
-"	     |   ||   _   ||       ||  |_|  ||   | |  |  | |					\n"+
-"	     |   ||  |_|  ||____   ||       ||   | |   |_| |					\n"+
-"	     |   ||       | ____|  ||       ||   | |       |					\n"+
-"	  ___|   ||       || ______||       ||   | |  _    |					\n"+
-"	 |       ||   _   || |_____ | ||_|| ||   | | | |   |					\n"+
-"	 |__yama_||__| |__||_______||_|   |_||___| |_|  |__|					\n";   
+"                                                                           \r\n"+
+"                                      .                c,                  \r\n"+
+"                                    .xMXl           .oNMO                  \r\n"+
+"                                   lNMMMMX'      ,o0MMMMO                  \r\n"+
+"                                 lNMMMMMMMN. .d0WMMMMMMMd           ..     \r\n"+
+"                               ,XMMMMMMMMMM. ,MMMWXOdc;,.    .;ldOXWN.     \r\n"+
+"                     oOKNWWk  :WMMMMMMMMMMx  kkl'    .,cok0NMMMMMMMN,      \r\n"+
+"                     dMMMMK  .WMMMMMMMMMWo     .;oOXWMMMMMMMMMMMMMO.       \r\n"+
+"                     ;0KWMk  oMMMMMMMMM0'   .l0WMMMMMMMMMMMMMMMMK,         \r\n"+
+"                  .','.  .l. ,WMMMMMMX:   'kWMMMMZJLMMMMMMMMMWx'           \r\n"+
+"             ,lkKWMMMMMNO:    .0W0K0;   .OMMMMMMMMMMMMMMMMNk:.  ..         \r\n"+
+"         .c0WMMMMMMMMMMMMMX,    .      lWMMMMMMMMMMMMN0d:.    ,0MMMWX0kdl; \r\n"+
+"         'kMMMMMMMMMMMMMMMMk          ;0MMMMMWN0ko:'.     .,oXMMMMMMMMMXd' \r\n"+
+"           ,XMMMMMMMMMMMXd;            .dl:,.       .';lkXMMMMMMMMMMXd'    \r\n"+
+"             :kXWMMMN0o.                      .;dOKNMMMMMMMMMMMMW0l.       \r\n"+
+"            .    ..      .        ,0KK00Oxdc,.   :KMMMMMMMMMNOo,.          \r\n"+
+"         .oNMNko'   .ckXWW0d    lNMMMMMMMMMMMWKl   cddolc;'.               \r\n"+
+"        oWMMMXc  .lXMMMMMMMd    NMMMMMMMMMMMMMMMX.                         \r\n"+
+"      .KMMMX;  ,kWMMMMMMMMM;   .WMMMMMMMMMMMMMMMMX.                        \r\n"+
+"      ,,,,,  '0MMMMMMMMMMMK  ;  XMMMMMMMMMMMMMMMMMO                        \r\n"+
+"           .kMMMMMMMMMMMMN. .N: :MMMMMMMMMMMMMMMMMMl                       \r\n"+
+"          'NMMMMMMMMMMMMO. 'NMN. xMMMMMMMMMMMMMMMMMW'                      \r\n"+
+"         .XMMMMMMMMMMKd' .oWMMMK. oWMMMMMMMMMMMMMMMMK                      \r\n"+
+"         OMMMMMMMNx;.   dWMMMMMMN: .oKMMMMMMMMMMMMMMMO                     \r\n"+
+"        :MMMMMKo'       lMMMMMMMMMK,  .;oOXWMMMMMMMMMMk                    \r\n"+
+"        OMW0l.           cWMMMMMMMK.        .,:ldkOKXNWx                   \r\n"+
+"       .Xo.               .KMMMMMO                                         \r\n"+
+"                            cXMMO                                          \r\n"+
+"                              ,x.                                          \r\n"+
+"        																	\r\n"+
+"	      ___  _______  _______  __   __  ___   __    _ 					\r\n"+
+"	     |   ||   _   ||       ||  |_|  ||   | |  |  | |					\r\n"+
+"	     |   ||  |_|  ||____   ||       ||   | |   |_| |					\r\n"+
+"	     |   ||       | ____|  ||       ||   | |       |					\r\n"+
+"	  ___|   ||       || ______||       ||   | |  _    |					\r\n"+
+"	 |       ||   _   || |_____ | ||_|| ||   | | | |   |					\r\n"+
+"	 |__yama_||__| |__||_______||_|   |_||___| |_|  |__|					\r\n";   
 
 	//--------------------------------------------------------------------------
    static{
