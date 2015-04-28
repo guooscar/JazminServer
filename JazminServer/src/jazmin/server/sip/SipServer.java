@@ -54,7 +54,6 @@ import jazmin.server.sip.stack.Connection;
 import jazmin.server.sip.stack.SipMessageDatagramDecoder;
 import jazmin.server.sip.stack.SipMessageEncoder;
 import jazmin.server.sip.stack.SipMessageStreamDecoder;
-import jazmin.server.sip.stack.TcpConnection;
 import jazmin.server.sip.stack.UdpConnection;
 
 /**
@@ -87,7 +86,9 @@ public class SipServer extends Server{
     private ScheduledExecutorService scheduledExecutorService;
     //
     public SipServer() {
-        this.address = "127.0.0.1";
+        this.address = "0.0.0.0";
+        this.publicAddress="127.0.0.1";
+        this.publicPort=5060;
         this.port = 5060;
         handlerMethod=Dispatcher.getMethod(
         		SipServer.class,"handleMessage",
