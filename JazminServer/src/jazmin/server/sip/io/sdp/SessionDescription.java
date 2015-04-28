@@ -274,10 +274,6 @@ public class SessionDescription implements SessionLevelAccessor {
 	//
 	public byte []toBytes(){
 		byte s[]=toString().getBytes();
-		//byte[] fullBytes=new byte[s.length+2];
-		//System.arraycopy(s, 0, fullBytes, 0, s.length);
-		//fullBytes[fullBytes.length-2]='\r';
-		//fullBytes[fullBytes.length-1]='\n';
 		return s;
 	}
 	//
