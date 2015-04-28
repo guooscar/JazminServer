@@ -134,9 +134,11 @@ public class SsrcAttribute extends AttributeField {
 					.append(value.getKey());
 			if (value.getValue() != null && !value.getValue().isEmpty()) {
 				super.builder.append(ATTRIBUTE_SEPARATOR)
-						.append(value.getValue()).append(NEWLINE);
+						.append(value.getValue());
 			}
+			super.builder.append(NEWLINE);
 		}
+		super.builder.deleteCharAt(builder.length() - 1);
 		super.builder.deleteCharAt(builder.length() - 1);
 		return super.builder.toString();
 	}

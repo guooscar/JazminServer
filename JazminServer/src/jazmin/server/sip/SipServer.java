@@ -46,6 +46,7 @@ import jazmin.server.sip.io.pkts.packet.sip.SipRequest;
 import jazmin.server.sip.io.pkts.packet.sip.SipResponse;
 import jazmin.server.sip.io.pkts.packet.sip.address.SipURI;
 import jazmin.server.sip.io.pkts.packet.sip.header.CSeqHeader;
+import jazmin.server.sip.io.pkts.packet.sip.header.CallIdHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.FromHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.ToHeader;
 import jazmin.server.sip.io.pkts.packet.sip.header.ViaHeader;
@@ -469,7 +470,11 @@ public class SipServer extends Server{
 	}
 	//
 	SipSession getSession(SipMessage message,boolean create){
-		String callId=message.getCallIDHeader().getCallId().toString();
+		CallIdHeader callIDHeader=message.getCallIDHeader();
+		if(callIDHeader==null){
+			throw new IllegalArgumentException("bad message format,missing callId");
+		}
+		String callId=callIDHeader.getCallId().toString();
 		if(sessionMap.containsKey(callId)){
 			return sessionMap.get(callId);
 		}

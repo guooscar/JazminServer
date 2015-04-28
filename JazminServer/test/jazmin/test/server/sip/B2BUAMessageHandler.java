@@ -5,6 +5,7 @@ import java.io.IOException;
 import jazmin.core.Jazmin;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
+import jazmin.misc.HexDump;
 import jazmin.server.relay.RelayChannel;
 import jazmin.server.relay.RelayServer;
 import jazmin.server.sip.SipContext;
@@ -128,6 +129,8 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 	private void changeSDP(SipMessage message,String host,int port)throws Exception{
 		//change sdp ip address and media port to relay server
 		String sdp=new String(message.getRawContent().getArray(),"utf-8");
+		System.err.println("old--------------------------------------");
+		System.err.println(HexDump.dumpHexString(message.getRawContent().getArray()));
 		SessionDescription s=SessionDescriptionParser.parse(sdp);
 		ConnectionField cf=s.getConnection();
 		if(cf!=null){
@@ -146,6 +149,9 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 		byte newSdpBytes[]=s.toBytes();
 		message.setRawContent(Buffers.wrap(newSdpBytes));
 		ContentLengthHeader clh=message.getContentLengthHeader();
+		System.err.println("new--------------------------------------");
+		System.err.println(HexDump.dumpHexString(newSdpBytes));
+	
 		clh.setContentLength(newSdpBytes.length);
 	}
 	//
