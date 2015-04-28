@@ -63,7 +63,7 @@ Start a rpc server and register remote service
    Jazmin.start();
 </pre>
 # JazminServer介绍
- JazminServer是基于Java语言开发的统一中间件系统，她为开发者提供了统一的开发平台，帮助开发者快速开发基于Java的大型分布式应用。JazminServer可以被配置成Web服务器，RPC服务器，消息服务器，WebSocket服务器，监控服务器等多种服务器，向客户端提供高效，稳定的服务。并且还集成了声明式事务，依赖注入，AOP日志，JOB/TASK调度等开发中常用的功能。JazminServer还提供了基于Web的自动化配置管理工具和自动化部署工具。
+ JazminServer是基于Java语言开发的统一中间件系统，她为开发者提供了统一的开发平台，帮助开发者快速开发基于Java的大型分布式应用。JazminServer可以被配置成Web服务器，RPC服务器，消息服务器，WebSocket服务器，监控服务器,RTMP流媒体服务器，SIP网关服务器，UDP 中继服务器等多种服务器，向客户端提供高效，稳定的服务。并且还集成了声明式事务，依赖注入，AOP日志，JOB/TASK调度等开发中常用的功能。JazminServer还提供了基于Web的自动化配置管理工具和自动化部署工具。
 JazminServer适合被用作大型多人在游戏的服务器、物联网系统的后台服务器、大型网站系统的后台服务器等。
 JazminServer帮助开发者实现了众多的底层功能，基于JazminServer提供的API，开发者可以更专注于业务逻辑实现，快速的构建属于自己的应用。
 # 文档
