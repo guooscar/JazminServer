@@ -1,6 +1,6 @@
 <img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/src/jazmin/core/jazmin-logo.png?raw=true' width=250 height=220/>
 # JazminServer
-JazminServer is a Java based application/message/rpc server.
+JazminServer is a Java based application/message/rpc/sip/rtmp/udp relay server.
 #Docs
 <a href="https://www.icloud.com/pages/AwBWCAESEBqRx3Y0b6K60cCDTjv_gqwaKhxr7jmKAHmWIASYPLkXtFgE-ZbrosvMH1797SkOjiYZs-YbVKRW_kPOCgMCUCAQEEIJbquw2jZjPQyheLWKR79lbbmGan_ldQTtuEKJkTIaWG#JazminServer介绍">JazminServer Introduction</a>
 <a href="https://www.icloud.com/pages/AwBWCAESEM7dnqjoCeKVKTsZC3SHYXYaKgoIDSk8UwNlhvlhvDrG7j88UPJEZSXx5xLa_vSPAQpoRkfUIY8sjQ_aDQMCUCAQEEIEd4rlnWXJI2bZ5XSFYT7XJy6u8kL1-Grq37Pw_xRX9U#JazminServer使用指南">JazminServer Setup</a>
@@ -45,7 +45,14 @@ JazminServer is a Java based application/message/rpc server.
   * Video On Demand, seek and pause support
   * Publish / Broadcast live streams
   * FLV, F4V / MP4 / H.264 support
-     
+* SipServer
+  * Sip Message Codec
+  * Sip Application container
+  * Used for VOIP System
+* RelayServer
+  * UDP Proxy
+  * Used for NAT through
+ 
 # Demo
 Start a rpc server and register remote service
 <pre>
@@ -56,7 +63,7 @@ Start a rpc server and register remote service
    Jazmin.start();
 </pre>
 # JazminServer介绍
- JazminServer是基于Java语言开发的统一中间件系统，她为开发者提供了统一的开发平台，帮助开发者快速开发基于Java的大型分布式应用。JazminServer可以被配置成Web服务器，RPC服务器，消息服务器，WebSocket服务器，监控服务器等多种服务器，向客户端提供高效，稳定的服务。并且还集成了声明式事务，依赖注入，AOP日志，JOB/TASK调度等开发中常用的功能。JazminServer还提供了基于Web的自动化配置管理工具和自动化部署工具。
+ JazminServer是基于Java语言开发的统一中间件系统，她为开发者提供了统一的开发平台，帮助开发者快速开发基于Java的大型分布式应用。JazminServer可以被配置成Web服务器，RPC服务器，消息服务器，WebSocket服务器，监控服务器,RTMP流媒体服务器，SIP网关服务器，UDP 中继服务器等多种服务器，向客户端提供高效，稳定的服务。并且还集成了声明式事务，依赖注入，AOP日志，JOB/TASK调度等开发中常用的功能。JazminServer还提供了基于Web的自动化配置管理工具和自动化部署工具。
 JazminServer适合被用作大型多人在游戏的服务器、物联网系统的后台服务器、大型网站系统的后台服务器等。
 JazminServer帮助开发者实现了众多的底层功能，基于JazminServer提供的API，开发者可以更专注于业务逻辑实现，快速的构建属于自己的应用。
 # 文档
@@ -106,7 +113,13 @@ JazminServer帮助开发者实现了众多的底层功能，基于JazminServer�
   * Video On Demand, seek and pause support 实时视频播放
   * Publish / Broadcast live streams 流媒体直播
   * FLV, F4V / MP4 / H.264 support 支持flv，f4v，mp4，h264格式
-    
+* SipServer
+  * Sip Message Codec  SIP协议编解码
+  * Sip Application container SIP应用程序容器
+  * Used for VOIP System 可以用在VOIP系统中
+* RelayServer 
+  * UDP Proxy UDP包路由
+  * Used for NAT through 可以帮助客户端穿透NAT    
 <p>
 <img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image002.jpg?raw=true'/>
 <div alian="center">架构图</div>
