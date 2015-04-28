@@ -1,6 +1,6 @@
 <img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/src/jazmin/core/jazmin-logo.png?raw=true' width=250 height=220/>
 # JazminServer
-JazminServer is a Java based application/message/rpc server.
+JazminServer is a Java based application/message/rpc/sip/rtmp/udp relay server.
 #Docs
 <a href="https://www.icloud.com/pages/AwBWCAESEBqRx3Y0b6K60cCDTjv_gqwaKhxr7jmKAHmWIASYPLkXtFgE-ZbrosvMH1797SkOjiYZs-YbVKRW_kPOCgMCUCAQEEIJbquw2jZjPQyheLWKR79lbbmGan_ldQTtuEKJkTIaWG#JazminServer介绍">JazminServer Introduction</a>
 <a href="https://www.icloud.com/pages/AwBWCAESEM7dnqjoCeKVKTsZC3SHYXYaKgoIDSk8UwNlhvlhvDrG7j88UPJEZSXx5xLa_vSPAQpoRkfUIY8sjQ_aDQMCUCAQEEIEd4rlnWXJI2bZ5XSFYT7XJy6u8kL1-Grq37Pw_xRX9U#JazminServer使用指南">JazminServer Setup</a>
@@ -52,6 +52,7 @@ JazminServer is a Java based application/message/rpc server.
 * RelayServer
   * UDP Proxy
   * Used for NAT through
+ 
 # Demo
 Start a rpc server and register remote service
 <pre>
