@@ -45,7 +45,13 @@ JazminServer is a Java based application/message/rpc server.
   * Video On Demand, seek and pause support
   * Publish / Broadcast live streams
   * FLV, F4V / MP4 / H.264 support
-     
+* SipServer
+  * Sip Message Codec
+  * Sip Application container
+  * Used for VOIP System
+* RelayServer
+  * UDP Proxy
+  * Used for NAT through
 # Demo
 Start a rpc server and register remote service
 <pre>
@@ -106,7 +112,13 @@ JazminServer帮助开发者实现了众多的底层功能，基于JazminServer�
   * Video On Demand, seek and pause support 实时视频播放
   * Publish / Broadcast live streams 流媒体直播
   * FLV, F4V / MP4 / H.264 support 支持flv，f4v，mp4，h264格式
-    
+* SipServer
+  * Sip Message Codec  SIP协议编解码
+  * Sip Application container SIP应用程序容器
+  * Used for VOIP System 可以用在VOIP系统中
+* RelayServer 
+  * UDP Proxy UDP包路由
+  * Used for NAT through 可以帮助客户端穿透NAT    
 <p>
 <img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image002.jpg?raw=true'/>
 <div alian="center">架构图</div>
