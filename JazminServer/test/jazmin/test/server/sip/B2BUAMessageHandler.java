@@ -6,7 +6,6 @@ import jazmin.core.Jazmin;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.HexDump;
-import jazmin.server.relay.RelayChannel;
 import jazmin.server.relay.RelayServer;
 import jazmin.server.sip.SipContext;
 import jazmin.server.sip.SipLocationBinding;

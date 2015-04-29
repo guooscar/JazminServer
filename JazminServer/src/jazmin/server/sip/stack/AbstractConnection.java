@@ -21,15 +21,9 @@ import jazmin.server.sip.io.pkts.packet.sip.impl.SipParser;
  */
 public abstract class AbstractConnection implements Connection {
 
-    // private final ChannelHandlerContext ctx;
     private final Channel channel;
     private final InetSocketAddress remote;
-
-    /*
-     * protected AbstractConnection(final ChannelHandlerContext ctx, final InetSocketAddress remote)
-     * { this.ctx = ctx; this.channel = null; this.remote = remote; }
-     */
-
+    //
     protected AbstractConnection(final Channel channel, final InetSocketAddress remote) {
         // this.ctx = null;
         this.channel = channel;
@@ -105,10 +99,7 @@ public abstract class AbstractConnection implements Connection {
         return false;
     }
 
-    // protected ChannelHandlerContext getContext() {
-    // return this.ctx;
-    // }
-
+   
     /**
      * All {@link Connection}s needs to convert the msg to a {@link ByteBuf}
      * before writing it to the {@link ChannelHandlerContext}.
@@ -128,8 +119,10 @@ public abstract class AbstractConnection implements Connection {
             for (int i = 0; i < b.getReadableBytes(); ++i) {
                 buffer.writeByte(b.getByte(i));
             }
-            buffer.writeByte(SipParser.CR);
-            buffer.writeByte(SipParser.LF);
+            if(!msg.hasContent()){
+            	buffer.writeByte(SipParser.CR);
+                buffer.writeByte(SipParser.LF);	
+            }
             return buffer;
        
     }

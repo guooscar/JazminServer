@@ -641,6 +641,8 @@ public abstract class SipMessageImpl implements SipMessage {
     //
     public void setRawContent(Buffer buffer){
     	this.payload=buffer;
+    	ContentLengthHeader clh=getContentLengthHeader();
+    	clh.setContentLength(payload.getReadableBytes());
     }
     //
     @Override

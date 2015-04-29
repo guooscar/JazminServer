@@ -285,8 +285,6 @@ public class SessionDescription implements SessionLevelAccessor {
 		for (MediaDescriptionField media : this.mediaMap.values()) {
 			append(media);
 		}
-		
-		//this.builder.deleteCharAt(this.builder.length() - 1);
 		return this.builder.toString();
 	}
 	//
