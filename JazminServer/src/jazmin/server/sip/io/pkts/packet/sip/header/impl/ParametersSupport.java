@@ -67,7 +67,14 @@ public final class ParametersSupport {
         }
     }
 
-    public boolean hasParameter(final Buffer name) {
+    /**
+	 * @return the estimatedSize
+	 */
+	public int getEstimatedSize() {
+		return estimatedSize;
+	}
+
+	public boolean hasParameter(final Buffer name) {
         return this.paramMap != null && this.paramMap.containsKey(name);
     }
 

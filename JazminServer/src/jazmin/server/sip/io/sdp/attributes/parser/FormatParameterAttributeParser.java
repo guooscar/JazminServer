@@ -56,7 +56,8 @@ public class FormatParameterAttributeParser implements SdpParser<FormatParameter
 			
 			String[] values = sdp.trim().substring(separator + 1).split(" ");
 			int format = Integer.parseInt(values[0]);
-			String params = values[1];
+			String params[] =new String[values.length-1];
+			System.arraycopy(values, 1, params, 0, values.length-1);
 			return new FormatParameterAttribute(format, params);
 		} catch (Exception e) {
 			throw new SdpException(PARSE_ERROR + sdp, e);
@@ -73,8 +74,8 @@ public class FormatParameterAttributeParser implements SdpParser<FormatParameter
 			
 			String[] values = sdp.trim().substring(separator + 1).split(" ");
 			int format = Integer.parseInt(values[0]);
-			String params = values[1];
-
+			String params[] =new String[values.length-1];
+			System.arraycopy(values, 1, params, 0, values.length-1);
 			field.setFormat(format);
 			field.setParams(params);
 		} catch (Exception e) {

@@ -20,7 +20,9 @@
 
 package jazmin.server.sip.io.sdp;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import jazmin.server.sip.io.sdp.attributes.ConnectionModeAttribute;
@@ -43,7 +45,7 @@ import jazmin.server.sip.io.sdp.ice.attributes.IceUfragAttribute;
  */
 public class SessionDescription implements SessionLevelAccessor {
 	
-	private static final String NEWLINE = "\r\n";
+	public static final String NEWLINE = "\r\n";
 	private final StringBuilder builder;
 	
 	// SDP fields (session-level)
@@ -65,10 +67,15 @@ public class SessionDescription implements SessionLevelAccessor {
 
 	// Media Descriptions
 	private final Map<String, MediaDescriptionField> mediaMap;
-	   
+	//Other Attribute
+	private final List<OtherField>otherAttributes;
+	private final List<OtherField>otherFields;
+	
 	public SessionDescription() {
 		this.builder = new StringBuilder();
 		this.mediaMap = new HashMap<String, MediaDescriptionField>(5);
+		otherFields=new ArrayList<OtherField>();
+		otherAttributes=new ArrayList<OtherField>();
 	}
 	
 	public VersionField getVersion() {
@@ -216,7 +223,12 @@ public class SessionDescription implements SessionLevelAccessor {
 	public void addMediaDescription(MediaDescriptionField media) {
 		this.mediaMap.put(media.getMedia(), media);
 	}
-	
+	public void addOtherField(OtherField f) {
+		this.otherFields.add(f);
+	}
+	public void addOtherAttributeField(OtherField f) {
+		this.otherAttributes.add(f);
+	}
 	public boolean containsIce() {
 		// Look for session-level ICE attributes
 		if(this.iceLite != null || this.iceUfrag != null || this.icePwd != null) {
@@ -258,16 +270,22 @@ public class SessionDescription implements SessionLevelAccessor {
 		append(this.origin);
 		append(this.sessionName);
 		append(this.connection);
+		for(OtherField of:otherFields){
+			append(of);
+		}
 		append(this.timing);
 		append(this.iceLite);
 		append(this.iceUfrag);
 		append(this.icePwd);
 		append(this.fingerprint);
 		append(this.setup);
-		
+		for(OtherField of:otherAttributes){
+			append(of);
+		}
 		for (MediaDescriptionField media : this.mediaMap.values()) {
 			append(media);
 		}
+		
 		//this.builder.deleteCharAt(this.builder.length() - 1);
 		return this.builder.toString();
 	}

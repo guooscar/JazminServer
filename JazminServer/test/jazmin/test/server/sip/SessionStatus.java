@@ -14,5 +14,7 @@ import jazmin.server.sip.stack.Connection;
 public class SessionStatus {
 	public SipRequest originalRequest;
 	public Connection connection;
-	public RelayChannel relayChannel;
+	public RelayChannel audioRelayChannel;
+	public RelayChannel videoRelayChannel;
+
 }

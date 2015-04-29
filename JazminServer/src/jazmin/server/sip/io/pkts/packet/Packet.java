@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 
-import jazmin.server.sip.io.pkts.PcapOutputStream;
 import jazmin.server.sip.io.pkts.buffer.Buffer;
 import jazmin.server.sip.io.pkts.packet.sip.SipPacket;
 import jazmin.server.sip.io.pkts.protocol.Protocol;

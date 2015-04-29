@@ -10,8 +10,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.sip.header.SupportedHeader;
-
 import jazmin.server.sip.io.pkts.buffer.Buffer;
 import jazmin.server.sip.io.pkts.buffer.Buffers;
 import jazmin.server.sip.io.pkts.packet.sip.address.SipURI;
@@ -110,7 +108,6 @@ public interface SipRequest extends SipMessage {
         private ViaHeader via;
         private List<ViaHeader> vias; // after the first one, we will add Via headers to this list
         
-        private SupportedHeader supported;
         /**
          * 
          */
@@ -118,11 +115,7 @@ public interface SipRequest extends SipMessage {
             this.requestURI = requestURI;
             this.method = method;
         }
-        
-        public Builder supported(final SupportedHeader s) {
-            this.supported = assertNotNull(s, "The Supported-header cannot be null");
-            return this;
-        }
+       
         
         public Builder to(final ToHeader to) {
             this.to = assertNotNull(to, "The To-header cannot be null");

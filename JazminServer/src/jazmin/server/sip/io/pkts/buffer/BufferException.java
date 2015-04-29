@@ -8,6 +8,7 @@ package jazmin.server.sip.io.pkts.buffer;
  * 
  * @author jonas@jonasborjesson.com
  */
+@SuppressWarnings("serial")
 public class BufferException extends RuntimeException {
 
     public BufferException() {

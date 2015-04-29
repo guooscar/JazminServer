@@ -1,7 +1,5 @@
 package jazmin.server.sip.io.pkts.protocol;
 
-import jazmin.server.sip.io.pkts.framer.Framer;
-import jazmin.server.sip.io.pkts.framer.FramerManager;
 
 /**
  * @author jonas@jonasborjesson.com

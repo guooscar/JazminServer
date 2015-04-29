@@ -81,7 +81,8 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 			//change sdp ip address and media port to relay server
 			changeSDP(response, 
 					relayServer.getHostAddresses().get(1),
-					ss.relayChannel.getLocalPeerPortB());
+					ss.audioRelayChannel.getLocalPeerPortB(),
+					ss.videoRelayChannel.getLocalPeerPortB());
 		}
 		ss.connection.send(response);
 	}
@@ -114,26 +115,28 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 			ss.connection=ctx.getConnection();
 			session.setUserObject(ss);
 			//
-			RelayChannel relayChannel=relayServer.createRelayChannel();
-			ss.relayChannel=relayChannel;
+			ss.audioRelayChannel=relayServer.createRelayChannel();
+			ss.videoRelayChannel=relayServer.createRelayChannel();
 		}
 		//
 		SessionStatus ss=(SessionStatus) ctx.getSession().getUserObject();
 		changeSDP(message, 
 				relayServer.getHostAddresses().get(0),
-				ss.relayChannel.getLocalPeerPortA());
+				ss.audioRelayChannel.getLocalPeerPortA(),
+				ss.videoRelayChannel.getLocalPeerPortA());
 		//
 		ctx.getServer().proxyTo(toBinding.getConnection(),message);
 	}
 	//
-	private void changeSDP(SipMessage message,String host,int port)throws Exception{
-		if(true){
-			return;
-		}
+	private void changeSDP(SipMessage message,String host,int audioPort,int videoPort)throws Exception{
+		//if(true){
+		//	return;
+		//}
 		//change sdp ip address and media port to relay server
 		String sdp=new String(message.getRawContent().getArray(),"utf-8");
 		System.err.println("old--------------------------------------");
 		System.err.println(HexDump.dumpHexString(message.getRawContent().getArray()));
+		System.err.println("old--------------------------------------");
 		SessionDescription s=SessionDescriptionParser.parse(sdp);
 		ConnectionField cf=s.getConnection();
 		if(cf!=null){
@@ -147,14 +150,18 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 		s.getOrigin().setAddress(host);
 		MediaDescriptionField audioField=s.getMediaDescription("audio");
 		if(audioField!=null){
-			audioField.setPort(port);
-		}	
+			audioField.setPort(audioPort);
+		}
+		MediaDescriptionField videoField=s.getMediaDescription("video");
+		if(videoField!=null){
+			videoField.setPort(videoPort);
+		}
 		byte newSdpBytes[]=s.toBytes();
 		message.setRawContent(Buffers.wrap(newSdpBytes));
 		ContentLengthHeader clh=message.getContentLengthHeader();
 		System.err.println("new--------------------------------------");
 		System.err.println(HexDump.dumpHexString(newSdpBytes));
-	
+		System.err.println("new--------------------------------------");
 		clh.setContentLength(newSdpBytes.length);
 	}
 	//

@@ -20,6 +20,7 @@
 
 package jazmin.server.sip.io.sdp.attributes;
 
+import jazmin.server.sip.io.sdp.SessionDescription;
 import jazmin.server.sip.io.sdp.fields.AttributeField;
 
 /**
@@ -139,6 +140,9 @@ public class RtpMapAttribute extends AttributeField {
 				.append(this.clockRate);
 		if (this.codecParams != DEFAULT_CODEC_PARAMS) {
 			super.builder.append("/").append(this.codecParams);
+		}
+		if(parameters!=null){
+			super.builder.append(SessionDescription.NEWLINE).append(parameters);
 		}
 		return builder.toString();
 	}

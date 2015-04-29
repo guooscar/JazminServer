@@ -89,6 +89,8 @@ public class SessionDescriptionParser {
 					if (attributeParser != null) {
 						convertAndApplyAttribute(attributeParser.parse(line),
 								info);
+					}else{
+						info.sdp.addOtherAttributeField(new OtherField(line));
 					}
 					break;
 				default:
@@ -97,6 +99,8 @@ public class SessionDescriptionParser {
 							.getFieldParser(fieldType);
 					if (fieldParser != null) {
 						convertAndApplyField(fieldParser.parse(line), info);
+					}else{
+						info.sdp.addOtherField(new OtherField(line));
 					}
 					break;
 				}
@@ -246,7 +250,7 @@ public class SessionDescriptionParser {
 		final SessionDescription sdp;
 		MediaDescriptionField media;
 		RtpMapAttribute format;
-
+	
 		public SdpParsingInfo() {
 			this.sdp = new SessionDescription();
 		}

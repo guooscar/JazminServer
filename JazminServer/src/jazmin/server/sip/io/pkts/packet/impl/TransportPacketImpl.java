@@ -6,8 +6,6 @@ package jazmin.server.sip.io.pkts.packet.impl;
 import java.io.IOException;
 
 import jazmin.server.sip.io.pkts.buffer.Buffer;
-import jazmin.server.sip.io.pkts.framer.RTPFramer;
-import jazmin.server.sip.io.pkts.framer.SIPFramer;
 import jazmin.server.sip.io.pkts.packet.IPPacket;
 import jazmin.server.sip.io.pkts.packet.Packet;
 import jazmin.server.sip.io.pkts.packet.TransportPacket;
@@ -18,8 +16,6 @@ import jazmin.server.sip.io.pkts.protocol.Protocol;
  */
 public abstract class TransportPacketImpl extends AbstractPacket implements TransportPacket {
 
-    private static final SIPFramer sipFramer = new SIPFramer();
-    private static final RTPFramer rtpFramer = new RTPFramer();
 
     private final IPPacket parent;
 
@@ -227,14 +223,7 @@ public abstract class TransportPacketImpl extends AbstractPacket implements Tran
         if (payload == null || payload.isEmpty()) {
             return null;
         }
-
-        if (sipFramer.accept(payload)) {
-            return sipFramer.frame(this, payload);
-        } else if (rtpFramer.accept(payload)) {
-            return rtpFramer.frame(this, payload);
-        } else {
-            return new UnknownApplicationPacketImpl(this, payload);
-        }
+        return null;
     }
 
     /*

@@ -4,7 +4,6 @@
 package jazmin.server.sip.io.pkts.packet.sip.header.impl;
 
 import static jazmin.server.sip.io.pkts.packet.sip.impl.PreConditions.assertNotNull;
-import gov.nist.javax.sip.header.HeaderFactoryImpl;
 
 import java.io.IOException;
 import java.util.ArrayList;
