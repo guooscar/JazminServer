@@ -196,7 +196,7 @@ public final class SipRequestImpl extends SipMessageImpl implements SipRequest {
         final FromHeader from = getFromHeader();
         final ToHeader to = getToHeader();
         final CSeqHeader cseq = getCSeqHeader();
-
+       
         // TODO: need to extract all via headers
         final ViaHeader via = getViaHeader();
         final SipHeader maxForwards = getHeader(MaxForwardsHeader.NAME);
@@ -206,10 +206,8 @@ public final class SipRequestImpl extends SipMessageImpl implements SipRequest {
         response.setHeader(cseq);
         response.setHeader(via);
         response.setHeader(maxForwards);
-
         // The TimeStamp header should be there as well but screw it.
         // TODO: need to add any record-route headers
-
         return response;
     }
     

@@ -25,10 +25,11 @@ public class B2BUADemo extends Application{
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception{
-		String ipAddress="192.168.3.103";
+		String ipAddress="10.44.218.63";
 		LoggerFactory.setLevel("DEBUG");
 		SipServer server=new SipServer();
 		server.setHostAddress(ipAddress);
+		server.setPublicAddress(ipAddress);
 		server.setMessageHandler(new B2BUAMessageHandler());
 		Jazmin.addServer(server);
 		RelayServer relayServer=new RelayServer();

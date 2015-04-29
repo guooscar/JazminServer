@@ -22,14 +22,14 @@ public class IMMessageServerCommand extends ConsoleCommand {
     	desc="message server ctrl command";
     	addOption("i",false,"show server information.",this::showServerInfo);
     	addOption("srv",false,"show services.",this::showServices);
-    	addOption("session",false,"show all sessions.",this::showSessions);
+    	addOption("s",false,"show all sessions.",this::showSessions);
     	addOption("q",true,"session query sql.",null);
     	addOption("sp",false,"show session plot.",this::showSessionPlot);
     	addOption("channel",false,"show all channels.",this::showChannels);
     	addOption("so",true,"show session info",this::showSessionInfo); 
     	addOption("kick",true,"kick session",this::kickSession);
     	addOption("co",true,"show channel info",this::showChannelInfo); 
-    	addOption("network",false,"show network stats.",this::showNetworkStats);
+    	addOption("net",false,"show network stats.",this::showNetworkStats);
     	//
     	messageServer=Jazmin.getServer(IMMessageServer.class);
     }

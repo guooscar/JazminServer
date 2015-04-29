@@ -177,7 +177,8 @@ public interface ViaHeader extends Parameters, SipHeader {
      * @return
      * @throws SipParseException
      */
-    public static ViaHeader frame(final Buffer buffer) throws SipParseException {
+    @SuppressWarnings("unchecked")
+	public static ViaHeader frame(final Buffer buffer) throws SipParseException {
         try {
             final Buffer original = buffer.slice();
             final Object[] result = SipParser.consumeVia(buffer);

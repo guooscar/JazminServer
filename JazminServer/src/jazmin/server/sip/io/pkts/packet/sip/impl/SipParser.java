@@ -60,7 +60,7 @@ public class SipParser {
      * just have you read a never ending stream we need at some point give up
      * and abort.
      */
-    public static final int MAX_LOOK_AHEAD = 1024;
+    public static final int MAX_LOOK_AHEAD = 10240;
 
 
     public static final Buffer USER = Buffers.wrap("user");
@@ -1954,7 +1954,6 @@ public class SipParser {
         if (buffer.hasReadableBytes()) {
             payload = buffer.slice();
         }
-
         if (SipInitialLine.isResponseLine(rawInitialLine)) {
             return new SipResponseImpl(rawInitialLine, headers, payload);
         } else {

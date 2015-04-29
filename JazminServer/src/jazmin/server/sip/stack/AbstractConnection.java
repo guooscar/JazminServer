@@ -116,9 +116,11 @@ public abstract class AbstractConnection implements Connection {
      * @param msg
      *            the {@link SipMessage} to convert.
      * @return the resulting {@link ByteBuf}
+     * @throws IOException 
+     * @throws IndexOutOfBoundsException 
      */
-    protected ByteBuf toByteBuf(final SipMessage msg) {
-        try {
+    protected ByteBuf toByteBuf(final SipMessage msg) throws Exception {
+       
             final Buffer b = msg.toBuffer();
             final int capacity = b.capacity() + 2;
             final ByteBuf buffer = this.channel.alloc().buffer(capacity, capacity);
@@ -129,12 +131,7 @@ public abstract class AbstractConnection implements Connection {
             buffer.writeByte(SipParser.CR);
             buffer.writeByte(SipParser.LF);
             return buffer;
-        } catch (final IOException e) {
-            // shouldn't be possible since the underlying buffer
-            // from the msg is backed by a byte-array.
-            // TODO: do something appropriate other than this
-            throw new RuntimeException("Unable to convert SipMessage to a ByteBuf due to IOException", e);
-        }
+       
     }
     
     //

@@ -98,8 +98,9 @@ public interface Packet extends Cloneable {
      * @throws IOException
      *             in case something goes wrong when framing the rest of the
      *             protocol stack
+     * @throws Exception 
      */
-    boolean hasProtocol(Protocol p) throws IOException;
+    boolean hasProtocol(Protocol p) throws Exception;
 
     /**
      * Get the protocol of this frame.
@@ -117,8 +118,9 @@ public interface Packet extends Cloneable {
      * @throws IOException
      *             in case something goes wrong when framing the rest of the
      *             protocol stack
+     * @throws Exception 
      */
-    Packet getPacket(Protocol p) throws IOException;
+    Packet getPacket(Protocol p) throws Exception;
 
     /**
      * Get the name of the packet. Wireshark will give you a short description
@@ -138,8 +140,9 @@ public interface Packet extends Cloneable {
      * 
      * @return
      * @throws IOException
+     * @throws Exception 
      */
-    Packet getNextPacket() throws IOException;
+    Packet getNextPacket() throws Exception;
 
     /**
      * Almost all packets have a parent, which is the encapsulating protocol.

@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.function.Function;
 
 import jazmin.server.sip.io.pkts.buffer.Buffer;
 import jazmin.server.sip.io.pkts.buffer.Buffers;
@@ -232,15 +231,6 @@ public abstract class SipMessageImpl implements SipMessage {
         return null;
 
     }
-
-    private SipHeader ensureHeaderIsFramed(final SipHeader header) {
-        final Function<SipHeader, ? extends SipHeader> function = SipParser.framers.get(header.getName());
-        if (function != null) {
-            return function.apply(header);
-        }
-        return header;
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -317,6 +307,9 @@ public abstract class SipMessageImpl implements SipMessage {
 
     @Override
     public void setHeader(final SipHeader header) throws SipParseException {
+    	if(header==null){
+    		return;
+    	}
         frameAllHeaders();
         final List<SipHeader> headers = new ArrayList<SipHeader>();
         headers.add(header);
@@ -340,7 +333,7 @@ public abstract class SipMessageImpl implements SipMessage {
         final SipHeader header = getHeaderInternal(FromHeader.NAME, true);
         return (FromHeader) header;
     }
-
+   
     /**
      * {@inheritDoc}
      */
@@ -643,7 +636,7 @@ public abstract class SipMessageImpl implements SipMessage {
             return null;
         }
 
-        return this.payload.slice();
+        return this.payload;
     }
     //
     public void setRawContent(Buffer buffer){
@@ -672,12 +665,19 @@ public abstract class SipMessageImpl implements SipMessage {
 
     @Override
     public Buffer toBuffer() {
-        final Buffer buffer = Buffers.createBuffer(2048);
-        getInitialLine().getBytes(buffer);
+    	//NOTE here we assume max header size is 2048 if max header size > 2048 
+    	//result will wrong
+    	final Buffer buffer = Buffers.createBuffer(2048+(payload==null?0:payload.capacity()));
+    	//final Buffer buffer = Buffers.createBuffer(2048);
+    	getInitialLine().getBytes(buffer);
         buffer.write(SipParser.CR);
         buffer.write(SipParser.LF);
         transferHeaders(buffer);
         if (this.payload != null) {
+        	if(buffer.getWritableBytes()<payload.capacity()){
+        		throw new IllegalStateException("payload is too large,"
+        					+payload.capacity()+"/"+buffer.capacity());
+        	}
             this.payload.getBytes(0, buffer);
         }
         return buffer;

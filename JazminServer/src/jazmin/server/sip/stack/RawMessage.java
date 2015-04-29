@@ -170,15 +170,15 @@ public final class RawMessage {
         } else if (this.state == State.GET_HEADERS) {
             writeToHeaders(b);
             if (doubleCRLF(b)) {
-                if (getContentLength() > 0) {
+                 if (getContentLength() > 0) {
                     this.state = State.GET_PAYLOAD;
                 } else {
                     this.state = State.GET_PAYLOAD;
                     this.done = true;
                 }
-            } else if (isCRLF(b)) {
-                // ignore
-            } else if (b == CR) {
+            }else if ( isCRLF(b)){
+            	// ignore
+            }else if (b == CR) {
                 // ignore
             } else if (b == 'C') {
                 this.state = State.IS_CONTENT_LENGTH_HEADER;
@@ -214,6 +214,7 @@ public final class RawMessage {
                 this.contentLength = this.contentLength * 10 + b - 48;
             } else {
                 setContentLength(this.contentLength);
+                this.crlf = false;
                 this.state = State.GET_HEADERS;
             }
         } else if (this.state == State.GET_PAYLOAD) {

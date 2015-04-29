@@ -311,7 +311,7 @@ public interface SipMessage extends Cloneable {
      * @throws SipParseException
      */
     CSeqHeader getCSeqHeader() throws SipParseException;
-
+	
 	ContentLengthHeader getContentLengthHeader() throws SipParseException;
     /**
      * Convenience method for determining whether the method of this message is
@@ -497,6 +497,7 @@ public interface SipMessage extends Cloneable {
         assertNotEmpty(buffer, "Buffer cannot be null or the empty string");
         return SipParser.frame(Buffers.wrap(buffer));
     }
+
 
 
 }

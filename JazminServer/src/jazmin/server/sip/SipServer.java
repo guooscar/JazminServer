@@ -15,6 +15,10 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
@@ -55,7 +59,6 @@ import jazmin.server.sip.stack.Connection;
 import jazmin.server.sip.stack.SipMessageDatagramDecoder;
 import jazmin.server.sip.stack.SipMessageEncoder;
 import jazmin.server.sip.stack.SipMessageStreamDecoder;
-import jazmin.server.sip.stack.UdpConnection;
 
 /**
  * @author yama
@@ -68,14 +71,16 @@ public class SipServer extends Server{
     private int port;
 	private String publicAddress;
 	private int publicPort;
-	
-    private int sessionTimeout;
+	private int sessionTimeout;
+	//
+	private int webSocketPort;
     static final int MIN_SESSION_TIMEOUT=60;
     private  EventLoopGroup bossGroup;
     private  EventLoopGroup workerGroup;
     private  EventLoopGroup udpGroup;
-    private  SipHandler handler;
-    private  ServerBootstrap serverBootstrap;
+    private  SipSocketHandler handler;
+    private  ServerBootstrap tcpServerBootstrap;
+    private  ServerBootstrap webSocketServerBootstrap;
     private  Bootstrap bootstrap;
     private  Channel udpListeningPoint = null;
     private  SipMessageHandler messageHandler;
@@ -83,6 +88,7 @@ public class SipServer extends Server{
     private  Map<String,SipSession>sessionMap;
     private  LongAdder sessionIdLongAdder;
     private  Map<SipURI, SipLocationBinding> locationStore;
+    private  Map<String, SipChannel>channels;
     //
     private ScheduledExecutorService scheduledExecutorService;
     //
@@ -91,11 +97,13 @@ public class SipServer extends Server{
         this.publicAddress="127.0.0.1";
         this.publicPort=5060;
         this.port = 5060;
+        this.webSocketPort=1443;
         handlerMethod=Dispatcher.getMethod(
         		SipServer.class,"handleMessage",
         		SipContext.class);
         sessionMap=new ConcurrentHashMap<String, SipSession>();
         locationStore=new ConcurrentHashMap<SipURI, SipLocationBinding>();
+        channels=new ConcurrentHashMap<String, SipChannel>();
         sessionIdLongAdder=new LongAdder();
         sessionTimeout=60;
         scheduledExecutorService=new ScheduledThreadPoolExecutor(
@@ -107,8 +115,10 @@ public class SipServer extends Server{
     //
     private void startNetty() throws Exception {
     	final InetSocketAddress socketAddress = new InetSocketAddress(this.address, this.port);
-        this.udpListeningPoint = this.bootstrap.bind(socketAddress).sync().channel();
-        this.serverBootstrap.bind(socketAddress).sync();
+    	final InetSocketAddress wsSocketAddress = new InetSocketAddress(this.address, this.webSocketPort);
+    	this.udpListeningPoint = this.bootstrap.bind(socketAddress).sync().channel();
+        this.tcpServerBootstrap.bind(socketAddress).sync();
+        this.webSocketServerBootstrap.bind(wsSocketAddress).sync();
     }
     //
     private Bootstrap createUDPListeningPoint() {
@@ -138,6 +148,29 @@ public class SipServer extends Server{
                 final ChannelPipeline pipeline = ch.pipeline();
                 pipeline.addLast("decoder", new SipMessageStreamDecoder());
                 pipeline.addLast("encoder", new SipMessageEncoder());
+                pipeline.addLast("handler", handler);
+            }
+        })
+        .option(ChannelOption.SO_BACKLOG, 128)
+        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
+        .childOption(ChannelOption.SO_KEEPALIVE, true)
+        .childOption(ChannelOption.TCP_NODELAY, true);
+        return b;
+    }
+    //
+    private ServerBootstrap createWSListeningPoint() {
+        final ServerBootstrap b = new ServerBootstrap();
+        b.group(this.bossGroup, this.workerGroup)
+        .channel(NioServerSocketChannel.class)
+        .childHandler(new ChannelInitializer<SocketChannel>() {
+            @Override
+            public void initChannel(final SocketChannel ch) throws Exception {
+                final ChannelPipeline pipeline = ch.pipeline();
+                ch.pipeline().addLast("idleStateHandler",new IdleStateHandler(3600,3600,0));
+    			ch.pipeline().addLast(new HttpServerCodec());
+    			ch.pipeline().addLast(new HttpObjectAggregator(65536));
+    			ch.pipeline().addLast(new WebSocketServerCompressionHandler());
+    			ch.pipeline().addLast(new SipWebSocketHandler(SipServer.this));
                 pipeline.addLast("handler", handler);
             }
         })
@@ -217,6 +250,22 @@ public class SipServer extends Server{
 	public int getSessionTimeout() {
 		return sessionTimeout;
 	}
+	
+	
+	/**
+	 * @return the webSocketPort
+	 */
+	public int getWebSocketPort() {
+		return webSocketPort;
+	}
+
+	/**
+	 * @param webSocketPort the webSocketPort to set
+	 */
+	public void setWebSocketPort(int webSocketPort) {
+		this.webSocketPort = webSocketPort;
+	}
+
 	/**
 	 * @param sessionTimeout the sessionTimeout to set
 	 */
@@ -243,6 +292,10 @@ public class SipServer extends Server{
 		this.messageHandler = messageHandler;
 	}
 	//
+	public List<SipChannel>getChannels(){
+		return new ArrayList<SipChannel>(channels.values());
+	}
+	//
 	//
 	String getServerHost(){
 		String serverHost=getHostAddress();
@@ -254,10 +307,18 @@ public class SipServer extends Server{
 	//
 	int getServerPort(){
 		int serverPort=getPort();
-		if(publicAddress!=null){
+		if(publicAddress!=null&&serverPort!=0){
 			serverPort=publicPort;
 		}
 		return serverPort;
+	}
+	//
+	void addChannel(SipChannel c){
+		channels.put(c.id, c);
+	}
+	//
+	void removeChannel(String id){
+		channels.remove(id);
 	}
 	//--------------------------------------------------------------------------
 	public SipRequest createRequest(String method,SipURI from,SipURI to){
@@ -283,8 +344,9 @@ public class SipServer extends Server{
 	/**
 	 * 
 	 * @param msg
+	 * @throws Exception 
 	 */
-	public void proxy(Connection connection,SipResponse msg) {
+	public void proxy(Connection connection,SipResponse msg) throws Exception {
 		connection.send(msg);
 	}
 	//
@@ -295,8 +357,9 @@ public class SipServer extends Server{
      * 
      * @param destination
      * @param msg
+	 * @throws Exception 
      */
-    public void proxyTo(Connection connection, final SipRequest msg) {
+    public void proxyTo(Connection connection, final SipRequest msg) throws Exception {
         //final int port = destination.getPort();
         //final Connection connection = connect(
         //		destination.getHost().toString(), port == -1 ? 5060 : port);
@@ -330,6 +393,8 @@ public class SipServer extends Server{
         	builder.transportUDP();
         }else if(connection.isTCP()){
         	builder.transportTCP();
+        }else if(connection.isWS()){
+        	builder.transportWS();
         }else{
         	throw new IllegalArgumentException("not implement");
         }
@@ -434,7 +499,7 @@ public class SipServer extends Server{
 				Dispatcher.EMPTY_CALLBACK,ctx);
 	}
 	//
-	public void handleMessage(SipContext ctx){
+	public void handleMessage(SipContext ctx)throws Exception{
 		SipMessage message=ctx.message;
 		Connection conn=ctx.connection;
 		if(messageHandler==null){
@@ -522,14 +587,15 @@ public class SipServer extends Server{
    //
 	@Override
     public void start() throws Exception{
-    	handler=new SipHandler(this);
+    	handler=new SipSocketHandler(this);
     	IOWorker ioWorker=new IOWorker("SipServerIO",
     			Runtime.getRuntime().availableProcessors()*2+1);
     	bossGroup=new NioEventLoopGroup(1,ioWorker);
     	workerGroup=new NioEventLoopGroup(0,ioWorker);
     	udpGroup=new NioEventLoopGroup(0,ioWorker);
         this.bootstrap = createUDPListeningPoint();
-        this.serverBootstrap = createTCPListeningPoint();
+        this.tcpServerBootstrap = createTCPListeningPoint();
+        this.webSocketServerBootstrap=createWSListeningPoint();
         startNetty();
         //session timeout checker
         Jazmin.scheduleAtFixedRate(this::checkSessionTimeout,
@@ -562,6 +628,7 @@ public class SipServer extends Server{
 		.format("%-30s:%-30s\n")
 		.print("hostAddress",getHostAddress())
 		.print("port",getPort())
+		.print("webSocketPort",getWebSocketPort())
 		.print("publicAddress",getPublicAddress())
 		.print("publicPort",getPublicPort())
 		.print("sessionTimeout",getSessionTimeout())

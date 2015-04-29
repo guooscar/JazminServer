@@ -688,16 +688,14 @@ public abstract class SipPacketImpl extends AbstractPacket implements SipPacket 
      * @see io.pkts.packet.Packet#getNextPacket()
      */
     @Override
-    public Packet getNextPacket() throws IOException {
-        try {
+    public Packet getNextPacket() throws Exception {
+     
             final Object content = this.msg.getContent();
             if (content instanceof SessionDescription) {
                 return new SDPPacketImpl(this, (SessionDescription) content);
             }
-        } catch (final SipParseException e) {
-            e.printStackTrace();
-        }
-        return null;
+            return null;
+      
     }
 
     @Override

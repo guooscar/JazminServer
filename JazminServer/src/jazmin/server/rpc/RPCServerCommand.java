@@ -25,11 +25,11 @@ public class RPCServerCommand extends ConsoleCommand {
     	desc="rpc server ctrl command";
     	addOption("i",false,"show server information.",this::showServerInfo);
     	addOption("srv",false,"show services.",this::showServices);
-    	addOption("session",false,"show all sessions.",this::showSessions);
-    	addOption("sessiontop",false,"show all sessions.",this::showSessionTop);
+    	addOption("s",false,"show all sessions.",this::showSessions);
+    	addOption("stop",false,"show all sessions.",this::showSessionTop);
     	addOption("topic",false,"show all topics.",this::showTopics);
-    	addOption("network",false,"show network stats.",this::showNetworkStats);
-    	addOption("dashboard",false,"show dashboard.",this::showDashboard);	
+    	addOption("net",false,"show network stats.",this::showNetworkStats);
+    	addOption("db",false,"show dashboard.",this::showDashboard);	
     	//
     	rpcServer=Jazmin.getServer(RPCServer.class);
     }

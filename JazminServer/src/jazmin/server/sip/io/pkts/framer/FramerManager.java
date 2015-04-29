@@ -6,7 +6,6 @@ package jazmin.server.sip.io.pkts.framer;
 import java.util.concurrent.atomic.AtomicLong;
 
 import jazmin.server.sip.io.pkts.Clock;
-import jazmin.server.sip.io.pkts.Pcap;
 
 /**
  * FramerFactory

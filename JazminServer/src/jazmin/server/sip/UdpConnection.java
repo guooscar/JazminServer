@@ -1,4 +1,4 @@
-package jazmin.server.sip.stack;
+package jazmin.server.sip;
 
 import io.netty.channel.Channel;
 import io.netty.channel.socket.DatagramPacket;
@@ -8,6 +8,7 @@ import java.net.InetSocketAddress;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.sip.io.pkts.packet.sip.SipMessage;
+import jazmin.server.sip.stack.AbstractConnection;
 
 /**
  * Encapsulates a
@@ -16,11 +17,8 @@ import jazmin.server.sip.io.pkts.packet.sip.SipMessage;
  */
 public final class UdpConnection extends AbstractConnection {
 	private static Logger logger=LoggerFactory.get(UdpConnection.class);
-    // public UdpConnection(final ChannelHandlerContext ctx, final InetSocketAddress remoteAddress)
-    // {
-    // super(ctx, remoteAddress);
-    // }
-
+    
+	//
     public UdpConnection(final Channel channel, final InetSocketAddress remoteAddress) {
         super(channel, remoteAddress);
     }
@@ -35,12 +33,14 @@ public final class UdpConnection extends AbstractConnection {
 
     /**
      * {@inheritDoc}
+     * @throws Exception 
      */
     @Override
-    public void send(final SipMessage msg) {
+    public void send(final SipMessage msg) throws Exception {
     	if(logger.isDebugEnabled()){
 			logger.debug(">>>>>>>>>>send to {}\n{}",getRemoteAddress(),msg);
 		}
+    	channel().attr(SipChannel.SESSION_KEY).get().messageSentCount++;
         final DatagramPacket pkt = new DatagramPacket(toByteBuf(msg), getRemoteAddress());
         channel().writeAndFlush(pkt);
     }

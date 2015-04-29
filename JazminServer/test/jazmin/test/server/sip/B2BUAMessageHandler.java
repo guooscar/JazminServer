@@ -127,6 +127,9 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 	}
 	//
 	private void changeSDP(SipMessage message,String host,int port)throws Exception{
+		if(true){
+			return;
+		}
 		//change sdp ip address and media port to relay server
 		String sdp=new String(message.getRawContent().getArray(),"utf-8");
 		System.err.println("old--------------------------------------");
@@ -192,8 +195,10 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 		final SipURI contactURI = binding.getContact();
 		contactURI.setParameter("expires", binding.getExpires());
 		ViaHeader vh=response.getViaHeader();
-		vh.setRPort(ctx.getConnection().getRemotePort());
-		vh.setReceived(Buffers.wrap(ctx.getConnection().getRemoteIpAddress()));
+		if(vh.hasRPort()){
+			vh.setRPort(ctx.getConnection().getRemotePort());
+			vh.setReceived(Buffers.wrap(ctx.getConnection().getRemoteIpAddress()));	
+		}
 		response.addHeader(ContactHeader.with(contactURI).build());
 		return response;
 	}

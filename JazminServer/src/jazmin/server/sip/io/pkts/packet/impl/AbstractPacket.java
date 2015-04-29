@@ -105,7 +105,7 @@ public abstract class AbstractPacket implements Packet {
      * @see io.pkts.packet.Packet#hasProtocol(io.pkts.protocol.Protocol)
      */
     @Override
-    public boolean hasProtocol(final Protocol p) throws IOException {
+    public boolean hasProtocol(final Protocol p) throws Exception {
         if (p == null) {
             return false;
         }
@@ -130,7 +130,7 @@ public abstract class AbstractPacket implements Packet {
      * @see io.pkts.packet.Packet#getPacket(io.pkts.protocol.Protocol)
      */
     @Override
-    public Packet getPacket(final Protocol p) throws IOException {
+    public Packet getPacket(final Protocol p) throws Exception {
         if (this.protocol == p) {
             return this;
         }

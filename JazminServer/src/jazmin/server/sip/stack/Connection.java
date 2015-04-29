@@ -117,8 +117,9 @@ public interface Connection {
      * Send a message over this connection.
      * 
      * @param msg
+     * @throws Exception 
      */
-    void send(SipMessage msg);
+    void send(SipMessage msg) throws Exception;
 
     public boolean connect();
 

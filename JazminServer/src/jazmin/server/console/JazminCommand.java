@@ -25,7 +25,7 @@ public class JazminCommand extends ConsoleCommand {
     	desc="jazmin server ctrl command";
     	addOption("i",false,"show server information.",this::showServerInfo);
     	addOption("env",false,"show env info.",this::showEnvInfo);
-    	addOption("logger",false,"show all loggers",this::showLoggers);
+    	addOption("log",false,"show all loggers",this::showLoggers);
     	addOption("loglevel",true,"set log level.ALL/DEBUG/INFO/WARN/ERROR/FATAL",this::setLogLevel);
     	addOption("task",false,"show tasks",this::showTasks);
     	addOption("job",false,"show jobs",this::showJobs);  
@@ -33,9 +33,9 @@ public class JazminCommand extends ConsoleCommand {
     	addOption("runtask",true,"run task",this::runTask);  
     	addOption("driver",false,"show all drivers",this::showDrivers);  	
     	addOption("server",false,"show all servers",this::showServers);  	
-    	addOption("poolinfo",false,"show thread pool info",this::showThreadPoolInfo);  	
-    	addOption("poolstat",false,"show method stats",this::showThreadPoolStats);  	
-    	addOption("pooldashboard",false,"show thread pool dashboard",this::showThreadPoolDashboard); 
+    	addOption("pinfo",false,"show thread pool info",this::showThreadPoolInfo);  	
+    	addOption("pstat",false,"show method stats",this::showThreadPoolStats);  	
+    	addOption("pdb",false,"show thread pool dashboard",this::showThreadPoolDashboard); 
     	addOption("dump",false,"dump servers and drivers",this::dump); 
         
     }
