@@ -1,9 +1,9 @@
 package jazmin.server.sip;
 import java.util.Date;
 
-import jazmin.server.sip.io.pkts.packet.sip.address.SipURI;
-import jazmin.server.sip.io.pkts.packet.sip.header.CSeqHeader;
-import jazmin.server.sip.io.pkts.packet.sip.header.CallIdHeader;
+import jazmin.server.sip.io.sip.address.SipURI;
+import jazmin.server.sip.io.sip.header.CSeqHeader;
+import jazmin.server.sip.io.sip.header.CallIdHeader;
 import jazmin.server.sip.stack.Connection;
 /**
  * 

@@ -10,10 +10,10 @@ import java.util.List;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.sip.UdpConnection;
-import jazmin.server.sip.io.pkts.buffer.Buffer;
-import jazmin.server.sip.io.pkts.buffer.Buffers;
-import jazmin.server.sip.io.pkts.packet.sip.SipMessage;
-import jazmin.server.sip.io.pkts.packet.sip.impl.SipParser;
+import jazmin.server.sip.io.buffer.Buffer;
+import jazmin.server.sip.io.buffer.Buffers;
+import jazmin.server.sip.io.sip.SipMessage;
+import jazmin.server.sip.io.sip.impl.SipParser;
 
 /**
  * The {@link SipMessageDatagramDecoder} will frame an incoming UDP packet into

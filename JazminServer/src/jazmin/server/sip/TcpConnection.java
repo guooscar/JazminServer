@@ -9,7 +9,7 @@ import java.net.InetSocketAddress;
 
 import jazmin.log.LoggerFactory;
 import jazmin.log.Logger;
-import jazmin.server.sip.io.pkts.packet.sip.SipMessage;
+import jazmin.server.sip.io.sip.SipMessage;
 import jazmin.server.sip.stack.AbstractConnection;
 
 /**

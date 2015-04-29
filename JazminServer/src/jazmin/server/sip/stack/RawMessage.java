@@ -5,8 +5,8 @@ package jazmin.server.sip.stack;
 
 import java.io.IOException;
 
-import jazmin.server.sip.io.pkts.buffer.Buffer;
-import jazmin.server.sip.io.pkts.buffer.Buffers;
+import jazmin.server.sip.io.buffer.Buffer;
+import jazmin.server.sip.io.buffer.Buffers;
 
 /**
  * Represents a raw sip message coming off of the network.

@@ -45,9 +45,10 @@ public class RelayServerCommand extends ConsoleCommand {
     private void showChannels(String args){
     	List<RelayChannel>channels=server.getChannels();
     	out.format("total %d channels\n",channels.size());
-    	String format="%-5s %-65s %-20s %-20s %-15s %-15s\n";
+    	String format="%-5s %-15s %-65s %-20s %-20s %-15s %-15s\n";
     	out.printf(format,
 				"#",
+				"NAME",
     			"INFO",
     			"PEERPACKET-A",
     			"PEERPACKET-B",
@@ -59,6 +60,7 @@ public class RelayServerCommand extends ConsoleCommand {
     		double byteB=sh.peerBByteCount;
     		out.printf(format,
         			idx++,
+        			sh.getName(),
         			sh.toString(),
         			sh.peerAPacketCount+"/"+String.format("%.2fKB",byteA/1024),
         			sh.peerBPacketCount+"/"+String.format("%.2fKB",byteB/1024),

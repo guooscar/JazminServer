@@ -3,7 +3,7 @@
  */
 package jazmin.server.sip.stack;
 
-import jazmin.server.sip.io.pkts.packet.sip.SipMessage;
+import jazmin.server.sip.io.sip.SipMessage;
 
 /**
  * @author jonas@jonasborjesson.com

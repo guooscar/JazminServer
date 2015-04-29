@@ -7,7 +7,7 @@ import io.netty.channel.Channel;
 
 import java.net.InetSocketAddress;
 
-import jazmin.server.sip.io.pkts.packet.sip.SipMessage;
+import jazmin.server.sip.io.sip.SipMessage;
 import jazmin.util.DumpIgnore;
 
 /**

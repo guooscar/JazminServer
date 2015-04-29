@@ -78,6 +78,12 @@ public class RelayServer extends Server{
 		return new ArrayList<RelayChannel>(relayChannels);
 	}
 	//
+	public RelayChannel createRelayChannel(String name) throws Exception {
+		RelayChannel rc=createRelayChannel();
+		rc.setName(name);
+		return rc;
+	}
+	//
 	public RelayChannel createRelayChannel() throws Exception {
 		synchronized (portPool) {
 			int nextPortIdx=-1;
@@ -118,8 +124,8 @@ public class RelayServer extends Server{
 			if(currentTime-channel.lastAccessTime>idleTime*1000){
 				try{
 					logger.info("remove idle channel."+channel);
-					relayChannelClosed(channel);
 					channel.close();
+					relayChannelClosed(channel);
 				}catch(Exception e){
 					logger.catching(e);
 				}

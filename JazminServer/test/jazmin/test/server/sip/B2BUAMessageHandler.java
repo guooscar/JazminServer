@@ -12,22 +12,22 @@ import jazmin.server.sip.SipLocationBinding;
 import jazmin.server.sip.SipMessageAdapter;
 import jazmin.server.sip.SipSession;
 import jazmin.server.sip.SipStatusCode;
-import jazmin.server.sip.io.pkts.buffer.Buffer;
-import jazmin.server.sip.io.pkts.buffer.Buffers;
-import jazmin.server.sip.io.pkts.packet.sip.SipMessage;
-import jazmin.server.sip.io.pkts.packet.sip.SipRequest;
-import jazmin.server.sip.io.pkts.packet.sip.SipResponse;
-import jazmin.server.sip.io.pkts.packet.sip.address.Address;
-import jazmin.server.sip.io.pkts.packet.sip.address.SipURI;
-import jazmin.server.sip.io.pkts.packet.sip.address.URI;
-import jazmin.server.sip.io.pkts.packet.sip.header.ContactHeader;
-import jazmin.server.sip.io.pkts.packet.sip.header.ContentLengthHeader;
-import jazmin.server.sip.io.pkts.packet.sip.header.ExpiresHeader;
-import jazmin.server.sip.io.pkts.packet.sip.header.ViaHeader;
+import jazmin.server.sip.io.buffer.Buffer;
+import jazmin.server.sip.io.buffer.Buffers;
 import jazmin.server.sip.io.sdp.SessionDescription;
 import jazmin.server.sip.io.sdp.SessionDescriptionParser;
 import jazmin.server.sip.io.sdp.fields.ConnectionField;
 import jazmin.server.sip.io.sdp.fields.MediaDescriptionField;
+import jazmin.server.sip.io.sip.SipMessage;
+import jazmin.server.sip.io.sip.SipRequest;
+import jazmin.server.sip.io.sip.SipResponse;
+import jazmin.server.sip.io.sip.address.Address;
+import jazmin.server.sip.io.sip.address.SipURI;
+import jazmin.server.sip.io.sip.address.URI;
+import jazmin.server.sip.io.sip.header.ContactHeader;
+import jazmin.server.sip.io.sip.header.ContentLengthHeader;
+import jazmin.server.sip.io.sip.header.ExpiresHeader;
+import jazmin.server.sip.io.sip.header.ViaHeader;
 
 /**
  * 
@@ -106,25 +106,26 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 			return;
 		}
 		RelayServer relayServer=Jazmin.getServer(RelayServer.class);
-		
-		if(ctx.getSession(false)==null){
-			SipSession session=ctx.getSession();
-			SessionStatus ss=new SessionStatus();
-			ss.originalRequest=message;
-			ss.connection=ctx.getConnection();
-			session.setUserObject(ss);
+		SipSession session=ctx.getSession();
+		synchronized (session) {
+			SessionStatus ss=(SessionStatus) session.getUserObject();
+			if(ss==null){
+				ss=new SessionStatus();
+				ss.originalRequest=message;
+				ss.connection=ctx.getConnection();
+				session.setUserObject(ss);
+				//
+				ss.audioRelayChannel=relayServer.createRelayChannel();
+				ss.videoRelayChannel=relayServer.createRelayChannel();
+			}
+			changeSDP(message, 
+					relayServer.getHostAddresses().get(0),
+					ss.audioRelayChannel.getLocalPeerPortA(),
+					ss.videoRelayChannel.getLocalPeerPortA());
 			//
-			ss.audioRelayChannel=relayServer.createRelayChannel();
-			ss.videoRelayChannel=relayServer.createRelayChannel();
+			ctx.getServer().proxyTo(toBinding.getConnection(),message);
 		}
-		//
-		SessionStatus ss=(SessionStatus) ctx.getSession().getUserObject();
-		changeSDP(message, 
-				relayServer.getHostAddresses().get(0),
-				ss.audioRelayChannel.getLocalPeerPortA(),
-				ss.videoRelayChannel.getLocalPeerPortA());
-		//
-		ctx.getServer().proxyTo(toBinding.getConnection(),message);
+		
 	}
 	//
 	private void changeSDP(SipMessage message,String host,int audioPort,int videoPort)throws Exception{

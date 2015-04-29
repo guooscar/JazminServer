@@ -34,6 +34,7 @@ public class RelayChannel {
 	long peerAByteCount;
 	long peerBByteCount;
 	//
+	String name;
 	//
 	public RelayChannel() {
 		createTime=System.currentTimeMillis();
@@ -111,13 +112,26 @@ public class RelayChannel {
 		}
 	}
 	//
-	void close(){
+	void close()throws Exception{
 		if(channelA!=null){
-			channelA.close();
+			channelA.close().sync();
 		}
 		if(channelB!=null){
-			channelB.close();
+			channelB.close().sync();
 		}
+	}
+	
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+	/**
+	 * @param name the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
 	}
 	//
 	@Override

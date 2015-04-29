@@ -3,7 +3,7 @@
  */
 package jazmin.server.sip;
 
-import jazmin.server.sip.io.pkts.packet.sip.SipMessage;
+import jazmin.server.sip.io.sip.SipMessage;
 import jazmin.server.sip.stack.Connection;
 import jazmin.util.DumpIgnore;
 

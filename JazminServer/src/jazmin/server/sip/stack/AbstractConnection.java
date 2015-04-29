@@ -12,9 +12,9 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
-import jazmin.server.sip.io.pkts.buffer.Buffer;
-import jazmin.server.sip.io.pkts.packet.sip.SipMessage;
-import jazmin.server.sip.io.pkts.packet.sip.impl.SipParser;
+import jazmin.server.sip.io.buffer.Buffer;
+import jazmin.server.sip.io.sip.SipMessage;
+import jazmin.server.sip.io.sip.impl.SipParser;
 
 /**
  * @author jonas@jonasborjesson.com
