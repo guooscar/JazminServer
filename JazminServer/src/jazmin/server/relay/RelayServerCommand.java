@@ -38,34 +38,55 @@ public class RelayServerCommand extends ConsoleCommand {
     	String format="%-25s: %-10s\n";
 		out.printf(format,"hostAddress",server.getHostAddress());
 		out.printf(format,"idleTime",server.getIdleTime());
-		out.printf(format,"maxStartPort",server.getMaxStartPort());
-		out.printf(format,"minStartPort",server.getMinStartPort());
+		out.printf(format,"maxBindPort",server.getMaxBindPort());
+		out.printf(format,"minBindPort",server.getMinBindPort());
+		out.printf(format,"hostAddresses",server.getHostAddresses());
+		
 	}
     //
     private void showChannels(String args){
     	List<RelayChannel>channels=server.getChannels();
     	out.format("total %d channels\n",channels.size());
-    	String format="%-5s %-15s %-65s %-20s %-20s %-15s %-15s\n";
+    	String format="%-5s %-6s %-6s %-10s %-6s %-50s %-20s %-20s %-15s %-15s %-15s\n";
     	out.printf(format,
 				"#",
-				"NAME",
-    			"INFO",
-    			"PEERPACKET-A",
-    			"PEERPACKET-B",
+				"ID",
+				"TRSNP",
+    			"NAME",
+    			"ACTIVE",
+    			"LINK",
+    			"PKG SENT",
+    			"PKG RECV",
     			"CREATETIME",
-    			"LASTACCTIME");
+    			"LASTACCTIME",
+    			"LINKED");
     	int idx=1;
     	for(RelayChannel sh:channels){
-    		double byteA=sh.peerAByteCount;
-    		double byteB=sh.peerBByteCount;
+    		double byteSentCnt=sh.byteSentCount;
+    		double byteReveCnt=sh.byteReceiveCount;
+    		StringBuilder linkedStr=new StringBuilder();
+    		linkedStr.append("[");
+    		for(RelayChannel linked:sh.linkedChannels){
+    			linkedStr.append(linked.id+",");
+    		}
+    		linkedStr.append("]");
+    		String remoteAddressStr="";
+    		if(sh.remoteAddress!=null){
+    			remoteAddressStr=sh.remoteAddress.getAddress().getHostAddress()
+    					+":"+sh.remoteAddress.getPort();
+    		}
     		out.printf(format,
         			idx++,
-        			sh.getName(),
-        			sh.toString(),
-        			sh.peerAPacketCount+"/"+String.format("%.2fKB",byteA/1024),
-        			sh.peerBPacketCount+"/"+String.format("%.2fKB",byteB/1024),
+        			sh.id,
+        			sh.transportType,
+        			sh.name,
+        			sh.isActive(),
+        			sh.localHostAddress+":"+sh.localPort+"<-->"+remoteAddressStr,
+        			sh.packetSentCount+"/"+String.format("%.2fKB",byteSentCnt/1024),
+        			sh.packetReceiveCount+"/"+String.format("%.2fKB",byteReveCnt/1024),
         			formatDate(new Date(sh.createTime)),
-        			formatDate(new Date(sh.lastAccessTime)));
+        			formatDate(new Date(sh.lastAccessTime)),
+        			linkedStr);		
     	}
     }
    

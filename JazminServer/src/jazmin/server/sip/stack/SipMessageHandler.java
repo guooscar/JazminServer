@@ -1,8 +1,9 @@
 /**
  * 
  */
-package jazmin.server.sip;
+package jazmin.server.sip.stack;
 
+import jazmin.server.sip.SipContext;
 import jazmin.server.sip.io.sip.SipRequest;
 import jazmin.server.sip.io.sip.SipResponse;
 

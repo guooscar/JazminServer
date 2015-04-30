@@ -22,7 +22,7 @@ public final class SipSocketHandler extends SimpleChannelInboundHandler<SipMessa
 	private static Logger logger=LoggerFactory.get(SipSocketHandler.class);
 	
 	SipServer sipServer;
-	SipSocketHandler(SipServer server){
+	public SipSocketHandler(SipServer server){
 		this.sipServer=server;
 	}
 	//

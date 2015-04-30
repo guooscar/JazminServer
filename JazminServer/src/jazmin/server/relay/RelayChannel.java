@@ -4,57 +4,70 @@
 package jazmin.server.relay;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
-import io.netty.channel.socket.DatagramPacket;
 
 import java.net.InetSocketAddress;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author yama
  * 26 Apr, 2015
  */
-public class RelayChannel {
-	String localHostAddress;
-	//
-	int localPeerPortA;
-	int localPeerPortB;
-	
-	InetSocketAddress remotePeerAddressA;
-	InetSocketAddress remotePeerAddressB;
-	//
-	Channel channelA;
-	Channel channelB;
+public abstract class RelayChannel {
+	int id;
+	final String localHostAddress;
+	final int localPort;
+	InetSocketAddress remoteAddress;
 	//
 	long createTime;
 	long lastAccessTime;
 	//
-	long peerAPacketCount;
-	long peerBPacketCount;
-	long peerAByteCount;
-	long peerBByteCount;
+	Channel outboundChannel;
+	//
+	long packetReceiveCount;
+	long byteReceiveCount;
+	long packetSentCount;
+	long byteSentCount;
 	//
 	String name;
+	final TransportType transportType;
 	//
-	public RelayChannel() {
+	List<RelayChannel>linkedChannels;
+	static AtomicInteger channelId=new AtomicInteger();
+	//
+	RelayChannel(TransportType type,String localAddress,  int localPort) {
+		this.transportType=type;
+		this.localHostAddress=localAddress;
+		this.localPort=localPort;
 		createTime=System.currentTimeMillis();
 		lastAccessTime=createTime;
+		linkedChannels=new LinkedList<RelayChannel>();
+		id=channelId.incrementAndGet();
+		name=type+"-"+id;
 	}
 	//--------------------------------------------------------------------------
-	/**
-	 * @return the localPeerPortA
-	 */
-	public int getLocalPeerPortA() {
-		return localPeerPortA;
+	//
+	public void bidiLink(RelayChannel channel){
+		link(channel);
+		channel.link(this);
 	}
-
-	/**
-	 * @return the localPeerPortB
-	 */
-	public int getLocalPeerPortB() {
-		return localPeerPortB;
+	//
+	public void link(RelayChannel channel){
+		synchronized (linkedChannels) {
+			if(linkedChannels.contains(channel)){
+				throw new IllegalStateException("already linked");
+			}
+			linkedChannels.add(channel);
+		}
 	}
-
+	//
+	public void unLink(RelayChannel channel){
+		synchronized (linkedChannels) {
+			linkedChannels.remove(channel);
+		}
+	}
 	/**
 	 * @return the createTime
 	 */
@@ -75,49 +88,31 @@ public class RelayChannel {
 	public String getLocalHostAddress() {
 		return localHostAddress;
 	}
-	/**
-	 * @return the remotePeerAddressA
-	 */
-	public InetSocketAddress getRemotePeerAddressA() {
-		return remotePeerAddressA;
-	}
-	/**
-	 * @return the remotePeerAddressB
-	 */
-	public InetSocketAddress getRemotePeerAddressB() {
-		return remotePeerAddressB;
+	//
+	void sendData(ByteBuf buffer){
+		lastAccessTime=System.currentTimeMillis();
 	}
 	//--------------------------------------------------------------------------
-	void sendData2A(DatagramPacket pkg){
-		if(remotePeerAddressA!=null){
-			ByteBuf buf= Unpooled.copiedBuffer(pkg.content());
-			peerBByteCount+=buf.capacity();
-			peerBPacketCount++;
-			DatagramPacket dp=new DatagramPacket(
-					buf,
-					remotePeerAddressA);
-			channelA.writeAndFlush(dp);
+	void receiveData(ByteBuf buffer){
+		lastAccessTime=System.currentTimeMillis();
+		byteReceiveCount+=buffer.capacity();
+		packetReceiveCount++;
+		synchronized (linkedChannels) {
+			for(RelayChannel rc:linkedChannels){
+				rc.sendData(buffer);
+			}
 		}
 	}
-	//
-	void sendData2B(DatagramPacket pkg){
-		if(remotePeerAddressB!=null){
-			ByteBuf buf= Unpooled.copiedBuffer(pkg.content());
-			peerAByteCount+=buf.capacity();
-			peerAPacketCount++;
-			DatagramPacket dp=new DatagramPacket(
-					buf ,
-					remotePeerAddressB);
-			channelB.writeAndFlush(dp);
+	public boolean isActive(){
+		if(outboundChannel==null){
+			return false;
 		}
+		return outboundChannel.isActive();
 	}
 	//
 	void close()throws Exception{
-		if(channelA!=null){
-			channelA.close().sync();
-		}
-		if(channelB!=null){
-			channelB.close().sync();
+		if(outboundChannel!=null){
+			outboundChannel.close().sync();
 		}
 	}
 	
@@ -133,23 +128,70 @@ public class RelayChannel {
 	public void setName(String name) {
 		this.name = name;
 	}
-	//
+
+	/**
+	 * @return the localPort
+	 */
+	public int getLocalPort() {
+		return localPort;
+	}
+
+	/**
+	 * @return the remoteAddress
+	 */
+	public InetSocketAddress getRemoteAddress() {
+		return remoteAddress;
+	}
+
+	
+
+	/**
+	 * @return the packetReceiveCount
+	 */
+	public long getPacketReceiveCount() {
+		return packetReceiveCount;
+	}
+	/**
+	 * @return the byteReceiveCount
+	 */
+	public long getByteReceiveCount() {
+		return byteReceiveCount;
+	}
+	/**
+	 * @return the packetSentCount
+	 */
+	public long getPacketSentCount() {
+		return packetSentCount;
+	}
+	/**
+	 * @return the byteSentCount
+	 */
+	public long getByteSentCount() {
+		return byteSentCount;
+	}
+	/**
+	 * @return the transportType
+	 */
+	public TransportType getTransportType() {
+		return transportType;
+	}
+
+	/**
+	 * @return the linkedChannels
+	 */
+	public List<RelayChannel> getLinkedChannels() {
+		return new LinkedList<RelayChannel>(linkedChannels);
+	}
+	/**
+	 * 
+	 */
 	@Override
 	public String toString() {
-		StringBuilder sb=new StringBuilder();
-		if(remotePeerAddressA==null){
-			sb.append("null");
-		}else{
-			sb.append(remotePeerAddressA.getAddress().getHostAddress()+":"+remotePeerAddressA.getPort());
+		String removeAddressStr="";
+		if(remoteAddress!=null){
+			removeAddressStr=remoteAddress.getAddress().getHostAddress()
+					+":"+remoteAddress.getPort();
 		}
-		sb.append("-->");
-		sb.append(localPeerPortA+"+"+localPeerPortB);
-		sb.append("<--");
-		if(remotePeerAddressB==null){
-			sb.append("null");
-		}else{
-			sb.append(remotePeerAddressB.getAddress().getHostAddress()+":"+remotePeerAddressB.getPort());
-		}	
-		return sb.toString();
+		return name+"["+removeAddressStr+"<-->"+localHostAddress+":"+localPort+"]";
 	}
 }

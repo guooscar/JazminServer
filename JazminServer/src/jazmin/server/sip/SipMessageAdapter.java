@@ -2,6 +2,7 @@ package jazmin.server.sip;
 
 import jazmin.server.sip.io.sip.SipRequest;
 import jazmin.server.sip.io.sip.SipResponse;
+import jazmin.server.sip.stack.SipMessageHandler;
 
 /**
  * 

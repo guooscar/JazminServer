@@ -323,9 +323,7 @@ public class Jazmin {
 	 * @see java.util.concurrent.Executor#execute(java.lang.Runnable)
 	 */
 	public static void execute(Runnable command) {
-		dispatcher.invokeInPool(
-				command.getClass().getSimpleName(),
-				command, Runnable.class.getMethods()[0]);
+		scheduledExecutorService.execute(command);
 	}
 	/**
 	 * @see java.util.concurrent.ScheduledExecutorService#scheduleWithFixedDelay(Runnable, long, long, TimeUnit)

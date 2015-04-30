@@ -7,6 +7,7 @@ import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.HexDump;
 import jazmin.server.relay.RelayServer;
+import jazmin.server.relay.TransportType;
 import jazmin.server.sip.SipContext;
 import jazmin.server.sip.SipLocationBinding;
 import jazmin.server.sip.SipMessageAdapter;
@@ -80,8 +81,8 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 			//change sdp ip address and media port to relay server
 			changeSDP(response, 
 					relayServer.getHostAddresses().get(1),
-					ss.audioRelayChannel.getLocalPeerPortB(),
-					ss.videoRelayChannel.getLocalPeerPortB());
+					ss.audioRelayChannelB.getLocalPort(),
+					ss.videoRelayChannelB.getLocalPort());
 		}
 		ss.connection.send(response);
 	}
@@ -115,13 +116,18 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 				ss.connection=ctx.getConnection();
 				session.setUserObject(ss);
 				//
-				ss.audioRelayChannel=relayServer.createRelayChannel();
-				ss.videoRelayChannel=relayServer.createRelayChannel();
+				ss.audioRelayChannelA=relayServer.createRelayChannel(TransportType.UDP);
+				ss.audioRelayChannelB=relayServer.createRelayChannel(TransportType.UDP);
+				ss.videoRelayChannelA=relayServer.createRelayChannel(TransportType.UDP);
+				ss.videoRelayChannelB=relayServer.createRelayChannel(TransportType.UDP);
+				ss.audioRelayChannelA.bidiLink(ss.audioRelayChannelB);
+				ss.videoRelayChannelA.bidiLink(ss.videoRelayChannelB);
+				
 			}
 			changeSDP(message, 
 					relayServer.getHostAddresses().get(0),
-					ss.audioRelayChannel.getLocalPeerPortA(),
-					ss.videoRelayChannel.getLocalPeerPortA());
+					ss.audioRelayChannelA.getLocalPort(),
+					ss.videoRelayChannelA.getLocalPort());
 			//
 			ctx.getServer().proxyTo(toBinding.getConnection(),message);
 		}
@@ -145,6 +151,10 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 		ConnectionField audioConneion=s.getConnection("audio");
 		if(audioConneion!=null){
 			audioConneion.setAddress(host);
+		}
+		ConnectionField videoConneion=s.getConnection("video");
+		if(videoConneion!=null){
+			videoConneion.setAddress(host);
 		}
 		//
 		s.getOrigin().setAddress(host);

@@ -1,4 +1,4 @@
-package jazmin.server.sip;
+package jazmin.server.sip.stack;
 
 import io.netty.channel.Channel;
 import io.netty.channel.socket.DatagramPacket;
@@ -7,8 +7,8 @@ import java.net.InetSocketAddress;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
+import jazmin.server.sip.SipChannel;
 import jazmin.server.sip.io.sip.SipMessage;
-import jazmin.server.sip.stack.AbstractConnection;
 
 /**
  * Encapsulates a

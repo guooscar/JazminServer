@@ -13,7 +13,6 @@ import java.util.List;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.server.sip.TcpConnection;
 import jazmin.server.sip.io.buffer.Buffer;
 import jazmin.server.sip.io.sip.SipMessage;
 import jazmin.server.sip.io.sip.impl.SipInitialLine;

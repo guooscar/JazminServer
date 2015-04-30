@@ -111,20 +111,18 @@ public abstract class AbstractConnection implements Connection {
      * @throws IndexOutOfBoundsException 
      */
     protected ByteBuf toByteBuf(final SipMessage msg) throws Exception {
-       
-            final Buffer b = msg.toBuffer();
-            final int capacity = b.capacity() + 2;
-            final ByteBuf buffer = this.channel.alloc().buffer(capacity, capacity);
+        final Buffer b = msg.toBuffer();
+        final int capacity = b.capacity() + 2;
+        final ByteBuf buffer = this.channel.alloc().buffer(capacity, capacity);
 
-            for (int i = 0; i < b.getReadableBytes(); ++i) {
-                buffer.writeByte(b.getByte(i));
-            }
-            if(!msg.hasContent()){
-            	buffer.writeByte(SipParser.CR);
-                buffer.writeByte(SipParser.LF);	
-            }
-            return buffer;
-       
+        for (int i = 0; i < b.getReadableBytes(); ++i) {
+            buffer.writeByte(b.getByte(i));
+        }
+        if(!msg.hasContent()){
+        	buffer.writeByte(SipParser.CR);
+        	buffer.writeByte(SipParser.LF);	
+        }
+        return buffer;
     }
     
     //

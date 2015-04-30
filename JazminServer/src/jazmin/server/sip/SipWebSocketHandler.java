@@ -37,6 +37,7 @@ import jazmin.server.sip.stack.Connection;
 import jazmin.server.sip.stack.DefaultSipMessageEvent;
 import jazmin.server.sip.stack.SipMessageEvent;
 import jazmin.server.sip.stack.SystemClock;
+import jazmin.server.sip.stack.WSConnection;
 
 /**
  * Handles handshakes and messages

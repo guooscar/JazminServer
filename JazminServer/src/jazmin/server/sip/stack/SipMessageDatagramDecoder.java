@@ -9,7 +9,6 @@ import java.util.List;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.server.sip.UdpConnection;
 import jazmin.server.sip.io.buffer.Buffer;
 import jazmin.server.sip.io.buffer.Buffers;
 import jazmin.server.sip.io.sip.SipMessage;

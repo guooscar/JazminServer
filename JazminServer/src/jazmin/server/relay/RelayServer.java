@@ -4,18 +4,23 @@
 package jazmin.server.relay;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.sctp.SctpChannel;
+import io.netty.channel.sctp.nio.NioSctpServerChannel;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import jazmin.core.Jazmin;
@@ -33,28 +38,27 @@ import jazmin.server.console.ConsoleServer;
 public class RelayServer extends Server{
 	private static Logger logger=LoggerFactory.get(RelayServer.class);
 	//
-	private EventLoopGroup group;
-	private List<RelayChannel>relayChannels;
+	private Map<Integer,RelayChannel>relayChannels;
 	private int idleTime;
-	private int minStartPort;
-	private int maxStartPort;
+	private int minBindPort;
+	private int maxBindPort;
 	private String hostAddress;
 	private List<String>hostAddresses;
+	//
+	private EventLoopGroup udpGroup;
+	private EventLoopGroup bossGroup;
+	private EventLoopGroup workerGroup;
 	//
 	private boolean portPool[];
 	//
 	public RelayServer() {
 		hostAddress="0.0.0.0";
-		minStartPort=10000;
-		maxStartPort=30000;
+		minBindPort=10000;
+		maxBindPort=65535;
 		idleTime=30;//30sec
-		IOWorker ioWorker=new IOWorker("RelayIOWorker",
-    			Runtime.getRuntime().availableProcessors()*2+1);
-		group = new NioEventLoopGroup(0,ioWorker);
-		relayChannels=Collections.synchronizedList(new LinkedList<RelayChannel>());
-		Jazmin.scheduleAtFixedRate(this::checkIdleChannel,idleTime/2,idleTime/2, 
-				TimeUnit.SECONDS);
-		portPool=new boolean[maxStartPort-minStartPort];
+		relayChannels=new ConcurrentHashMap<Integer, RelayChannel>();
+		
+		portPool=new boolean[maxBindPort-minBindPort];
 		Arrays.fill(portPool, false);
 		hostAddresses=new ArrayList<>();
 	}
@@ -75,16 +79,23 @@ public class RelayServer extends Server{
 
 	//
 	public List<RelayChannel>getChannels(){
-		return new ArrayList<RelayChannel>(relayChannels);
+		return new ArrayList<RelayChannel>(relayChannels.values());
 	}
 	//
-	public RelayChannel createRelayChannel(String name) throws Exception {
-		RelayChannel rc=createRelayChannel();
+	private void freePort(int port){
+		synchronized (portPool) {
+			portPool[port-minBindPort]=false;
+		}
+	}
+	//
+	public RelayChannel createRelayChannel(TransportType transportType,String name) 
+			throws Exception {
+		RelayChannel rc=createRelayChannel(transportType);
 		rc.setName(name);
 		return rc;
 	}
 	//
-	public RelayChannel createRelayChannel() throws Exception {
+	public RelayChannel createRelayChannel(TransportType transportType) throws Exception {
 		synchronized (portPool) {
 			int nextPortIdx=-1;
 			for(int i=0;i<portPool.length;i++){
@@ -96,56 +107,90 @@ public class RelayServer extends Server{
 			if(nextPortIdx==-1){
 				throw new IllegalStateException("all port in use");
 			}
-			//
+			int nextPort= nextPortIdx+minBindPort;
+			RelayChannel finalRelayChannel=null;
+			switch (transportType) {
+			case UDP:
+				UDPRelayChannel rc=new UDPRelayChannel(hostAddress,nextPort);
+				rc.outboundChannel=bindUDP(rc,nextPort);
+				finalRelayChannel=rc;
+				break;
+			case TCP:
+				SocketRelayChannel rc2=new SocketRelayChannel(TransportType.TCP,hostAddress,nextPort);
+				rc2.serverChannel=bindTCP(rc2,nextPort);
+				finalRelayChannel=rc2;
+				break;
+			case SCTP:
+				SocketRelayChannel rc3=new SocketRelayChannel(TransportType.SCTP,hostAddress,nextPort);
+				rc3.serverChannel=bindSCTP(rc3,nextPort);
+				finalRelayChannel=rc3;
+				break;	
+			default:
+				throw new IllegalArgumentException("unspport transport type:"
+						+transportType);
+			}
 			portPool[nextPortIdx]=true;
-			return createRelayChannel(minStartPort+nextPortIdx, maxStartPort+nextPortIdx);
+			relayChannels.put(finalRelayChannel.id, finalRelayChannel);
+			return finalRelayChannel;
 		}
 	}
+
 	//
-	private RelayChannel createRelayChannel(int portA,int portB) throws Exception {
-		RelayChannel rc = new RelayChannel();
-		rc.localHostAddress=hostAddress;
-		rc.localPeerPortA = portA;
-		rc.localPeerPortB = portB;
-		// binding port
-		rc.channelA=bind(rc,rc.localPeerPortA);
-		rc.channelB=bind(rc,rc.localPeerPortB);
-		//
-		relayChannels.add(rc);
-		logger.info("create channel:"+rc);
-		return rc;
+	private Channel bindUDP(UDPRelayChannel rc, int port) throws Exception {
+		Bootstrap udpBootstrap=new Bootstrap();
+		udpBootstrap.group(udpGroup).channel(NioDatagramChannel.class)
+				.option(ChannelOption.SO_BROADCAST, true)
+				.handler(new RelayUDPChannelHandler(rc));
+		logger.info("bind to udp {}:{}", hostAddress, port);
+		return udpBootstrap.bind(hostAddress, port).sync().channel();
+	}
+
+	//
+	private Channel bindTCP(SocketRelayChannel rc,int port) throws Exception {
+		ServerBootstrap tcpBootstrap=new ServerBootstrap();
+		tcpBootstrap.group(this.bossGroup, this.workerGroup)
+		.channel(NioServerSocketChannel.class)
+		.childHandler(new ChannelInitializer<SocketChannel>() {
+            @Override
+            public void initChannel(final SocketChannel ch) throws Exception {
+            	ch.pipeline().addLast(new RelaySocketChannelHandler(rc));
+            }
+        }).option(ChannelOption.SO_BACKLOG, 128)
+		.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
+		.childOption(ChannelOption.SO_KEEPALIVE, true)
+		.childOption(ChannelOption.TCP_NODELAY, true);
+		logger.info("bind to tcp {}:{}", hostAddress, port);
+		return tcpBootstrap.bind(port).sync().channel();
+	}
+	//
+	private Channel bindSCTP(SocketRelayChannel rc,int port) throws Exception {
+		ServerBootstrap tcpBootstrap=new ServerBootstrap();
+		tcpBootstrap.group(this.bossGroup, this.workerGroup)
+		.channel(NioSctpServerChannel.class)
+		.childHandler(new ChannelInitializer<SctpChannel>() {
+            @Override
+            public void initChannel(final SctpChannel ch) throws Exception {
+            	ch.pipeline().addLast(new RelaySocketChannelHandler(rc));
+            }
+        }).option(ChannelOption.SO_BACKLOG, 128);
+		logger.info("bind to tcp {}:{}", hostAddress, port);
+		return tcpBootstrap.bind(port).sync().channel();
 	}
 	//
 	private void checkIdleChannel(){
-		Iterator<RelayChannel>it=relayChannels.iterator();
 		long currentTime=System.currentTimeMillis();
-		while(it.hasNext()){
-			RelayChannel channel=it.next();
-			if(currentTime-channel.lastAccessTime>idleTime*1000){
+		for(RelayChannel rc:relayChannels.values()){
+			if(currentTime-rc.lastAccessTime>idleTime*1000){
 				try{
-					logger.info("remove idle channel."+channel);
-					channel.close();
-					relayChannelClosed(channel);
+					logger.info("remove idle channel."+rc);
+					rc.close();
+					freePort(rc.localPort);
+					relayChannels.remove(rc.id);
 				}catch(Exception e){
 					logger.catching(e);
 				}
-				it.remove();
 			}
 		}
-	}
-	//
-	void relayChannelClosed(RelayChannel channel){
-		synchronized (channel) {
-			portPool[channel.localPeerPortA-minStartPort]=false;
-		}
-	}
-	//
-	private Channel bind(RelayChannel rc,int port)throws Exception{
-		Bootstrap b = new Bootstrap();
-		b.group(group).channel(NioDatagramChannel.class)
-			.option(ChannelOption.SO_BROADCAST, true)
-			.handler(new RelayChannelHandler(rc,port));
-		return b.bind(hostAddress,port).sync().channel();
 	}
 	//--------------------------------------------------------------------------
 	/**
@@ -164,26 +209,26 @@ public class RelayServer extends Server{
 	/**
 	 * @return the minStartPort
 	 */
-	public int getMinStartPort() {
-		return minStartPort;
+	public int getMinBindPort() {
+		return minBindPort;
 	}
 	/**
 	 * @param minStartPort the minStartPort to set
 	 */
-	public void setMinStartPort(int minStartPort) {
-		this.minStartPort = minStartPort;
+	public void setMinBindPort(int minStartPort) {
+		this.minBindPort = minStartPort;
 	}
 	/**
 	 * @return the maxStartPort
 	 */
-	public int getMaxStartPort() {
-		return maxStartPort;
+	public int getMaxBindPort() {
+		return maxBindPort;
 	}
 	/**
 	 * @param maxStartPort the maxStartPort to set
 	 */
-	public void setMaxStartPort(int maxStartPort) {
-		this.maxStartPort = maxStartPort;
+	public void setMaxBindPort(int maxStartPort) {
+		this.maxBindPort = maxStartPort;
 	}
 	/**
 	 * @return the hostAddress
@@ -207,13 +252,38 @@ public class RelayServer extends Server{
 	}
 	//
 	@Override
+	public void start() throws Exception {
+		IOWorker ioWorker=new IOWorker("RelayIOWorker",
+    			Runtime.getRuntime().availableProcessors()*2+1);
+		Jazmin.scheduleAtFixedRate(this::checkIdleChannel,idleTime/2,idleTime/2, 
+				TimeUnit.SECONDS);
+		udpGroup = new NioEventLoopGroup(0,ioWorker);
+		bossGroup=new NioEventLoopGroup(1,ioWorker);
+    	workerGroup=new NioEventLoopGroup(0,ioWorker);
+	}
+	//
+	@Override
+	public void stop() throws Exception {
+		if(udpGroup!=null){
+			udpGroup.shutdownGracefully();
+		}
+		if(bossGroup!=null){
+			bossGroup.shutdownGracefully();
+		}
+		if(workerGroup!=null){
+			workerGroup.shutdownGracefully();
+		}
+	}
+	//
+	@Override
 	public String info() {
 		InfoBuilder ib = InfoBuilder.create();
 		ib.section("info").format("%-30s:%-30s\n")
-				.print("minStartPort", getMinStartPort())
-				.print("maxStartPort", getMaxStartPort())
+				.print("minBindPort", getMinBindPort())
+				.print("maxBindPort", getMaxBindPort())
 				.print("idleTime", getIdleTime())
-				.print("hostAddress", getHostAddress());
+				.print("hostAddress", getHostAddress())
+				.print("hostAddresses", getHostAddresses());
 		return ib.toString();
 	}
 }
