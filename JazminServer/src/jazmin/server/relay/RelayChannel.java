@@ -4,9 +4,7 @@
 package jazmin.server.relay;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 
-import java.net.InetSocketAddress;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -17,14 +15,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class RelayChannel {
 	int id;
-	final String localHostAddress;
-	final int localPort;
-	InetSocketAddress remoteAddress;
+	
 	//
 	long createTime;
 	long lastAccessTime;
-	//
-	Channel outboundChannel;
 	//
 	long packetReceiveCount;
 	long byteReceiveCount;
@@ -32,29 +26,29 @@ public abstract class RelayChannel {
 	long byteSentCount;
 	//
 	String name;
-	final TransportType transportType;
-	//
+	
 	List<RelayChannel>linkedChannels;
 	static AtomicInteger channelId=new AtomicInteger();
 	//
-	RelayChannel(TransportType type,String localAddress,  int localPort) {
-		this.transportType=type;
-		this.localHostAddress=localAddress;
-		this.localPort=localPort;
+	public RelayChannel() {
 		createTime=System.currentTimeMillis();
 		lastAccessTime=createTime;
 		linkedChannels=new LinkedList<RelayChannel>();
 		id=channelId.incrementAndGet();
-		name=type+"-"+id;
+		name=id+"";
 	}
 	//--------------------------------------------------------------------------
 	//
-	public void bidiLink(RelayChannel channel){
-		link(channel);
-		channel.link(this);
+	public void bidiRelay(RelayChannel channel){
+		relayTo(channel);
+		channel.relayTo(this);
 	}
 	//
-	public void link(RelayChannel channel){
+	public void relayFrom(RelayChannel channel){
+		channel.relayTo(this);
+	}
+	//
+	public void relayTo(RelayChannel channel){
 		synchronized (linkedChannels) {
 			if(linkedChannels.contains(channel)){
 				throw new IllegalStateException("already linked");
@@ -63,11 +57,13 @@ public abstract class RelayChannel {
 		}
 	}
 	//
-	public void unLink(RelayChannel channel){
+	public void unRelay(RelayChannel channel){
 		synchronized (linkedChannels) {
 			linkedChannels.remove(channel);
 		}
 	}
+	
+	//
 	/**
 	 * @return the createTime
 	 */
@@ -82,40 +78,28 @@ public abstract class RelayChannel {
 		return lastAccessTime;
 	}
 	
-	/**
-	 * @return the localHostAddress
-	 */
-	public String getLocalHostAddress() {
-		return localHostAddress;
-	}
 	//
-	void sendData(ByteBuf buffer){
-		lastAccessTime=System.currentTimeMillis();
-	}
+	abstract void sendData(ByteBuf buffer);
 	//--------------------------------------------------------------------------
-	void receiveData(ByteBuf buffer){
+	final void receiveData(ByteBuf buffer){
 		lastAccessTime=System.currentTimeMillis();
 		byteReceiveCount+=buffer.capacity();
 		packetReceiveCount++;
 		synchronized (linkedChannels) {
 			for(RelayChannel rc:linkedChannels){
+				rc.lastAccessTime=System.currentTimeMillis();
 				rc.sendData(buffer);
 			}
 		}
 	}
+	//
 	public boolean isActive(){
-		if(outboundChannel==null){
-			return false;
-		}
-		return outboundChannel.isActive();
+		return true;
 	}
 	//
-	void close()throws Exception{
-		if(outboundChannel!=null){
-			outboundChannel.close().sync();
-		}
+	public void close()throws Exception{
+		
 	}
-	
 	/**
 	 * @return the name
 	 */
@@ -128,23 +112,6 @@ public abstract class RelayChannel {
 	public void setName(String name) {
 		this.name = name;
 	}
-
-	/**
-	 * @return the localPort
-	 */
-	public int getLocalPort() {
-		return localPort;
-	}
-
-	/**
-	 * @return the remoteAddress
-	 */
-	public InetSocketAddress getRemoteAddress() {
-		return remoteAddress;
-	}
-
-	
-
 	/**
 	 * @return the packetReceiveCount
 	 */
@@ -169,12 +136,6 @@ public abstract class RelayChannel {
 	public long getByteSentCount() {
 		return byteSentCount;
 	}
-	/**
-	 * @return the transportType
-	 */
-	public TransportType getTransportType() {
-		return transportType;
-	}
 
 	/**
 	 * @return the linkedChannels
@@ -182,16 +143,5 @@ public abstract class RelayChannel {
 	public List<RelayChannel> getLinkedChannels() {
 		return new LinkedList<RelayChannel>(linkedChannels);
 	}
-	/**
-	 * 
-	 */
-	@Override
-	public String toString() {
-		String removeAddressStr="";
-		if(remoteAddress!=null){
-			removeAddressStr=remoteAddress.getAddress().getHostAddress()
-					+":"+remoteAddress.getPort();
-		}
-		return name+"["+removeAddressStr+"<-->"+localHostAddress+":"+localPort+"]";
-	}
+	
 }

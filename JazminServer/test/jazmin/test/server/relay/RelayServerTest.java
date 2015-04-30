@@ -5,6 +5,7 @@ package jazmin.test.server.relay;
 
 import jazmin.core.Jazmin;
 import jazmin.server.console.ConsoleServer;
+import jazmin.server.relay.HexDumpRelayChannel;
 import jazmin.server.relay.RelayChannel;
 import jazmin.server.relay.RelayServer;
 import jazmin.server.relay.TransportType;
@@ -27,8 +28,8 @@ public class RelayServerTest {
 			Jazmin.addServer(server);
 			Jazmin.start();
 			RelayChannel rc1=server.createRelayChannel(TransportType.UDP);
-			RelayChannel rc2=server.createRelayChannel(TransportType.SCTP);
-			rc1.link(rc2);
+			//RelayChannel rc2=new HexDumpRelayChannel();
+			//rc1.relayTo(rc2);
 		}
 
 }

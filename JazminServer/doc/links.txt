@@ -1,2 +1,2 @@
 webcamera http://www.codeproject.com/Articles/800910/Broadcasting-of-a-Video-Stream-from-an-IP-camera-U
-webrtc proxy http://www.meetecho.com/en/
+webrtc proxy http://janus.conf.meetecho.com/siptest.html

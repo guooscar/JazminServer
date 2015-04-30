@@ -20,6 +20,8 @@ public class RelayServerCommand extends ConsoleCommand {
     	addOption("i",false,"show server information.",this::showServerInfo);
     	addOption("c",false,"show server channels.",this::showChannels);
     	addOption("ctop",false,"show server channels.",this::showChannelsTop);
+    	addOption("dump",true,"relay channel to hex dump channel ",this::dumpChannel);
+    	addOption("undump",true,"remove hex dump channel ",this::unDumpChannel);
     	//
     	server=Jazmin.getServer(RelayServer.class);
     }
@@ -71,17 +73,28 @@ public class RelayServerCommand extends ConsoleCommand {
     		}
     		linkedStr.append("]");
     		String remoteAddressStr="";
-    		if(sh.remoteAddress!=null){
-    			remoteAddressStr=sh.remoteAddress.getAddress().getHostAddress()
-    					+":"+sh.remoteAddress.getPort();
+    		String transportType="";
+    		String linkInfo="";
+    		if(sh instanceof NetworkRelayChannel){
+    			NetworkRelayChannel nrc=(NetworkRelayChannel) sh;
+    			if(nrc.remoteAddress!=null){
+        			remoteAddressStr=nrc.remoteAddress.getAddress().getHostAddress()
+        					+":"+nrc.remoteAddress.getPort();
+        		}
+    			//
+    			transportType=nrc.transportType.toString();
+    			linkInfo=nrc.localHostAddress+":"+nrc.localPort+"<-->"+remoteAddressStr;
+    		}else{
+    			transportType=sh.getClass().getSimpleName();
     		}
+    		//
     		out.printf(format,
         			idx++,
         			sh.id,
-        			sh.transportType,
+        			transportType,
         			sh.name,
         			sh.isActive(),
-        			sh.localHostAddress+":"+sh.localPort+"<-->"+remoteAddressStr,
+        			linkInfo,
         			sh.packetSentCount+"/"+String.format("%.2fKB",byteSentCnt/1024),
         			sh.packetReceiveCount+"/"+String.format("%.2fKB",byteReveCnt/1024),
         			formatDate(new Date(sh.createTime)),
@@ -101,5 +114,30 @@ public class RelayServerCommand extends ConsoleCommand {
     		TimeUnit.SECONDS.sleep(1);
     	}
     }
-    
+    //
+    private void dumpChannel(String cid){
+    	RelayChannel rc=server.getChannel(cid);
+    	if(rc==null){
+    		err.println("can not found channel with id:"+cid);
+    		return;
+    	}
+    	//
+    	HexDumpRelayChannel hexDump=new HexDumpRelayChannel();
+    	server.addChannel(hexDump);
+    	rc.relayTo(hexDump);
+    }
+    //
+    private void unDumpChannel(String cid){
+    	RelayChannel rc=server.getChannel(cid);
+    	if(rc==null){
+    		err.println("can not found channel with id:"+cid);
+    		return;
+    	}
+    	//
+    	rc.getLinkedChannels().forEach(c->{
+    		if(c instanceof HexDumpRelayChannel){
+    			rc.unRelay(c);
+    		}
+    	});
+    }
 }

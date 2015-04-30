@@ -120,8 +120,8 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 				ss.audioRelayChannelB=relayServer.createRelayChannel(TransportType.UDP);
 				ss.videoRelayChannelA=relayServer.createRelayChannel(TransportType.UDP);
 				ss.videoRelayChannelB=relayServer.createRelayChannel(TransportType.UDP);
-				ss.audioRelayChannelA.bidiLink(ss.audioRelayChannelB);
-				ss.videoRelayChannelA.bidiLink(ss.videoRelayChannelB);
+				ss.audioRelayChannelA.bidiRelay(ss.audioRelayChannelB);
+				ss.videoRelayChannelA.bidiRelay(ss.videoRelayChannelB);
 				
 			}
 			changeSDP(message, 

@@ -11,7 +11,7 @@ import io.netty.channel.socket.DatagramPacket;
  * @author yama
  *
  */
-public class UDPRelayChannel extends RelayChannel{
+public class UDPRelayChannel extends NetworkRelayChannel{
 
 	UDPRelayChannel(String localAddress, int localPort) {
 		super(TransportType.UDP, localAddress, localPort);
@@ -19,7 +19,6 @@ public class UDPRelayChannel extends RelayChannel{
 	//
 	@Override
 	void sendData(ByteBuf buffer) {
-		super.sendData(buffer);
 		if(outboundChannel.isActive()){
 			ByteBuf buf= Unpooled.copiedBuffer(buffer);
 			DatagramPacket dp=new DatagramPacket(

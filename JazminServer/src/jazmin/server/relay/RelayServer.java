@@ -32,13 +32,13 @@ import jazmin.misc.io.IOWorker;
 import jazmin.server.console.ConsoleServer;
 
 /**
- * relay UDP package for NAT through
+ * relay UDP/TCP/SCTP package for NAT through
  * @author yama 26 Apr, 2015
  */
 public class RelayServer extends Server{
 	private static Logger logger=LoggerFactory.get(RelayServer.class);
 	//
-	private Map<Integer,RelayChannel>relayChannels;
+	private Map<String,RelayChannel>relayChannels;
 	private int idleTime;
 	private int minBindPort;
 	private int maxBindPort;
@@ -56,30 +56,41 @@ public class RelayServer extends Server{
 		minBindPort=10000;
 		maxBindPort=65535;
 		idleTime=30;//30sec
-		relayChannels=new ConcurrentHashMap<Integer, RelayChannel>();
+		relayChannels=new ConcurrentHashMap<String, RelayChannel>();
 		
 		portPool=new boolean[maxBindPort-minBindPort];
 		Arrays.fill(portPool, false);
 		hostAddresses=new ArrayList<>();
 	}
-	
 	/**
 	 * @return the hostAddresses
 	 */
 	public List<String> getHostAddresses() {
 		return hostAddresses;
 	}
-
+	/**
+	 * add channel to server
+	 * @param rc
+	 */
+	public void addChannel(RelayChannel rc){
+		if(relayChannels.containsKey(rc.id+"")){
+			throw new IllegalArgumentException("channel # "+rc.id+"already exists");
+		}
+		relayChannels.put(rc.id+"",rc);
+	}
 	/**
 	 * @param hostAddresses the hostAddresses to set
 	 */
 	public void addHostAddress(String addr) {
 		this.hostAddresses.add(addr);
 	}
-
 	//
 	public List<RelayChannel>getChannels(){
 		return new ArrayList<RelayChannel>(relayChannels.values());
+	}
+	//
+	public RelayChannel getChannel(String id){
+		return relayChannels.get(id);
 	}
 	//
 	private void freePort(int port){
@@ -95,7 +106,7 @@ public class RelayServer extends Server{
 		return rc;
 	}
 	//
-	public RelayChannel createRelayChannel(TransportType transportType) throws Exception {
+	public NetworkRelayChannel createRelayChannel(TransportType transportType) throws Exception {
 		synchronized (portPool) {
 			int nextPortIdx=-1;
 			for(int i=0;i<portPool.length;i++){
@@ -108,7 +119,7 @@ public class RelayServer extends Server{
 				throw new IllegalStateException("all port in use");
 			}
 			int nextPort= nextPortIdx+minBindPort;
-			RelayChannel finalRelayChannel=null;
+			NetworkRelayChannel finalRelayChannel=null;
 			switch (transportType) {
 			case UDP:
 				UDPRelayChannel rc=new UDPRelayChannel(hostAddress,nextPort);
@@ -130,7 +141,7 @@ public class RelayServer extends Server{
 						+transportType);
 			}
 			portPool[nextPortIdx]=true;
-			relayChannels.put(finalRelayChannel.id, finalRelayChannel);
+			relayChannels.put(finalRelayChannel.id+"", finalRelayChannel);
 			return finalRelayChannel;
 		}
 	}
@@ -184,7 +195,9 @@ public class RelayServer extends Server{
 				try{
 					logger.info("remove idle channel."+rc);
 					rc.close();
-					freePort(rc.localPort);
+					if(rc instanceof NetworkRelayChannel){
+						freePort(((NetworkRelayChannel)rc).localPort);		
+					}
 					relayChannels.remove(rc.id);
 				}catch(Exception e){
 					logger.catching(e);

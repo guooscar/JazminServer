@@ -26,13 +26,10 @@ public class HexDump {
 
     public static String dumpHexString(final byte[] array, final int offset, final int length) {
         final StringBuilder result = new StringBuilder();
-
         final byte[] line = new byte[16];
         int lineIndex = 0;
-
-        result.append("\n0x");
+        result.append("0x");
         result.append(toHexString(offset));
-
         for (int i = offset; i < (offset + length); i++) {
             if (lineIndex == 16) {
                 result.append(" ");

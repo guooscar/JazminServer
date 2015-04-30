@@ -20,8 +20,8 @@ import jazmin.log.LoggerFactory;
 public class RelayUDPChannelHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 	private static Logger logger=LoggerFactory.get(RelayChannel.class);
 	//
-	RelayChannel relayChannel;
-	public RelayUDPChannelHandler(RelayChannel relayChannel) {
+	NetworkRelayChannel relayChannel;
+	public RelayUDPChannelHandler(NetworkRelayChannel relayChannel) {
 		this.relayChannel=relayChannel;
 	}
 	//

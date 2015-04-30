@@ -20,8 +20,8 @@ import jazmin.log.LoggerFactory;
 public class RelaySocketChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
 	private static Logger logger=LoggerFactory.get(RelayChannel.class);
 	//
-	RelayChannel relayChannel;
-	public RelaySocketChannelHandler(RelayChannel relayChannel) {
+	NetworkRelayChannel relayChannel;
+	public RelaySocketChannelHandler(NetworkRelayChannel relayChannel) {
 		this.relayChannel=relayChannel;
 	}
 	//

@@ -11,7 +11,7 @@ import io.netty.channel.Channel;
  * @author yama
  *
  */
-public class SocketRelayChannel extends RelayChannel{
+public class SocketRelayChannel extends NetworkRelayChannel{
 	Channel serverChannel;
 	//
 	SocketRelayChannel(TransportType type,String localAddress, int localPort) {
@@ -19,7 +19,7 @@ public class SocketRelayChannel extends RelayChannel{
 	}
 	//
 	@Override
-	void close() throws Exception {
+	public void close() throws Exception {
 		super.close();
 		if(serverChannel!=null){
 			serverChannel.close();
@@ -28,7 +28,6 @@ public class SocketRelayChannel extends RelayChannel{
 	//
 	@Override
 	void sendData(ByteBuf buffer) {
-		super.sendData(buffer);
 		if(outboundChannel!=null&&outboundChannel.isActive()){
 			ByteBuf buf= Unpooled.copiedBuffer(buffer);
 			packetSentCount++;
