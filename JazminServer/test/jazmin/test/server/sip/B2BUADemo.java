@@ -25,7 +25,7 @@ public class B2BUADemo extends Application{
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception{
-		String ipAddress="10.44.218.63";
+		String ipAddress="192.168.3.103";
 		LoggerFactory.setLevel("DEBUG");
 		SipServer server=new SipServer();
 		server.setHostAddress(ipAddress);
@@ -33,7 +33,6 @@ public class B2BUADemo extends Application{
 		server.setMessageHandler(new B2BUAMessageHandler());
 		Jazmin.addServer(server);
 		RelayServer relayServer=new RelayServer();
-		//relayServer.setHostAddress("10.44.218.63");
 		relayServer.addHostAddress(ipAddress);//interface 1
 		relayServer.addHostAddress(ipAddress);//interface 2
 		Jazmin.addServer(relayServer);

@@ -2,11 +2,16 @@ package jazmin.test.server.sip;
 
 import java.io.IOException;
 
+import jazmin.codec.sdp.SessionDescription;
+import jazmin.codec.sdp.SessionDescriptionParser;
+import jazmin.codec.sdp.fields.ConnectionField;
+import jazmin.codec.sdp.fields.MediaDescriptionField;
 import jazmin.core.Jazmin;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.HexDump;
 import jazmin.server.relay.RelayServer;
+import jazmin.server.relay.RtpDumpRelayChannel;
 import jazmin.server.relay.TransportType;
 import jazmin.server.sip.SipContext;
 import jazmin.server.sip.SipLocationBinding;
@@ -15,10 +20,6 @@ import jazmin.server.sip.SipSession;
 import jazmin.server.sip.SipStatusCode;
 import jazmin.server.sip.io.buffer.Buffer;
 import jazmin.server.sip.io.buffer.Buffers;
-import jazmin.server.sip.io.sdp.SessionDescription;
-import jazmin.server.sip.io.sdp.SessionDescriptionParser;
-import jazmin.server.sip.io.sdp.fields.ConnectionField;
-import jazmin.server.sip.io.sdp.fields.MediaDescriptionField;
 import jazmin.server.sip.io.sip.SipMessage;
 import jazmin.server.sip.io.sip.SipRequest;
 import jazmin.server.sip.io.sip.SipResponse;
@@ -122,8 +123,12 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 				ss.videoRelayChannelB=relayServer.createRelayChannel(TransportType.UDP);
 				ss.audioRelayChannelA.bidiRelay(ss.audioRelayChannelB);
 				ss.videoRelayChannelA.bidiRelay(ss.videoRelayChannelB);
-				
+				//
+				RtpDumpRelayChannel rtpDumpChannel=new RtpDumpRelayChannel("/tmp/rtp.dump",false);
+				ss.audioRelayChannelA.relayTo(rtpDumpChannel);
+				relayServer.addChannel(rtpDumpChannel);
 			}
+			//
 			changeSDP(message, 
 					relayServer.getHostAddresses().get(0),
 					ss.audioRelayChannelA.getLocalPort(),

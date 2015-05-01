@@ -98,14 +98,25 @@ public class RelayServer extends Server{
 			portPool[port-minBindPort]=false;
 		}
 	}
-	//
-	public RelayChannel createRelayChannel(TransportType transportType,String name) 
+	/**
+	 * create a network relay channel using specified transport type and name
+	 * @param transportType the network transport type
+	 * @param name the relay channel name
+	 * @return relay channel
+	 * @throws Exception
+	 */
+	public NetworkRelayChannel createRelayChannel(TransportType transportType,String name) 
 			throws Exception {
-		RelayChannel rc=createRelayChannel(transportType);
+		NetworkRelayChannel rc=createRelayChannel(transportType);
 		rc.setName(name);
 		return rc;
 	}
-	//
+	/**
+	 * create relay channel using specified transport type
+	 * @param transportType the relay channel transport type 
+	 * @return
+	 * @throws Exception
+	 */
 	public NetworkRelayChannel createRelayChannel(TransportType transportType) throws Exception {
 		synchronized (portPool) {
 			int nextPortIdx=-1;
@@ -127,12 +138,14 @@ public class RelayServer extends Server{
 				finalRelayChannel=rc;
 				break;
 			case TCP:
-				SocketRelayChannel rc2=new SocketRelayChannel(TransportType.TCP,hostAddress,nextPort);
+				SocketRelayChannel rc2=new SocketRelayChannel(TransportType.TCP,
+						hostAddress,nextPort);
 				rc2.serverChannel=bindTCP(rc2,nextPort);
 				finalRelayChannel=rc2;
 				break;
 			case SCTP:
-				SocketRelayChannel rc3=new SocketRelayChannel(TransportType.SCTP,hostAddress,nextPort);
+				SocketRelayChannel rc3=new SocketRelayChannel(TransportType.SCTP,
+						hostAddress,nextPort);
 				rc3.serverChannel=bindSCTP(rc3,nextPort);
 				finalRelayChannel=rc3;
 				break;	
@@ -145,7 +158,6 @@ public class RelayServer extends Server{
 			return finalRelayChannel;
 		}
 	}
-
 	//
 	private Channel bindUDP(UDPRelayChannel rc, int port) throws Exception {
 		Bootstrap udpBootstrap=new Bootstrap();
@@ -155,7 +167,6 @@ public class RelayServer extends Server{
 		logger.info("bind to udp {}:{}", hostAddress, port);
 		return udpBootstrap.bind(hostAddress, port).sync().channel();
 	}
-
 	//
 	private Channel bindTCP(SocketRelayChannel rc,int port) throws Exception {
 		ServerBootstrap tcpBootstrap=new ServerBootstrap();

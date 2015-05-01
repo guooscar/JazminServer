@@ -66,6 +66,17 @@ public abstract  class NetworkRelayChannel extends RelayChannel{
 		return transportType;
 	}
 
+	/* 	 */
+	@Override
+	public String getInfo() {
+		String remoteAddressStr="";
+		if(remoteAddress!=null){
+			remoteAddressStr=remoteAddress.getAddress().getHostAddress()
+					+":"+remoteAddress.getPort();
+		}
+		return transportType+"["+localHostAddress+":"+localPort+"<-->"+remoteAddressStr+"]";
+	}
+
 	/**
 	 * 
 	 */

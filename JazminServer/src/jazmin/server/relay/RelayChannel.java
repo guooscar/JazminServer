@@ -9,13 +9,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
+
 /**
  * @author yama
  * 26 Apr, 2015
  */
 public abstract class RelayChannel {
-	int id;
-	
+	private static Logger logger=LoggerFactory.get(RelayChannel.class);
+	//
+	String id;
 	//
 	long createTime;
 	long lastAccessTime;
@@ -34,7 +38,7 @@ public abstract class RelayChannel {
 		createTime=System.currentTimeMillis();
 		lastAccessTime=createTime;
 		linkedChannels=new LinkedList<RelayChannel>();
-		id=channelId.incrementAndGet();
+		id=channelId.incrementAndGet()+"";
 		name=id+"";
 	}
 	//--------------------------------------------------------------------------
@@ -79,7 +83,7 @@ public abstract class RelayChannel {
 	}
 	
 	//
-	abstract void sendData(ByteBuf buffer);
+	abstract void sendData(ByteBuf buffer)throws Exception;
 	//--------------------------------------------------------------------------
 	final void receiveData(ByteBuf buffer){
 		lastAccessTime=System.currentTimeMillis();
@@ -88,7 +92,11 @@ public abstract class RelayChannel {
 		synchronized (linkedChannels) {
 			for(RelayChannel rc:linkedChannels){
 				rc.lastAccessTime=System.currentTimeMillis();
-				rc.sendData(buffer);
+				try {
+					rc.sendData(buffer);
+				} catch (Exception e) {
+					logger.catching(e);
+				}
 			}
 		}
 	}
@@ -143,5 +151,6 @@ public abstract class RelayChannel {
 	public List<RelayChannel> getLinkedChannels() {
 		return new LinkedList<RelayChannel>(linkedChannels);
 	}
-	
+	//
+	public abstract String getInfo();
 }

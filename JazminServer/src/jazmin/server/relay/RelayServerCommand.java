@@ -49,19 +49,18 @@ public class RelayServerCommand extends ConsoleCommand {
     private void showChannels(String args){
     	List<RelayChannel>channels=server.getChannels();
     	out.format("total %d channels\n",channels.size());
-    	String format="%-5s %-6s %-6s %-10s %-6s %-50s %-20s %-20s %-15s %-15s %-15s\n";
+    	String format="%-5s %-6s %-10s %-6s %-20s %-20s %-15s %-15s %-15s %-50s\n";
     	out.printf(format,
 				"#",
 				"ID",
-				"TRSNP",
-    			"NAME",
+				"NAME",
     			"ACTIVE",
-    			"LINK",
     			"PKG SENT",
     			"PKG RECV",
     			"CREATETIME",
     			"LASTACCTIME",
-    			"LINKED");
+    			"LINKED",
+    			"LINK");
     	int idx=1;
     	for(RelayChannel sh:channels){
     		double byteSentCnt=sh.byteSentCount;
@@ -72,34 +71,18 @@ public class RelayServerCommand extends ConsoleCommand {
     			linkedStr.append(linked.id+",");
     		}
     		linkedStr.append("]");
-    		String remoteAddressStr="";
-    		String transportType="";
-    		String linkInfo="";
-    		if(sh instanceof NetworkRelayChannel){
-    			NetworkRelayChannel nrc=(NetworkRelayChannel) sh;
-    			if(nrc.remoteAddress!=null){
-        			remoteAddressStr=nrc.remoteAddress.getAddress().getHostAddress()
-        					+":"+nrc.remoteAddress.getPort();
-        		}
-    			//
-    			transportType=nrc.transportType.toString();
-    			linkInfo=nrc.localHostAddress+":"+nrc.localPort+"<-->"+remoteAddressStr;
-    		}else{
-    			transportType=sh.getClass().getSimpleName();
-    		}
     		//
     		out.printf(format,
         			idx++,
         			sh.id,
-        			transportType,
         			sh.name,
         			sh.isActive(),
-        			linkInfo,
         			sh.packetSentCount+"/"+String.format("%.2fKB",byteSentCnt/1024),
         			sh.packetReceiveCount+"/"+String.format("%.2fKB",byteReveCnt/1024),
         			formatDate(new Date(sh.createTime)),
         			formatDate(new Date(sh.lastAccessTime)),
-        			linkedStr);		
+        			linkedStr,
+        			sh.getInfo());		
     	}
     }
    
