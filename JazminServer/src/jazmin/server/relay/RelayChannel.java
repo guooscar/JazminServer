@@ -83,9 +83,9 @@ public abstract class RelayChannel {
 	}
 	
 	//
-	abstract void sendData(ByteBuf buffer)throws Exception;
+	public abstract void write(ByteBuf buffer)throws Exception;
 	//--------------------------------------------------------------------------
-	final void receiveData(ByteBuf buffer){
+	public final void read(ByteBuf buffer){
 		lastAccessTime=System.currentTimeMillis();
 		byteReceiveCount+=buffer.capacity();
 		packetReceiveCount++;
@@ -93,7 +93,7 @@ public abstract class RelayChannel {
 			for(RelayChannel rc:linkedChannels){
 				rc.lastAccessTime=System.currentTimeMillis();
 				try {
-					rc.sendData(buffer);
+					rc.write(buffer);
 				} catch (Exception e) {
 					logger.catching(e);
 				}

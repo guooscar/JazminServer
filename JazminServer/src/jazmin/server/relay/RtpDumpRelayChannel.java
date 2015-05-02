@@ -47,7 +47,7 @@ public class RtpDumpRelayChannel extends RelayChannel{
 	}
 	//
 	@Override
-	void sendData(ByteBuf buffer) throws Exception{
+	public void write(ByteBuf buffer) throws Exception{
 		packetSentCount++;
 		byteSentCount+=buffer.capacity();
 		ByteBuf buf= Unpooled.copiedBuffer(buffer);

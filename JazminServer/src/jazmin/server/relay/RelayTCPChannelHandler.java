@@ -17,18 +17,18 @@ import jazmin.log.LoggerFactory;
  * @author yama
  * 26 Apr, 2015
  */
-public class RelaySocketChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
+public class RelayTCPChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
 	private static Logger logger=LoggerFactory.get(RelayChannel.class);
 	//
 	NetworkRelayChannel relayChannel;
-	public RelaySocketChannelHandler(NetworkRelayChannel relayChannel) {
+	public RelayTCPChannelHandler(NetworkRelayChannel relayChannel) {
 		this.relayChannel=relayChannel;
 	}
 	//
 	@Override
 	protected void messageReceived(ChannelHandlerContext ctx,
 			ByteBuf buffer) throws Exception {
-		relayChannel.receiveData(buffer);
+		relayChannel.read(buffer);
 	}
 	//
 	@Override

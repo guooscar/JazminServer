@@ -90,11 +90,6 @@ public abstract class AbstractConnection implements Connection {
     }
 
     @Override
-    public boolean isSCTP() {
-        return false;
-    }
-
-    @Override
     public boolean isWS() {
         return false;
     }
@@ -137,9 +132,6 @@ public abstract class AbstractConnection implements Connection {
     	}
     	if(isTLS()){
     		type="tls";
-    	}
-    	if(isSCTP()){
-    		type="sctp";
     	}
     	if(isWS()){
     		type="ws";

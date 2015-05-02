@@ -10,8 +10,6 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.sctp.SctpChannel;
-import io.netty.channel.sctp.nio.NioSctpServerChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -117,7 +115,8 @@ public class RelayServer extends Server{
 	 * @return
 	 * @throws Exception
 	 */
-	public NetworkRelayChannel createRelayChannel(TransportType transportType) throws Exception {
+	public NetworkRelayChannel createRelayChannel(TransportType transportType) 
+			throws Exception {
 		synchronized (portPool) {
 			int nextPortIdx=-1;
 			for(int i=0;i<portPool.length;i++){
@@ -138,17 +137,10 @@ public class RelayServer extends Server{
 				finalRelayChannel=rc;
 				break;
 			case TCP:
-				SocketRelayChannel rc2=new SocketRelayChannel(TransportType.TCP,
-						hostAddress,nextPort);
+				SocketRelayChannel rc2=new SocketRelayChannel(hostAddress,nextPort);
 				rc2.serverChannel=bindTCP(rc2,nextPort);
 				finalRelayChannel=rc2;
 				break;
-			case SCTP:
-				SocketRelayChannel rc3=new SocketRelayChannel(TransportType.SCTP,
-						hostAddress,nextPort);
-				rc3.serverChannel=bindSCTP(rc3,nextPort);
-				finalRelayChannel=rc3;
-				break;	
 			default:
 				throw new IllegalArgumentException("unspport transport type:"
 						+transportType);
@@ -175,26 +167,12 @@ public class RelayServer extends Server{
 		.childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
             public void initChannel(final SocketChannel ch) throws Exception {
-            	ch.pipeline().addLast(new RelaySocketChannelHandler(rc));
+            	ch.pipeline().addLast(new RelayTCPChannelHandler(rc));
             }
         }).option(ChannelOption.SO_BACKLOG, 128)
 		.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
 		.childOption(ChannelOption.SO_KEEPALIVE, true)
 		.childOption(ChannelOption.TCP_NODELAY, true);
-		logger.info("bind to tcp {}:{}", hostAddress, port);
-		return tcpBootstrap.bind(port).sync().channel();
-	}
-	//
-	private Channel bindSCTP(SocketRelayChannel rc,int port) throws Exception {
-		ServerBootstrap tcpBootstrap=new ServerBootstrap();
-		tcpBootstrap.group(this.bossGroup, this.workerGroup)
-		.channel(NioSctpServerChannel.class)
-		.childHandler(new ChannelInitializer<SctpChannel>() {
-            @Override
-            public void initChannel(final SctpChannel ch) throws Exception {
-            	ch.pipeline().addLast(new RelaySocketChannelHandler(rc));
-            }
-        }).option(ChannelOption.SO_BACKLOG, 128);
 		logger.info("bind to tcp {}:{}", hostAddress, port);
 		return tcpBootstrap.bind(port).sync().channel();
 	}

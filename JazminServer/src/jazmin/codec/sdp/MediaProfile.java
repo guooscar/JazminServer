@@ -50,8 +50,12 @@ package jazmin.codec.sdp;
  * 
  */
 public enum MediaProfile {
-	UDP("udp"), RTP_AVP("RTP/AVP"), RTP_AVPF("RTP/AVPF"), RTP_SAVP("RTP/SAVP"), RTP_SAVPF("RTP/SAVPF");
-
+	UDP("udp"), 
+	RTP_AVP("RTP/AVP"), 
+	RTP_AVPF("RTP/AVPF"),
+	RTP_SAVP("RTP/SAVP"),
+	RTP_SAVPF("RTP/SAVPF"),
+	RTP_TLS_RTP_SAVPF("UDP/TLS/RTP/SAVPF");
 	private final String profile;
 
 	private MediaProfile(String profile) {

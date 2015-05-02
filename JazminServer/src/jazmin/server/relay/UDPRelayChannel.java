@@ -18,7 +18,7 @@ public class UDPRelayChannel extends NetworkRelayChannel{
 	}
 	//
 	@Override
-	void sendData(ByteBuf buffer) {
+	public void write(ByteBuf buffer) {
 		if(outboundChannel.isActive()){
 			ByteBuf buf= Unpooled.copiedBuffer(buffer);
 			DatagramPacket dp=new DatagramPacket(

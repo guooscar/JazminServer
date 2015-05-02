@@ -33,7 +33,7 @@ public class RelayUDPChannelHandler extends SimpleChannelInboundHandler<Datagram
 			relayChannel.remoteAddress=new InetSocketAddress(
 					isa.getHostName(),isa.getPort());
 		}
-		relayChannel.receiveData(pkg.content());
+		relayChannel.read(pkg.content());
 	}
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)

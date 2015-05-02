@@ -98,14 +98,6 @@ public interface Connection {
     boolean isTLS();
 
     /**
-     * Check whether or not this {@link Connection} is using SCTP as its
-     * underlying transport protocol.
-     * 
-     * @return
-     */
-    boolean isSCTP();
-
-    /**
      * Check whether or not this {@link Connection} is using websocket as its
      * underlying transport protocol.
      * 

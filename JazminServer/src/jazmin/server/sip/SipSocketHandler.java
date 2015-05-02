@@ -1,9 +1,13 @@
 package jazmin.server.sip;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.ssl.SslHandler;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -43,6 +47,19 @@ public final class SipSocketHandler extends SimpleChannelInboundHandler<SipMessa
 			channel.transport="tcp";
 		}else{
 			channel.transport="udp";		
+		}
+		SslHandler sslHandler=ctx.pipeline().get(SslHandler.class);
+		if(sslHandler!=null){
+			channel.transport="tls";
+			if(logger.isDebugEnabled()){
+				sslHandler.handshakeFuture().addListener(new GenericFutureListener<Future<? super Channel>>() {
+					public void operationComplete(Future<? super Channel> arg0) throws Exception {
+						String ciperSuite=ctx.pipeline().get(SslHandler.class).engine()
+							.getSession().getCipherSuite();
+						logger.debug("handshake complete."+ctx.channel()+"/"+ciperSuite);
+					};
+				});
+			}
 		}
 		channel.id=ctx.channel().id().asShortText();
 		InetSocketAddress sa=(InetSocketAddress) ctx.channel().localAddress();
