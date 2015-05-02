@@ -164,17 +164,19 @@ public class SipServer extends Server{
     }
     //
     private SslContext createSslContext()throws Exception{
-    	SslContext sslContext=null;
-	   	 if(privateKeyFile==null||certificateFile==null){
-	      	SelfSignedCertificate ssc = new SelfSignedCertificate();
-	      	sslContext=SslContext.newServerContext(ssc.certificate(),ssc.privateKey());
-	          logger.warn("using SelfSignedCertificate.only for debug mode");
-	      }else{
-	      	sslContext=SslContext.newServerContext(
-	      			new File(certificateFile),
-	      			new File(privateKeyFile),privateKeyPhrase);	
-	      } 	
-	   	 return sslContext;
+		SslContext sslContext = null;
+		File certiFile = new File(certificateFile);
+		File keyFile = new File(privateKeyFile);
+		if (certiFile.exists() && keyFile.exists()) {
+			SelfSignedCertificate ssc = new SelfSignedCertificate();
+			sslContext = SslContext.newServerContext(ssc.certificate(),
+					ssc.privateKey());
+			logger.warn("using SelfSignedCertificate.only for debug mode");
+		} else {
+			sslContext = SslContext.newServerContext(new File(certificateFile),
+					new File(privateKeyFile), privateKeyPhrase);
+		}
+		return sslContext;
     }
     private ServerBootstrap createTCPListeningPoint(boolean security)throws Exception {
         final ServerBootstrap b = new ServerBootstrap();
