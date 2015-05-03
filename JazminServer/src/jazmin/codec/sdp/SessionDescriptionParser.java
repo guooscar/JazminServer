@@ -90,7 +90,11 @@ public class SessionDescriptionParser {
 						convertAndApplyAttribute(attributeParser.parse(line),
 								info);
 					}else{
-						info.sdp.addOtherAttributeField(new OtherField(line));
+						if(info.media!=null){
+							info.media.addOtherField(new OtherField(line));
+						}else{
+							info.sdp.addOtherAttributeField(new OtherField(line));		
+						}
 					}
 					break;
 				default:
@@ -100,7 +104,11 @@ public class SessionDescriptionParser {
 					if (fieldParser != null) {
 						convertAndApplyField(fieldParser.parse(line), info);
 					}else{
-						info.sdp.addOtherField(new OtherField(line));
+						if(info.media!=null){
+							info.media.addOtherField(new OtherField(line));
+						}else{
+							info.sdp.addOtherField(new OtherField(line));		
+						}
 					}
 					break;
 				}

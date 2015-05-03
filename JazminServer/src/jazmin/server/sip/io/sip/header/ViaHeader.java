@@ -217,8 +217,8 @@ public interface ViaHeader extends Parameters, SipHeader {
         private static final Buffer udp = Buffers.wrap("UDP");
         private static final Buffer tcp = Buffers.wrap("TCP");
         private static final Buffer tls = Buffers.wrap("TLS");
-        private static final Buffer sctp = Buffers.wrap("SCTP");
         private static final Buffer ws = Buffers.wrap("WS");
+        private static final Buffer wss = Buffers.wrap("WSS");
 
         private int port = -1;
         private Buffer host;
@@ -287,11 +287,6 @@ public interface ViaHeader extends Parameters, SipHeader {
             return this;
         }
 
-        public ViaHeaderBuilder transportSCTP() {
-            this.transport = sctp.clone();
-            return this;
-        }
-
         public ViaHeaderBuilder transportTCP() {
             this.transport = tcp.clone();
             return this;
@@ -306,7 +301,10 @@ public interface ViaHeader extends Parameters, SipHeader {
             this.transport = ws.clone();
             return this;
         }
-
+        public ViaHeaderBuilder transportWSS() {
+            this.transport = wss.clone();
+            return this;
+        }
         public ViaHeader build() throws SipParseException {
             if (host == null) {
                 throw new SipParseException("Missing host, cannot create ViaHeader");

@@ -7,6 +7,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.ssl.SslHandler;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -91,8 +92,15 @@ public class SipMessageStreamDecoder extends ByteToMessageDecoder {
 						sipMessage);
 			}
 			final Channel channel = ctx.channel();
-			final Connection connection = new TcpConnection(channel,
-					(InetSocketAddress) channel.remoteAddress());
+			Connection connection =null;
+			if(ctx.pipeline().get(SslHandler.class)!=null){
+				connection= new TlsConnection(channel,
+						(InetSocketAddress) channel.remoteAddress());
+				
+			}else{
+				connection= new TcpConnection(channel,
+						(InetSocketAddress) channel.remoteAddress());
+			}
 			out.add(new DefaultSipMessageEvent(connection, sipMessage,
 					arrivalTime));
 			reset();

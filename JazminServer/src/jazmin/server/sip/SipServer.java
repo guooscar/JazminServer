@@ -113,7 +113,7 @@ public class SipServer extends Server{
         this.port = 5060;
         this.tlsPort=5061;
         this.webSocketPort=1443;
-        this.webSocketPort=1444;
+        this.swebSocketPort=1444;
         
         privateKeyFile="cert/jazmin_private_key_pkcs8.pem";
         certificateFile="cert/jazmin_cert.pem";
@@ -325,7 +325,12 @@ public class SipServer extends Server{
 	public int getWebSocketPort() {
 		return webSocketPort;
 	}
-
+	/**
+	 * @return the webSocketPort
+	 */
+	public int getSWebSocketPort() {
+		return swebSocketPort;
+	}
 	/**
 	 * @param webSocketPort the webSocketPort to set
 	 */
@@ -378,6 +383,9 @@ public class SipServer extends Server{
 		}
 		if(conn.isWS()){
 			serverPort=webSocketPort;
+		}
+		if(conn.isWSS()){
+			serverPort=swebSocketPort;
 		}
 		if(publicAddress!=null&&serverPort!=0){
 			serverPort=publicPort;
@@ -469,6 +477,8 @@ public class SipServer extends Server{
         	builder.transportTCP();
         }else if(connection.isWS()){
         	builder.transportWS();
+        }else if(connection.isWSS()){
+        	builder.transportWSS();
         }else{
         	throw new IllegalArgumentException("not implement");
         }
@@ -703,6 +713,7 @@ public class SipServer extends Server{
 		.print("port",getPort())
 		.print("tlsPort",getTlsPort())
 		.print("webSocketPort",getWebSocketPort())
+		.print("swebSocketPort",getSWebSocketPort())
 		.print("publicAddress",getPublicAddress())
 		.print("publicPort",getPublicPort())
 		.print("sessionTimeout",getSessionTimeout())

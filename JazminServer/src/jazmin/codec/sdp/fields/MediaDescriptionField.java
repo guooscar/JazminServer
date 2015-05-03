@@ -22,10 +22,12 @@ package jazmin.codec.sdp.fields;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import jazmin.codec.sdp.MediaProfile;
+import jazmin.codec.sdp.OtherField;
 import jazmin.codec.sdp.SdpField;
 import jazmin.codec.sdp.SessionLevelAccessor;
 import jazmin.codec.sdp.attributes.ConnectionModeAttribute;
@@ -86,7 +88,7 @@ public class MediaDescriptionField implements SdpField {
 	// WebRTC attributes (session-level)
 	private FingerprintAttribute fingerprint;
 	private SetupAttribute setup;
-	
+	private List<OtherField>otherFields;
 
 	private final StringBuilder builder;
 
@@ -99,6 +101,7 @@ public class MediaDescriptionField implements SdpField {
 		this.builder = new StringBuilder(BEGIN);
 		this.payloadTypes = new ArrayList<Integer>(10);
 		this.formats = new HashMap<Integer, RtpMapAttribute>(10);
+		otherFields=new LinkedList<OtherField>();
 	}
 	
 	public void setSession(SessionLevelAccessor session) {
@@ -182,7 +185,11 @@ public class MediaDescriptionField implements SdpField {
 		}
 		return this.connection;
 	}
-
+	//
+	public void addOtherField(OtherField of){
+		otherFields.add(of);
+	}
+	//
 	public void setConnection(ConnectionField connection) {
 		this.connection = connection;
 	}
@@ -388,7 +395,11 @@ public class MediaDescriptionField implements SdpField {
 		appendField(this.maxptime);
 		appendField(this.iceUfrag);
 		appendField(this.icePwd);
-		
+		if (this.otherFields != null && !this.otherFields.isEmpty()) {
+			for (OtherField of : this.otherFields) {
+				appendField(of);
+			}
+		}
 		if (this.candidates != null && !this.candidates.isEmpty()) {
 			for (CandidateAttribute candidate : this.candidates) {
 				appendField(candidate);

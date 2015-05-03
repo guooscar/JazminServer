@@ -94,7 +94,10 @@ public abstract class AbstractConnection implements Connection {
         return false;
     }
 
-   
+    @Override
+    public boolean isWSS() {
+        return false;
+    }
     /**
      * All {@link Connection}s needs to convert the msg to a {@link ByteBuf}
      * before writing it to the {@link ChannelHandlerContext}.

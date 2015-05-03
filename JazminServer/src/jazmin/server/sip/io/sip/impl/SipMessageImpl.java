@@ -642,6 +642,10 @@ public abstract class SipMessageImpl implements SipMessage {
     public void setRawContent(Buffer buffer){
     	this.payload=buffer;
     	ContentLengthHeader clh=getContentLengthHeader();
+    	if(clh==null){
+    		clh=ContentLengthHeader.create(payload.getReadableBytes());
+    		addHeader(clh);
+    	}
     	clh.setContentLength(payload.getReadableBytes());
     }
     //
@@ -675,6 +679,10 @@ public abstract class SipMessageImpl implements SipMessage {
         buffer.write(SipParser.CR);
         buffer.write(SipParser.LF);
         transferHeaders(buffer);
+        if(headers==null){
+        	 buffer.write(SipParser.CR);
+             buffer.write(SipParser.LF); 	
+        }
         if (this.payload != null) {
         	if(buffer.getWritableBytes()<payload.capacity()){
         		throw new IllegalStateException("payload is too large,"

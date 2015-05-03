@@ -37,7 +37,7 @@ import jazmin.server.sip.stack.Connection;
 import jazmin.server.sip.stack.DefaultSipMessageEvent;
 import jazmin.server.sip.stack.SipMessageEvent;
 import jazmin.server.sip.stack.SystemClock;
-import jazmin.server.sip.stack.WSConnection;
+import jazmin.server.sip.stack.WsConnection;
 
 /**
  * Handles handshakes and messages
@@ -125,7 +125,7 @@ public class SipWebSocketHandler extends SimpleChannelInboundHandler<Object> {
 			logger.debug("<<<<<<<<<<receive from {}\n{}", ctx.channel(),
 					sipMessage);
 		}
-        final Connection connection = new WSConnection(
+        final Connection connection = new WsConnection(
         		ctx.channel(),
         		(InetSocketAddress) ctx.channel().remoteAddress());
         final SipMessageEvent event = new DefaultSipMessageEvent(

@@ -104,6 +104,11 @@ public interface Connection {
      * @return
      */
     boolean isWS();
+    /**
+     * 
+     * @return
+     */
+    boolean isWSS();
 
     /**
      * Send a message over this connection.

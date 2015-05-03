@@ -85,7 +85,11 @@ public class CandidateAttributeParser implements SdpParser<CandidateAttribute> {
 			index++; // GENERATION which is optional
 			int generation = 0;
 			if(index == values.length - 1) {
-				generation = Integer.parseInt(values[index]);
+				try{
+					generation = Integer.parseInt(values[index]);
+				}catch(Exception e){
+					
+				}
 			}
 			
 			// Create object from extracted data

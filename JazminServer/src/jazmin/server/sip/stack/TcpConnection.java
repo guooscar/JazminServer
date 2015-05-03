@@ -15,9 +15,9 @@ import jazmin.server.sip.io.sip.SipMessage;
 /**
  * @author jonas@jonasborjesson.com
  */
-public final class TcpConnection extends AbstractConnection {
+public class TcpConnection extends AbstractConnection {
 	private static Logger logger=LoggerFactory.get(TcpConnection.class);
-
+	
     public TcpConnection(final Channel channel, final InetSocketAddress remote) {
         super(channel, remote);
     }

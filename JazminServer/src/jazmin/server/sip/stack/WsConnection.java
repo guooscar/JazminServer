@@ -16,10 +16,10 @@ import jazmin.server.sip.io.sip.SipMessage;
 /**
  * @author jonas@jonasborjesson.com
  */
-public final class WSConnection extends AbstractConnection {
-	private static Logger logger=LoggerFactory.get(WSConnection.class);
+public final class WsConnection extends AbstractConnection {
+	private static Logger logger=LoggerFactory.get(WsConnection.class);
 
-    public WSConnection(final Channel channel, final InetSocketAddress remote) {
+    public WsConnection(final Channel channel, final InetSocketAddress remote) {
         super(channel, remote);
     }
     @Override

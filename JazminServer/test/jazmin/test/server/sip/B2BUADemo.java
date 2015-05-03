@@ -30,7 +30,8 @@ public class B2BUADemo extends Application{
 		SipServer server=new SipServer();
 		server.setHostAddress(ipAddress);
 		server.setPublicAddress(ipAddress);
-		server.setMessageHandler(new B2BUAMessageHandler());
+		//server.setMessageHandler(new B2BUAMessageHandler());
+		server.setMessageHandler(new WebRtcB2BUAMessageHandler());
 		Jazmin.addServer(server);
 		RelayServer relayServer=new RelayServer();
 		relayServer.addHostAddress(ipAddress);//interface 1
