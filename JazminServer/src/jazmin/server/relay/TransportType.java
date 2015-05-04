@@ -9,5 +9,6 @@ package jazmin.server.relay;
  */
 public enum TransportType {
 	UDP,
-	TCP
+	TCP,
+	DTLS
 }

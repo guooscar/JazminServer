@@ -21,17 +21,17 @@ public abstract class RelayChannel {
 	//
 	String id;
 	//
-	long createTime;
+	protected final long createTime;
 	long lastAccessTime;
 	//
-	long packetReceiveCount;
-	long byteReceiveCount;
-	long packetSentCount;
-	long byteSentCount;
+	protected long packetReceiveCount;
+	protected long byteReceiveCount;
+	protected long packetSentCount;
+	protected long byteSentCount;
 	//
-	String name;
+	protected String name;
 	
-	List<RelayChannel>linkedChannels;
+	protected List<RelayChannel>linkedChannels;
 	static AtomicInteger channelId=new AtomicInteger();
 	//
 	public RelayChannel() {
@@ -85,7 +85,7 @@ public abstract class RelayChannel {
 	//
 	public abstract void write(ByteBuf buffer)throws Exception;
 	//--------------------------------------------------------------------------
-	public final void read(ByteBuf buffer){
+	public  void read(ByteBuf buffer) throws Exception{
 		lastAccessTime=System.currentTimeMillis();
 		byteReceiveCount+=buffer.capacity();
 		packetReceiveCount++;

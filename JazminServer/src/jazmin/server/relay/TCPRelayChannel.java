@@ -11,10 +11,10 @@ import io.netty.channel.Channel;
  * @author yama
  *
  */
-public class SocketRelayChannel extends NetworkRelayChannel{
+public class TCPRelayChannel extends NetworkRelayChannel{
 	Channel serverChannel;
 	//
-	SocketRelayChannel(String localAddress, int localPort) {
+	TCPRelayChannel(String localAddress, int localPort) {
 		super(TransportType.TCP , localAddress, localPort);
 	}
 	//

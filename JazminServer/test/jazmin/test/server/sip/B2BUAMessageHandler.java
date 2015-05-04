@@ -10,6 +10,7 @@ import jazmin.core.Jazmin;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.HexDump;
+import jazmin.server.relay.NetworkRelayChannel;
 import jazmin.server.relay.RelayServer;
 import jazmin.server.relay.RtpDumpRelayChannel;
 import jazmin.server.relay.TransportType;
@@ -30,6 +31,7 @@ import jazmin.server.sip.io.sip.header.ContactHeader;
 import jazmin.server.sip.io.sip.header.ContentLengthHeader;
 import jazmin.server.sip.io.sip.header.ExpiresHeader;
 import jazmin.server.sip.io.sip.header.ViaHeader;
+import jazmin.server.sip.stack.Connection;
 
 /**
  * 
@@ -38,9 +40,16 @@ import jazmin.server.sip.io.sip.header.ViaHeader;
  */
 public class B2BUAMessageHandler extends SipMessageAdapter {
 	private static Logger logger=LoggerFactory.get(B2BUAMessageHandler.class);
-
-	
-	
+	//
+	public class SessionStatus {
+		public SipRequest originalRequest;
+		public Connection connection;
+		public NetworkRelayChannel audioRelayChannelA;
+		public NetworkRelayChannel audioRelayChannelB;
+		public NetworkRelayChannel videoRelayChannelA;
+		public NetworkRelayChannel videoRelayChannelB;
+	}
+	//
 	public B2BUAMessageHandler(){
 		
 	}

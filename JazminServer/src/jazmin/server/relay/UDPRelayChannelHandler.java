@@ -3,9 +3,9 @@
  */
 package jazmin.server.relay;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.socket.DatagramPacket;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -17,20 +17,23 @@ import jazmin.log.LoggerFactory;
  * @author yama
  * 26 Apr, 2015
  */
-public class RelayTCPChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
+public class UDPRelayChannelHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 	private static Logger logger=LoggerFactory.get(RelayChannel.class);
 	//
 	NetworkRelayChannel relayChannel;
-	public RelayTCPChannelHandler(NetworkRelayChannel relayChannel) {
+	public UDPRelayChannelHandler(NetworkRelayChannel relayChannel) {
 		this.relayChannel=relayChannel;
 	}
 	//
 	@Override
 	protected void messageReceived(ChannelHandlerContext ctx,
-			ByteBuf buffer) throws Exception {
-		relayChannel.read(buffer);
+			DatagramPacket pkg) throws Exception {
+		InetSocketAddress isa=pkg.sender();
+		if(relayChannel.remoteAddress==null){
+			relayChannel.remoteAddress=isa;
+		}
+		relayChannel.read(pkg.content());
 	}
-	//
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
 			throws Exception {
@@ -43,16 +46,11 @@ public class RelayTCPChannelHandler extends SimpleChannelInboundHandler<ByteBuf>
 	//
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		if(relayChannel.remoteAddress==null){
-			relayChannel.outboundChannel=ctx.channel();
-			relayChannel.remoteAddress=(InetSocketAddress) ctx.channel().remoteAddress();
-		}
 		logger.info("channel active :"+ctx.channel());
 	}
 	//
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		relayChannel.remoteAddress=null;
 		logger.info("channel inactive :"+ctx.channel());
 	}
 }

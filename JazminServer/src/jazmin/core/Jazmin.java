@@ -424,7 +424,15 @@ public class Jazmin {
 	 * 
 	 */
 	private static void startLifecycle() throws Exception{
+		//start application first ,because if server port binded ,user will access
+		//service but application not registered 
+		if(application!=null){
+			application.start();
+		}
 		for(Lifecycle lc:lifecycles){
+			if(lc==application){
+				continue;
+			}
 			if(lc==null){
 				continue;
 			}

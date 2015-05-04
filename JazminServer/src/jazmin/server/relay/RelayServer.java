@@ -137,9 +137,14 @@ public class RelayServer extends Server{
 				finalRelayChannel=rc;
 				break;
 			case TCP:
-				SocketRelayChannel rc2=new SocketRelayChannel(hostAddress,nextPort);
+				TCPRelayChannel rc2=new TCPRelayChannel(hostAddress,nextPort);
 				rc2.serverChannel=bindTCP(rc2,nextPort);
 				finalRelayChannel=rc2;
+				break;
+			case DTLS:
+				DtlsRelayChannel rc3=new DtlsRelayChannel(hostAddress,nextPort);
+				rc3.outboundChannel=bindDtls(rc3,nextPort);
+				finalRelayChannel=rc3;
 				break;
 			default:
 				throw new IllegalArgumentException("unspport transport type:"
@@ -151,23 +156,32 @@ public class RelayServer extends Server{
 		}
 	}
 	//
+	private Channel bindDtls(DtlsRelayChannel rc, int port) throws Exception {
+		Bootstrap udpBootstrap=new Bootstrap();
+		udpBootstrap.group(udpGroup).channel(NioDatagramChannel.class)
+				.option(ChannelOption.SO_BROADCAST, true)
+				.handler(new DtlsRelayChannelHandler(rc));
+		logger.info("bind to dtls {}:{}", hostAddress, port);
+		return udpBootstrap.bind(hostAddress, port).sync().channel();
+	}
+	//
 	private Channel bindUDP(UDPRelayChannel rc, int port) throws Exception {
 		Bootstrap udpBootstrap=new Bootstrap();
 		udpBootstrap.group(udpGroup).channel(NioDatagramChannel.class)
 				.option(ChannelOption.SO_BROADCAST, true)
-				.handler(new RelayUDPChannelHandler(rc));
+				.handler(new UDPRelayChannelHandler(rc));
 		logger.info("bind to udp {}:{}", hostAddress, port);
 		return udpBootstrap.bind(hostAddress, port).sync().channel();
 	}
 	//
-	private Channel bindTCP(SocketRelayChannel rc,int port) throws Exception {
+	private Channel bindTCP(TCPRelayChannel rc,int port) throws Exception {
 		ServerBootstrap tcpBootstrap=new ServerBootstrap();
 		tcpBootstrap.group(this.bossGroup, this.workerGroup)
 		.channel(NioServerSocketChannel.class)
 		.childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
             public void initChannel(final SocketChannel ch) throws Exception {
-            	ch.pipeline().addLast(new RelayTCPChannelHandler(rc));
+            	ch.pipeline().addLast(new TCPRelayChannelHandler(rc));
             }
         }).option(ChannelOption.SO_BACKLOG, 128)
 		.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)

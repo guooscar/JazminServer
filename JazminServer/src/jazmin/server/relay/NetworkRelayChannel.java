@@ -12,12 +12,12 @@ import java.net.InetSocketAddress;
  *
  */
 public abstract  class NetworkRelayChannel extends RelayChannel{
-	final String localHostAddress;
-	final int localPort;
-	InetSocketAddress remoteAddress;
+	protected final String localHostAddress;
+	protected final int localPort;
+	protected InetSocketAddress remoteAddress;
 	//
-	Channel outboundChannel;
-	final TransportType transportType;
+	protected Channel outboundChannel;
+	protected final TransportType transportType;
 	//
 	public NetworkRelayChannel(TransportType type,String localAddress,  int localPort) {
 		super();
@@ -59,6 +59,15 @@ public abstract  class NetworkRelayChannel extends RelayChannel{
 	public InetSocketAddress getRemoteAddress() {
 		return remoteAddress;
 	}
+	
+	
+	/**
+	 * @param remoteAddress the remoteAddress to set
+	 */
+	public void setRemoteAddress(InetSocketAddress remoteAddress) {
+		this.remoteAddress = remoteAddress;
+	}
+
 	/**
 	 * @return the transportType
 	 */

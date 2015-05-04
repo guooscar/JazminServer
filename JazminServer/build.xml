@@ -165,6 +165,7 @@
 		<copy todir="${build.classes.dir}">
 			<fileset dir="${src.dir}">
 					<include name="**/*.png"/>
+					<include name="**/*.pem"/>
 			</fileset>
 		</copy>
 		<jar destfile="${release.dir}/jazmin.jar">
