@@ -12,10 +12,9 @@ import java.io.IOException;
 import jazmin.core.Jazmin;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.misc.HexDump;
+import jazmin.misc.InfoBuilder;
 import jazmin.server.relay.webrtc.ByteArrayBlockingQueue;
 import jazmin.server.relay.webrtc.DtlsHandler;
-import jazmin.server.relay.webrtc.DtlsListener;
 import jazmin.server.relay.webrtc.StunHandler;
 
 import org.bouncycastle.crypto.tls.DatagramTransport;
@@ -25,7 +24,7 @@ import org.bouncycastle.crypto.tls.DatagramTransport;
  *
  */
 public class DtlsRelayChannel extends NetworkRelayChannel 
-implements DatagramTransport,DtlsListener{
+implements DatagramTransport{
 	private static Logger logger=LoggerFactory.get(DtlsRelayChannel.class);
 	//
 	private DtlsHandler dtlsHandler;
@@ -45,44 +44,57 @@ implements DatagramTransport,DtlsListener{
 		stunHandler=new StunHandler();
 		dtlsHandler=new DtlsHandler(this);
         dtlsHandler.setRemoteFingerprint("sha-256", "");
-		dtlsHandler.addListener(this);
 	}
 	//
 	@Override
-	public void write(ByteBuf buffer) {
-		if(outboundChannel.isActive()){
-			ByteBuf buf= Unpooled.copiedBuffer(buffer);
-			DatagramPacket dp=new DatagramPacket(
-					buf,
-					remoteAddress);
-			packetSentCount++;
-			byteSentCount+=buffer.capacity();
-			outboundChannel.writeAndFlush(dp);
-		}
-	}
-	//
-	@Override
-	public void read(ByteBuf buffer) throws Exception{
+	public void write(byte [] buffer) {
+		lastAccessTime=System.currentTimeMillis();
 		ByteBuf buf= Unpooled.copiedBuffer(buffer);
-		byte reveivedBytes[]=buf.array();
-    	if(stunHandler.canHandle(reveivedBytes)){
-    		byte stunResponse[]=stunHandler.handle(reveivedBytes,remoteAddress);
-    		DatagramPacket dp=new DatagramPacket(Unpooled.wrappedBuffer(stunResponse), remoteAddress);
-    		outboundChannel.writeAndFlush(dp);
+		DatagramPacket dp=new DatagramPacket(
+				buf,
+				remoteAddress);
+		packetSentCount++;
+		byteSentCount+=buffer.length;
+		outboundChannel.writeAndFlush(dp);
+	}
+	//
+	@Override
+	public void read(byte []buffer) throws Exception{
+		lastAccessTime=System.currentTimeMillis();
+		byteReceiveCount+=buffer.length;
+		packetReceiveCount++;
+    	if(stunHandler.canHandle(buffer)){
+    		if(logger.isDebugEnabled()){
+    			logger.debug("handle stun message");
+    		}
+    		byte stunResponse[]=stunHandler.handle(buffer,remoteAddress);
+    		write(stunResponse);
     	}else{
     		if(dtlsHandler.isHandshakeComplete()){
     			//handle shake complete 
     			//decode data
-    			logger.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n{}",HexDump.dumpHexString(reveivedBytes));
+    			processRtpPackage(buffer);
     		}else{
-    			queue.put(reveivedBytes);	
-        		if(startHandleShakeTime==0){
+    			Jazmin.execute(()->{
+    				try {
+    					queue.put(buffer);
+					} catch (Exception e) {
+					logger.catching(e);
+				}});
+    			if(startHandleShakeTime==0){
         			startHandleShakeTime=System.currentTimeMillis();
         			Jazmin.execute(dtlsHandler::handshake);
         		}		
     		}
     	}
-		//super.read(buffer);
+	}
+	//
+	private void processRtpPackage(byte[]buf) throws Exception{
+		byte decoded[]=dtlsHandler.decodeRTP(buf, 0, buf.length);
+		if(decoded!=null){
+			byte encoded[]=dtlsHandler.encodeRTP(decoded, 0, decoded.length);	
+			write(encoded);
+		}
 	}
 	//
 	//--------------------------------------------------------------------------
@@ -109,10 +121,9 @@ implements DatagramTransport,DtlsListener{
 	}
 	//--------------------------------------------------------------------------
 	public void onDtlsHandshakeComplete() {
-		logger.info("handle shake complete");
-	};
-	
-	@Override
+		logger.info(toString()+" / handle shake complete");
+	}
+	//
 	public void onDtlsHandshakeFailed(Throwable e) {
 		logger.catching(e);
 	}
@@ -165,12 +176,26 @@ implements DatagramTransport,DtlsListener{
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close(){
 		logger.debug("close dtls handle shake");
 	}
 
 	private boolean hasTimeout() {
 		return (System.currentTimeMillis() - this.startHandleShakeTime) > MAX_DELAY;
 	}
-
+	//
+	@Override
+	public String getInfo() {
+		InfoBuilder ib=new InfoBuilder();
+		ib.println(super.getInfo());
+		ib.format("%-30s:%-30s\n");
+		ib.print("HandshakeComplete",dtlsHandler.isHandshakeComplete());
+		ib.print("Handshaking",dtlsHandler.isHandshaking());
+		ib.print("HandshakeFailed",dtlsHandler.isHandshakeFailed());
+		ib.print("LocalFingerprint",dtlsHandler.getLocalFingerprint());
+		ib.print("RemoteFingerprint",dtlsHandler.getRemoteFingerprint());
+		ib.print("IcePassword",getIcePassword());
+		ib.print("IceUfrag",getIceUfrag());
+		return ib.toString();
+	}
 }

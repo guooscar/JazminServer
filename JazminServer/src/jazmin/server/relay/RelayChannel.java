@@ -3,8 +3,6 @@
  */
 package jazmin.server.relay;
 
-import io.netty.buffer.ByteBuf;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -83,17 +81,16 @@ public abstract class RelayChannel {
 	}
 	
 	//
-	public abstract void write(ByteBuf buffer)throws Exception;
+	public abstract void write(byte bytes[])throws Exception;
 	//--------------------------------------------------------------------------
-	public  void read(ByteBuf buffer) throws Exception{
-		lastAccessTime=System.currentTimeMillis();
-		byteReceiveCount+=buffer.capacity();
+	public  void read(byte bytes[]) throws Exception{
+		byteReceiveCount+=bytes.length;
 		packetReceiveCount++;
 		synchronized (linkedChannels) {
 			for(RelayChannel rc:linkedChannels){
 				rc.lastAccessTime=System.currentTimeMillis();
 				try {
-					rc.write(buffer);
+					rc.write(bytes);
 				} catch (Exception e) {
 					logger.catching(e);
 				}
@@ -105,7 +102,7 @@ public abstract class RelayChannel {
 		return true;
 	}
 	//
-	public void close()throws Exception{
+	public void closeChannel()throws Exception{
 		
 	}
 	/**

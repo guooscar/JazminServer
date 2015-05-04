@@ -169,7 +169,6 @@ public class TlsUtils {
 			throws IOException {
 		org.bouncycastle.asn1.x509.Certificate[] chain = new org.bouncycastle.asn1.x509.Certificate[resources.length];
 		for (int i = 0; i < resources.length; ++i) {
-			System.out.println("loadCertificateChain:"+resources[i]);
 			chain[i] = loadCertificateResource(resources[i]);
 		}
 		return new Certificate(chain);

@@ -22,9 +22,6 @@ package jazmin.server.relay.webrtc;
 
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -49,9 +46,6 @@ public class DtlsHandler {
 	private String hashFunction;
 	private String remoteFingerprint;
 	private String localFingerprint;
-
-	private final List<DtlsListener> listeners;
-
 	/**
 	 * Handles encryption of outbound RTP packets for a given RTP stream
 	 * identified by its SSRC
@@ -87,7 +81,6 @@ public class DtlsHandler {
 
 	public DtlsHandler(DtlsRelayChannel dtlsRelayChannel) {
 		this.dtlsRelayChannel=dtlsRelayChannel;
-		this.listeners = new ArrayList<DtlsListener>();
 		this.server = new DtlsSrtpServer();
 		this.handshakeComplete = false;
 		this.handshakeFailed = false;
@@ -96,12 +89,6 @@ public class DtlsHandler {
 		this.remoteFingerprint = "";
 		this.localFingerprint = "";
 		logger.debug("local fingure print:"+getLocalFingerprint());
-	}
-	//
-	public void addListener(DtlsListener listener) {
-		if (!this.listeners.contains(listener)) {
-			this.listeners.add(listener);
-		}
 	}
 	//
 	public boolean isHandshakeComplete() {
@@ -272,8 +259,8 @@ public class DtlsHandler {
 		if (!handshaking && !handshakeComplete) {
 			this.handshaking = true;
 			SecureRandom secureRandom = new SecureRandom();
-			DTLSServerProtocol serverProtocol = new DTLSServerProtocol(
-					secureRandom);
+			DTLSServerProtocol serverProtocol =
+					new DTLSServerProtocol(secureRandom);
 			try {
 				// Perform the handshake in a non-blocking fashion
 				serverProtocol.accept(server, dtlsRelayChannel);
@@ -291,33 +278,14 @@ public class DtlsHandler {
 				handshakeFailed = false;
 				handshaking = false;
 				// Warn listeners handshake completed
-				fireHandshakeComplete();
+				dtlsRelayChannel.onDtlsHandshakeComplete();
 			} catch (Exception e) {
-				e.printStackTrace();
 				// Declare handshake as failed
 				handshakeComplete = false;
 				handshakeFailed = true;
 				handshaking = false;
 				// Warn listeners handshake completed
-				fireHandshakeFailed(e);
-			}
-		}
-	}
-
-	private void fireHandshakeComplete() {
-		if (this.listeners.size() > 0) {
-			Iterator<DtlsListener> iterator = listeners.iterator();
-			while (iterator.hasNext()) {
-				iterator.next().onDtlsHandshakeComplete();
-			}
-		}
-	}
-
-	private void fireHandshakeFailed(Throwable e) {
-		if (this.listeners.size() > 0) {
-			Iterator<DtlsListener> iterator = listeners.iterator();
-			while (iterator.hasNext()) {
-				iterator.next().onDtlsHandshakeFailed(e);
+				dtlsRelayChannel.onDtlsHandshakeFailed(e);
 			}
 		}
 	}

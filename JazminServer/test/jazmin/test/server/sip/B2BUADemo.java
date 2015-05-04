@@ -25,7 +25,7 @@ public class B2BUADemo extends Application{
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception{
-		String ipAddress="10.44.218.119";
+		String ipAddress="192.168.3.103";
 		LoggerFactory.setLevel("DEBUG");
 		SipServer server=new SipServer();
 		server.setHostAddress(ipAddress);

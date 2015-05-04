@@ -54,7 +54,7 @@ public class StunHandler {
 	protected String password;
 	//
 	public StunHandler() {
-		this.ufrag = new BigInteger(24, new Random()).toString(32);
+		this.ufrag = new BigInteger(96, new Random()).toString(32);
 		password= new BigInteger(128,new Random()).toString(32);
 		this.localKey =password.getBytes();
 	}
@@ -67,7 +67,8 @@ public class StunHandler {
 		 * The agent MUST use a short-term credential to authenticate the
 		 * request and perform a message integrity check.
 		 */
-		UsernameAttribute remoteUnameAttribute = (UsernameAttribute) request.getAttribute(StunAttribute.USERNAME);
+		UsernameAttribute remoteUnameAttribute = (UsernameAttribute) request.getAttribute(
+				StunAttribute.USERNAME);
 		String remoteUsername = new String(remoteUnameAttribute.getUsername());
 		// Produce Binding Response
 		TransportAddress transportAddress = new TransportAddress(

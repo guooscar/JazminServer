@@ -197,7 +197,7 @@ public class RelayServer extends Server{
 			if(currentTime-rc.lastAccessTime>idleTime*1000){
 				try{
 					logger.info("remove idle channel."+rc);
-					rc.close();
+					rc.closeChannel();
 					if(rc instanceof NetworkRelayChannel){
 						freePort(((NetworkRelayChannel)rc).localPort);		
 					}

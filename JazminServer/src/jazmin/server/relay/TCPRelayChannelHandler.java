@@ -4,6 +4,7 @@
 package jazmin.server.relay;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
@@ -28,7 +29,8 @@ public class TCPRelayChannelHandler extends SimpleChannelInboundHandler<ByteBuf>
 	@Override
 	protected void messageReceived(ChannelHandlerContext ctx,
 			ByteBuf buffer) throws Exception {
-		relayChannel.read(buffer);
+		ByteBuf buf= Unpooled.copiedBuffer(buffer);
+		relayChannel.read(buf.array());
 	}
 	//
 	@Override

@@ -3,7 +3,6 @@
  */
 package jazmin.server.relay;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 
@@ -19,20 +18,19 @@ public class TCPRelayChannel extends NetworkRelayChannel{
 	}
 	//
 	@Override
-	public void close() throws Exception {
-		super.close();
+	public void closeChannel() throws Exception {
+		super.closeChannel();
 		if(serverChannel!=null){
 			serverChannel.close();
 		}
 	}
 	//
 	@Override
-	public void write(ByteBuf buffer) {
+	public void write(byte []buffer) {
 		if(outboundChannel!=null&&outboundChannel.isActive()){
-			ByteBuf buf= Unpooled.copiedBuffer(buffer);
 			packetSentCount++;
-			byteSentCount+=buffer.capacity();
-			outboundChannel.writeAndFlush(buf);
+			byteSentCount+=buffer.length;
+			outboundChannel.writeAndFlush(Unpooled.wrappedBuffer(buffer));
 		}
 	}
 }

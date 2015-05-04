@@ -82,7 +82,8 @@ public class RelayServerCommand extends ConsoleCommand {
         			formatDate(new Date(sh.createTime)),
         			formatDate(new Date(sh.lastAccessTime)),
         			linkedStr,
-        			sh.getInfo());		
+        			sh.getInfo());	
+    		printLine('-', environment.getColumns());
     	}
     }
    

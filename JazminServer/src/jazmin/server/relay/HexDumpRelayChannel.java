@@ -3,9 +3,6 @@
  */
 package jazmin.server.relay;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -46,11 +43,10 @@ public class HexDumpRelayChannel extends RelayChannel{
 	}
 	//
 	@Override
-	public void write(ByteBuf buffer) throws Exception{
+	public void write(byte buffer[]) throws Exception{
 		packetSentCount++;
-		byteSentCount+=buffer.capacity();
-		ByteBuf buf= Unpooled.copiedBuffer(buffer);
-		String output="#"+packetSentCount+"\n"+HexDump.dumpHexString(buf.array());
+		byteSentCount+=buffer.length;
+		String output="#"+packetSentCount+"\n"+HexDump.dumpHexString(buffer);
 		if(bufferedWriter!=null){
 			bufferedWriter.write(output+"\n");
 		}
@@ -72,8 +68,8 @@ public class HexDumpRelayChannel extends RelayChannel{
 	}
 	//
 	@Override
-	public void close() throws Exception {
-		super.close();
+	public void closeChannel() throws Exception {
+		super.closeChannel();
 		if(bufferedWriter!=null){
 			bufferedWriter.close();
 		}

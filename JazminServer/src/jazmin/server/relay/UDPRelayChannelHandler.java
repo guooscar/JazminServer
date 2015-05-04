@@ -3,6 +3,8 @@
  */
 package jazmin.server.relay;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
@@ -32,7 +34,8 @@ public class UDPRelayChannelHandler extends SimpleChannelInboundHandler<Datagram
 		if(relayChannel.remoteAddress==null){
 			relayChannel.remoteAddress=isa;
 		}
-		relayChannel.read(pkg.content());
+		ByteBuf buf= Unpooled.copiedBuffer(pkg.content());
+		relayChannel.read(buf.array());
 	}
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)

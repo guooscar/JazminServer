@@ -3,9 +3,6 @@
  */
 package jazmin.server.relay;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -47,12 +44,10 @@ public class RtpDumpRelayChannel extends RelayChannel{
 	}
 	//
 	@Override
-	public void write(ByteBuf buffer) throws Exception{
+	public void write(byte [] buffer) throws Exception{
 		packetSentCount++;
-		byteSentCount+=buffer.capacity();
-		ByteBuf buf= Unpooled.copiedBuffer(buffer);
-		byte array[]=buf.array();
-		RtpPacket pkg=RtpPacket.decode(array);
+		byteSentCount+=buffer.length;
+		RtpPacket pkg=RtpPacket.decode(buffer);
 		if(pkg.getVersion()!=RtpPacket.V2){
 			//bad package ignore
 			return;
@@ -80,8 +75,8 @@ public class RtpDumpRelayChannel extends RelayChannel{
 	}
 	//
 	@Override
-	public void close() throws Exception {
-		super.close();
+	public void closeChannel() throws Exception {
+		super.closeChannel();
 		if(outputStream!=null){
 			outputStream.close();
 		}

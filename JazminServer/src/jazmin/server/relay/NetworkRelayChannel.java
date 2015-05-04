@@ -34,6 +34,7 @@ public abstract  class NetworkRelayChannel extends RelayChannel{
 		return localHostAddress;
 	}
 	
+	@Override
 	public boolean isActive(){
 		if(outboundChannel==null){
 			return false;
@@ -41,7 +42,8 @@ public abstract  class NetworkRelayChannel extends RelayChannel{
 		return outboundChannel.isActive();
 	}
 	//
-	public void close()throws Exception{
+	@Override
+	public void closeChannel()throws Exception{
 		if(outboundChannel!=null){
 			outboundChannel.close().sync();
 		}
@@ -91,11 +93,6 @@ public abstract  class NetworkRelayChannel extends RelayChannel{
 	 */
 	@Override
 	public String toString() {
-		String removeAddressStr="";
-		if(remoteAddress!=null){
-			removeAddressStr=remoteAddress.getAddress().getHostAddress()
-					+":"+remoteAddress.getPort();
-		}
-		return name+"["+removeAddressStr+"<-->"+localHostAddress+":"+localPort+"]";
+		return getInfo();
 	}
 }
