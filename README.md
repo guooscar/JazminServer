@@ -50,7 +50,9 @@ JazminServer is a Java based application/message/rpc/sip/rtmp/udp relay server.
   * Sip Application container
   * Used for VOIP System
 * RelayServer
-  * UDP Proxy
+  * UDP relay
+  * TCP relay
+  * WebRTC(DTLS-SRTP) to RTP relay
   * Used for NAT through
  
 # Demo
@@ -118,7 +120,9 @@ JazminServer帮助开发者实现了众多的底层功能，基于JazminServer�
   * Sip Application container SIP应用程序容器
   * Used for VOIP System 可以用在VOIP系统中
 * RelayServer 
-  * UDP Proxy UDP包路由
+  * UDP relay UDP包中转
+  * TCP relay TCP包中转
+  * WebRTC(DTLS-SRTP) to RTP relay WebRTC(DTLS-SRTP)包转换成RTP包，用于WebRTC客户端和传统sip软电话互联
   * Used for NAT through 可以帮助客户端穿透NAT    
 <p>
 <img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image002.jpg?raw=true'/>
