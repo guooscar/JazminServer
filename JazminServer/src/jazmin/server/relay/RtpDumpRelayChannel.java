@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 
 import jazmin.codec.rtp.RtpPacket;
 import jazmin.codec.rtp.RtpPayloadType;
@@ -21,9 +22,11 @@ public class RtpDumpRelayChannel extends RelayChannel{
 	private static Logger logger=LoggerFactory.get(RtpDumpRelayChannel.class);
 	private File dumpFile;
 	private OutputStream outputStream;
+	private RtpPacket rtpPacket;
 	//
 	public RtpDumpRelayChannel() {
 		super();
+		rtpPacket=new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
 	}
 	//
 	public RtpDumpRelayChannel(String filePath,boolean append) {
@@ -44,21 +47,23 @@ public class RtpDumpRelayChannel extends RelayChannel{
 	}
 	//
 	@Override
-	public void write(byte [] buffer) throws Exception{
-		packetSentCount++;
-		byteSentCount+=buffer.length;
-		RtpPacket pkg=RtpPacket.decode(buffer);
-		if(pkg.getVersion()!=RtpPacket.V2){
+	public void dataFromRelay(RelayChannel channel,byte [] buffer) throws Exception{
+		super.dataFromRelay(channel, buffer);
+		ByteBuffer rtpBuffer=rtpPacket.getBuffer();
+		rtpBuffer.clear();
+		rtpBuffer.put(buffer, 0, buffer.length);
+		rtpBuffer.flip();
+		if(rtpPacket.getVersion()!=RtpPacket.VERSION){
 			//bad package ignore
 			return;
 		}
 		if(outputStream!=null){
-			outputStream.write(pkg.getDataAsArray());
+			outputStream.write(buffer);
 		}
 		if(logger.isDebugEnabled()){
 			logger.debug("\nRtpPackage #{}\n{}\n{}",
-					packetSentCount,pkg,
-					RtpPayloadType.get(pkg.getPayloadType()));
+					packetRelayCount,rtpBuffer,
+					RtpPayloadType.get(rtpPacket.getPayloadType()));
 		}
 	}
 

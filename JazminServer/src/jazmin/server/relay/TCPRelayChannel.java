@@ -26,10 +26,9 @@ public class TCPRelayChannel extends NetworkRelayChannel{
 	}
 	//
 	@Override
-	public void write(byte []buffer) {
+	public void dataFromRelay(RelayChannel channel,byte []buffer) throws Exception {
+		super.dataFromRelay(channel, buffer);
 		if(outboundChannel!=null&&outboundChannel.isActive()){
-			packetSentCount++;
-			byteSentCount+=buffer.length;
 			outboundChannel.writeAndFlush(Unpooled.wrappedBuffer(buffer));
 		}
 	}

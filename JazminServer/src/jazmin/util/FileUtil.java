@@ -124,7 +124,21 @@ public class FileUtil {
 		}
 		return (directory.delete());
 	}
-	//
+	/**
+	 * get content from file
+	 * @param filePath
+	 * @return
+	 * @throws IOException
+	 */
+	public static String getContent(String filePath) throws IOException{
+		return getContent(new File(filePath));
+	}
+	/**
+	 * get content from file
+	 * @param filePath
+	 * @return
+	 * @throws IOException
+	 */
 	public static String getContent(File file) throws IOException{
 		StringBuilder sb=new StringBuilder();
 		Files.lines(file.toPath()).forEach(line->{sb.append(line).append("\n");});

@@ -570,7 +570,19 @@ public abstract class SipMessageImpl implements SipMessage {
             throw new SipParseException(0, "Unable to parse out the method due to underlying IOException", e);
         }
     }
-
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isUpdate() throws SipParseException {
+        final Buffer m = getMethod();
+        try {
+            return m.getByte(0) == 'U' && m.getByte(1) == 'P' && m.getByte(2) == 'D' && m.getByte(3) == 'A'
+                    && m.getByte(4) == 'T' && m.getByte(5) == 'E';
+        } catch (final IOException e) {
+            throw new SipParseException(0, "Unable to parse out the method due to underlying IOException", e);
+        }
+    }
     /**
      * {@inheritDoc}
      */

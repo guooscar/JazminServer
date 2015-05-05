@@ -37,8 +37,6 @@ import jazmin.codec.stun.messages.attributes.StunAttribute;
 import jazmin.codec.stun.messages.attributes.StunAttributeFactory;
 import jazmin.codec.stun.messages.attributes.general.MessageIntegrityAttribute;
 import jazmin.codec.stun.messages.attributes.general.UsernameAttribute;
-import jazmin.log.Logger;
-import jazmin.log.LoggerFactory;
 
 /**
  * Handles STUN traffic.
@@ -47,7 +45,6 @@ import jazmin.log.LoggerFactory;
  * 
  */
 public class StunHandler {
-	private static Logger logger=LoggerFactory.get(StunHandler.class);
 	//
 	byte []localKey;
 	protected String ufrag;
@@ -60,9 +57,6 @@ public class StunHandler {
 	}
 	//
 	private byte[] processRequest(StunRequest request, InetSocketAddress remotePeer) throws IOException {
-		if(logger.isDebugEnabled()){
-			logger.debug("handle stun rquest from:{}/{}",remotePeer,request);
-		}
 		/*
 		 * The agent MUST use a short-term credential to authenticate the
 		 * request and perform a message integrity check.
@@ -95,9 +89,6 @@ public class StunHandler {
 				StunAttributeFactory.createMessageIntegrityAttribute(remoteUsername, localKey);
 		response.addAttribute(messageIntegrityAttribute);
 		// Pass response to the server
-		if(logger.isDebugEnabled()){
-			logger.debug("return stun response to:{}/{}",remotePeer,response);
-		}
 		//
 		return response.encode();
 	}

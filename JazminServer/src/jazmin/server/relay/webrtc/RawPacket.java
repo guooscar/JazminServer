@@ -9,6 +9,8 @@ package jazmin.server.relay.webrtc;
 
 import java.nio.ByteBuffer;
 
+import jazmin.codec.rtp.RtpPacket;
+
 /**
  * When using TransformConnector, a RTP/RTCP packet is represented using
  * RawPacket. RawPacket stores the buffer holding the RTP/RTCP packet, as well

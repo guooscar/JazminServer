@@ -21,8 +21,8 @@ import jazmin.log.LoggerFactory;
 public class TCPRelayChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
 	private static Logger logger=LoggerFactory.get(RelayChannel.class);
 	//
-	NetworkRelayChannel relayChannel;
-	public TCPRelayChannelHandler(NetworkRelayChannel relayChannel) {
+	TCPRelayChannel relayChannel;
+	public TCPRelayChannelHandler(TCPRelayChannel relayChannel) {
 		this.relayChannel=relayChannel;
 	}
 	//
@@ -30,7 +30,7 @@ public class TCPRelayChannelHandler extends SimpleChannelInboundHandler<ByteBuf>
 	protected void messageReceived(ChannelHandlerContext ctx,
 			ByteBuf buffer) throws Exception {
 		ByteBuf buf= Unpooled.copiedBuffer(buffer);
-		relayChannel.read(buf.array());
+		relayChannel.dataFromPeer(buf.array());
 	}
 	//
 	@Override

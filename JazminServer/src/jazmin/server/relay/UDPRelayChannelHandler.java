@@ -22,8 +22,8 @@ import jazmin.log.LoggerFactory;
 public class UDPRelayChannelHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 	private static Logger logger=LoggerFactory.get(RelayChannel.class);
 	//
-	NetworkRelayChannel relayChannel;
-	public UDPRelayChannelHandler(NetworkRelayChannel relayChannel) {
+	UDPRelayChannel relayChannel;
+	public UDPRelayChannelHandler(UDPRelayChannel relayChannel) {
 		this.relayChannel=relayChannel;
 	}
 	//
@@ -35,7 +35,7 @@ public class UDPRelayChannelHandler extends SimpleChannelInboundHandler<Datagram
 			relayChannel.remoteAddress=isa;
 		}
 		ByteBuf buf= Unpooled.copiedBuffer(pkg.content());
-		relayChannel.read(buf.array());
+		relayChannel.dataFromPeer(buf.array());
 	}
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)

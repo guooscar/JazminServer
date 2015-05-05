@@ -67,7 +67,7 @@ public class Dispatcher extends Lifecycle implements Executor{
 				TimeUnit.SECONDS, 
 				requestQueue, new JazminThreadFactory("WorkerThread"));
 		poolExecutor.setRejectedExecutionHandler(
-				new ThreadPoolExecutor.DiscardOldestPolicy());
+				new ThreadPoolExecutor.AbortPolicy());
 	}
 	/**
 	 * 

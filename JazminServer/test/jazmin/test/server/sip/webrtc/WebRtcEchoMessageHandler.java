@@ -1,17 +1,18 @@
-package jazmin.test.server.sip;
+package jazmin.test.server.sip.webrtc;
 
 import jazmin.codec.sdp.SessionDescription;
 import jazmin.codec.sdp.SessionDescriptionParser;
+import jazmin.codec.sdp.attributes.ConnectionModeAttribute;
 import jazmin.codec.sdp.fields.ConnectionField;
 import jazmin.codec.sdp.fields.MediaDescriptionField;
 import jazmin.codec.sdp.ice.attributes.CandidateAttribute;
-import jazmin.codec.sdp.rtcp.attributes.RtcpAttribute;
 import jazmin.core.Jazmin;
 import jazmin.server.relay.DtlsRelayChannel;
+import jazmin.server.relay.EchoRelayChannel;
 import jazmin.server.relay.RelayServer;
 import jazmin.server.relay.TransportType;
+import jazmin.server.sip.SimpleSipMessageHandler;
 import jazmin.server.sip.SipContext;
-import jazmin.server.sip.SipMessageAdapter;
 import jazmin.server.sip.SipSession;
 import jazmin.server.sip.SipStatusCode;
 import jazmin.server.sip.io.buffer.Buffers;
@@ -27,35 +28,15 @@ import jazmin.server.sip.io.sip.header.ContentLengthHeader;
  * @author yama
  *
  */
-public class WebRtcB2BUAMessageHandler extends SipMessageAdapter {
+public class WebRtcEchoMessageHandler extends SimpleSipMessageHandler {
 	//
 	public class SessionStatus {
-		public DtlsRelayChannel audioRelayChannelA;
-		public DtlsRelayChannel audioRtcpRelayChannelA;
-		
-		public DtlsRelayChannel videoRelayChannelA;
-		public DtlsRelayChannel videoRtcpRelayChannelA;
+		public DtlsRelayChannel rtpMuxRelayChannelA;
+		public DtlsRelayChannel rtpMuxRelayChannelB;
 		
 	}
 	//
-	@Override
-	public void handleRequest(SipContext ctx, SipRequest message)
-			throws Exception {
-		if (message.isInvite()) {
-			doInvite(ctx,message);
-			return;
-		}
-		//
-		ctx.getConnection().send(message.createResponse(SipStatusCode.SC_OK));
-	}
-	//
-	@Override
-	public void handleResponse(SipContext ctx, SipResponse response)
-			throws Exception {
-		
-	}
-	//
-	private void doInvite(SipContext ctx,SipRequest message)throws Exception{
+	public void doInvite(SipContext ctx,SipRequest message)throws Exception{
 		SipSession session=ctx.getSession();
 		synchronized (session) {
 			SessionStatus ss=(SessionStatus) session.getUserObject();
@@ -64,14 +45,15 @@ public class WebRtcB2BUAMessageHandler extends SipMessageAdapter {
 				ss=new SessionStatus();
 				session.setUserObject(ss);
 				//
-				ss.audioRelayChannelA=(DtlsRelayChannel) 
-						relayServer.createRelayChannel(TransportType.DTLS,"audio");
-				ss.audioRtcpRelayChannelA=(DtlsRelayChannel) 
-						relayServer.createRelayChannel(TransportType.DTLS,"audiortcp");
-				ss.videoRelayChannelA=(DtlsRelayChannel) 
-						relayServer.createRelayChannel(TransportType.DTLS,"video");
-				ss.videoRtcpRelayChannelA=(DtlsRelayChannel) 
-						relayServer.createRelayChannel(TransportType.DTLS,"videortcp");
+				ss.rtpMuxRelayChannelA=(DtlsRelayChannel) 
+						relayServer.createRelayChannel(TransportType.DTLS,"rtpmuxa");
+				ss.rtpMuxRelayChannelB=(DtlsRelayChannel) 
+						relayServer.createRelayChannel(TransportType.DTLS,"rtpmuxb");
+				//
+				EchoRelayChannel echoRelayChannel=new EchoRelayChannel();
+				ss.rtpMuxRelayChannelA.relayTo(echoRelayChannel);
+				ss.rtpMuxRelayChannelB.relayTo(echoRelayChannel);
+				relayServer.addChannel(echoRelayChannel);
 			}
 			changeSDP(message, 
 					ctx.getServer().getHostAddress(),
@@ -85,7 +67,7 @@ public class WebRtcB2BUAMessageHandler extends SipMessageAdapter {
 		//rsp.addHeader(ContentTypeHeader.frame(Buffers.wrap("application/sdp")));
 		//
 		ContactHeader ch=ContactHeader.with(SipURI.frame(
-				Buffers.wrap("sip:1@192.168.1.103"))).build();
+				Buffers.wrap("sip:1@"+ctx.getServer().getHostAddress()))).build();
 		rsp.addHeader(ch);
 		rsp.setRawContent(message.getRawContent());
 		//
@@ -112,13 +94,11 @@ public class WebRtcB2BUAMessageHandler extends SipMessageAdapter {
 		s.getOrigin().setAddress(host);
 		MediaDescriptionField audioField=s.getMediaDescription("audio");
 		changeMediaDescriptionField(host,
-				ss.audioRelayChannelA,
-				ss.audioRtcpRelayChannelA,
+				ss.rtpMuxRelayChannelA,
 				audioField);
 		MediaDescriptionField videoField=s.getMediaDescription("video");
 		changeMediaDescriptionField(host,
-				ss.videoRelayChannelA,
-				ss.videoRtcpRelayChannelA,
+				ss.rtpMuxRelayChannelB,
 				videoField);
 		//
 		byte newSdpBytes[]=s.toBytes();
@@ -129,16 +109,18 @@ public class WebRtcB2BUAMessageHandler extends SipMessageAdapter {
 	//
 	private void changeMediaDescriptionField(String host,
 			DtlsRelayChannel channel,
-			DtlsRelayChannel rtcpChannel,
 			MediaDescriptionField field){
 		if(field==null){
 			return;
 		}
+		if(field.getConnectionMode().getKey().equals(ConnectionModeAttribute.RECVONLY)){
+			field.getConnectionMode().setMode(ConnectionModeAttribute.SENDONLY);
+		}else{
+			field.getConnectionMode().setMode(ConnectionModeAttribute.SENDRECV);
+		}
 		field.getIceUfrag().setUfrag(channel.getIceUfrag());
 		field.getIcePwd().setPassword(channel.getIcePassword());
 		field.setPort(channel.getLocalPort());
-		RtcpAttribute ra=new RtcpAttribute(rtcpChannel.getLocalPort());
-		field.setRtcp(ra);
 		CandidateAttribute ca0 = field.getCandidates()[0];
 		ca0.setAddress(host);
 		ca0.setPort(channel.getLocalPort());

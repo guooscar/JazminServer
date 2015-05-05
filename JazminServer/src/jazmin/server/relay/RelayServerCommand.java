@@ -49,22 +49,20 @@ public class RelayServerCommand extends ConsoleCommand {
     private void showChannels(String args){
     	List<RelayChannel>channels=server.getChannels();
     	out.format("total %d channels\n",channels.size());
-    	String format="%-5s %-6s %-10s %-6s %-20s %-20s %-15s %-15s %-15s %-50s\n";
+    	String format="%-5s %-6s %-10s %-6s %-20s %-15s %-15s %-15s %-50s\n";
     	out.printf(format,
 				"#",
 				"ID",
 				"NAME",
     			"ACTIVE",
-    			"PKG SENT",
-    			"PKG RECV",
+    			"PKG RELAY",
     			"CREATETIME",
     			"LASTACCTIME",
     			"LINKED",
     			"LINK");
     	int idx=1;
     	for(RelayChannel sh:channels){
-    		double byteSentCnt=sh.byteSentCount;
-    		double byteReveCnt=sh.byteReceiveCount;
+    		double byteRelayCnt=sh.byteRelayCount;
     		StringBuilder linkedStr=new StringBuilder();
     		linkedStr.append("[");
     		for(RelayChannel linked:sh.linkedChannels){
@@ -77,8 +75,7 @@ public class RelayServerCommand extends ConsoleCommand {
         			sh.id,
         			sh.name,
         			sh.isActive(),
-        			sh.packetSentCount+"/"+String.format("%.2fKB",byteSentCnt/1024),
-        			sh.packetReceiveCount+"/"+String.format("%.2fKB",byteReveCnt/1024),
+        			sh.packetRelayCount+"/"+String.format("%.2fKB",byteRelayCnt/1024),
         			formatDate(new Date(sh.createTime)),
         			formatDate(new Date(sh.lastAccessTime)),
         			linkedStr,

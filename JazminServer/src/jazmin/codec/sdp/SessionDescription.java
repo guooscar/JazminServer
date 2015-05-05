@@ -223,9 +223,15 @@ public class SessionDescription implements SessionLevelAccessor {
 	public void addMediaDescription(MediaDescriptionField media) {
 		this.mediaMap.put(media.getMedia(), media);
 	}
+	
+	public void removeMediaDescription(String mediaType){
+		mediaMap.remove(mediaType);
+	}
+	
 	public void addOtherField(OtherField f) {
 		this.otherFields.add(f);
 	}
+	
 	public void addOtherAttributeField(OtherField f) {
 		this.otherAttributes.add(f);
 	}

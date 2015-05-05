@@ -43,10 +43,9 @@ public class HexDumpRelayChannel extends RelayChannel{
 	}
 	//
 	@Override
-	public void write(byte buffer[]) throws Exception{
-		packetSentCount++;
-		byteSentCount+=buffer.length;
-		String output="#"+packetSentCount+"\n"+HexDump.dumpHexString(buffer);
+	public void dataFromRelay(RelayChannel channel,byte buffer[]) throws Exception{
+		super.dataFromRelay(channel, buffer);
+		String output="#"+packetRelayCount+"\n"+HexDump.dumpHexString(buffer);
 		if(bufferedWriter!=null){
 			bufferedWriter.write(output+"\n");
 		}

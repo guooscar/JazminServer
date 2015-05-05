@@ -14,6 +14,8 @@ public class ByteArrayBlockingQueue {
 	int takeIndex;
 	int putIndex;
 	public int count;
+	//
+	volatile boolean isClosed=false;
 
 	public ByteArrayBlockingQueue(int capacity, boolean fair) {
 		if (capacity <= 0)
@@ -27,7 +29,10 @@ public class ByteArrayBlockingQueue {
 	public ByteArrayBlockingQueue(int capacity) {
 		this(capacity, false);
 	}
-
+	
+	public void close(){
+		isClosed=true;
+	}
 	/**
 	 * Inserts element at current put position, advances, and signals.
 	 * Call only when holding lock.
@@ -128,6 +133,9 @@ public class ByteArrayBlockingQueue {
 	}
 
 	public void put(byte[] b) throws InterruptedException {
+		if(isClosed){
+			return;
+		}
 		final ReentrantLock lock = this.lock;
 		lock.lockInterruptibly();
 		try {

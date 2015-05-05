@@ -18,14 +18,13 @@ public class UDPRelayChannel extends NetworkRelayChannel{
 	}
 	//
 	@Override
-	public void write(byte []buffer) {
+	public void dataFromRelay(RelayChannel channel,byte []buffer) throws Exception {
+		super.dataFromRelay(channel, buffer);
 		if(outboundChannel.isActive()){
 			ByteBuf buf= Unpooled.wrappedBuffer(buffer);
 			DatagramPacket dp=new DatagramPacket(
 					buf,
 					remoteAddress);
-			packetSentCount++;
-			byteSentCount+=buffer.length;
 			outboundChannel.writeAndFlush(dp);
 		}
 	}

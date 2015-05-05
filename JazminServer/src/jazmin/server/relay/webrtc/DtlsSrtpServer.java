@@ -1,4 +1,3 @@
-package jazmin.server.relay.webrtc;
 /*
  * TeleStax, Open Source Cloud Communications
  * Copyright 2011-2014, Telestax Inc and individual contributors
@@ -19,7 +18,7 @@ package jazmin.server.relay.webrtc;
  *
  */
 
-
+package jazmin.server.relay.webrtc;
 
 import java.io.IOException;
 import java.util.Hashtable;
@@ -60,8 +59,7 @@ public class DtlsSrtpServer extends DefaultTlsServer {
     private static final Logger LOGGER = LoggerFactory.getLogger(DtlsSrtpServer.class);
 
     // Certificate resources
-	private static final String[] CERT_RESOURCES = new String[] 
-			{ "x509-server.pem", "x509-ca.pem" };
+	private static final String[] CERT_RESOURCES = new String[] { "x509-server.pem"};//, "x509-ca.pem" 
 	private static final String KEY_RESOURCE = "x509-server-key.pem";
 	
 	private String hashFunction = "";
@@ -79,18 +77,22 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 	// Policies
 	private SRTPPolicy srtpPolicy;
 	private SRTPPolicy srtcpPolicy;
-	
+	//
+	//
+	DtlsHandler dtlsHandler;
+	DtlsSrtpServer(DtlsHandler handler){
+		dtlsHandler=handler;
+	}
+	//
 	public void notifyAlertRaised(short alertLevel, short alertDescription,
 			String message, Exception cause) {
-		LOGGER.debug( String.format("DTLS server raised alert "
-				+ "(AlertLevel.%d, AlertDescription.%d, message='%s')", 
-				alertLevel, alertDescription, message), cause);
+       LOGGER.debug(String.format("DTLS server raised alert (AlertLevel.%d, AlertDescription.%d, message='%s')", 
+    		   alertLevel, alertDescription, message), cause);
     }
 
     public void notifyAlertReceived(short alertLevel, short alertDescription) {
-    	 LOGGER.debug( String.format("DTLS server received alert "
-    	 		+ "(AlertLevel.%d, AlertDescription.%d)",
-    	 		alertLevel, alertDescription));
+        LOGGER.debug(String.format("DTLS server received alert (AlertLevel.%d, AlertDescription.%d)",
+        		alertLevel, alertDescription));
     }
 
     public CertificateRequest getCertificateRequest() {
@@ -99,23 +101,19 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 			short[] hashAlgorithms = new short[] { 
 					HashAlgorithm.sha512, 
 					HashAlgorithm.sha384,
-					HashAlgorithm.sha256, 
-					HashAlgorithm.sha224,
+					HashAlgorithm.sha256,
+					HashAlgorithm.sha224, 
 					HashAlgorithm.sha1 };
 			short[] signatureAlgorithms = new short[] { SignatureAlgorithm.rsa };
 
 			serverSigAlgs = new Vector<SignatureAndHashAlgorithm>();
 			for (int i = 0; i < hashAlgorithms.length; ++i) {
 				for (int j = 0; j < signatureAlgorithms.length; ++j) {
-					serverSigAlgs.addElement(new SignatureAndHashAlgorithm(
-							hashAlgorithms[i],
-							signatureAlgorithms[j]));
+					serverSigAlgs.addElement(new SignatureAndHashAlgorithm(hashAlgorithms[i], signatureAlgorithms[j]));
 				}
 			}
 		}
-		return new CertificateRequest(
-				new short[] { ClientCertificateType.rsa_sign }, 
-				serverSigAlgs, null);
+		return new CertificateRequest(new short[] { ClientCertificateType.rsa_sign }, serverSigAlgs, null);
     }
 
     public void notifyClientCertificate(org.bouncycastle.crypto.tls.Certificate clientCertificate) throws IOException {
@@ -123,8 +121,10 @@ public class DtlsSrtpServer extends DefaultTlsServer {
         LOGGER.info(String.format("Received client certificate chain of length %d", chain.length));
         for (int i = 0; i != chain.length; i++) {
             Certificate entry = chain[i];
-            LOGGER.info(String.format("WebRTC Client certificate fingerprint:%s (%s)", 
-            		TlsUtils.fingerprint(true,this.hashFunction, entry), entry.getSubject()));
+            String clientFingerPrint=TlsUtils.fingerprint(false,this.hashFunction, entry);
+            dtlsHandler.setRemoteFingerprint("sha256", clientFingerPrint);
+            LOGGER.info(String.format("WebRTC Client certificate fingerprint:%s (%s)",
+            		clientFingerPrint, entry.getSubject()));
         }
     }
 
@@ -161,13 +161,12 @@ public class DtlsSrtpServer extends DefaultTlsServer {
                 return null;
             }
         }
-        return TlsUtils.loadSignerCredentials(context, 
-        		new String[]{
-        		"x509-server.pem",
-        		"x509-ca.pem"},
-        		"x509-server-key.pem",
+        return TlsUtils.loadSignerCredentials(context, new String[]{
+        		"x509-server.pem"},
+        		//,
+        		//"x509-ca.pem"},
+        		"x509-server-key.pem", 
         		signatureAndHashAlgorithm);
-       
     }
     
     @SuppressWarnings("unchecked")
@@ -191,26 +190,25 @@ public class DtlsSrtpServer extends DefaultTlsServer {
     	// set to some reasonable default value
     	int chosenProfile = SRTPProtectionProfile.SRTP_AES128_CM_HMAC_SHA1_80;
     	UseSRTPData clientSrtpData = TlsSRTPUtils.getUseSRTPExtension(newClientExtensions);
-    	if(clientSrtpData!=null){
-    		for (int profile : clientSrtpData.getProtectionProfiles()) {
-        		switch (profile) {
-        			case SRTPProtectionProfile.SRTP_AES128_CM_HMAC_SHA1_32:
-        			case SRTPProtectionProfile.SRTP_AES128_CM_HMAC_SHA1_80:
-        			case SRTPProtectionProfile.SRTP_NULL_HMAC_SHA1_32:
-        			case SRTPProtectionProfile.SRTP_NULL_HMAC_SHA1_80:
-        				chosenProfile  = profile;
-        				break;
-        			default:
-        		}
-        	}
+    	
+    	for (int profile : clientSrtpData.getProtectionProfiles()) {
+    		switch (profile) {
+    			case SRTPProtectionProfile.SRTP_AES128_CM_HMAC_SHA1_32:
+    			case SRTPProtectionProfile.SRTP_AES128_CM_HMAC_SHA1_80:
+    			case SRTPProtectionProfile.SRTP_NULL_HMAC_SHA1_32:
+    			case SRTPProtectionProfile.SRTP_NULL_HMAC_SHA1_80:
+    				chosenProfile  = profile;
+    				break;
+    			default:
+    		}
     	}
+    	
     	// server chooses a mutually supported SRTP protection profile
     	// http://tools.ietf.org/html/draft-ietf-avt-dtls-srtp-07#section-4.1.2
 		int[] protectionProfiles = { chosenProfile };
+    	
     	// server agrees to use the MKI offered by the client
-		if(clientSrtpData!=null){
-			serverSrtpData = new UseSRTPData(protectionProfiles, clientSrtpData.getMki());
-		}
+    	serverSrtpData = new UseSRTPData(protectionProfiles, clientSrtpData.getMki());
     }
     
     public byte[] getKeyingMaterial(int length) {
@@ -222,9 +220,6 @@ public class DtlsSrtpServer extends DefaultTlsServer {
      * @return the shared secret key that will be used for the SRTP session
      */
     public void prepareSrtpSharedSecret() {
-    	if(serverSrtpData==null){
-    		return;
-    	}
     	SRTPParameters srtpParams = SRTPParameters.getSrtpParametersForProfile(serverSrtpData.getProtectionProfiles()[0]);
     	final int keyLen = srtpParams.getCipherKeyLength();
     	final int saltLen = srtpParams.getCipherSaltLength();

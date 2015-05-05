@@ -367,6 +367,8 @@ public interface SipMessage extends Cloneable {
      *             buffer.
      */
     boolean isOptions() throws SipParseException;
+    
+    boolean isUpdate() throws SipParseException;
 
     /**
      * Convenience method for determining whether the method of this message is

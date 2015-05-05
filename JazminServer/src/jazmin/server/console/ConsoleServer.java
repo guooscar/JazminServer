@@ -35,6 +35,7 @@ public class ConsoleServer extends Server{
 	//
 	private void startSshServer()throws Exception {
 		sshServer= SshServer.setUpDefaultServer();
+		sshServer.setNioWorkers(2);//we just need 2 nio worker for service
 		sshServer.setPort(port);
 		sshServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider("jch.ser"));
 		sshServer.setPasswordAuthenticator(new PasswordAuthenticator() {

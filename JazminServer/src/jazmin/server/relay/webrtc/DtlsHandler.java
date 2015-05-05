@@ -81,7 +81,7 @@ public class DtlsHandler {
 
 	public DtlsHandler(DtlsRelayChannel dtlsRelayChannel) {
 		this.dtlsRelayChannel=dtlsRelayChannel;
-		this.server = new DtlsSrtpServer();
+		this.server = new DtlsSrtpServer(this);
 		this.handshakeComplete = false;
 		this.handshakeFailed = false;
 		this.handshaking = false;
@@ -289,19 +289,4 @@ public class DtlsHandler {
 			}
 		}
 	}
-
-	public void reset() {
-		this.server = new DtlsSrtpServer();
-		this.srtcpDecoder = null;
-		this.srtcpEncoder = null;
-		this.srtpDecoder = null;
-		this.srtpEncoder = null;
-		this.hashFunction = "";
-		this.remoteFingerprint = "";
-		this.localFingerprint = "";
-		this.handshakeComplete = false;
-		this.handshakeFailed = false;
-		this.handshaking = false;
-	}
-
 }

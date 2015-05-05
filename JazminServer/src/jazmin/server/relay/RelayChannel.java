@@ -7,25 +7,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import jazmin.log.Logger;
-import jazmin.log.LoggerFactory;
-
 /**
  * @author yama
  * 26 Apr, 2015
  */
 public abstract class RelayChannel {
-	private static Logger logger=LoggerFactory.get(RelayChannel.class);
 	//
 	String id;
 	//
 	protected final long createTime;
 	long lastAccessTime;
 	//
-	protected long packetReceiveCount;
-	protected long byteReceiveCount;
-	protected long packetSentCount;
-	protected long byteSentCount;
+	protected long packetRelayCount;
+	protected long byteRelayCount;
 	//
 	protected String name;
 	
@@ -64,7 +58,6 @@ public abstract class RelayChannel {
 			linkedChannels.remove(channel);
 		}
 	}
-	
 	//
 	/**
 	 * @return the createTime
@@ -79,24 +72,13 @@ public abstract class RelayChannel {
 	public long getLastAccessTime() {
 		return lastAccessTime;
 	}
-	
 	//
-	public abstract void write(byte bytes[])throws Exception;
-	//--------------------------------------------------------------------------
-	public  void read(byte bytes[]) throws Exception{
-		byteReceiveCount+=bytes.length;
-		packetReceiveCount++;
-		synchronized (linkedChannels) {
-			for(RelayChannel rc:linkedChannels){
-				rc.lastAccessTime=System.currentTimeMillis();
-				try {
-					rc.write(bytes);
-				} catch (Exception e) {
-					logger.catching(e);
-				}
-			}
-		}
+	public void dataFromRelay(RelayChannel channel,byte buffer[])
+			throws Exception{
+		packetRelayCount++;
+		byteRelayCount+=buffer.length;
 	}
+	//--------------------------------------------------------------------------
 	//
 	public boolean isActive(){
 		return true;
@@ -117,31 +99,20 @@ public abstract class RelayChannel {
 	public void setName(String name) {
 		this.name = name;
 	}
-	/**
-	 * @return the packetReceiveCount
-	 */
-	public long getPacketReceiveCount() {
-		return packetReceiveCount;
-	}
-	/**
-	 * @return the byteReceiveCount
-	 */
-	public long getByteReceiveCount() {
-		return byteReceiveCount;
-	}
-	/**
-	 * @return the packetSentCount
-	 */
-	public long getPacketSentCount() {
-		return packetSentCount;
-	}
-	/**
-	 * @return the byteSentCount
-	 */
-	public long getByteSentCount() {
-		return byteSentCount;
-	}
+	
 
+	/**
+	 * @return the packetRelayCount
+	 */
+	public long getPacketRelayCount() {
+		return packetRelayCount;
+	}
+	/**
+	 * @return the byteRelayCount
+	 */
+	public long getByteRelayCount() {
+		return byteRelayCount;
+	}
 	/**
 	 * @return the linkedChannels
 	 */

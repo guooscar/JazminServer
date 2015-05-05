@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jazmin.test.server.sip;
+package jazmin.test.server.sip.b2bua;
 
 import jazmin.core.Jazmin;
 import jazmin.core.app.Application;
@@ -14,7 +14,7 @@ import jazmin.server.sip.SipServer;
  * @author yama
  * 26 Apr, 2015
  */
-public class B2BUADemo extends Application{
+public class SipApp extends Application{
 	@Override
 	public void start() throws Exception {
 		SipServer server=Jazmin.getServer(SipServer.class);
@@ -25,13 +25,12 @@ public class B2BUADemo extends Application{
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception{
-		String ipAddress="192.168.3.103";
+		String ipAddress="10.44.218.119";
 		LoggerFactory.setLevel("DEBUG");
 		SipServer server=new SipServer();
 		server.setHostAddress(ipAddress);
 		server.setPublicAddress(ipAddress);
-		//server.setMessageHandler(new B2BUAMessageHandler());
-		server.setMessageHandler(new WebRtcB2BUAMessageHandler());
+		server.setMessageHandler(new B2BUAMessageHandler());
 		Jazmin.addServer(server);
 		RelayServer relayServer=new RelayServer();
 		relayServer.addHostAddress(ipAddress);//interface 1

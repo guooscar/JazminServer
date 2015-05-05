@@ -1,4 +1,4 @@
-package jazmin.test.server.sip;
+package jazmin.test.server.sip.b2bua;
 
 import java.io.IOException;
 
@@ -14,9 +14,9 @@ import jazmin.server.relay.NetworkRelayChannel;
 import jazmin.server.relay.RelayServer;
 import jazmin.server.relay.RtpDumpRelayChannel;
 import jazmin.server.relay.TransportType;
+import jazmin.server.sip.SimpleSipMessageHandler;
 import jazmin.server.sip.SipContext;
 import jazmin.server.sip.SipLocationBinding;
-import jazmin.server.sip.SipMessageAdapter;
 import jazmin.server.sip.SipSession;
 import jazmin.server.sip.SipStatusCode;
 import jazmin.server.sip.io.buffer.Buffer;
@@ -38,7 +38,7 @@ import jazmin.server.sip.stack.Connection;
  * @author yama
  *
  */
-public class B2BUAMessageHandler extends SipMessageAdapter {
+public class B2BUAMessageHandler extends SimpleSipMessageHandler {
 	private static Logger logger=LoggerFactory.get(B2BUAMessageHandler.class);
 	//
 	public class SessionStatus {
@@ -54,27 +54,17 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 		
 	}
 	//
-	@Override
-	public void handleRequest(SipContext ctx, SipRequest message)
-			throws Exception {
-		if (message.isRegister()) {
-			doRegister(ctx, message);
-			dumpStore(ctx);
+	public void doMessage(SipContext ctx,SipRequest message) throws Exception{
+		dumpStore(ctx);
+		Address toAddress=message.getToHeader().getAddress();
+		URI toURI=toAddress.getURI();
+		SipLocationBinding toBinding=ctx.getServer().getLocationBinding((SipURI) toURI);
+		if(toBinding==null){
+			SipMessage notFoundMsg=message.createResponse(SipStatusCode.SC_NOT_FOUND);
+			ctx.getConnection().send(notFoundMsg);
 			return;
 		}
-		//
-		if (message.isInvite()) {
-			doInvite(ctx,message);
-			return;
-		}
-		if(message.isAck()){
-			if(ctx.getSession(false)!=null){
-				ctx.getSession(false).invalidate();
-			}
-			return;
-		}
-		//
-		ctx.getConnection().send(message.createResponse(SipStatusCode.SC_OK));
+		ctx.getServer().proxyTo(toBinding.getConnection(),message);
 	}
 	//
 	@Override
@@ -97,7 +87,7 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 		ss.connection.send(response);
 	}
 	//
-	private void dumpStore(SipContext ctx){
+	public void dumpStore(SipContext ctx){
 		StringBuilder sb=new StringBuilder();
 		ctx.getServer().getLocationBindings().forEach(b->{
 			sb.append(b.getAor()+"\t->\t"+b);
@@ -106,8 +96,7 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 		logger.debug("\n"+sb);
 	}
 	//
-	private void doInvite(SipContext ctx,SipRequest message)throws Exception{
-		dumpStore(ctx);
+	public void doInvite(SipContext ctx,SipRequest message)throws Exception{
 		Address toAddress=message.getToHeader().getAddress();
 		URI toURI=toAddress.getURI();
 		SipLocationBinding toBinding=ctx.getServer().getLocationBinding((SipURI) toURI);
@@ -145,7 +134,7 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 			//
 			ctx.getServer().proxyTo(toBinding.getConnection(),message);
 		}
-		
+		dumpStore(ctx);
 	}
 	//
 	private void changeSDP(SipMessage message,String host,int audioPort,int videoPort)throws Exception{
@@ -189,9 +178,10 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 		clh.setContentLength(newSdpBytes.length);
 	}
 	//
-	private void doRegister(SipContext ctx, SipRequest message)throws Exception{
+	public void doRegister(SipContext ctx, SipRequest message)throws Exception{
 		final SipResponse response = processRegisterRequest(ctx,message);
 		ctx.getConnection().send(response);
+		dumpStore(ctx);
 	}
 	//
 	//
@@ -260,5 +250,5 @@ public class B2BUAMessageHandler extends SipMessageAdapter {
 		final SipURI sipURI = (SipURI) request.getToHeader().getAddress().getURI();
 		return SipURI.with().user(sipURI.getUser()).host(sipURI.getHost()).build();
 	}
-
+	//
 }
