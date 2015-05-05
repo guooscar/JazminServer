@@ -71,6 +71,12 @@ implements DatagramTransport{
 	public void relayRtpTo(RelayChannel rc){
 		rtpRelayChannels.add(rc.id);
 	}
+	//
+	public void relayRtpAndRtcpTo(RelayChannel rc){
+		relayRtcpTo(rc);
+		relayRtpTo(rc);
+	}
+	//
 	/**
 	 * relay rtcp packet to channel
 	 * @param rc
@@ -211,6 +217,12 @@ implements DatagramTransport{
 	//
 	public void onDtlsHandshakeFailed(Throwable e) {
 		logger.catching(e);
+		queue.close();
+		try {
+			closeChannel();
+		} catch (Exception e1) {
+			logger.catching(e1);
+		}
 	}
 	//--------------------------------------------------------------------------
 	//dtls handle shake

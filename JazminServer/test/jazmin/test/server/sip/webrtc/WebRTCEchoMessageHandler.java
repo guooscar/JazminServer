@@ -28,7 +28,7 @@ import jazmin.server.sip.io.sip.header.ContentLengthHeader;
  * @author yama
  *
  */
-public class WebRtcEchoMessageHandler extends SimpleSipMessageHandler {
+public class WebRTCEchoMessageHandler extends SimpleSipMessageHandler {
 	//
 	public class SessionStatus {
 		public DtlsRelayChannel rtpMuxRelayChannelA;
@@ -53,6 +53,9 @@ public class WebRtcEchoMessageHandler extends SimpleSipMessageHandler {
 				EchoRelayChannel echoRelayChannel=new EchoRelayChannel();
 				ss.rtpMuxRelayChannelA.relayTo(echoRelayChannel);
 				ss.rtpMuxRelayChannelB.relayTo(echoRelayChannel);
+				ss.rtpMuxRelayChannelA.relayRtpAndRtcpTo(echoRelayChannel);
+				ss.rtpMuxRelayChannelB.relayRtpAndRtcpTo(echoRelayChannel);
+				
 				relayServer.addChannel(echoRelayChannel);
 			}
 			changeSDP(message, 

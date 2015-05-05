@@ -30,7 +30,8 @@ public class SipApp extends Application{
 		SipServer server=new SipServer();
 		server.setHostAddress(ipAddress);
 		server.setPublicAddress(ipAddress);
-		server.setMessageHandler(new WebRTCB2BUAMessageHandler());
+		server.setMessageHandler(new WebRTCEchoMessageHandler());
+		//server.setMessageHandler(new WebRTCB2BUAMessageHandler());
 		Jazmin.addServer(server);
 		RelayServer relayServer=new RelayServer();
 		relayServer.addHostAddress(ipAddress);//interface 1

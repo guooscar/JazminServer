@@ -59,7 +59,7 @@ public class DtlsSrtpServer extends DefaultTlsServer {
     private static final Logger LOGGER = LoggerFactory.getLogger(DtlsSrtpServer.class);
 
     // Certificate resources
-	private static final String[] CERT_RESOURCES = new String[] { "x509-server.pem"};//, "x509-ca.pem" 
+	private static final String[] CERT_RESOURCES = new String[] { "x509-server.pem","x509-ca.pem"};//, "x509-ca.pem" 
 	private static final String KEY_RESOURCE = "x509-server-key.pem";
 	
 	private String hashFunction = "";
@@ -162,9 +162,8 @@ public class DtlsSrtpServer extends DefaultTlsServer {
             }
         }
         return TlsUtils.loadSignerCredentials(context, new String[]{
-        		"x509-server.pem"},
-        		//,
-        		//"x509-ca.pem"},
+        		"x509-server.pem",
+        		"x509-ca.pem"},
         		"x509-server-key.pem", 
         		signatureAndHashAlgorithm);
     }
