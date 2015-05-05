@@ -8,8 +8,6 @@ import jazmin.codec.sdp.fields.MediaDescriptionField;
 import jazmin.codec.sdp.ice.attributes.CandidateAttribute;
 import jazmin.codec.sdp.rtcp.attributes.RtcpAttribute;
 import jazmin.core.Jazmin;
-import jazmin.log.Logger;
-import jazmin.log.LoggerFactory;
 import jazmin.server.relay.DtlsRelayChannel;
 import jazmin.server.relay.RelayServer;
 import jazmin.server.relay.TransportType;
