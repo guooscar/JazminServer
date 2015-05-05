@@ -49,7 +49,7 @@ public class RelayServerCommand extends ConsoleCommand {
     private void showChannels(String args){
     	List<RelayChannel>channels=server.getChannels();
     	out.format("total %d channels\n",channels.size());
-    	String format="%-5s %-6s %-10s %-6s %-20s %-15s %-15s %-15s %-50s\n";
+    	String format="%-5s %-6s %-20s %-6s %-20s %-15s %-15s %-15s %-50s\n";
     	out.printf(format,
 				"#",
 				"ID",

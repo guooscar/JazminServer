@@ -32,7 +32,21 @@ public final class SipResponseImpl extends SipMessageImpl implements SipResponse
         super(initialLine, headers, payload);
     }
     
-    @Override
+    /**
+	 * @return the cseq
+	 */
+	public CSeqHeader getCseq() {
+		return cseq;
+	}
+
+	/**
+	 * @param cseq the cseq to set
+	 */
+	public void setCseq(CSeqHeader cseq) {
+		this.cseq = cseq;
+	}
+
+	@Override
     public Buffer getReasonPhrase() {
         return getResponseLine().getReason().slice();
     }

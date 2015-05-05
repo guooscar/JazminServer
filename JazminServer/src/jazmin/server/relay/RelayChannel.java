@@ -75,6 +75,7 @@ public abstract class RelayChannel {
 	//
 	public void dataFromRelay(RelayChannel channel,byte buffer[])
 			throws Exception{
+		lastAccessTime=System.currentTimeMillis();
 		packetRelayCount++;
 		byteRelayCount+=buffer.length;
 	}

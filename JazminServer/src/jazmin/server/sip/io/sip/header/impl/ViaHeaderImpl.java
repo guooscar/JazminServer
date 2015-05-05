@@ -31,7 +31,7 @@ public final class ViaHeaderImpl implements ViaHeader, SipHeader, Parameters {
     private static final Buffer BRANCH = Buffers.wrap("branch");
     private static final Buffer RECEIVED = Buffers.wrap("received");
     private static final Buffer RPORT = Buffers.wrap("rport");
-    private static final Buffer TTL = Buffers.wrap("ttl");
+   // private static final Buffer TTL = Buffers.wrap("ttl");
 
     /**
      * The original Via-header.
@@ -60,7 +60,6 @@ public final class ViaHeaderImpl implements ViaHeader, SipHeader, Parameters {
 
     private int indexOfRPort = -1;
 
-    private final int indexOfTTL = -1;
 
     /**
      * Constructor mainly used by the {@link #frame(Buffer)} method.
@@ -79,6 +78,13 @@ public final class ViaHeaderImpl implements ViaHeader, SipHeader, Parameters {
     }
 
     /**
+	 * @return the original
+	 */
+	public Buffer getOriginal() {
+		return original;
+	}
+
+	/**
      * Constructor used mainly by the {@link HeaderFactoryImpl}
      * 
      * @param transport

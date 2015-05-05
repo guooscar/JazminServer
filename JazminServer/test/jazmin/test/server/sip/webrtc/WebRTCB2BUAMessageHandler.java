@@ -6,6 +6,7 @@ import jazmin.codec.sdp.attributes.ConnectionModeAttribute;
 import jazmin.codec.sdp.fields.ConnectionField;
 import jazmin.codec.sdp.fields.MediaDescriptionField;
 import jazmin.codec.sdp.ice.attributes.CandidateAttribute;
+import jazmin.codec.sdp.rtcp.attributes.RtcpAttribute;
 import jazmin.core.Jazmin;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -35,13 +36,15 @@ import jazmin.util.IOUtil;
  *
  */
 public class WebRTCB2BUAMessageHandler extends B2BUAMessageHandler {
-	private static Logger logger=LoggerFactory.get(WebRTCB2BUAMessageHandler.class);
 	//
 	public class SessionStatus {
 		public String webRtcSDP;
 		public Connection connection;
 		public UDPRelayChannel sipPhoneAudioChannel;
+		public UDPRelayChannel sipPhoneAudioRtcpChannel;
 		public UDPRelayChannel sipPhoneVideoChannel;
+		public UDPRelayChannel sipPhoneVideoRtcpChannel;
+		
 		public DtlsRelayChannel webrtcAudioChannel;
 		public DtlsRelayChannel webrtcVideoChannel;
 	}
@@ -158,13 +161,23 @@ public class WebRTCB2BUAMessageHandler extends B2BUAMessageHandler {
 				//
 				ss.sipPhoneAudioChannel=(UDPRelayChannel) 
 						relayServer.createRelayChannel(TransportType.UDP,"sipAudio");
+				ss.sipPhoneAudioRtcpChannel=(UDPRelayChannel) 
+						relayServer.createRelayChannel(TransportType.UDP,"sipAudioRtcp");
 				//
 				ss.sipPhoneVideoChannel=(UDPRelayChannel) 
 						relayServer.createRelayChannel(TransportType.UDP,"sipVideo");
+				ss.sipPhoneVideoRtcpChannel=(UDPRelayChannel) 
+						relayServer.createRelayChannel(TransportType.UDP,"sipVideoRtcp");
 				//
 				ss.webrtcAudioChannel.bidiRelay(ss.sipPhoneAudioChannel);
+				ss.webrtcAudioChannel.bidiRelay(ss.sipPhoneAudioRtcpChannel);
 				ss.webrtcVideoChannel.bidiRelay(ss.sipPhoneVideoChannel);
+				ss.webrtcVideoChannel.bidiRelay(ss.sipPhoneVideoRtcpChannel);
 				//
+				ss.webrtcAudioChannel.relayRtpTo(ss.sipPhoneAudioChannel);
+				ss.webrtcAudioChannel.relayRtcpTo(ss.sipPhoneAudioRtcpChannel);
+				ss.webrtcVideoChannel.relayRtpTo(ss.sipPhoneVideoChannel);
+				ss.webrtcVideoChannel.relayRtcpTo(ss.sipPhoneVideoRtcpChannel);	
 			}
 			//
 			changeSDPForSipPhone(ctx,message,ss);
@@ -199,10 +212,14 @@ public class WebRTCB2BUAMessageHandler extends B2BUAMessageHandler {
 		MediaDescriptionField audioField=s.getMediaDescription("audio");
 		if(audioField!=null){
 			audioField.setPort(ss.sipPhoneAudioChannel.getLocalPort());
+			RtcpAttribute ra=new RtcpAttribute(ss.sipPhoneAudioRtcpChannel.getLocalPort());
+			audioField.setRtcp(ra);
 		}
 		MediaDescriptionField videoField=s.getMediaDescription("video");
 		if(videoField!=null){
 			videoField.setPort(ss.sipPhoneVideoChannel.getLocalPort());
+			RtcpAttribute ra=new RtcpAttribute(ss.sipPhoneVideoRtcpChannel.getLocalPort());
+			videoField.setRtcp(ra);
 		}
 		byte newSdpBytes[]=s.toBytes();
 		message.setRawContent(Buffers.wrap(newSdpBytes));

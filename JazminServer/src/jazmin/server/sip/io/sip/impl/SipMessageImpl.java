@@ -609,6 +609,16 @@ public abstract class SipMessageImpl implements SipMessage {
     }
 
     @Override
+    public boolean isPublish() throws SipParseException {
+        final Buffer m = getMethod();
+        try {
+            return m.getByte(0) == 'P' && m.getByte(1) == 'U' && m.getByte(2) == 'B' && m.getByte(3) == 'L'
+                    && m.getByte(4) == 'I' && m.getByte(5) == 'S' && m.getByte(6) == 'H';
+        } catch (final IOException e) {
+            throw new SipParseException(0, "Unable to parse out the method due to underlying IOException", e);
+        }
+    }
+    @Override
     public boolean isMessage() throws SipParseException {
         final Buffer m = getMethod();
         try {

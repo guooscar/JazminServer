@@ -38,6 +38,8 @@ public class SimpleSipMessageHandler extends SipMessageAdapter {
 			doCancel(ctx, request);
 		}else if(request.isAck()){
 			doAck(ctx, request);
+		}else if(request.isPublish()){
+			doPublish(ctx, request);
 		}else{
 			throw new IllegalArgumentException("unsupport message type:"
 					+request.getMethod().toString());
@@ -90,5 +92,8 @@ public class SimpleSipMessageHandler extends SipMessageAdapter {
 	public void doCancel(SipContext ctx, SipRequest request)throws Exception {
 		ctx.getConnection().send(request.createResponse(SipStatusCode.SC_OK));
 	}
-
+	
+	public void doPublish(SipContext ctx, SipRequest request)throws Exception {
+		ctx.getConnection().send(request.createResponse(SipStatusCode.SC_OK));
+	}
 }

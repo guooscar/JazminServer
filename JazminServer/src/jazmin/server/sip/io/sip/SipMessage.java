@@ -404,6 +404,8 @@ public interface SipMessage extends Cloneable {
      *             buffer.
      */
     boolean isCancel() throws SipParseException;
+    
+    boolean isPublish()throws SipParseException;
 
     /**
      * Checks whether or not this request is considered to be an "initial"

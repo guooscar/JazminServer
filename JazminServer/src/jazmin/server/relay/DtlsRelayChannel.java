@@ -8,13 +8,14 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.DatagramPacket;
 
 import java.io.IOException;
+import java.util.Set;
+import java.util.TreeSet;
 
 import jazmin.codec.rtcp.RtcpPacket;
 import jazmin.codec.rtp.RtpPacket;
 import jazmin.core.Jazmin;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.misc.HexDump;
 import jazmin.misc.InfoBuilder;
 import jazmin.server.relay.webrtc.ByteArrayBlockingQueue;
 import jazmin.server.relay.webrtc.DtlsHandler;
@@ -34,6 +35,10 @@ implements DatagramTransport{
 	private static StunHandler stunHandler=new StunHandler();
 	private long startHandleShakeTime=0;
 	//
+	private TreeSet<String>rtpRelayChannels;
+	private TreeSet<String>rtcpRelayChannels;
+	
+	//
 	public DtlsRelayChannel(String localAddress, int localPort) {
 		super(TransportType.DTLS, localAddress, localPort);
 		queue=new ByteArrayBlockingQueue(3000);
@@ -46,6 +51,9 @@ implements DatagramTransport{
 		this.sendLimit = Math.max(0, mtu - MAX_IP_OVERHEAD - UDP_OVERHEAD);
 		dtlsHandler=new DtlsHandler(this);
         dtlsHandler.setRemoteFingerprint("sha-256", "");
+        //
+        rtpRelayChannels=new TreeSet<String>();
+        rtcpRelayChannels=new TreeSet<String>(); 
 	}
 	//
 	public void writeToPeer(byte [] buffer,int off,int len) {
@@ -54,12 +62,24 @@ implements DatagramTransport{
 		DatagramPacket dp=new DatagramPacket(
 				buf,
 				remoteAddress);
-		packetPeerCount++;
-		bytePeerCount+=len;
 		outboundChannel.writeAndFlush(dp);
 	}
+	/**
+	 * relay rtp packet to channel
+	 * @param rc
+	 */
+	public void relayRtpTo(RelayChannel rc){
+		rtpRelayChannels.add(rc.id);
+	}
+	/**
+	 * relay rtcp packet to channel
+	 * @param rc
+	 */
+	public void relayRtcpTo(RelayChannel rc){
+		rtcpRelayChannels.add(rc.id);
+	}
 	//
-	public void writeToPeer(byte [] buffer) {
+	private void writeToPeer(byte [] buffer) {
 		writeToPeer(buffer,0,buffer.length);
 	}
 	//
@@ -80,10 +100,11 @@ implements DatagramTransport{
 			writeToPeer(encoded);
 			return;
 		}
-		logger.warn("bad rtp packet \n{}",HexDump.dumpHexString(buffer));
 	}
 	//
 	public void dataFromPeer(byte []buffer) throws Exception{
+		bytePeerCount+=buffer.length;
+		packetPeerCount++;
 		lastAccessTime=System.currentTimeMillis();
     	if(stunHandler.canHandle(buffer)){
     		if(logger.isDebugEnabled()){
@@ -113,25 +134,25 @@ implements DatagramTransport{
 		//rtp
 		byte decodedRtp[]=dtlsHandler.decodeRTP(buf, 0, buf.length);
 		if(decodedRtp!=null){
-			relayToNextStream(decodedRtp);
+			relayToNextStream(rtpRelayChannels,decodedRtp);
 			return;
 		}
 		//rtcp
 		byte decodedRtcp[]=dtlsHandler.decodeRTCP(buf, 0, buf.length);
 		if(decodedRtcp!=null){
-			//relayToNextStream(decodedRtcp);
+			relayToNextStream(rtcpRelayChannels,decodedRtcp);
 			return;
 		}
-		//
-		logger.warn("bad rtp packet \n{}",HexDump.dumpHexString(buf));
 	}
 	//
-	private void relayToNextStream(byte []bytes){
+	private void relayToNextStream(Set<String>channels,byte []bytes){
 		synchronized (linkedChannels) {
 			for(RelayChannel rc:linkedChannels){
 				rc.lastAccessTime=System.currentTimeMillis();
 				try {
-					rc.dataFromRelay(this,bytes);
+					if(channels.contains(rc.id)){
+						rc.dataFromRelay(this,bytes);
+					}
 				} catch (Exception e) {
 					logger.catching(e);
 				}
@@ -157,6 +178,7 @@ implements DatagramTransport{
 		ib.print("LocalFingerprint",dtlsHandler.getHashFunction()+" "+dtlsHandler.getLocalFingerprint());
 		ib.print("RemoteFingerprint",dtlsHandler.getRemoteFingerprint());
 		ib.print("IceUfrag/Password",getIceUfrag()+"  "+getIcePassword());
+		ib.print("Relays:","rtp->"+rtpRelayChannels+" rtcp->"+rtcpRelayChannels);
 		return ib.toString();
 	}
 	//--------------------------------------------------------------------------
