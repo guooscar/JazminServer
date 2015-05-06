@@ -63,7 +63,7 @@ public class Log4j2ConfigurationFactory extends ConfigurationFactory {
 		private Appender fileAppender;
 		private String file;
 		public static final String COLOR_PATTERN_LAYOUT = 
-				"%highlight{[%d] [%t] [%-5level] [%logger{1}]- %msg %n}"+ 
+				"%highlight{[%d] [%-5level] [%logger{1}][%t]- %msg %n}"+ 
 				"{"
 						+ "FATAL=red,"
 						+ "ERROR=magenta, "

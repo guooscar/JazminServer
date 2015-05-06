@@ -21,7 +21,8 @@ public class CdnServerTest {
 	public static void main(String[] args) throws Exception {
 		Jazmin.addServer(new ConsoleServer());
 		CdnServer cdnServer=new CdnServer();
-		cdnServer.setHomeDir("f:/");
+		cdnServer.setHomeDir("/Users/yama/Desktop/CdnTest");
+		cdnServer.setOrginSiteURL("http://www.apache.org");
 		Jazmin.addServer(cdnServer);
 		//
 		Jazmin.start();

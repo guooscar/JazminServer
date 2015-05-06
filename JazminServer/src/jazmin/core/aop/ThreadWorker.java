@@ -57,10 +57,12 @@ public class ThreadWorker implements Runnable {
 	//
 	@Override
 	public void run() {
+		String oldName=Thread.currentThread().getName();
+		Thread.currentThread().setName(oldName+"-"+traceId);
 		long startTime = System.currentTimeMillis();
 		String methodName=method.getDeclaringClass().getSimpleName() + "."+ method.getName();
 		if (logger.isInfoEnabled()) {
-			logger.info(">invoke:{}-{}",traceId, methodName);
+			logger.info(">invoke:-{}",methodName);
 		}
 		if (logger.isDebugEnabled()) {
 			logger.debug(DumpUtil.dumpInvokeArgs(">invoke:" + methodName, args));
@@ -98,7 +100,7 @@ public class ThreadWorker implements Runnable {
 				}
 			}
 			if (logger.isInfoEnabled()) {
-				logger.info("<invoke:{}-{} time:{}", traceId,methodName,
+				logger.info("<invoke:{} time:{}", methodName,
 						(useTime));
 			}
 			if (logger.isDebugEnabled()) {
@@ -111,6 +113,7 @@ public class ThreadWorker implements Runnable {
 			}
 			callback.end(instance, method,args,ret,exception);
 			dispatcher.statMethod(method, exception, (int)useTime);
+			Thread.currentThread().setName(oldName);
 		}
 	}
 	//

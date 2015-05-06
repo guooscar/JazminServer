@@ -15,7 +15,6 @@ import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 import static io.netty.handler.codec.http.HttpResponseStatus.FOUND;
 import static io.netty.handler.codec.http.HttpResponseStatus.METHOD_NOT_ALLOWED;
-import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 import static io.netty.handler.codec.http.HttpResponseStatus.NOT_MODIFIED;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
@@ -36,9 +35,11 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.stream.ChunkedStream;
 import io.netty.util.CharsetUtil;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -58,58 +59,86 @@ import jazmin.log.LoggerFactory;
  * @author yama
  *
  */
-public class RequestWorker implements ChannelProgressiveFutureListener{
+public class RequestWorker implements ChannelProgressiveFutureListener,FileRequest.ResultHandler{
 	private static Logger logger=LoggerFactory.get(RequestWorker.class);
 	//
 	public static final String HTTP_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
 	public static final String HTTP_DATE_GMT_TIMEZONE = "GMT";
 	public static final int HTTP_CACHE_SECONDS = 60;
 	FileRequest fileRequest;
+	ChannelHandlerContext ctx; 
+	FullHttpRequest request;
+	CdnServer cdnServer;
 	//
-	RequestWorker(FileRequest fileRequest){
+	RequestWorker(
+			CdnServer cdnServer,
+			FileRequest fileRequest,
+			ChannelHandlerContext ctx,
+			FullHttpRequest request){
+		this.cdnServer=cdnServer;
 		this.fileRequest=fileRequest;
+		this.ctx=ctx;
+		this.request=request;
 	}
 	//
-	private boolean filter(
-			ChannelHandlerContext ctx, 
-			FullHttpRequest request) throws Exception {
-		//
+	private boolean filter() throws Exception {
 		if (!request.decoderResult().isSuccess()) {
+			if(logger.isDebugEnabled()){
+				logger.debug("bad request");
+			}
 			sendError(ctx, BAD_REQUEST);
 			return false;
 		}
 		if (request.method() != GET) {
+			if(logger.isDebugEnabled()){
+				logger.debug("method not allowed:"+request.method());
+			}
 			sendError(ctx, METHOD_NOT_ALLOWED);
-			return false;
-		}
-		if(!fileRequest.open()){
-			sendError(ctx, NOT_FOUND);
 			return false;
 		}
 		return true;
 	}
-	//
-	private void sendFile(
-			ChannelHandlerContext ctx, 
-			FullHttpRequest request) throws Exception {
-		// send stream to client
-		if(fileRequest.randomAccessFile!=null){
-			sendRandomAccessFile(ctx, request);
-		}else{
-			//send stream
+	//--------------------------------------------------------------------------
+	@Override
+	public void handleInputStream(InputStream inputStream,long length) {
+		try {
+			sendInputStream(inputStream, length);
+		} catch (Exception e) {
+			sendError(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR);
+			logger.catching(e);
 		}
 	}
+	@Override
+	public void handleRandomAccessFile(RandomAccessFile raf){
+		try {
+			sendRaf(raf);
+		} catch (Exception e) {
+			sendError(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR);
+			logger.catching(e);
+		}
+	}
+	@Override
+	public void handleException(Throwable e) {
+		sendError(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR);
+	}
 	//
-	private void sendRandomAccessFile(
-			ChannelHandlerContext ctx, 
-			FullHttpRequest request)throws Exception{
-		RandomAccessFile raf = fileRequest.randomAccessFile;
-		File file=fileRequest.file;
-		long fileLength = raf.length();
+	@Override
+	public void handleNotFound() {
+		if(logger.isDebugEnabled()){
+			logger.debug("handle not found {} {}",fileRequest.uri);
+		}
+		sendError(ctx, HttpResponseStatus.NOT_FOUND);
+	}
+	
+	//
+	private void sendObject(Object obj,long length){
+		long fileLength = length;
 		HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
 		HttpHeaderUtil.setContentLength(response, fileLength);
+		File file=fileRequest.file;
 		setContentTypeHeader(response, file);
 		setDateAndCacheHeaders(response, file);
+		//
 		if (HttpHeaderUtil.isKeepAlive(request)) {
 			response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
 		}
@@ -118,8 +147,8 @@ public class RequestWorker implements ChannelProgressiveFutureListener{
 		// Write the content.
 		ChannelFuture sendFileFuture;
 		ChannelFuture lastContentFuture;
-		sendFileFuture = ctx.write(new DefaultFileRegion(
-				raf.getChannel(),0, fileLength), 
+		sendFileFuture = ctx.write(
+				obj, 
 				ctx.newProgressivePromise());
 			// Write the end marker.
 		lastContentFuture = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
@@ -131,47 +160,72 @@ public class RequestWorker implements ChannelProgressiveFutureListener{
 		}
 	}
 	//
+	private void sendInputStream(InputStream in,long length)throws Exception{
+		if(logger.isDebugEnabled()){
+			logger.debug("send input stream to client total bytes:{}",length);
+		}
+		sendObject(new ChunkedStream(in,8192), length);
+	}
+	//
+	private void sendRaf(RandomAccessFile raf)throws Exception{
+		long length=raf.length();
+		if(logger.isDebugEnabled()){
+			logger.debug("send file to client total bytes:{}",length);
+		}
+		sendObject(new DefaultFileRegion(
+				raf.getChannel(),0, length),length);
+	}
+	//--------------------------------------------------------------------------
+	//
 	@Override
 	public void operationProgressed(
 			ChannelProgressiveFuture future,
 			long progress, long total) {
-		fileRequest.totalBytes=total;
 		fileRequest.transferedBytes=progress;
-		if (total < 0) { // total unknown
-			System.err.println(future.channel()
-					+ " Transfer progress: " + progress);
-		} else {
-			System.err.println(future.channel()
-					+ " Transfer progress: " + progress + " / " + total);
-			try {
-				fileRequest.close();
-			} catch (Exception e) {
-				logger.catching(e);
-			}
-		}
 	}
+	//
 	@Override
 	public void operationComplete(ChannelProgressiveFuture future) {
-		System.err.println(future.channel() + " Transfer complete.");
+		try {
+			fileRequest.close();
+		} catch (Exception e) {
+			logger.catching(e);
+		}
+		logger.info("process request {} from {} complete time {} seconds",
+				request.uri(),
+				ctx.channel(),
+				(System.currentTimeMillis()-fileRequest.createTime.getTime())/1000);
 	}
 	//--------------------------------------------------------------------------
-	public void processRequest(
-			ChannelHandlerContext ctx,
-			FullHttpRequest request) throws Exception {
-		if (!filter(ctx, request)) {
+	public void processRequest() throws Exception {
+		logger.info("process request {} from {}",request.uri(),ctx.channel());
+		if (!filter()) {
 			fileRequest.close();
 			return;
 		}
 		String uri=fileRequest.uri;
 		File file=fileRequest.file;
-		if (file.isDirectory()) {
-			if (uri.endsWith("/")) {
-				sendListing(ctx, file);
-			} else {
-				sendRedirect(ctx, uri + '/');
+		if(file!=null){
+			if (file.isDirectory()) {
+				if(logger.isDebugEnabled()){
+					logger.debug("uri {} is directory",uri);
+				}
+				if(cdnServer.isListDir()){
+					if (uri.endsWith("/")) {
+						if(cdnServer.isListDirInHtml()){
+							sendHtmlListing(ctx, file);
+						}else{
+							sendListing(ctx, file);		
+						}
+					} else {
+						sendRedirect(ctx, uri + '/');
+					}
+				}else{
+					sendError(ctx,HttpResponseStatus.FORBIDDEN);
+				}
+				fileRequest.close();
+				return;
 			}
-			fileRequest.close();
-			return;
 		}
 		// Cache Validation
 		String ifModifiedSince = request.headers().getAndConvert(
@@ -190,7 +244,8 @@ public class RequestWorker implements ChannelProgressiveFutureListener{
 				return;
 			}
 		}
-		sendFile(ctx, request);
+		fileRequest.resultHandler=this;
+		fileRequest.open();
 	}
 
 	//
@@ -203,8 +258,9 @@ public class RequestWorker implements ChannelProgressiveFutureListener{
 	}
 
 	//
-	private static void sendError(ChannelHandlerContext ctx,
+	private void sendError(ChannelHandlerContext ctx,
 			HttpResponseStatus status) {
+		logger.warn("process request {} from {} status {}",request.uri(),ctx.channel(),status);
 		FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
 				status, Unpooled.copiedBuffer(
 						status + "\r\n",CharsetUtil.UTF_8));
@@ -310,5 +366,54 @@ public class RequestWorker implements ChannelProgressiveFutureListener{
 		// Close the connection as soon as the error message is sent.
 		ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
 	}
+	//
+	private static void sendHtmlListing(ChannelHandlerContext ctx, File dir) {
+        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
+        response.headers().set(CONTENT_TYPE, "text/html; charset=UTF-8");
+        String dirPath = dir.getPath();
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        StringBuilder buf = new StringBuilder()
+            .append("<!DOCTYPE html>\r\n")
+            .append("<html><head><title>")
+            .append("Index of: ")
+            .append(dirPath)
+            .append("</title></head><body>\r\n")
+            .append("<h3>Index of: ")
+            .append(dirPath)
+            .append("</h3>\r\n")
+            .append("<table>")
+            .append("<tr><td>Name</td><td>Last modified</td><td>Size</td></tr>\r\n")
+            .append("<tr><td><a href=\"../\">..</a></td><td></td><td></td></tr>\r\n");
+
+        for (File f: dir.listFiles()) {
+            if (f.isHidden() || !f.canRead()) {
+                continue;
+            }
+            String name = f.getName();
+            if (!ALLOWED_FILE_NAME.matcher(name).matches()) {
+                continue;
+            }
+            buf.append("<tr><td><a href=\"")
+               .append(name)
+               .append("\">")
+               .append(name)
+               .append("</a></td>")
+               .append("<td>")
+               .append(sdf.format(new Date(f.lastModified())))
+               .append("</td>")
+               .append("<td>")
+               .append(f.length())
+               .append(" bytes")
+               .append("</td>")
+               .append("</tr>\r\n");
+        }
+        buf.append("</table></body></html>\r\n");
+        ByteBuf buffer = Unpooled.copiedBuffer(buf, CharsetUtil.UTF_8);
+        response.content().writeBytes(buffer);
+        buffer.release();
+
+        // Close the connection as soon as the error message is sent.
+        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+    }
 
 }

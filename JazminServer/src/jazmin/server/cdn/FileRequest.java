@@ -6,7 +6,11 @@ package jazmin.server.cdn;
 import io.netty.channel.Channel;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
@@ -14,11 +18,28 @@ import java.net.URLDecoder;
 import java.util.Date;
 import java.util.regex.Pattern;
 
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
+
+import com.ning.http.client.AsyncHandler;
+import com.ning.http.client.HttpResponseBodyPart;
+import com.ning.http.client.HttpResponseHeaders;
+import com.ning.http.client.HttpResponseStatus;
+
 /**
  * @author yama
  *
  */
-public class FileRequest {
+public class FileRequest implements AsyncHandler<String>{
+	static interface ResultHandler{
+		void handleInputStream(InputStream inputStream,long fileLength);
+		void handleRandomAccessFile(RandomAccessFile raf);
+		void handleNotFound();
+		void handleException(Throwable e);
+		
+	}
+	//
+	private static Logger logger=LoggerFactory.get(FileRequest.class);
 	//
 	String id;
 	File file;
@@ -28,9 +49,12 @@ public class FileRequest {
 	long totalBytes;
 	long transferedBytes;
 	InetSocketAddress remoteAddress;
-	RandomAccessFile randomAccessFile;
-	InputStream inputStream;
 	CdnServer cdnServer;
+	ResultHandler resultHandler;
+	//
+	private RandomAccessFile randomAccessFile;
+	private InputStream inputStream;
+	private PipedOutputStream outputStream;
 	//
 	public FileRequest(CdnServer cdnServer,String uri,Channel channel) {
 		this.cdnServer=cdnServer;
@@ -38,28 +62,50 @@ public class FileRequest {
 		this.channel=channel;
 		remoteAddress=(InetSocketAddress)channel.remoteAddress();
 		createTime=new Date();
+		final String path = sanitizeUri(uri);
+		if (path != null) {
+			file = new File(path);
+		}
 	}
 	//
-	public boolean open()throws Exception{
-		final String path = sanitizeUri(uri);
-		if (path == null) {
-			return false;
-		}
-		file = new File(path);
-		if (file.isHidden()) {
-			return false;
-		}
-		// system device file
-		if (!file.isDirectory() && !file.isFile()) {
-			return false;
+	public void open()throws Exception{
+		if(file==null){
+			if(logger.isDebugEnabled()){
+				logger.debug("uri convert to path null."+uri);
+			}
+			resultHandler.handleNotFound();
 		}
 		//
 		if(file.exists()){
+			if (file.isHidden()) {
+				if(logger.isDebugEnabled()){
+					logger.debug("hidden file {}",file);
+				}
+				resultHandler.handleNotFound();
+				return;
+			}
+			// system device file
+			if (!file.isDirectory() && !file.isFile()) {
+				if(logger.isDebugEnabled()){
+					logger.debug("system file {}",file);
+				}
+				resultHandler.handleNotFound();
+				return;
+			}
+			if(logger.isDebugEnabled()){
+				logger.debug("open random access file {}",file);
+			}
 			randomAccessFile=new RandomAccessFile(file,"r");
-			return true;
+			totalBytes=randomAccessFile.length();
+			resultHandler.handleRandomAccessFile(randomAccessFile);
+			return;
 		}else{
-			//check remote 
-			return true;
+			if(cdnServer.getOrginSiteURL()==null){
+				resultHandler.handleNotFound();
+				return;
+			}
+			String targetURL=cdnServer.getOrginSiteURL()+uri;
+			cdnServer.asyncHttpClient.prepareGet(targetURL).execute(this);
 		}
 	}
 	//
@@ -85,7 +131,6 @@ public class FileRequest {
 
 		// Convert file separators.
 		uri = uri.replace('/', File.separatorChar);
-
 		// Simplistic dumb security check.
 		// You will have to do something serious in the production environment.
 		if (uri.contains(File.separator + '.')
@@ -97,5 +142,91 @@ public class FileRequest {
 
 		// Convert to absolute path.
 		return cdnServer.getHomeDir()+ File.separator + uri;
+	}
+	//
+	//--------------------------------------------------------------------------
+	@Override
+	public STATE onBodyPartReceived(HttpResponseBodyPart part) throws Exception {
+		byte partBytes[]=part.getBodyPartBytes();
+		tempFileOutputStream.write(partBytes);
+		outputStream.write(partBytes);
+		return STATE.CONTINUE;
+	}
+	//
+	@Override
+	public String onCompleted() throws Exception {
+		if(logger.isDebugEnabled()){
+			logger.debug("complete fetch {}, move to {}",
+					cdnServer.getOrginSiteURL()+uri,
+					file);
+		}
+		try{
+			outputStream.flush();
+			outputStream.close();
+		}catch(Exception e){
+			logger.catching(e);
+		}
+		try{
+			tempFileOutputStream.flush();
+			tempFileOutputStream.close();
+		}catch(Exception e){
+			logger.catching(e);	
+		}
+		cdnServer.cachePolicy.moveTo(tempFile,file);
+		return "";
+	}
+	//
+	private File tempFile;
+	private FileOutputStream tempFileOutputStream;
+	//
+	@Override
+	public STATE onHeadersReceived(
+			HttpResponseHeaders headers) throws Exception {
+		//
+		String len=headers.getHeaders().getFirstValue("Content-Length");
+		if(len!=null){
+			totalBytes=Long.valueOf(len);
+		}
+		if(logger.isDebugEnabled()){
+			logger.debug("got length {} bytes from uri {}",totalBytes,uri);
+		}
+		tempFile=cdnServer.cachePolicy.createTempFile();
+		tempFileOutputStream=new FileOutputStream(tempFile);
+		outputStream=new PipedOutputStream();
+		inputStream=new PipedInputStream(outputStream);
+		resultHandler.handleInputStream(inputStream, totalBytes);
+		//
+		return STATE.CONTINUE;
+	}
+	//
+	@Override
+	public STATE onStatusReceived(
+			HttpResponseStatus status) throws Exception {
+		if(status.getStatusCode()!=200){
+			resultHandler.handleNotFound();
+			return STATE.ABORT;
+		}
+		return STATE.CONTINUE;
+	}
+	//
+	@Override
+	public void onThrowable(Throwable e) {
+		resultHandler.handleException(e);
+		if(tempFileOutputStream!=null){
+			try {
+				tempFileOutputStream.close();
+			} catch (IOException e1) {
+				logger.catching(e1);
+			}
+		}
+		if(tempFile!=null){
+			boolean success=tempFile.delete();
+			logger.debug("delete temp file {} result {}",tempFile,success);
+		}
+		if(e instanceof IOException){
+			logger.warn("uri {} catch exception {}",uri,e);
+		}else{
+			logger.catching(e);
+		}
 	}
 }

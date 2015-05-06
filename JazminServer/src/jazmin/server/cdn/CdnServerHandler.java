@@ -1,4 +1,6 @@
 package jazmin.server.cdn;
+import java.io.IOException;
+
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -67,6 +69,10 @@ public class CdnServerHandler extends SimpleChannelInboundHandler<FullHttpReques
     //
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    	logger.catching(cause);
+    	if(cause instanceof IOException){
+    		logger.warn(cause.getMessage());
+    	}else{
+    		logger.catching(cause);
+    	}
     }
 }
