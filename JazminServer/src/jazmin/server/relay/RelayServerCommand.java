@@ -1,11 +1,9 @@
 package jazmin.server.relay;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import jazmin.core.Jazmin;
 import jazmin.server.console.ConsoleCommand;
-import jazmin.server.console.TerminalWriter;
 /**
  * 
  * @author yama
@@ -19,7 +17,6 @@ public class RelayServerCommand extends ConsoleCommand {
     	desc="relay server ctrl command";
     	addOption("i",false,"show server information.",this::showServerInfo);
     	addOption("c",false,"show server channels.",this::showChannels);
-    	addOption("ctop",false,"show server channels.",this::showChannelsTop);
     	addOption("dump",true,"relay channel to hex dump channel ",this::dumpChannel);
     	addOption("undump",true,"remove hex dump channel ",this::unDumpChannel);
     	//
@@ -83,18 +80,7 @@ public class RelayServerCommand extends ConsoleCommand {
     		printLine('-', environment.getColumns());
     	}
     }
-   
-    //
-    private void showChannelsTop(String args)throws Exception{
-    	TerminalWriter tw=new TerminalWriter(out);
-    	while(stdin.available()==0){
-    		tw.cls();
-    		out.println("press any key to quit.");
-    		showChannels(args);
-    		out.flush();
-    		TimeUnit.SECONDS.sleep(1);
-    	}
-    }
+ 
     //
     private void dumpChannel(String cid){
     	RelayChannel rc=server.getChannel(cid);

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -69,6 +70,7 @@ public class ConsoleCommand{
     	finished=false;
     	options=new Options();
     	commandOptionMap=new HashMap<String,OptionDefine>();
+    	addOption("loop", false, "loop display", null);
 	}
     /**
 	 * @return the finished
@@ -128,7 +130,11 @@ public class ConsoleCommand{
     			if(e.getValue().hasArgs){
     				args=cli.getOptionValue(e.getKey());
     			}
-    			e.getValue().runnable.run(args);	
+    			if(cli.hasOption("loop")){
+    				runWithLoop(args,od.runnable::run);
+    			}else{
+    				od.runnable.run(args);			
+    			}
     		}
     	}
     	if(!hit){
@@ -189,5 +195,23 @@ public class ConsoleCommand{
     		out.print(c);
     	}
     	out.print("\n");
+    }
+    //
+    protected void runWithLoop(String args,OptionRunnable f)
+    		throws Exception{
+    	TerminalWriter tw=new TerminalWriter(out);
+    	SimpleDateFormat sdf=new SimpleDateFormat("MM/dd HH:mm:ss");
+    	while(stdin.available()==0){
+    		tw.cls();
+    		tw.bgreen();
+    		tw.fmagenta();
+    		String now=sdf.format(new Date());
+    		int screenWidth=environment.getColumns();
+    		out.format("%-30s %"+(screenWidth-31)+"s\n","press any key to quit.",now);
+    		tw.reset();
+    		f.run(args);
+    		out.flush();
+    		TimeUnit.SECONDS.sleep(1);
+    	}
     }
 }

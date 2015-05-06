@@ -1,10 +1,8 @@
 package jazmin.server.ftp;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import jazmin.core.Jazmin;
 import jazmin.server.console.ConsoleCommand;
-import jazmin.server.console.TerminalWriter;
 /**
  * 
  * @author yama
@@ -19,7 +17,6 @@ public class FTPServerCommand extends ConsoleCommand {
     	addOption("i",false,"show server information.",this::showServerInfo);
     	addOption("session",false,"show sessions.",this::showSessions);
     	addOption("stat",false,"show stat info.",this::showStats);
-    	addOption("statop",false,"show stat info.",this::showStatsTop);
     	addOption("list",false,"list upload/download files.",this::showList);
     	//
     	ftpServer=Jazmin.getServer(FTPServer.class);
@@ -55,18 +52,7 @@ public class FTPServerCommand extends ConsoleCommand {
 			out.format(format,"totalUploadNumber",stat.getTotalUploadNumber());
 			out.format(format,"totalUploadSize",stat.getTotalUploadSize());
 	    }
-	    //
-	    private void showStatsTop(String args)throws Exception{
-	    	TerminalWriter tw=new TerminalWriter(out);
-	    	while(stdin.available()==0){
-	    		tw.cls();
-	    		out.println("press any key to quit.");
-	    		showStats(args);
-	    		out.flush();
-	    		TimeUnit.SECONDS.sleep(1);
-	    	}
-	    	stdin.read();
-	    }
+	  
     //
     private void showServerInfo(String args){
     	String format="%-25s: %-10s\n";

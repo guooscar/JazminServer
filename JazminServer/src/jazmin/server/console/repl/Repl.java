@@ -138,7 +138,7 @@ public class Repl {
     	 //
         String[] args = line.split(" ");
         //
-        ConsoleCommand command=getCommand(args[0], commands);
+        ConsoleCommand command=getCommand(args[0].trim(), commands);
         if(command==null){
         	return false;
         }

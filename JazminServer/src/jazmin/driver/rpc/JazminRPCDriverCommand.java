@@ -22,7 +22,6 @@ public class JazminRPCDriverCommand extends ConsoleCommand {
     	desc="jazmin rpc driver ctrl command";
     	addOption("i",false,"show driver information.",this::showDriverInfo);
     	addOption("session",false,"show all sessions.",this::showSessions);
-    	addOption("sessiontop",false,"show all sessions.",this::showSessionTop);
     	addOption("stat",false,"show method stat.",this::showMethodStats);
     	addOption("tps",false,"show invoke tps.",this::showInvokeTps);
     	//
@@ -54,17 +53,7 @@ public class JazminRPCDriverCommand extends ConsoleCommand {
 		out.println("sync proxy");
 		driver.getSyncProxys().forEach(out::println);	
     }
-    //
-    private void showSessionTop(String args)throws Exception{
-    	TerminalWriter tw=new TerminalWriter(out);
-    	while(stdin.available()==0){
-    		tw.cls();
-    		out.println("press any key to quit.");
-    		showSessions(args);
-    		out.flush();
-    		Thread.sleep(1000);
-    	}
-    }
+   
     //
     private void showSessions(String args){
 		String format="%-5s : %-20s %-20s %-10s %-15s %-10s %-10s %-10s %-10s %-10s %-10s\n";

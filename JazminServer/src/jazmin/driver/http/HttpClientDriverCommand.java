@@ -2,11 +2,9 @@ package jazmin.driver.http;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import jazmin.core.Jazmin;
 import jazmin.server.console.ConsoleCommand;
-import jazmin.server.console.TerminalWriter;
 /**
  * 
  * @author yama
@@ -20,7 +18,6 @@ public class HttpClientDriverCommand extends ConsoleCommand {
     	desc="http client driver ctrl command";
     	addOption("i",false,"show driver information.",this::showDriverInfo);
     	addOption("stat",false,"show query stat.",this::showStats);
-    	addOption("statop",false,"show query stat top.",this::showStatsTop);
     	addOption("errorlog",false,"show query error logs.",this::showErrorLogs);
     	addOption("f",false,"show full url",null);
     	//
@@ -36,17 +33,7 @@ public class HttpClientDriverCommand extends ConsoleCommand {
 		 super.run();
 	}
 	//
-	//
-    private void showStatsTop(String args)throws Exception{
-    	TerminalWriter tw=new TerminalWriter(out);
-    	while(stdin.available()==0){
-    		tw.cls();
-    		out.println("press any key to quit.");
-    		showStats(args);
-    		out.flush();
-    		TimeUnit.SECONDS.sleep(1);
-    	}
-    }
+	
     private void showErrorLogs(String args){
     	List<String>errorLogs=httpDriver.getErrorLogs();
     	Collections.reverse(errorLogs);

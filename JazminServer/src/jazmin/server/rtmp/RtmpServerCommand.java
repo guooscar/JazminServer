@@ -2,14 +2,11 @@ package jazmin.server.rtmp;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import jazmin.core.Jazmin;
 import jazmin.server.console.ConsoleCommand;
-import jazmin.server.console.TerminalWriter;
 import jazmin.server.rtmp.rtmp.RtmpPublisher;
 import jazmin.util.DumpUtil;
 
@@ -30,7 +27,6 @@ public class RtmpServerCommand extends ConsoleCommand {
     	addOption("app",false,"show server applications.",this::showApplication);
     	addOption("handler",false,"show server handlers.",this::showHandlers);
     	addOption("publisher",false,"show server handler publisher.",this::showHandlerPublisher);
-    	addOption("handlertop",false,"show server handlers.",this::showHandlerTop);
     	//
     	server=Jazmin.getServer(RtmpServer.class);
     }
@@ -133,18 +129,7 @@ public class RtmpServerCommand extends ConsoleCommand {
         			formatDate(sh.getCreateTime()));
     	}
     }
-    //
-    private void showHandlerTop(String args)throws Exception{
-    	TerminalWriter tw=new TerminalWriter(out);
-    	Map<String,Long>lastValue=new HashMap<String, Long>();
-    	while(stdin.available()==0){
-    		tw.cls();
-    		out.println("press any key to quit.");
-    		showHandlers(args,lastValue);
-    		out.flush();
-    		TimeUnit.SECONDS.sleep(1);
-    	}
-    }
+  
     //
     static class StreamBean{
     	public String name;

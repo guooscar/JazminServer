@@ -29,7 +29,6 @@ public class VMCommand extends ConsoleCommand {
     	desc="vm info";
     	addOption("runtime",false,"show runtime information.",this::showRuntimeInfo);
     	addOption("thread",false,"show thread information.",this::showThreadInfo);
-    	addOption("threadtop",false,"show thread information.",this::showThreadInfoTop);
     	addOption("memory",false,"show memory information.",this::showMemoryInfo);
     	addOption("memorytop",false,"show memory information.",this::showMemoryInfoTop);
     	
@@ -57,17 +56,6 @@ public class VMCommand extends ConsoleCommand {
 	}
    
 
-    //
-    private void showThreadInfoTop(String args)throws Exception{
-    	TerminalWriter tw=new TerminalWriter(out);
-    	while(stdin.available()==0){
-    		tw.cls();
-    		out.println("press any key to quit.");
-    		showThreadInfo(args);
-    		out.flush();
-    		TimeUnit.SECONDS.sleep(1);
-    	}
-    }
     //
     private void showThreadInfo(String args)throws Exception{
     	out.print("total:"+threadMXBean.getThreadCount()+" ");

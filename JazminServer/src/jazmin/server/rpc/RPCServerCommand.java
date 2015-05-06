@@ -26,7 +26,6 @@ public class RPCServerCommand extends ConsoleCommand {
     	addOption("i",false,"show server information.",this::showServerInfo);
     	addOption("srv",false,"show services.",this::showServices);
     	addOption("s",false,"show all sessions.",this::showSessions);
-    	addOption("stop",false,"show all sessions.",this::showSessionTop);
     	addOption("topic",false,"show all topics.",this::showTopics);
     	addOption("net",false,"show network stats.",this::showNetworkStats);
     	addOption("db",false,"show dashboard.",this::showDashboard);	
@@ -192,17 +191,7 @@ public class RPCServerCommand extends ConsoleCommand {
 		tw.reset();
 		
     }
-    //
-    private void showSessionTop(String args)throws Exception{
-    	TerminalWriter tw=new TerminalWriter(out);
-    	while(stdin.available()==0){
-    		tw.cls();
-    		out.println("press any key to quit.");
-    		showSessions(args);
-    		out.flush();
-    		TimeUnit.SECONDS.sleep(1);
-    	}
-    }
+  
     //
     private void showSessions(String args){
     	showSessions(Integer.MAX_VALUE);
