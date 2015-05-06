@@ -28,7 +28,7 @@ public class RelayServerTcpTest {
 			Jazmin.addServer(server);
 			Jazmin.start();
 			RelayChannel rc1=server.createRelayChannel(TransportType.TCP);
-			RelayChannel rc2=new HexDumpRelayChannel();
+			RelayChannel rc2=new HexDumpRelayChannel(server);
 			rc1.relayTo(rc2);
 		}
 

@@ -16,7 +16,7 @@ public class HttpCookie {
 	}
 	public HttpCookie(String name,
 			String value, 
-			String rawValue,
+			boolean rawValue,
 			String domain,
 			String path, 
 			long expires, 
@@ -65,13 +65,6 @@ public class HttpCookie {
 	/**
 	 * @return
 	 * @see com.ning.http.client.cookie.Cookie#getRawValue()
-	 */
-	public String getRawValue() {
-		return cookie.getRawValue();
-	}
-	/**
-	 * @return
-	 * @see com.ning.http.client.cookie.Cookie#getValue()
 	 */
 	public String getValue() {
 		return cookie.getValue();

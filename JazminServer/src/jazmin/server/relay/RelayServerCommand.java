@@ -103,8 +103,7 @@ public class RelayServerCommand extends ConsoleCommand {
     		return;
     	}
     	//
-    	HexDumpRelayChannel hexDump=new HexDumpRelayChannel();
-    	server.addChannel(hexDump);
+    	HexDumpRelayChannel hexDump=new HexDumpRelayChannel(server);
     	rc.relayTo(hexDump);
     }
     //

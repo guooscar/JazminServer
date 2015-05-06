@@ -13,8 +13,8 @@ import io.netty.channel.socket.DatagramPacket;
  */
 public class UDPRelayChannel extends NetworkRelayChannel{
 
-	UDPRelayChannel(String localAddress, int localPort) {
-		super(TransportType.UDP, localAddress, localPort);
+	UDPRelayChannel(RelayServer server,String localAddress, int localPort) {
+		super(server,TransportType.UDP, localAddress, localPort);
 	}
 	//
 	@Override

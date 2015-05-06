@@ -21,12 +21,12 @@ public class HexDumpRelayChannel extends RelayChannel{
 	private File dumpFile;
 	private BufferedWriter bufferedWriter;
 	//
-	public HexDumpRelayChannel() {
-		super();
+	public HexDumpRelayChannel(RelayServer server) {
+		super(server);
 	}
 	//
-	public HexDumpRelayChannel(String filePath,boolean append) {
-		super();
+	public HexDumpRelayChannel(RelayServer server,String filePath,boolean append) {
+		super(server);
 		this.dumpFile=new File(filePath);
 		try {
 			if(!dumpFile.exists()){

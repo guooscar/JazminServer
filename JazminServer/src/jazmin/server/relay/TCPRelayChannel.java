@@ -13,8 +13,8 @@ import io.netty.channel.Channel;
 public class TCPRelayChannel extends NetworkRelayChannel{
 	Channel serverChannel;
 	//
-	TCPRelayChannel(String localAddress, int localPort) {
-		super(TransportType.TCP , localAddress, localPort);
+	TCPRelayChannel(RelayServer server,String localAddress, int localPort) {
+		super(server,TransportType.TCP , localAddress, localPort);
 	}
 	//
 	@Override

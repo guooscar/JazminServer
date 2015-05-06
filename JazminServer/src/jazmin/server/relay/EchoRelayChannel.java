@@ -11,8 +11,8 @@ package jazmin.server.relay;
 public class EchoRelayChannel extends RelayChannel{
 	RelayChannel relayChannel;
 	//
-	public EchoRelayChannel() {
-		super();
+	public EchoRelayChannel(RelayServer server) {
+		super(server);
 	}
 	//
 	@Override

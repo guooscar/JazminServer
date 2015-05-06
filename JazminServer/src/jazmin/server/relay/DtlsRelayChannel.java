@@ -39,8 +39,8 @@ implements DatagramTransport{
 	private TreeSet<String>rtcpRelayChannels;
 	
 	//
-	public DtlsRelayChannel(String localAddress, int localPort) {
-		super(TransportType.DTLS, localAddress, localPort);
+	public DtlsRelayChannel(RelayServer server,String localAddress, int localPort) {
+		super(server,TransportType.DTLS, localAddress, localPort);
 		queue=new ByteArrayBlockingQueue(3000);
 		//
 		final int MIN_IP_OVERHEAD = 20;

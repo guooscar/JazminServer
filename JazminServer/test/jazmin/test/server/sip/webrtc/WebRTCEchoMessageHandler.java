@@ -50,13 +50,12 @@ public class WebRTCEchoMessageHandler extends SimpleSipMessageHandler {
 				ss.rtpMuxRelayChannelB=(DtlsRelayChannel) 
 						relayServer.createRelayChannel(TransportType.DTLS,"rtpmuxb");
 				//
-				EchoRelayChannel echoRelayChannel=new EchoRelayChannel();
+				EchoRelayChannel echoRelayChannel=new EchoRelayChannel(relayServer);
 				ss.rtpMuxRelayChannelA.relayTo(echoRelayChannel);
 				ss.rtpMuxRelayChannelB.relayTo(echoRelayChannel);
 				ss.rtpMuxRelayChannelA.relayRtpAndRtcpTo(echoRelayChannel);
 				ss.rtpMuxRelayChannelB.relayRtpAndRtcpTo(echoRelayChannel);
 				
-				relayServer.addChannel(echoRelayChannel);
 			}
 			changeSDP(message, 
 					ctx.getServer().getHostAddress(),

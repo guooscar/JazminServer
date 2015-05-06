@@ -26,12 +26,13 @@ public abstract class RelayChannel {
 	protected List<RelayChannel>linkedChannels;
 	static AtomicInteger channelId=new AtomicInteger();
 	//
-	public RelayChannel() {
+	public RelayChannel(RelayServer server) {
 		createTime=System.currentTimeMillis();
 		lastAccessTime=createTime;
 		linkedChannels=new LinkedList<RelayChannel>();
 		id=channelId.incrementAndGet()+"";
 		name=id+"";
+		server.addChannel(this);
 	}
 	//--------------------------------------------------------------------------
 	//

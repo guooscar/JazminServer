@@ -122,9 +122,8 @@ public class B2BUAMessageHandler extends SimpleSipMessageHandler {
 				ss.audioRelayChannelA.bidiRelay(ss.audioRelayChannelB);
 				ss.videoRelayChannelA.bidiRelay(ss.videoRelayChannelB);
 				//
-				RtpDumpRelayChannel rtpDumpChannel=new RtpDumpRelayChannel("/tmp/rtp.dump",false);
+				RtpDumpRelayChannel rtpDumpChannel=new RtpDumpRelayChannel(relayServer,"/tmp/rtp.dump",false);
 				ss.audioRelayChannelA.relayTo(rtpDumpChannel);
-				relayServer.addChannel(rtpDumpChannel);
 			}
 			//
 			changeSDP(message, 

@@ -24,13 +24,13 @@ public class RtpDumpRelayChannel extends RelayChannel{
 	private OutputStream outputStream;
 	private RtpPacket rtpPacket;
 	//
-	public RtpDumpRelayChannel() {
-		super();
+	public RtpDumpRelayChannel(RelayServer server) {
+		super(server);
 		rtpPacket=new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
 	}
 	//
-	public RtpDumpRelayChannel(String filePath,boolean append) {
-		super();
+	public RtpDumpRelayChannel(RelayServer server,String filePath,boolean append) {
+		super(server);
 		this.dumpFile=new File(filePath);
 		try {
 			if(!dumpFile.exists()){

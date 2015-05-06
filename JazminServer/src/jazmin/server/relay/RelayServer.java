@@ -30,7 +30,7 @@ import jazmin.misc.io.IOWorker;
 import jazmin.server.console.ConsoleServer;
 
 /**
- * relay UDP/TCP/SCTP package for NAT through
+ * relay UDP/TCP/DTLS-SRTP package for NAT through
  * @author yama 26 Apr, 2015
  */
 public class RelayServer extends Server{
@@ -70,7 +70,7 @@ public class RelayServer extends Server{
 	 * add channel to server
 	 * @param rc
 	 */
-	public void addChannel(RelayChannel rc){
+	void addChannel(RelayChannel rc){
 		if(relayChannels.containsKey(rc.id+"")){
 			throw new IllegalArgumentException("channel # "+rc.id+"already exists");
 		}
@@ -132,17 +132,17 @@ public class RelayServer extends Server{
 			NetworkRelayChannel finalRelayChannel=null;
 			switch (transportType) {
 			case UDP:
-				UDPRelayChannel rc=new UDPRelayChannel(hostAddress,nextPort);
+				UDPRelayChannel rc=new UDPRelayChannel(this,hostAddress,nextPort);
 				rc.outboundChannel=bindUDP(rc,nextPort);
 				finalRelayChannel=rc;
 				break;
 			case TCP:
-				TCPRelayChannel rc2=new TCPRelayChannel(hostAddress,nextPort);
+				TCPRelayChannel rc2=new TCPRelayChannel(this,hostAddress,nextPort);
 				rc2.serverChannel=bindTCP(rc2,nextPort);
 				finalRelayChannel=rc2;
 				break;
 			case DTLS:
-				DtlsRelayChannel rc3=new DtlsRelayChannel(hostAddress,nextPort);
+				DtlsRelayChannel rc3=new DtlsRelayChannel(this,hostAddress,nextPort);
 				rc3.outboundChannel=bindDtls(rc3,nextPort);
 				finalRelayChannel=rc3;
 				break;
@@ -151,7 +151,6 @@ public class RelayServer extends Server{
 						+transportType);
 			}
 			portPool[nextPortIdx]=true;
-			relayChannels.put(finalRelayChannel.id+"", finalRelayChannel);
 			return finalRelayChannel;
 		}
 	}

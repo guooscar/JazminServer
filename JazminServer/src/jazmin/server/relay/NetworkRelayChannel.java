@@ -28,8 +28,12 @@ public abstract class NetworkRelayChannel extends RelayChannel{
 	protected long bytePeerCount;
 	//
 	//
-	public NetworkRelayChannel(TransportType type,String localAddress,  int localPort) {
-		super();
+	public NetworkRelayChannel(
+			RelayServer server,
+			TransportType type,
+			String localAddress, 
+			int localPort) {
+		super(server);
 		this.transportType=type;
 		this.localHostAddress=localAddress;
 		this.localPort=localPort;
