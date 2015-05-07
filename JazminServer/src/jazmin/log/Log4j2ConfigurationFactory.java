@@ -63,7 +63,7 @@ public class Log4j2ConfigurationFactory extends ConfigurationFactory {
 		private Appender fileAppender;
 		private String file;
 		public static final String COLOR_PATTERN_LAYOUT = 
-				"%highlight{[%d] [%-5level] [%logger{1}][%t]- %msg %n}"+ 
+				"%highlight{[%d] [%-5level] [%logger{1}] [%t]- %msg %n}"+ 
 				"{"
 						+ "FATAL=red,"
 						+ "ERROR=magenta, "
@@ -72,8 +72,8 @@ public class Log4j2ConfigurationFactory extends ConfigurationFactory {
 						+ "DEBUG=green, "
 						+ "TRACE=blue"+ 
 				"}";
-		//public static final String PATTERN_LAYOUT = 
-		//		"[%d] [%t] [%-5level] [%logger{1}]- %msg%n";
+		public static final String PATTERN_LAYOUT = 
+				"[%d] [%-5level] [%logger{1}] [%t]- %msg%n";
 		public static final String LOG_FILE_NAME_PATTERN = ".%d{yyyy-MM-dd}";
 		private static final String CONSOLE_LOG_NAME="JazminConsoleLog";
 		//
@@ -82,7 +82,7 @@ public class Log4j2ConfigurationFactory extends ConfigurationFactory {
 			removeAppender("Console");
 			// MARKER
 			Layout<? extends Serializable> layout = PatternLayout.createLayout(
-					COLOR_PATTERN_LAYOUT, null,null, null, true, true, null,null);
+					PATTERN_LAYOUT, null,null, null, true, true, null,null);
 			
 			consoleAppender = ConsoleAppender.createAppender(layout, null,
 					"SYSTEM_OUT", CONSOLE_LOG_NAME, null, "false");

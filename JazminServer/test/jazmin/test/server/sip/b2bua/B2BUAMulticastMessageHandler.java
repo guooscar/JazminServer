@@ -8,7 +8,6 @@ import jazmin.codec.sdp.SessionDescription;
 import jazmin.codec.sdp.SessionDescriptionParser;
 import jazmin.codec.sdp.fields.ConnectionField;
 import jazmin.codec.sdp.fields.MediaDescriptionField;
-import jazmin.codec.sdp.rtcp.attributes.RtcpAttribute;
 import jazmin.core.Jazmin;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;

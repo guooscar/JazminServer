@@ -267,7 +267,6 @@ public class CdnServer extends Server {
 			}	
 		}
 		if(orginSiteURL!=null){
-			logger.info("set orgin site {} start cache check task.");
 			Jazmin.scheduleAtFixedRate(this::checkCachePolicy,
 					10,
 					30, 
