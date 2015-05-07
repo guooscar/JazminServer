@@ -10,7 +10,7 @@ import java.io.IOException;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.misc.HexDump;
+import jazmin.util.HexDumpUtil;
 
 /**
  * @author yama
@@ -45,7 +45,7 @@ public class HexDumpRelayChannel extends RelayChannel{
 	@Override
 	public void dataFromRelay(RelayChannel channel,byte buffer[]) throws Exception{
 		super.dataFromRelay(channel, buffer);
-		String output="#"+packetRelayCount+"\n"+HexDump.dumpHexString(buffer);
+		String output="#"+packetRelayCount+"\n"+HexDumpUtil.dumpHexString(buffer);
 		if(bufferedWriter!=null){
 			bufferedWriter.write(output+"\n");
 		}

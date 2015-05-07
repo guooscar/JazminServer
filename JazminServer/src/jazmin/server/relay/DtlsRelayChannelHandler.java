@@ -10,7 +10,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -31,12 +30,8 @@ public class DtlsRelayChannelHandler  extends SimpleChannelInboundHandler<Datagr
 	@Override
 	protected void messageReceived(ChannelHandlerContext ctx,
 			DatagramPacket pkg) throws Exception {
-		InetSocketAddress isa=pkg.sender();
-		if(relayChannel.remoteAddress==null){
-			relayChannel.remoteAddress=isa;
-		}
 		ByteBuf buf= Unpooled.copiedBuffer(pkg.content());
-		relayChannel.dataFromPeer(buf.array());
+		relayChannel.dataFromPeer(pkg.sender(),buf.array());
 	}
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)

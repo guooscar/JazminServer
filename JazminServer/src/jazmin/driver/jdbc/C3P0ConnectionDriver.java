@@ -292,7 +292,7 @@ public class C3P0ConnectionDriver extends ConnectionDriver {
 		super.init();
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
-			cs.registerCommand(new C3P0DriverCommand());
+			cs.registerCommand(C3P0DriverCommand.class);
 		}
 	}
 	//

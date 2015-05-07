@@ -751,7 +751,7 @@ public abstract class SipMessageImpl implements SipMessage {
     protected void transferHeaders(final Buffer dst) {
         for (final Entry<Buffer, List<SipHeader>> headers : this.parsedHeaders.entrySet()) {
             for (final SipHeader header : headers.getValue()) {
-                header.getBytes(dst);
+            	 header.getBytes(dst);
                 dst.write(SipParser.CR);
                 dst.write(SipParser.LF);
             }

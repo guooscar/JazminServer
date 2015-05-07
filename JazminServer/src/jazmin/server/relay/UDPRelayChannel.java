@@ -3,6 +3,8 @@
  */
 package jazmin.server.relay;
 
+import java.net.InetSocketAddress;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.DatagramPacket;
@@ -12,9 +14,19 @@ import io.netty.channel.socket.DatagramPacket;
  *
  */
 public class UDPRelayChannel extends NetworkRelayChannel{
-
+	private  InetSocketAddress remoteAddress;
+	
 	UDPRelayChannel(RelayServer server,String localAddress, int localPort) {
 		super(server,TransportType.UDP, localAddress, localPort);
+	}
+	//
+	@Override
+	public void dataFromPeer(InetSocketAddress remoteAddress, byte[] bytes)
+			throws Exception {
+		if(this.remoteAddress==null){
+			this.remoteAddress=remoteAddress;
+		}
+		super.dataFromPeer(remoteAddress, bytes);
 	}
 	//
 	@Override
@@ -28,4 +40,18 @@ public class UDPRelayChannel extends NetworkRelayChannel{
 			outboundChannel.writeAndFlush(dp);
 		}
 	}
+
+	/* 	 */
+	@Override
+	public String getInfo() {
+		double bytePeerCnt=bytePeerCount;
+		String networkInfo=packetPeerCount+"/"+String.format("%.2fKB",bytePeerCnt/1024);
+		String remoteAddressStr="";
+		if(remoteAddress!=null){
+			remoteAddressStr=remoteAddress.getAddress().getHostAddress()
+					+":"+remoteAddress.getPort();
+		}
+		return transportType+"["+localHostAddress+":"+localPort+"<-->"+remoteAddressStr+"] "+networkInfo;
+	}
+
 }

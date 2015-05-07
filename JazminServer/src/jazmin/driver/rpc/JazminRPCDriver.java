@@ -444,7 +444,7 @@ public class JazminRPCDriver extends Driver{
 				this::checkSessionActiveStatus, 30,30, TimeUnit.SECONDS);
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
-			cs.registerCommand(new JazminRPCDriverCommand());
+			cs.registerCommand(JazminRPCDriverCommand.class);
 		}
 	}
 	//

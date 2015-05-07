@@ -50,7 +50,7 @@ public class HttpClientDriver extends Driver{
 		//
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
-			cs.registerCommand(new HttpClientDriverCommand());
+			cs.registerCommand(HttpClientDriverCommand.class);
 		}
 	}
 	//

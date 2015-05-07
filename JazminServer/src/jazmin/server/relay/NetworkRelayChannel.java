@@ -19,7 +19,6 @@ public abstract class NetworkRelayChannel extends RelayChannel{
 	//
 	protected final String localHostAddress;
 	protected final int localPort;
-	protected InetSocketAddress remoteAddress;
 	//
 	protected Channel outboundChannel;
 	protected final TransportType transportType;
@@ -39,7 +38,7 @@ public abstract class NetworkRelayChannel extends RelayChannel{
 		this.localPort=localPort;
 	}
 	//
-	public void dataFromPeer(byte bytes[]) throws Exception{
+	public void dataFromPeer(InetSocketAddress remoteAddress,byte bytes[]) throws Exception{
 		bytePeerCount+=bytes.length;
 		packetPeerCount++;
 		synchronized (linkedChannels) {
@@ -80,42 +79,12 @@ public abstract class NetworkRelayChannel extends RelayChannel{
 	public int getLocalPort() {
 		return localPort;
 	}
-
-	/**
-	 * @return the remoteAddress
-	 */
-	public InetSocketAddress getRemoteAddress() {
-		return remoteAddress;
-	}
-	
-	
-	/**
-	 * @param remoteAddress the remoteAddress to set
-	 */
-	public void setRemoteAddress(InetSocketAddress remoteAddress) {
-		this.remoteAddress = remoteAddress;
-	}
-
 	/**
 	 * @return the transportType
 	 */
 	public TransportType getTransportType() {
 		return transportType;
 	}
-
-	/* 	 */
-	@Override
-	public String getInfo() {
-		double bytePeerCnt=bytePeerCount;
-		String networkInfo=packetPeerCount+"/"+String.format("%.2fKB",bytePeerCnt/1024);
-		String remoteAddressStr="";
-		if(remoteAddress!=null){
-			remoteAddressStr=remoteAddress.getAddress().getHostAddress()
-					+":"+remoteAddress.getPort();
-		}
-		return transportType+"["+localHostAddress+":"+localPort+"<-->"+remoteAddressStr+"] "+networkInfo;
-	}
-
 	/**
 	 * 
 	 */

@@ -100,7 +100,15 @@ public class ConsoleServer extends Server{
 	 * register command to console server
 	 * @param cmd
 	 */
-	public void registerCommand(ConsoleCommand cmd){
+	public void registerCommand(Class<? extends ConsoleCommand> commandClass){
+		try {
+			registerCommand(commandClass.newInstance());
+		} catch (Exception e) {
+			throw new IllegalArgumentException(e);
+		} 
+	}
+	//
+	private void registerCommand(ConsoleCommand cmd){
 		if(commands.containsKey(cmd.getId())){
 			throw new IllegalArgumentException("cmd :"+cmd.getId()+" already exists.");
 		}

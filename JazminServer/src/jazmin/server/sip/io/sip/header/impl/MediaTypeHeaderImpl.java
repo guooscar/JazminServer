@@ -105,15 +105,18 @@ public abstract class MediaTypeHeaderImpl extends ParametersImpl implements Medi
         sb.append(this.mType.toString());
         sb.append((char) SipParser.SLASH);
         sb.append(this.subType.toString());
-
         final Buffer params = super.getValue();
         if (params != null && !params.isEmpty()) {
             sb.append(params.toString());
         }
-
-        return Buffers.wrap(sb.toString());
+        Buffer b= Buffers.wrap(sb.toString());
+        return b;
     }
-
+    
+    protected void transferValue(final Buffer dst) {
+        final Buffer value = getValue();
+        value.getBytes(0, dst);
+    }
     @Override
     public MediaTypeHeader ensure() {
         return this;

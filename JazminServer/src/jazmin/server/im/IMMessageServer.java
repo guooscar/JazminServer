@@ -620,7 +620,7 @@ public class IMMessageServer extends Server{
 		initNettyServer();
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
-			cs.registerCommand(new IMMessageServerCommand());
+			cs.registerCommand(IMMessageServerCommand.class);
 		}
 	}
 	//

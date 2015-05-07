@@ -46,6 +46,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -67,7 +68,7 @@ public class RequestWorker implements ChannelProgressiveFutureListener,FileReque
 	public static final int HTTP_CACHE_SECONDS = 60;
 	FileRequest fileRequest;
 	ChannelHandlerContext ctx; 
-	FullHttpRequest request;
+	FullHttpRequest request; 
 	CdnServer cdnServer;
 	//
 	RequestWorker(
@@ -80,25 +81,6 @@ public class RequestWorker implements ChannelProgressiveFutureListener,FileReque
 		this.ctx=ctx;
 		this.request=request;
 	}
-	//
-	private boolean filter() throws Exception {
-		if (!request.decoderResult().isSuccess()) {
-			if(logger.isDebugEnabled()){
-				logger.debug("bad request");
-			}
-			sendError(ctx, BAD_REQUEST);
-			return false;
-		}
-		if (request.method() != GET) {
-			if(logger.isDebugEnabled()){
-				logger.debug("method not allowed:"+request.method());
-			}
-			sendError(ctx, METHOD_NOT_ALLOWED);
-			return false;
-		}
-		return true;
-	}
-	//--------------------------------------------------------------------------
 	@Override
 	public void handleInputStream(InputStream inputStream,long length) {
 		try {
@@ -197,8 +179,48 @@ public class RequestWorker implements ChannelProgressiveFutureListener,FileReque
 				(System.currentTimeMillis()-fileRequest.createTime.getTime())/1000);
 	}
 	//--------------------------------------------------------------------------
-	public void processRequest() throws Exception {
-		logger.info("process request {} from {}",request.uri(),ctx.channel());
+	//
+	private boolean filter() throws Exception {
+		if (!request.decoderResult().isSuccess()) {
+			if(logger.isDebugEnabled()){
+				logger.debug("bad request");
+			}
+			sendError(ctx, BAD_REQUEST);
+			return false;
+		}
+		if (request.method() != GET) {
+			if(logger.isDebugEnabled()){
+				logger.debug("method not allowed:"+request.method());
+			}
+			sendError(ctx, METHOD_NOT_ALLOWED);
+			return false;
+		}
+		if(cdnServer.requestFilter!=null){
+			FilterContext filterCtx=new FilterContext();
+			filterCtx.fileRequest=fileRequest;
+			filterCtx.request=request;
+			cdnServer.requestFilter.filter(filterCtx);
+			if(filterCtx.errorCode!=FilterContext.CODE_OK){
+				if(logger.isDebugEnabled()){
+					logger.debug("requestFilter {} reject ",cdnServer.requestFilter);
+				}
+				sendError(ctx,filterCtx.errorCode,filterCtx.responseMap);
+				return false;
+			}
+		}
+		return true;
+	}
+	public void processRequest(){
+		try {
+			processRequest0();
+		} catch (Exception e) {
+			logger.catching(e);
+			sendError(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	//
+	private void processRequest0() throws Exception {
+		logger.info("process request from {}",ctx.channel());
 		if (!filter()) {
 			fileRequest.close();
 			return;
@@ -256,11 +278,27 @@ public class RequestWorker implements ChannelProgressiveFutureListener,FileReque
 		// Close the connection as soon as the error message is sent.
 		ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
 	}
-
+	
+	private static void sendError(
+			ChannelHandlerContext ctx,
+			int statusCode,
+			Map<String,String>rspHeaders) {
+		HttpResponseStatus status=HttpResponseStatus.valueOf(statusCode);
+		logger.warn("send status {}",ctx.channel(),statusCode);
+		FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
+				status, Unpooled.copiedBuffer(
+						status + "\r\n",CharsetUtil.UTF_8));
+		rspHeaders.forEach((k,v)->{
+			response.headers().set(k, v);
+		});
+		response.headers().set(CONTENT_TYPE, "text/plain; charset=UTF-8");
+		// Close the connection as soon as the error message is sent.
+		ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+	}
 	//
-	private void sendError(ChannelHandlerContext ctx,
+	private  static void sendError(ChannelHandlerContext ctx,
 			HttpResponseStatus status) {
-		logger.warn("process request {} from {} status {}",request.uri(),ctx.channel(),status);
+		logger.warn("send status {}",ctx.channel(),status);
 		FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
 				status, Unpooled.copiedBuffer(
 						status + "\r\n",CharsetUtil.UTF_8));
@@ -276,7 +314,7 @@ public class RequestWorker implements ChannelProgressiveFutureListener,FileReque
 	 * @param ctx
 	 *            Context
 	 */
-	private static void sendNotModified(ChannelHandlerContext ctx) {
+	static void sendNotModified(ChannelHandlerContext ctx) {
 		FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
 				NOT_MODIFIED);
 		setDateHeader(response);

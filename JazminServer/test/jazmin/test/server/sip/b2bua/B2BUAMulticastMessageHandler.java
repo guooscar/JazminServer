@@ -1,17 +1,19 @@
 package jazmin.test.server.sip.b2bua;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import jazmin.codec.sdp.SessionDescription;
 import jazmin.codec.sdp.SessionDescriptionParser;
 import jazmin.codec.sdp.fields.ConnectionField;
 import jazmin.codec.sdp.fields.MediaDescriptionField;
+import jazmin.codec.sdp.rtcp.attributes.RtcpAttribute;
 import jazmin.core.Jazmin;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.relay.NetworkRelayChannel;
 import jazmin.server.relay.RelayServer;
-import jazmin.server.relay.RtpDumpRelayChannel;
 import jazmin.server.relay.TransportType;
 import jazmin.server.sip.SimpleSipMessageHandler;
 import jazmin.server.sip.SipContext;
@@ -27,7 +29,7 @@ import jazmin.server.sip.io.sip.address.Address;
 import jazmin.server.sip.io.sip.address.SipURI;
 import jazmin.server.sip.io.sip.address.URI;
 import jazmin.server.sip.io.sip.header.ContactHeader;
-import jazmin.server.sip.io.sip.header.ContentLengthHeader;
+import jazmin.server.sip.io.sip.header.ContentTypeHeader;
 import jazmin.server.sip.io.sip.header.ExpiresHeader;
 import jazmin.server.sip.io.sip.header.ViaHeader;
 import jazmin.server.sip.stack.Connection;
@@ -38,20 +40,29 @@ import jazmin.util.HexDumpUtil;
  * @author yama
  *
  */
-public class B2BUAMessageHandler extends SimpleSipMessageHandler {
-	private static Logger logger=LoggerFactory.get(B2BUAMessageHandler.class);
+public class B2BUAMulticastMessageHandler extends SimpleSipMessageHandler {
+	private static Logger logger=LoggerFactory.get(B2BUAMulticastMessageHandler.class);
 	//
 	public class SessionStatus {
-		public SipRequest originalRequest;
 		public Connection connection;
 		public NetworkRelayChannel audioRelayChannelA;
+		public NetworkRelayChannel audioRtcpRelayChannelA;
 		public NetworkRelayChannel audioRelayChannelB;
+		public NetworkRelayChannel audioRtcpRelayChannelB;
 		public NetworkRelayChannel videoRelayChannelA;
+		public NetworkRelayChannel videoRtcpRelayChannelA;
 		public NetworkRelayChannel videoRelayChannelB;
+		public NetworkRelayChannel videoRtcpRelayChannelB;
 	}
 	//
-	public B2BUAMessageHandler(){
-		
+	Map<String,SessionStatus>deviceCallSession;
+	//
+	public B2BUAMulticastMessageHandler(){
+		deviceCallSession=new HashMap<String, B2BUAMulticastMessageHandler.SessionStatus>();
+	}
+	@Override
+	public void doAck(SipContext ctx, SipRequest request) throws Exception {
+		//
 	}
 	//
 	public void doMessage(SipContext ctx,SipRequest message) throws Exception{
@@ -81,8 +92,10 @@ public class B2BUAMessageHandler extends SimpleSipMessageHandler {
 			//change sdp ip address and media port to relay server
 			changeSDP(response, 
 					relayServer.getHostAddresses().get(1),
-					ss.audioRelayChannelB.getLocalPort(),
-					ss.videoRelayChannelB.getLocalPort());
+					ss.audioRelayChannelA.getLocalPort(),
+					ss.audioRtcpRelayChannelA.getLocalPort(),
+					ss.videoRelayChannelA.getLocalPort(),
+					ss.videoRtcpRelayChannelA.getLocalPort());
 		}
 		ss.connection.send(response);
 	}
@@ -98,6 +111,7 @@ public class B2BUAMessageHandler extends SimpleSipMessageHandler {
 	//
 	public void doInvite(SipContext ctx,SipRequest message)throws Exception{
 		Address toAddress=message.getToHeader().getAddress();
+		Address fromAddress=message.getFromHeader().getAddress();
 		URI toURI=toAddress.getURI();
 		SipLocationBinding toBinding=ctx.getServer().getLocationBinding((SipURI) toURI);
 		if(toBinding==null){
@@ -107,36 +121,74 @@ public class B2BUAMessageHandler extends SimpleSipMessageHandler {
 		}
 		RelayServer relayServer=Jazmin.getServer(RelayServer.class);
 		SipSession session=ctx.getSession();
+		//
+		String tt=toAddress.getURI().toString();
+			//
+		SessionStatus savedSession=deviceCallSession.get(tt);
+		if(savedSession!=null){
+			SipResponse response=message.createResponse(SipStatusCode.SC_OK);
+			response.addHeader(ContactHeader.with(toBinding.getAor()).build());
+			response.setHeader(ContentTypeHeader.frame(Buffers.wrap("application/sdp")));
+			//String sdp=IOUtil.getContent(getClass().getResourceAsStream("sipphone.sdp"));
+			response.setRawContent(message.getRawContent());
+			//
+			changeSDP(response, 
+					relayServer.getHostAddresses().get(1),	
+					savedSession.audioRelayChannelA.getLocalPort(),
+					savedSession.audioRtcpRelayChannelA.getLocalPort(),
+					savedSession.videoRelayChannelA.getLocalPort(),
+					savedSession.videoRtcpRelayChannelA.getLocalPort());
+			ctx.getConnection().send(message.createResponse(SipStatusCode.SC_TRYING));
+			ctx.getConnection().send(message.createResponse(SipStatusCode.SC_RINGING));
+			ctx.getConnection().send(response);
+			
+			return;
+		}
+		//
 		synchronized (session) {
 			SessionStatus ss=(SessionStatus) session.getUserObject();
 			if(ss==null){
 				ss=new SessionStatus();
-				ss.originalRequest=message;
 				ss.connection=ctx.getConnection();
 				session.setUserObject(ss);
 				//
-				ss.audioRelayChannelA=relayServer.createRelayChannel(TransportType.UDP);
-				ss.audioRelayChannelB=relayServer.createRelayChannel(TransportType.UDP);
-				ss.videoRelayChannelA=relayServer.createRelayChannel(TransportType.UDP);
-				ss.videoRelayChannelB=relayServer.createRelayChannel(TransportType.UDP);
+				ss.audioRelayChannelA=relayServer.createRelayChannel(TransportType.UDP_MULTICAST,"a-c-"+fromAddress);
+				ss.audioRtcpRelayChannelA=relayServer.createRelayChannel(TransportType.UDP_MULTICAST,"ar-c-"+fromAddress);
+				ss.videoRelayChannelA=relayServer.createRelayChannel(TransportType.UDP_MULTICAST,"v-c-"+fromAddress);
+				ss.videoRtcpRelayChannelA=relayServer.createRelayChannel(TransportType.UDP_MULTICAST,"vr-c-"+fromAddress);
+				
+				ss.audioRelayChannelB=relayServer.createRelayChannel(TransportType.UDP,"a-d-"+toAddress);
+				ss.videoRelayChannelB=relayServer.createRelayChannel(TransportType.UDP,"v-d-"+toAddress);
+				ss.audioRtcpRelayChannelB=relayServer.createRelayChannel(TransportType.UDP,"ac-d-"+toAddress);
+				ss.videoRtcpRelayChannelB=relayServer.createRelayChannel(TransportType.UDP,"vc-d-"+toAddress);
+				
+				ss.audioRtcpRelayChannelA.bidiRelay(ss.audioRtcpRelayChannelB);
+				ss.videoRtcpRelayChannelA.bidiRelay(ss.videoRtcpRelayChannelB);
+				//
 				ss.audioRelayChannelA.bidiRelay(ss.audioRelayChannelB);
 				ss.videoRelayChannelA.bidiRelay(ss.videoRelayChannelB);
 				//
-				RtpDumpRelayChannel rtpDumpChannel=new RtpDumpRelayChannel(relayServer,"/tmp/rtp.dump",false);
-				ss.audioRelayChannelA.relayTo(rtpDumpChannel);
+				deviceCallSession.put(tt,ss);
 			}
 			//
 			changeSDP(message, 
 					relayServer.getHostAddresses().get(0),
-					ss.audioRelayChannelA.getLocalPort(),
-					ss.videoRelayChannelA.getLocalPort());
+					ss.audioRelayChannelB.getLocalPort(),
+					ss.audioRtcpRelayChannelB.getLocalPort(),
+					ss.videoRelayChannelB.getLocalPort(),
+					ss.videoRtcpRelayChannelB.getLocalPort());
 			//
 			ctx.getServer().proxyTo(toBinding.getConnection(),message);
 		}
 		dumpStore(ctx);
 	}
 	//
-	private void changeSDP(SipMessage message,String host,int audioPort,int videoPort)throws Exception{
+	private void changeSDP(SipMessage message,
+			String host,
+			int audioPort,
+			int audioRtcpPort,
+			int videoPort,
+			int videoRtcpPort)throws Exception{
 		//if(true){
 		//	return;
 		//}
@@ -163,18 +215,18 @@ public class B2BUAMessageHandler extends SimpleSipMessageHandler {
 		MediaDescriptionField audioField=s.getMediaDescription("audio");
 		if(audioField!=null){
 			audioField.setPort(audioPort);
+			//audioField.setRtcp(new RtcpAttribute(audioRtcpPort));
 		}
 		MediaDescriptionField videoField=s.getMediaDescription("video");
 		if(videoField!=null){
 			videoField.setPort(videoPort);
+			//videoField.setRtcp(new RtcpAttribute(videoRtcpPort));
 		}
 		byte newSdpBytes[]=s.toBytes();
 		message.setRawContent(Buffers.wrap(newSdpBytes));
-		ContentLengthHeader clh=message.getContentLengthHeader();
 		System.err.println("new--------------------------------------");
 		System.err.println(HexDumpUtil.dumpHexString(newSdpBytes));
 		System.err.println("new--------------------------------------");
-		clh.setContentLength(newSdpBytes.length);
 	}
 	//
 	public void doRegister(SipContext ctx, SipRequest message)throws Exception{

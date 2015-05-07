@@ -233,7 +233,7 @@ public class WebServer extends jazmin.core.Server{
 		//
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
-			cs.registerCommand(new WebServerCommand());
+			cs.registerCommand(WebServerCommand.class);
 		}
 	}
 	//

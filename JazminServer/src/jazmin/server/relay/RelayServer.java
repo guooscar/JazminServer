@@ -136,6 +136,11 @@ public class RelayServer extends Server{
 				rc.outboundChannel=bindUDP(rc,nextPort);
 				finalRelayChannel=rc;
 				break;
+			case UDP_MULTICAST:
+				UDPMulticastRelayChannel urc=new UDPMulticastRelayChannel(this,hostAddress,nextPort);
+				urc.outboundChannel=bindUDP(urc,nextPort);
+				finalRelayChannel=urc;
+				break;
 			case TCP:
 				TCPRelayChannel rc2=new TCPRelayChannel(this,hostAddress,nextPort);
 				rc2.serverChannel=bindTCP(rc2,nextPort);
@@ -164,7 +169,7 @@ public class RelayServer extends Server{
 		return udpBootstrap.bind(hostAddress, port).sync().channel();
 	}
 	//
-	private Channel bindUDP(UDPRelayChannel rc, int port) throws Exception {
+	private Channel bindUDP(NetworkRelayChannel rc, int port) throws Exception {
 		Bootstrap udpBootstrap=new Bootstrap();
 		udpBootstrap.group(udpGroup).channel(NioDatagramChannel.class)
 				.option(ChannelOption.SO_BROADCAST, true)
@@ -193,6 +198,7 @@ public class RelayServer extends Server{
 	private void checkIdleChannel(){
 		long currentTime=System.currentTimeMillis();
 		for(RelayChannel rc:relayChannels.values()){
+			rc.checkStatus();
 			if(currentTime-rc.lastAccessTime>idleTime*1000){
 				try{
 					logger.info("remove idle channel."+rc);
@@ -262,7 +268,7 @@ public class RelayServer extends Server{
 	public void init() throws Exception {
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
-			cs.registerCommand(new RelayServerCommand());
+			cs.registerCommand(RelayServerCommand.class);
 		}
 	}
 	//

@@ -97,7 +97,7 @@ public class MemoryCacheDriver extends Driver{
 		
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
-			cs.registerCommand(new MemoryCacheDriverCommand());
+			cs.registerCommand(MemoryCacheDriverCommand.class);
 		}
 	}
 	//

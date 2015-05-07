@@ -149,7 +149,7 @@ public class ProcessDriver extends Driver{
 				this::checkProcessStatus,0,1,TimeUnit.SECONDS);
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
-			cs.registerCommand(new ProcessDriverCommand());
+			cs.registerCommand(ProcessDriverCommand.class);
 		}
 	}
 	//

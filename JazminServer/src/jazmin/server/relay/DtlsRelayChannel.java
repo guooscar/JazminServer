@@ -8,6 +8,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.DatagramPacket;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -37,7 +38,7 @@ implements DatagramTransport{
 	//
 	private TreeSet<String>rtpRelayChannels;
 	private TreeSet<String>rtcpRelayChannels;
-	
+	private  InetSocketAddress remoteAddress;
 	//
 	public DtlsRelayChannel(RelayServer server,String localAddress, int localPort) {
 		super(server,TransportType.DTLS, localAddress, localPort);
@@ -108,7 +109,10 @@ implements DatagramTransport{
 		}
 	}
 	//
-	public void dataFromPeer(byte []buffer) throws Exception{
+	public void dataFromPeer(InetSocketAddress address,byte []buffer) throws Exception{
+		if(this.remoteAddress==null){
+			this.remoteAddress=address;
+		}
 		bytePeerCount+=buffer.length;
 		packetPeerCount++;
 		lastAccessTime=System.currentTimeMillis();
@@ -166,11 +170,23 @@ implements DatagramTransport{
 		}
 	}
 	//
+	/**/
+	public String getInfo0() {
+		double bytePeerCnt=bytePeerCount;
+		String networkInfo=packetPeerCount+"/"+String.format("%.2fKB",bytePeerCnt/1024);
+		String remoteAddressStr="";
+		if(remoteAddress!=null){
+			remoteAddressStr=remoteAddress.getAddress().getHostAddress()
+					+":"+remoteAddress.getPort();
+		}
+		return transportType+"["+localHostAddress+":"+localPort+"<-->"+remoteAddressStr+"] "+networkInfo;
+	}
+
 	//
 	@Override
 	public String getInfo() {
 		InfoBuilder ib=new InfoBuilder();
-		ib.println(super.getInfo());
+		ib.println(getInfo0());
 		ib.format("%-30s:%-30s\n");
 		if(dtlsHandler.isHandshakeComplete()){
 			ib.print("HandshakeStatus","HandshakeComplete");	

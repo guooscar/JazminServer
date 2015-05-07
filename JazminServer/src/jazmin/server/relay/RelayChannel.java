@@ -86,6 +86,10 @@ public abstract class RelayChannel {
 		return true;
 	}
 	//
+	public void checkStatus(){
+		
+	}
+	//
 	public void closeChannel()throws Exception{
 		
 	}

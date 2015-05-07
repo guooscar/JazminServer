@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -69,7 +69,7 @@ public class ConsoleCommand{
     public ConsoleCommand() {
     	finished=false;
     	options=new Options();
-    	commandOptionMap=new HashMap<String,OptionDefine>();
+    	commandOptionMap=new LinkedHashMap<String,OptionDefine>();
     	addOption("loop", false, "loop display", null);
 	}
     /**

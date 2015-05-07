@@ -12,6 +12,7 @@ import jazmin.misc.io.IOWorker;
 import jazmin.server.console.AsciiChart;
 import jazmin.server.console.ConsoleCommand;
 import jazmin.server.console.TerminalWriter;
+import jazmin.util.DumpUtil;
 /**
  * 
  * @author yama
@@ -260,28 +261,20 @@ public class RPCServerCommand extends ConsoleCommand {
     private void showNetworkStats0(){
     	long inBoundBytes=rpcServer.getInBoundBytes();
     	long outBoundBytes=rpcServer.getOutBoundBytes();
-    	String format="%-10s %-30s %-10s %-10s %-10s %-10s %-10s %-10s\n";
+    	String format="%-10s %-30s %-20s %-20s\n";
     	out.printf(format,
     			"TYPE",
     			"DATE",
-    			"IN BYTE",
-    			"OUT BYTE",
-    			"IN KB",
-    			"OUT KB",
-    			"IN MB",
-    			"OUT MB");
-    	double ii=inBoundBytes-lastInBoundBytes;
-    	double oo=outBoundBytes-lastOutBoundBytes;
+    			"IN",
+    			"OUT");
+    	long ii=inBoundBytes-lastInBoundBytes;
+    	long oo=outBoundBytes-lastOutBoundBytes;
     	
     	out.printf(format,
     			"RATE/S",
     			formatDate(new Date()),
-    			ii,
-    			oo,
-    			String.format("%.2f",ii/1024),
-    			String.format("%.2f",oo/1024),
-    			String.format("%.2f",ii/(1024*1024)),
-    			String.format("%.2f",oo/(1024*1024)));
+    			DumpUtil.byteCountToString(ii),
+    			DumpUtil.byteCountToString(oo));
     	lastInBoundBytes=inBoundBytes;
     	lastOutBoundBytes=outBoundBytes;
     	//
@@ -292,10 +285,8 @@ public class RPCServerCommand extends ConsoleCommand {
     			formatDate(new Date()),
     			ii,
     			oo,
-    			String.format("%.2f",ii/1024),
-    			String.format("%.2f",oo/1024),
-    			String.format("%.2f",ii/(1024*1024)),
-    			String.format("%.2f",oo/(1024*1024)));
+    			DumpUtil.byteCountToString(ii),
+    			DumpUtil.byteCountToString(oo));
     }
     
 }

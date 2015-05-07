@@ -270,7 +270,7 @@ public class MemcachedDriver extends Driver{
 		memcachedClient.setOpTimeout(opTimeout);
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
-			cs.registerCommand(new MemcachedDriverCommand());
+			cs.registerCommand(MemcachedDriverCommand.class);
 		}
 	}
 	//

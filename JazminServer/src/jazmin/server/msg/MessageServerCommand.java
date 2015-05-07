@@ -209,28 +209,20 @@ public class MessageServerCommand extends ConsoleCommand {
     private void showNetworkStats0(){
     	long inBoundBytes=messageServer.getInBoundBytes();
     	long outBoundBytes=messageServer.getOutBoundBytes();
-    	String format="%-10s %-30s %-10s %-10s %-10s %-10s %-10s %-10s\n";
+    	String format="%-10s %-30s %-20s %-20s\n";
     	out.printf(format,
     			"TYPE",
     			"DATE",
-    			"IN BYTE",
-    			"OUT BYTE",
-    			"IN KB",
-    			"OUT KB",
-    			"IN MB",
-    			"OUT MB");
+    			"IN",
+    			"OUT");
     	long ii=inBoundBytes-lastInBoundBytes;
     	long oo=outBoundBytes-lastOutBoundBytes;
     	
     	out.printf(format,
     			"RATE/S",
     			formatDate(new Date()),
-    			ii,
-    			oo,
-    			ii/1024,
-    			oo/1024,
-    			ii/(1024*1024),
-    			oo/(1024*1024));
+    			DumpUtil.byteCountToString(ii),
+    			DumpUtil.byteCountToString(oo));
     	lastInBoundBytes=inBoundBytes;
     	lastOutBoundBytes=outBoundBytes;
     	//
@@ -239,11 +231,7 @@ public class MessageServerCommand extends ConsoleCommand {
     	out.printf(format,
     			"TOTAL",
     			formatDate(new Date()),
-    			ii,
-    			oo,
-    			ii/1024,
-    			oo/1024,
-    			ii/(1024*1024),
-    			oo/(1024*1024));
+    			DumpUtil.byteCountToString(ii),
+    			DumpUtil.byteCountToString(oo));
     }
 }

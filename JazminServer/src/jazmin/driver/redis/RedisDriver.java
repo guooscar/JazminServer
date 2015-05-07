@@ -185,7 +185,7 @@ public class RedisDriver extends Driver{
 		//
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
-			cs.registerCommand(new RedisDriverCommand());
+			cs.registerCommand(RedisDriverCommand.class);
 		}
 	}
 	//

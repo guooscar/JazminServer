@@ -1,9 +1,12 @@
 package jazmin.server.relay;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import jazmin.core.Jazmin;
 import jazmin.server.console.ConsoleCommand;
+import jazmin.util.DumpUtil;
 /**
  * 
  * @author yama
@@ -43,10 +46,14 @@ public class RelayServerCommand extends ConsoleCommand {
 		
 	}
     //
+    private Map<String,Long>lastBytes=new HashMap<String, Long>();
+    private Map<String,Long>lastPacket=new HashMap<String, Long>();
+    
+    //
     private void showChannels(String args){
     	List<RelayChannel>channels=server.getChannels();
     	out.format("total %d channels\n",channels.size());
-    	String format="%-5s %-6s %-20s %-6s %-20s %-15s %-15s %-15s %-50s\n";
+    	String format="%-5s %-6s %-40s %-6s %-30s %-15s %-15s %-15s %-50s\n";
     	out.printf(format,
 				"#",
 				"ID",
@@ -59,7 +66,6 @@ public class RelayServerCommand extends ConsoleCommand {
     			"LINK");
     	int idx=1;
     	for(RelayChannel sh:channels){
-    		double byteRelayCnt=sh.byteRelayCount;
     		StringBuilder linkedStr=new StringBuilder();
     		linkedStr.append("[");
     		for(RelayChannel linked:sh.linkedChannels){
@@ -67,12 +73,20 @@ public class RelayServerCommand extends ConsoleCommand {
     		}
     		linkedStr.append("]");
     		//
+    		long lastByte=lastBytes.getOrDefault(sh.id,sh.byteRelayCount);
+    		long lastPkg=lastPacket.getOrDefault(sh.id,sh.packetRelayCount);
+    		String rate=sh.packetRelayCount+"/"+DumpUtil.byteCountToString(sh.byteRelayCount);
+    		rate+="["+(sh.packetRelayCount-lastPkg)+"/"+DumpUtil.byteCountToString(sh.byteRelayCount-lastByte)+"]";
+    		//
+    		lastBytes.put(sh.id,sh.byteRelayCount);
+    		lastPacket.put(sh.id,sh.packetRelayCount);
+    		//
     		out.printf(format,
         			idx++,
         			sh.id,
         			sh.name,
         			sh.isActive(),
-        			sh.packetRelayCount+"/"+String.format("%.2fKB",byteRelayCnt/1024),
+        			rate,
         			formatDate(new Date(sh.createTime)),
         			formatDate(new Date(sh.lastAccessTime)),
         			linkedStr,

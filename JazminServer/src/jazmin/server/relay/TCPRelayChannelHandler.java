@@ -30,7 +30,9 @@ public class TCPRelayChannelHandler extends SimpleChannelInboundHandler<ByteBuf>
 	protected void messageReceived(ChannelHandlerContext ctx,
 			ByteBuf buffer) throws Exception {
 		ByteBuf buf= Unpooled.copiedBuffer(buffer);
-		relayChannel.dataFromPeer(buf.array());
+		relayChannel.dataFromPeer(
+				(InetSocketAddress) ctx.channel().remoteAddress(),
+				buf.array());
 	}
 	//
 	@Override

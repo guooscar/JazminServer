@@ -10,7 +10,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -22,20 +21,16 @@ import jazmin.log.LoggerFactory;
 public class UDPRelayChannelHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 	private static Logger logger=LoggerFactory.get(RelayChannel.class);
 	//
-	UDPRelayChannel relayChannel;
-	public UDPRelayChannelHandler(UDPRelayChannel relayChannel) {
+	NetworkRelayChannel relayChannel;
+	public UDPRelayChannelHandler(NetworkRelayChannel relayChannel) {
 		this.relayChannel=relayChannel;
 	}
 	//
 	@Override
 	protected void messageReceived(ChannelHandlerContext ctx,
 			DatagramPacket pkg) throws Exception {
-		InetSocketAddress isa=pkg.sender();
-		if(relayChannel.remoteAddress==null){
-			relayChannel.remoteAddress=isa;
-		}
 		ByteBuf buf= Unpooled.copiedBuffer(pkg.content());
-		relayChannel.dataFromPeer(buf.array());
+		relayChannel.dataFromPeer(pkg.sender(),buf.array());
 	}
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)

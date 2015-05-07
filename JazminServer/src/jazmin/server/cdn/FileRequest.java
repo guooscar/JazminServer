@@ -4,6 +4,8 @@
 package jazmin.server.cdn;
 
 import io.netty.channel.Channel;
+import io.netty.handler.codec.Headers.NameVisitor;
+import io.netty.handler.codec.http.FullHttpRequest;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -15,7 +17,10 @@ import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import jazmin.log.Logger;
@@ -36,10 +41,11 @@ public class FileRequest implements AsyncHandler<String>{
 		void handleRandomAccessFile(RandomAccessFile raf);
 		void handleNotFound();
 		void handleException(Throwable e);
-		
 	}
 	//
 	private static Logger logger=LoggerFactory.get(FileRequest.class);
+	static final String TYPE_REMOTE_STREAM="remote";
+	static final String TYPE_LOCAL_FILE="local";
 	//
 	String id;
 	File file;
@@ -51,18 +57,24 @@ public class FileRequest implements AsyncHandler<String>{
 	InetSocketAddress remoteAddress;
 	CdnServer cdnServer;
 	ResultHandler resultHandler;
+	String sourceType;
+	FullHttpRequest httpRequest;
 	//
 	private RandomAccessFile randomAccessFile;
 	private InputStream inputStream;
 	private PipedOutputStream outputStream;
 	//
-	public FileRequest(CdnServer cdnServer,String uri,Channel channel) {
+	public FileRequest(CdnServer cdnServer,
+			String uri,
+			Channel channel,
+			FullHttpRequest httpRequest) {
 		this.cdnServer=cdnServer;
+		this.httpRequest=httpRequest;
 		this.uri=uri;
 		this.channel=channel;
 		remoteAddress=(InetSocketAddress)channel.remoteAddress();
 		createTime=new Date();
-		final String path = sanitizeUri(uri);
+		final String path = uri2FilePath(uri);
 		if (path != null) {
 			file = new File(path);
 		}
@@ -97,6 +109,7 @@ public class FileRequest implements AsyncHandler<String>{
 			}
 			randomAccessFile=new RandomAccessFile(file,"r");
 			totalBytes=randomAccessFile.length();
+			sourceType=TYPE_LOCAL_FILE;
 			resultHandler.handleRandomAccessFile(randomAccessFile);
 			return;
 		}else{
@@ -104,8 +117,21 @@ public class FileRequest implements AsyncHandler<String>{
 				resultHandler.handleNotFound();
 				return;
 			}
+			sourceType=TYPE_REMOTE_STREAM;
 			String targetURL=cdnServer.getOrginSiteURL()+uri;
-			cdnServer.asyncHttpClient.prepareGet(targetURL).execute(this);
+			Map<String,Collection<String>>headerMap=new HashMap<String,Collection<String>>();
+			httpRequest.headers().forEachName(new NameVisitor<CharSequence>() {
+				@Override
+				public boolean visit(CharSequence name) throws Exception {
+					headerMap.put(name.toString(),
+							httpRequest.headers().getAllAndConvert(name));
+					return true;
+				}
+			});
+			cdnServer.asyncHttpClient
+			.prepareGet(targetURL)
+			.setHeaders(headerMap)
+			.execute(this);
 		}
 	}
 	//
@@ -117,7 +143,7 @@ public class FileRequest implements AsyncHandler<String>{
 	}
 	//
 	private static final Pattern INSECURE_URI = Pattern.compile(".*[<>&\"].*");
-	private String sanitizeUri(String uri) {
+	private String uri2FilePath(String uri) {
 		// Decode the path.
 		try {
 			uri = URLDecoder.decode(uri, "UTF-8");
@@ -128,7 +154,11 @@ public class FileRequest implements AsyncHandler<String>{
 		if (uri.isEmpty() || uri.charAt(0) != '/') {
 			return null;
 		}
-
+		//
+		int indexOfParameter=uri.indexOf('?');
+		if(indexOfParameter!=-1){
+			uri=uri.substring(0,indexOfParameter);
+		}
 		// Convert file separators.
 		uri = uri.replace('/', File.separatorChar);
 		// Simplistic dumb security check.

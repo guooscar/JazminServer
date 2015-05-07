@@ -550,7 +550,7 @@ public class RPCServer extends Server{
 		//
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
-			cs.registerCommand(new RPCServerCommand());
+			cs.registerCommand(RPCServerCommand.class);
 		}
 	}
 	//

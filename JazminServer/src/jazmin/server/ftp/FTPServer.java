@@ -537,7 +537,7 @@ public class FTPServer extends Server{
 	public void init() throws Exception {
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
-			cs.registerCommand(new FTPServerCommand());
+			cs.registerCommand(FTPServerCommand.class);
 		}
 	}
 	//

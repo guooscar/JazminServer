@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,6 +26,18 @@ public class CachePolicy implements FileFilter{
 	Map<String,Long>policyMap;
 	public CachePolicy() {
 		policyMap=new ConcurrentHashMap<String, Long>();
+	}
+	/**
+	 * 
+	 * @param type
+	 * @param ttlInSeconds
+	 */
+	public void addPolicy(String type,int ttlInSeconds){
+		policyMap.put(type, ttlInSeconds*1000L);
+	}
+	//
+	public Map<String,Long>getPolicyMap(){
+		return new HashMap<String, Long>(policyMap);
 	}
 	//
 	public boolean accept(File file){

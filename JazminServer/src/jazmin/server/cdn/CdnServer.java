@@ -19,10 +19,13 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
@@ -32,6 +35,7 @@ import jazmin.core.Server;
 import jazmin.core.aop.Dispatcher;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
+import jazmin.misc.InfoBuilder;
 import jazmin.misc.io.IOWorker;
 import jazmin.server.console.ConsoleServer;
 
@@ -46,16 +50,16 @@ import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig;
  */
 public class CdnServer extends Server {
 	private static Logger logger=LoggerFactory.get(CdnServer.class);
-	static final String SERVER_NAME="jazmin-cnd-server";
+	static final String SERVER_NAME="jazmin-cdn-server";
 	//
 	private int port;
 	private EventLoopGroup bossGroup;
 	private EventLoopGroup workerGroup;
 	//
-	private String homeDir;
+	private File homeDir;
 	private boolean listDir;
 	private boolean listDirInHtml;
-	private String orginSiteURL;
+	private URL orginSiteURL;
 	private LongAdder requestIdGenerator;
 	private Map<String,FileRequest>requests;
 	//
@@ -64,6 +68,8 @@ public class CdnServer extends Server {
 	AsyncHttpClient asyncHttpClient;
 	//
 	CachePolicy cachePolicy;
+	//
+	RequestFilter requestFilter;
 	//
 	public CdnServer() {
 		port = 8001;
@@ -111,27 +117,49 @@ public class CdnServer extends Server {
 	}
 	
 	/**
+	 * @param type
+	 * @param ttlInSeconds
+	 * @see jazmin.server.cdn.CachePolicy#addPolicy(java.lang.String, int)
+	 */
+	public void addPolicy(String type, int ttlInSeconds) {
+		cachePolicy.addPolicy(type, ttlInSeconds);
+	}
+	/**
+	 * @return
+	 * @see jazmin.server.cdn.CachePolicy#getPolicyMap()
+	 */
+	public Map<String, Long> getPolicyMap() {
+		return cachePolicy.getPolicyMap();
+	}
+	/**
 	 * @return the orginSiteURL
 	 */
 	public String getOrginSiteURL() {
-		return orginSiteURL;
+		if(orginSiteURL==null){
+			return null;
+		}
+		return orginSiteURL.toString();
 	}
 	/**
 	 * @param orginSiteURL the orginSiteURL to set
+	 * @throws MalformedURLException 
 	 */
-	public void setOrginSiteURL(String orginSiteURL) {
-		this.orginSiteURL = orginSiteURL;
+	public void setOrginSiteURL(String siteUrl) throws MalformedURLException {
+		this.orginSiteURL = new URL(siteUrl);
 	}
 	/**
 	 * @return the homeDir
 	 */
 	public String getHomeDir() {
-		return homeDir;
+		return homeDir.getAbsolutePath();
 	}
 	/**
 	 * @param homeDir the homeDir to set
 	 */
 	public void setHomeDir(String homeDir) {
+		if(isStarted()){
+			throw new IllegalStateException("set before started");
+		}
 		File ff=new File(homeDir);
 		if(ff.exists()&&!ff.isDirectory()){
 			throw new IllegalArgumentException(homeDir+" is not directory");
@@ -141,8 +169,7 @@ public class CdnServer extends Server {
 				throw new IllegalArgumentException("can not create home dir "+homeDir);
 			}	
 		}
-		
-		this.homeDir = homeDir;	
+		this.homeDir = ff;	
 	}
 	/**
 	 * @return the listDir
@@ -168,13 +195,40 @@ public class CdnServer extends Server {
 	public void setListDirInHtml(boolean listDirInHtml) {
 		this.listDirInHtml = listDirInHtml;
 	}
-	//
+	/**
+	 * @return the port
+	 */
+	public int getPort() {
+		return port;
+	}
+	/**
+	 * @param port the port to set
+	 */
+	public void setPort(int port) {
+		if(isStarted()){
+			throw new IllegalStateException("set before started");
+		}
+		this.port = port;
+	}
+
+	/**
+	 * @return the requestFilter
+	 */
+	public RequestFilter getRequestFilter() {
+		return requestFilter;
+	}
+	/**
+	 * @param requestFilter the requestFilter to set
+	 */
+	public void setRequestFilter(RequestFilter requestFilter) {
+		this.requestFilter = requestFilter;
+	}
+	//--------------------------------------------------------------------------
 	private Method requestWorkerMethod=Dispatcher.getMethod(
 			RequestWorker.class,
 			"processRequest");
-	//--------------------------------------------------------------------------
 	public void processRequest(ChannelHandlerContext ctx, FullHttpRequest request){
-		FileRequest fileRequest=new FileRequest(this,request.uri(),ctx.channel());
+		FileRequest fileRequest=new FileRequest(this,request.uri(),ctx.channel(),request);
 		requestIdGenerator.increment();
 		fileRequest.id=requestIdGenerator.intValue()+"";
 		requests.put(fileRequest.id, fileRequest);
@@ -194,7 +248,7 @@ public class CdnServer extends Server {
 	//-------------------------------------------------------------------------
 	private void checkCachePolicy(){
 		logger.info("clean expires file in {}",homeDir);
-		cachePolicy.cleanFile(new File(homeDir));
+		cachePolicy.cleanFile(homeDir);
 	}
 	//
 	@Override
@@ -202,21 +256,22 @@ public class CdnServer extends Server {
 		initNetty();
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
-			cs.registerCommand(new CdnServerCommand());
+			cs.registerCommand(CdnServerCommand.class);
 		}
-		Jazmin.scheduleAtFixedRate(this::checkCachePolicy,
-				10,
-				30, 
-				TimeUnit.MINUTES);
-		//
 		if(homeDir==null){
 			try {
-				homeDir=Files.createTempDirectory("JazminCdnServer").toFile().
-						getAbsolutePath();
+				homeDir=Files.createTempDirectory("JazminCdnServer").toFile();
 				logger.info("home dir set to {}",homeDir);
 			} catch (IOException e) {
 				logger.warn("can not create default home dir");
 			}	
+		}
+		if(orginSiteURL!=null){
+			logger.info("set orgin site {} start cache check task.");
+			Jazmin.scheduleAtFixedRate(this::checkCachePolicy,
+					10,
+					30, 
+					TimeUnit.MINUTES);
 		}
 	}
 	//
@@ -225,8 +280,20 @@ public class CdnServer extends Server {
 		stopNetty();
 	}
 	//
-	@Override
 	public String info() {
-		return super.info();
+		InfoBuilder ib=InfoBuilder.create();
+		ib.section("info")
+		.format("%-30s:%-30s\n")
+		.print("port",getPort())
+		.print("homeDir",getHomeDir())
+		.print("orginSiteURL",getOrginSiteURL())
+		.print("listDir",isListDir())
+		.print("listDirInHtml",isListDirInHtml())
+		.print("requestFilter",getRequestFilter());
+		
+		for(Entry<String,Long> e:getPolicyMap().entrySet()){
+			ib.print("policy-"+e.getKey(),e.getValue());
+		}
+		return ib.toString();
 	}
 }

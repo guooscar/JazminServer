@@ -94,4 +94,19 @@ public class DumpUtil {
 		}
 		return result.toString();
 	}
+	/**
+	 * return human read byte count 
+	 * @param bytes
+	 * @return
+	 */
+	public static  String byteCountToString(long bytes){
+		double bb=bytes;
+		if(bytes<1024){
+			return bytes+" B";
+		}
+		if(bytes<1024*1024){
+			return String.format("%.2f KB",bb/1024);
+		}
+		return String.format("%.2f MB",bb/(1024*1024));
+	}
 }

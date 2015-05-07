@@ -662,7 +662,7 @@ public class SipServer extends Server{
    public void init() throws Exception {
 	   ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
-			cs.registerCommand(new SipServerCommand());
+			cs.registerCommand(SipServerCommand.class);
 		}
    }	
    //

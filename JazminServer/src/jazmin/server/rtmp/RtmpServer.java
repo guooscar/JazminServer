@@ -107,7 +107,7 @@ public class RtmpServer extends Server{
 	public void init() throws Exception {
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
-			cs.registerCommand(new RtmpServerCommand());
+			cs.registerCommand(RtmpServerCommand.class);
 		}
 	}
 	@Override
