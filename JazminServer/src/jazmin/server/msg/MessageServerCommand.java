@@ -107,7 +107,7 @@ public class MessageServerCommand extends ConsoleCommand {
 	}
     //
     private void showSessions(String args){
-		String format="%-5s: %-5s %-10s %-10s %-15s %-10s %-10s %-15s %-15s %-10s\n";
+		String format="%-5s: %-10s %-30s %-10s %-15s %-10s %-10s %-15s %-15s %-10s\n";
 		int i=0;
 		List<Session> sessions=messageServer.getSessions();
 		//
@@ -131,7 +131,7 @@ public class MessageServerCommand extends ConsoleCommand {
 			out.format(format,
 					i++,
 					s.getId(),
-					s.getPrincipal(),
+					cut(s.getPrincipal(),30),
 					s.getUserAgent(),
 					s.getRemoteHostAddress(),
 					s.getRemotePort(),
@@ -144,7 +144,7 @@ public class MessageServerCommand extends ConsoleCommand {
     //
     //
     private void showChannels(String args){
-		String format="%-5s: %-10s %-20s %-10s \n";
+		String format="%-5s: %-30s %-20s %-10s \n";
 		int i=0;
 		List<Channel> channels=messageServer.getChannels();
 		out.println("total "+channels.size()+" channels");
@@ -152,7 +152,7 @@ public class MessageServerCommand extends ConsoleCommand {
 		for(Channel s:channels){
 			out.format(format,
 					i++,
-					s.getId(),
+					cut(s.getId(),30),
 					s.isAutoRemoveDisconnectedSession(),
 					formatDate(new Date(s.getCreateTime())));
 		};

@@ -15,6 +15,23 @@ public class DumpUtil {
 		return dumpInvokeArgs(callToken, args,0);
 	}
 	//
+    public static String cut(String string,int maxLength){
+    	if(string==null){
+    		return null;
+    	}
+    	//
+    	if(string.length()<maxLength){
+    		return string;
+    	}
+    	return string.substring(0,maxLength);
+    }
+	//
+	public static void repeat(StringBuilder sb,String c,int count){
+		for(int i=0;i<count;i++){
+			sb.append(c);
+		}
+	}
+	//
 	public static String dumpInvokeArgs(String callToken,Object []args,int startIndex){
 		StringBuilder sb=new StringBuilder();
 		sb.append("\n--------------------------------------------------------\n");
@@ -26,8 +43,9 @@ public class DumpUtil {
 					.append("]:");
 					if(args[i].getClass().isAnnotationPresent(DumpIgnore.class)){
 						sb.append(args[i]);
-					}else{
-						sb.append(JSON.toJSONString(args[i],SerializerFeature.PrettyFormat));	
+					}else if(args[i].getClass().equals(byte[].class)){
+						byte bb[]=(byte[]) args[i];
+						sb.append(bb+" "+(bb==null?"":bb.length));
 					}
 					sb.append("\n");
 			}

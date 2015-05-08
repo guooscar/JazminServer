@@ -199,7 +199,7 @@ public class RpcServerCommand extends ConsoleCommand {
     }
     //
     private void showSessions(int maxCount){
-		String format="%-5s: %-20s %-15s %-10s %-10s %-10s %-10s %-10s %-10s\n";
+		String format="%-5s:%-30s %-15s %-10s %-10s %-10s %-10s %-10s %-10s\n";
 		int i=0;
 		List<RpcSession> sessions=rpcServer.getSessions();
 		out.println("total "+sessions.size()+" sessions");
@@ -215,7 +215,7 @@ public class RpcServerCommand extends ConsoleCommand {
 		for(RpcSession s:sessions){
 			out.format(format,
 					i++,
-					s.getPrincipal(),
+					cut(s.getPrincipal(),30),
 					s.getRemoteHostAddress(),
 					s.getRemotePort(),
 					s.isDisablePushMessage(),

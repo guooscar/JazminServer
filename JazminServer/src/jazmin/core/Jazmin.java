@@ -42,6 +42,7 @@ import jazmin.core.task.TaskStore;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
+import jazmin.util.DumpUtil;
 import jazmin.util.IOUtil;
 
 /**
@@ -391,6 +392,18 @@ public class Jazmin {
 		} catch (Throwable e) {
 			logger.fatal(e.getMessage(),e);
 			System.exit(1);
+		}
+		//XXX VERY important XXX 
+		if(LoggerFactory.isConsoleLogEnabled()){
+			StringBuilder sb=new StringBuilder();
+			sb.append("\n");
+			DumpUtil.repeat(sb,"X",80);
+			sb.append("\nConsole log cost a lot time,use "
+					+ "LoggerFactory.disableConsoleLog() or \n"
+					+ "BootContext.disableConsoleLog() to close console log output"
+					+ " in production environment\n");
+			DumpUtil.repeat(sb,"X",80);
+			logger.fatal(sb);
 		}
 	}
 	//

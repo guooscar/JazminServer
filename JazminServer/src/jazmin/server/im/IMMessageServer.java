@@ -632,6 +632,7 @@ public class IMMessageServer extends Server{
 	//
 	@Override
 	public void stop() throws Exception {
+		setSessionLifecycleListener(null);
 		if(bossGroup!=null){
 			bossGroup.shutdownGracefully();
 			workerGroup.shutdownGracefully();

@@ -8,8 +8,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
+import jazmin.util.DumpUtil;
 import jazmin.util.IOUtil;
-import jazmin.util.StringUtil;
 
 /**
  * @author yama
@@ -33,7 +33,7 @@ public class UtilTest {
 				logger.info("total {} current {} percent {}%",
 						dumpByte(total),
 						dumpByte(current),
-						StringUtil.format("%.2f",percent));
+						String.format("%.2f",percent));
 			}
 		});
 		logger.info("file saved to {}",destFilePath);
@@ -41,10 +41,6 @@ public class UtilTest {
 	}
 	//
 	private static String dumpByte(long byteCount){
-    	return StringUtil.format(
-    			"(%5s KB %5s MB)", 
-		    	byteCount/1024+"",
-		    	byteCount/(1024*1024)+"");
-    	
+    	return DumpUtil.byteCountToString(byteCount);
     }
 }

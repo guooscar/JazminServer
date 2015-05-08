@@ -64,8 +64,8 @@ public class SipServerCommand extends ConsoleCommand {
     	for(SipLocationBinding b:bindings){
     		out.printf(format,
         			idx++,
-        			b.getAor(),
-        			b.getContact(),
+        			cut(b.getAor()+"",25),
+        			cut(b.getContact()+"",25),
         			b.getExpires(),
         			formatDate(b.getCreateTime()),
         			b.getConnection(),
@@ -94,7 +94,7 @@ public class SipServerCommand extends ConsoleCommand {
         			s.getRemotePort(),
         			formatDate(s.getCreateTime()),
         			formatDate(s.getLastAccessTime()),
-        			s.getCallId());
+        			cut(s.getCallId(),30));
     	}
     }
 	//

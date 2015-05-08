@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import jazmin.util.StringUtil;
+import jazmin.util.DumpUtil;
 /**
  * 
  * @author yama
@@ -131,12 +131,6 @@ public class VMCommand extends ConsoleCommand {
     }
     //
     private String dumpByte(long byteCount){
-    	return StringUtil.format(
-    			"%20s bytes %10s KB %10s MB %10s GB", 
-		    	byteCount+"",
-		    	byteCount/1024+"",
-		    	byteCount/(1024*1024)+"",
-		    	byteCount/(1024*1024*1024)+"");
-    	
+    	return DumpUtil.byteCountToString(byteCount);
     }
 }

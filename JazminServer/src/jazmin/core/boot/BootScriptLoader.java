@@ -15,11 +15,12 @@ import jazmin.core.Driver;
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
 import jazmin.core.aop.Dispatcher;
+import jazmin.core.job.JobStore;
+import jazmin.core.task.TaskStore;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.util.DumpUtil;
 import jazmin.util.IOUtil;
-import jazmin.util.StringUtil;
 
 /**
  * @author yama
@@ -144,7 +145,7 @@ public class BootScriptLoader {
 					logger.info("total {} current {} percent {}%",
 							DumpUtil.byteCountToString(current),
 							DumpUtil.byteCountToString(total),
-							StringUtil.format("%.2f",percent));
+							String.format("%.2f",percent));
 				}
 			});
 			logger.info("file saved to {}",destFilePath);
@@ -159,6 +160,16 @@ public class BootScriptLoader {
 		@Override
 		public Dispatcher getDispatcher() {
 			return Jazmin.dispatcher;
+		}
+		//
+		@Override
+		public JobStore getJobStore() {
+			return Jazmin.jobStore;
+		}
+		//
+		@Override
+		public TaskStore getTaskStore() {
+			return Jazmin.taskStore;
 		}
 	}
 }

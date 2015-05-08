@@ -26,17 +26,24 @@ public class LoggerFactory {
 		logLevelMap.put("OFF",Level.OFF);
 	}
 	private static Level level;
+	private static boolean isConsoleLogEnabled;
 	private static List<jazmin.log.Logger>allLogList;
 	private static Log4j2ConfigurationFactory configFactory=new Log4j2ConfigurationFactory();
 	static {
 		//
+		isConsoleLogEnabled=true;
 		level=Level.INFO;
 	    ConfigurationFactory.setConfigurationFactory(configFactory);
 	    allLogList=new ArrayList<>();
 	}
 	//
 	public static void disableConsoleLog(){
+		isConsoleLogEnabled=false;
 		configFactory.getConfiguration().disableConsoleOutput();
+	}
+	//
+	public static boolean isConsoleLogEnabled(){
+		return isConsoleLogEnabled;
 	}
 	/**
 	 * @param file String

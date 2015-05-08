@@ -85,7 +85,7 @@ public class RelayServerCommand extends ConsoleCommand {
     		out.printf(format,
         			idx++,
         			sh.id,
-        			sh.name,
+        			cut(sh.name,40),
         			sh.isActive(),
         			rate,
         			formatDate(new Date(sh.createTime)),

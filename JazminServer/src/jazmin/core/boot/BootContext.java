@@ -6,6 +6,8 @@ package jazmin.core.boot;
 import jazmin.core.Driver;
 import jazmin.core.Server;
 import jazmin.core.aop.Dispatcher;
+import jazmin.core.job.JobStore;
+import jazmin.core.task.TaskStore;
 
 
 
@@ -86,4 +88,6 @@ public interface BootContext{
 	
 	//
 	Dispatcher getDispatcher();
+	JobStore getJobStore();
+	TaskStore getTaskStore();
 }

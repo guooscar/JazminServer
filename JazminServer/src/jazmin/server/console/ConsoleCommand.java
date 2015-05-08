@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.console.repl.ReadLineEnvironment;
+import jazmin.util.DumpUtil;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
@@ -197,6 +198,10 @@ public class ConsoleCommand{
     	}
     	SimpleDateFormat sdf=new SimpleDateFormat("MM/dd HH:mm:ss");
     	return  sdf.format(date);
+    }
+    //
+    protected String cut(String string,int maxLength){
+    	return DumpUtil.cut(string, maxLength);
     }
     //
     protected void printLine(char c,int width){

@@ -74,14 +74,14 @@ public class JazminCommand extends ConsoleCommand {
     }
     //
     private void showJobs(String args)throws Exception{
-    	String format="%-5s : %-50s %-20s %-15s %-15s %-10s\n";
+    	String format="%-5s:%-40s %-20s %-15s %-15s %-10s\n";
 		int i=0;
 		List<JazminJob>jobs=Jazmin.jobStore.getJobs();
 		out.println("total "+jobs.size()+" jobs");
 		out.format(format,"#","NAME","CRON","LAST RUN","NEXT RUN","RUNTIMES");	
 		for(JazminJob job:jobs){
 			out.format(format,i++,
-					job.id,
+					cut(job.id,40),
 					job.cron,
 					formatDate(job.lastRunTime()),
 					formatDate(job.nextRunTime()),
@@ -90,14 +90,14 @@ public class JazminCommand extends ConsoleCommand {
     }
     //
     private void showTasks(String args){
-    	String format="%-5s : %-50s %-10s %-10s %-10s %-10s\n";
+    	String format="%-5s:%-40s %-10s %-10s %-10s %-10s\n";
 		int i=0;
 		List<JazminTask>tasks=Jazmin.taskStore.getTasks();
 		out.println("total "+tasks.size()+" tasks");
 		out.format(format,"#","NAME","INITDELAY","PERIOD","TIMEUNIT","RUNTIMES");	
 		for(JazminTask task:tasks){
 			out.format(format,i++,
-					task.id,
+					cut(task.id,40),
 					task.initialDelay,
 					task.period,
 					task.unit,
@@ -158,15 +158,15 @@ public class JazminCommand extends ConsoleCommand {
     }
     //
     private void showThreadPoolStats(String args){
-    	String format="%-5s : %-50s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-10s\n";
+    	String format="%-5s:%-30s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-10s\n";
 		int i=0;
 		List<InvokeStat>stats=Jazmin.dispatcher.getInvokeStats();
 		out.println("total "+stats.size()+" method stats");
 		Collections.sort(stats);
-		out.format(format,"#","NAME","IVC","ERR","MINT-FULL","MAXT-FULL","AVGT-FULL","MINT-RUN","MAXT-RUN","AVGT-RUN");	
+		out.format(format,"#","NAME","IVC","ERR","MINT-F","MAXT-F","AVGT-F","MINT-R","MAXT-R","AVGT-R");	
 		for(InvokeStat stat:stats){
 			out.format(format,i++,
-					stat.name,
+					cut(stat.name,30),
 					stat.invokeCount,
 					stat.errorCount,
 					stat.minFullTime,

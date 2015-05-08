@@ -105,7 +105,7 @@ public class IMMessageServerCommand extends ConsoleCommand {
 	}
     //
     private void showSessions(String args){
-		String format="%-5s: %-5s %-10s %-10s  %-15s %-10s %-10s %-15s %-15s %-10s\n";
+		String format="%-5s: %-30s %-10s %-10s  %-15s %-10s %-10s %-15s %-15s %-10s\n";
 		int i=0;
 		List<IMSession> sessions=messageServer.getSessions();
 		//

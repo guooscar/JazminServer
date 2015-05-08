@@ -24,6 +24,9 @@ import jazmin.misc.InfoBuilder;
 import jazmin.misc.io.InvokeStat;
 
 /**
+ * NOTE by default INFO logger level will print all invoke trace to file and console,
+ * console output will cost a lot time. REMEBER to close console log via 
+ * LoggerFactory.disableConsoleLog(); or BootContext.disableConsoleLog();
  * @author yama
  * 23 Dec, 2014
  */
@@ -34,7 +37,7 @@ public class Dispatcher extends Lifecycle implements Executor{
 	public static final DispatcherCallback EMPTY_CALLBACK=new DispatcherCallbackAdapter(){};
 	//
 	private static final int DEFAULT_CORE_POOL_SIZE=32;
-	private static final int DEFAULT_MAX_POOL_SIZE=256;
+	private static final int DEFAULT_MAX_POOL_SIZE=64;
 	//
 	private ThreadPoolExecutor poolExecutor;
 	private LinkedBlockingQueue<Runnable> requestQueue;
@@ -189,6 +192,7 @@ public class Dispatcher extends Lifecycle implements Executor{
 		} 
 	}
 	//--------------------------------------------------------------------------
+	
 	/**
 	 * @return the corePoolSize
 	 */
@@ -198,7 +202,10 @@ public class Dispatcher extends Lifecycle implements Executor{
 	/**
 	 * @param corePoolSize the corePoolSize to set
 	 */
-	public void getCorePoolSize(int corePoolSize) {
+	public void setCorePoolSize(int corePoolSize) {
+		if(isInited()){
+			throw new IllegalStateException("set before inited");
+		}
 		this.corePoolSize = corePoolSize;
 	}
 	/**
@@ -210,7 +217,10 @@ public class Dispatcher extends Lifecycle implements Executor{
 	/**
 	 * @param maxPoolSize the maxPoolSize to set
 	 */
-	public void getMaxPoolSize(int maxPoolSize) {
+	public void setMaxPoolSize(int maxPoolSize) {
+		if(isInited()){
+			throw new IllegalStateException("set before inited");
+		}
 		this.maxPoolSize = maxPoolSize;
 	}
 	//
