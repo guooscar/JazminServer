@@ -142,6 +142,10 @@ public class Dispatcher extends Lifecycle implements Executor{
 		return new ArrayList<InvokeStat>(methodStats.values());
 	}
 	//
+	public InvokeStat getInvokeStat(String callId){
+		return methodStats.get(callId);
+	}
+	//
 	public void addGlobalDispatcherCallback(DispatcherCallback callback){
 		globalCallbacks.add(callback);
 	}

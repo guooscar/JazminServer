@@ -26,19 +26,21 @@ public class JazminCommand extends ConsoleCommand {
     	addOption("i",false,"show server information.",this::showServerInfo);
     	addOption("env",false,"show env info.",this::showEnvInfo);
     	addOption("log",false,"show all loggers",this::showLoggers);
-    	addOption("loglevel",true,"set log level.ALL/DEBUG/INFO/WARN/ERROR/FATAL",this::setLogLevel);
+    	addOption("log.level",true,"set log level.ALL/DEBUG/INFO/WARN/ERROR/FATAL",this::setLogLevel);
     	addOption("task",false,"show tasks",this::showTasks);
     	addOption("job",false,"show jobs",this::showJobs);  
-    	addOption("runjob",true,"run job",this::runJob);  
-    	addOption("runtask",true,"run task",this::runTask);  
+    	addOption("job-run",true,"run job",this::runJob);  
+    	addOption("task-run",true,"run task",this::runTask);  
     	addOption("driver",false,"show all drivers",this::showDrivers);  	
     	addOption("server",false,"show all servers",this::showServers);  	
-    	addOption("pinfo",false,"show thread pool info",this::showThreadPoolInfo);  	
-    	addOption("pstat",false,"show method stats",this::showThreadPoolStats);  	
-    	addOption("pdb",false,"show thread pool dashboard",this::showThreadPoolDashboard); 
-    	addOption("preset",false,"reset method stats",this::resetThreadPoolStats); 
-    	addOption("pcoresize",true,"set core pool size",this::setCorePoolSize); 
-    	addOption("pmaxsize",true,"set max pool size",this::setMaxPoolSize); 
+    	addOption("pool-info",false,"show thread pool info",this::showThreadPoolInfo);  	
+    	addOption("poll-stat",false,"show method stats",this::showThreadPoolStats);  	
+    	addOption("pool-db",false,"show thread pool dashboard",this::showThreadPoolDashboard); 
+    	addOption("pool-mchart",true,"show thread pool method invoke chart",this::showThreadPoolMethodChart); 
+    	addOption("pool-reset",false,"reset method stats",this::resetThreadPoolStats); 
+    	addOption("pool-coresize",true,"set core pool size",this::setCorePoolSize); 
+    	addOption("pool-maxsize",true,"set max pool size",this::setMaxPoolSize); 
+    	
     	addOption("dump",false,"dump servers and drivers",this::dump); 
         
     }
@@ -195,6 +197,45 @@ public class JazminCommand extends ConsoleCommand {
 					stat.maxRunTime,
 					stat.avgRunTime());
 		};
+    }
+    //
+    private void  showThreadPoolMethodChart(String args)throws Exception{
+    	InvokeStat stat=Jazmin.dispatcher.getInvokeStat(args);
+    	if(stat==null){
+    		out.println("can not found method stat :"+args);
+    		return;
+    	}
+    	String format="%-30s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-10s\n";
+		
+    	TerminalWriter tw=new TerminalWriter(out);
+    	AsciiChart chart=new AsciiChart(200,80);
+    	while(stdin.available()==0){
+    		tw.cls();
+    		out.println("press any key to quit.");
+    		out.format(format,"NAME","IVC","ERR","MINT-F","MAXT-F",
+					"AVGT-F","MINT-R","MAXT-R","AVGT-R");
+    		out.format(format,
+    				cut(stat.name,30),
+    				stat.invokeCount,
+    				stat.errorCount,
+    				stat.minFullTime,
+    				stat.maxFullTime,
+    				stat.avgFullTime(),
+    				stat.minRunTime,
+    				stat.maxRunTime,
+    				stat.avgRunTime());
+    		printLine('=', 120);
+    		int avgTime=stat.avgFullTime();
+    		chart.addValue(avgTime);
+    		out.println("method invoke avg time.current:"+avgTime+" ms");
+    		tw.fmagenta();
+    		chart.reset();
+    		out.println(chart.draw());
+    		tw.reset();
+    		out.flush();
+    		TimeUnit.SECONDS.sleep(1);
+    	}
+    	stdin.read();
     }
     //
     private void showThreadPoolDashboard(String args)throws Exception{
