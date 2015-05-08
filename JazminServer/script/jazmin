@@ -137,6 +137,7 @@ function start_bg(){
 # Execute the JVM in the background
 eval \"$JAVA\" $JAVA_OPTS \
 	-classpath \"$JAZMIN_CLASSPATH\" \
+	-Djazmin.boot.bg=true	\
 	-Djazmin.boot.file=$INSTANCE_HOME/jazmin.js	\
 	-Djazmin.server.name=$INSTANCE_NAME	\
 	-Djava.rmi.server.hostname=$HOSTNAME \

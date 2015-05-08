@@ -356,6 +356,11 @@ public class Jazmin {
 	 * start jazmin server
 	 */
 	public static void start(){
+		String bgMode=System.getProperty("jazmin.boot.bg");
+		if(bgMode!=null){
+			System.out.println("close console log output");
+			LoggerFactory.disableConsoleLog();
+		}
 		//
 		String propServerName=System.getProperty("jazmin.server.name");
 		if(propServerName!=null){
