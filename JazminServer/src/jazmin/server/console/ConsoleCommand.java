@@ -8,7 +8,6 @@ import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
@@ -28,7 +27,6 @@ import org.apache.commons.cli.UnrecognizedOptionException;
  * 26 Dec, 2014
  */
 public class ConsoleCommand{
-	protected static LinkedList<String>commandHistory=new LinkedList<String>();
 	//
 	private static Logger logger=LoggerFactory.get(ConsoleCommand.class);
 	//
@@ -55,8 +53,8 @@ public class ConsoleCommand{
     protected String desc;
     protected CommandLine cli;
     private volatile boolean finished;
-    //
     private Options options;
+    ConsoleServer consoleServer;
     //
     private Map<String,OptionDefine>commandOptionMap;
     //
@@ -73,6 +71,20 @@ public class ConsoleCommand{
     	addOption("loop", false, "loop display", null);
 	}
     /**
+	 * @return the consoleServer
+	 */
+	public ConsoleServer getConsoleServer() {
+		return consoleServer;
+	}
+
+	/**
+	 * @param consoleServer the consoleServer to set
+	 */
+	public void setConsoleServer(ConsoleServer consoleServer) {
+		this.consoleServer = consoleServer;
+	}
+
+	/**
 	 * @return the finished
 	 */
 	public boolean isFinished() {
@@ -161,10 +173,7 @@ public class ConsoleCommand{
 	    	this.args = args;
         	GnuParser parser=new GnuParser();
 			this.cli = parser.parse(options,args);
-			commandHistory.add(line);
-			if(commandHistory.size()>500){
-				commandHistory.removeFirst();
-			}
+			consoleServer.addCommandHistory(line);
 			run();
 		} catch (IOException |UnrecognizedOptionException e2) {
 			this.err.println(e2.getMessage());

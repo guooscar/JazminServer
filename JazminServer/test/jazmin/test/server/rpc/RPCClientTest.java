@@ -4,7 +4,7 @@
 package jazmin.test.server.rpc;
 
 import jazmin.core.Jazmin;
-import jazmin.driver.rpc.JazminRPCDriver;
+import jazmin.driver.rpc.JazminRpcDriver;
 
 
 /**
@@ -14,7 +14,7 @@ import jazmin.driver.rpc.JazminRPCDriver;
 public class RPCClientTest {
 	//
 	public static void main(String[] args) throws Exception{
-		JazminRPCDriver driver=new JazminRPCDriver();
+		JazminRpcDriver driver=new JazminRpcDriver();
 		driver.addRemoteServer("1","1", "localhost", 6001);
 		Jazmin.addDriver(driver);
 		Jazmin.start();

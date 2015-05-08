@@ -1,7 +1,7 @@
 package jazmin.test.driver.rpc;
 
 import jazmin.core.Jazmin;
-import jazmin.driver.rpc.JazminRPCDriver;
+import jazmin.driver.rpc.JazminRpcDriver;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.console.ConsoleServer;
@@ -17,7 +17,7 @@ import jazmin.test.server.rpc.TestRemoteServiceImpl;
 public class RPCDriverTest2 {
 
 	public static void main(String[] args) {
-		JazminRPCDriver driver=new JazminRPCDriver();
+		JazminRpcDriver driver=new JazminRpcDriver();
 		driver.setPrincipal("a"+System.currentTimeMillis());
 		driver.addRemoteServer("test","test","localhost",6001);
 		Jazmin.addDriver(driver);

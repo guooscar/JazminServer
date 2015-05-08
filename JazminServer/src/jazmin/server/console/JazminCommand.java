@@ -36,6 +36,8 @@ public class JazminCommand extends ConsoleCommand {
     	addOption("pinfo",false,"show thread pool info",this::showThreadPoolInfo);  	
     	addOption("pstat",false,"show method stats",this::showThreadPoolStats);  	
     	addOption("pdb",false,"show thread pool dashboard",this::showThreadPoolDashboard); 
+    	addOption("preset",false,"reset method stats",this::resetThreadPoolStats); 
+    	
     	addOption("dump",false,"dump servers and drivers",this::dump); 
         
     }
@@ -150,6 +152,10 @@ public class JazminCommand extends ConsoleCommand {
 		out.printf(format,"taskCount",Jazmin.dispatcher.getTaskCount());	
     }
     //
+    private void resetThreadPoolStats(String args){
+    	Jazmin.dispatcher.resetInvokeStats();
+    	out.println("reset thread pool method stats done");
+    }
     //
     private void showThreadPoolStats(String args){
     	String format="%-5s : %-50s %-10s %-10s %-10s %-10s %-10s\n";

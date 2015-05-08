@@ -10,10 +10,10 @@ import jazmin.server.rpc.RpcSession;
  * @author yama
  * @date Jun 4, 2014
  */
-public class AsyncRPCInvocationHandler extends RpcInvocationHandler {
+public class AsyncRpcInvocationHandler extends RpcInvocationHandler {
 	private Method asyncCallbackMethod;
-	public AsyncRPCInvocationHandler(
-			JazminRPCDriver driver,
+	public AsyncRpcInvocationHandler(
+			JazminRpcDriver driver,
 			RpcClient client,
 			List<RpcSession> sessions) {
 		super(driver,client,sessions);

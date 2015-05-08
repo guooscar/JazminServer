@@ -121,6 +121,10 @@ public class Dispatcher extends Lifecycle implements Executor{
 		totalInvokeCount.increment();
 	}
 	//
+	public void resetInvokeStats(){
+		methodStats.clear();
+	}
+	//
 	public List<InvokeStat>getInvokeStats(){
 		return new ArrayList<InvokeStat>(methodStats.values());
 	}

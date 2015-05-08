@@ -7,7 +7,7 @@ import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
 
 import jazmin.core.Jazmin;
-import jazmin.driver.rpc.JazminRPCDriver;
+import jazmin.driver.rpc.JazminRpcDriver;
 import jazmin.log.LoggerFactory;
 import jazmin.test.server.rpc.TestRemoteServiceAsync;
 
@@ -22,7 +22,7 @@ public class RPCDriverTest {
 	 * @throws URISyntaxException 
 	 */
 	public static void main(String[] args) throws URISyntaxException {
-		JazminRPCDriver driver=new JazminRPCDriver();
+		JazminRpcDriver driver=new JazminRpcDriver();
 		driver.setPrincipal("a"+System.currentTimeMillis());
 		driver.addRemoteServer("jazmin://123@localhost:6001/test/test");
 		//driver.addRemoteServer("test","test","123","localhost",6001);

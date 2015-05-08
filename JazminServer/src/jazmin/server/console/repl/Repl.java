@@ -17,6 +17,7 @@ import jazmin.core.Jazmin;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.console.ConsoleCommand;
+import jazmin.server.console.ConsoleServer;
 import jazmin.server.console.TerminalWriter;
 
 /**
@@ -39,12 +40,13 @@ public class Repl {
 	}
     //
     public static int repl(
+    		ConsoleServer consoleServer,
     		TerminalInputStream stdin, 
     		OutputStream stdout, 
     		OutputStream stderr,
-           ReadLineEnvironment environment, 
-           Map<String, ConsoleCommand> commands, 
-           String prompt)
+    		ReadLineEnvironment environment, 
+    		Map<String, ConsoleCommand> commands, 
+    		String prompt)
         throws IOException {
         String line;
 
@@ -97,6 +99,7 @@ public class Repl {
             stdin.setBreak(false);
 			for (CommandEnv env : envList) {
 				if (!runCommand(
+						consoleServer,
 						commands, 
 						environment, 
 						env.line, 
@@ -114,13 +117,17 @@ public class Repl {
         return 10;
     }
     //
-    private static ConsoleCommand getCommand(String id,Map<String, ConsoleCommand>commands){
+    private static ConsoleCommand getCommand(
+    		ConsoleServer consoleServer,
+    		String id,Map<String, ConsoleCommand>commands){
     	 ConsoleCommand cc = commands.get(id);
          if (cc == null) {
         	 return null;
          }
          try{
-         	return cc.getClass().newInstance();
+        	 ConsoleCommand c= cc.getClass().newInstance();
+        	 c.setConsoleServer(consoleServer);
+        	 return c;
          }catch(Throwable e){
         	 logger.catching(e);
          	return null;
@@ -128,6 +135,7 @@ public class Repl {
     }
     //
     private static boolean runCommand( 
+    		ConsoleServer consoleServer,
     		Map<String, ConsoleCommand> commands, 
     		ReadLineEnvironment environment, 
     		String line,
@@ -138,7 +146,7 @@ public class Repl {
     	 //
         String[] args = line.split(" ");
         //
-        ConsoleCommand command=getCommand(args[0].trim(), commands);
+        ConsoleCommand command=getCommand(consoleServer,args[0].trim(), commands);
         if(command==null){
         	return false;
         }

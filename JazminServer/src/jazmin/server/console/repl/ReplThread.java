@@ -10,6 +10,7 @@ import jazmin.core.Jazmin;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.console.ConsoleCommand;
+import jazmin.server.console.ConsoleServer;
 
 /**
  * @author <a href="mailto:trygvis@java.no">Trygve Laugst&oslash;l</a>
@@ -22,12 +23,14 @@ public class ReplThread implements Closeable {
     private final OutputStream stderr;
     private final Thread thread;
 
-    public ReplThread(final TerminalInputStream stdin, 
-    				  final OutputStream stdout, 
-    				  final OutputStream stderr,
-                      final ReadLineEnvironment environment, 
-                      final Map<String, ConsoleCommand> commands,
-                      final Runnable onExit) {
+    public ReplThread(
+    				ConsoleServer consoleServer,
+    				final TerminalInputStream stdin, 
+    				final OutputStream stdout, 
+    				final OutputStream stderr,
+                    final ReadLineEnvironment environment, 
+                    final Map<String, ConsoleCommand> commands,
+                    final Runnable onExit) {
         this.stdin = stdin;
         this.stdout = stdout;
         this.stderr = stderr;
@@ -39,7 +42,7 @@ public class ReplThread implements Closeable {
         			"\033[33;49;1m@"+environment.user+"\033[39;49;0m"+
                     "\033[35;49;1m#"+Jazmin.getServerName()+"\033[39;49;0m"+
         			">";
-        	Repl.repl(stdin, stdout, stderr, environment, commands,prompt);
+        	Repl.repl(consoleServer,stdin, stdout, stderr, environment, commands,prompt);
         } catch (Exception e) {
         	logger.catching(e);
         }finally {

@@ -23,7 +23,7 @@ public class AsyncInvokeMessageCallback implements RpcMessageCallback {
 	public Method callbackMethod;
 	public String serviceId;
 	public Method method;
-	public JazminRPCDriver driver;
+	public JazminRpcDriver driver;
 	private long startTime;
 	//
 	public AsyncInvokeMessageCallback() {

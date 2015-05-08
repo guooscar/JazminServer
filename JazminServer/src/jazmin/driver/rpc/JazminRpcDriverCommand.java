@@ -14,9 +14,9 @@ import jazmin.server.rpc.RpcSession;
  * @author yama
  * 26 Dec, 2014
  */
-public class JazminRPCDriverCommand extends ConsoleCommand {
-    private JazminRPCDriver driver;
-	public JazminRPCDriverCommand() {
+public class JazminRpcDriverCommand extends ConsoleCommand {
+    private JazminRpcDriver driver;
+	public JazminRpcDriverCommand() {
     	super();
     	id="rpcdriver";
     	desc="jazmin rpc driver ctrl command";
@@ -25,7 +25,7 @@ public class JazminRPCDriverCommand extends ConsoleCommand {
     	addOption("stat",false,"show method stat.",this::showMethodStats);
     	addOption("tps",false,"show invoke tps.",this::showInvokeTps);
     	//
-    	driver=Jazmin.getDriver(JazminRPCDriver.class);
+    	driver=Jazmin.getDriver(JazminRpcDriver.class);
     }
 	//
 	@Override

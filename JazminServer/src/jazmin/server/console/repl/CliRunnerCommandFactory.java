@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.util.Map;
 
 import jazmin.server.console.ConsoleCommand;
+import jazmin.server.console.ConsoleServer;
 
 import org.apache.sshd.common.Factory;
 import org.apache.sshd.common.PtyMode;
@@ -21,9 +22,12 @@ import org.apache.sshd.server.ExitCallback;
  */
 public class CliRunnerCommandFactory implements Factory<Command> {
     private final Map<String, ConsoleCommand> commands;
-
-    public CliRunnerCommandFactory(Map<String, ConsoleCommand> commands) {
-        this.commands = commands;
+    private ConsoleServer consoleServer;
+    public CliRunnerCommandFactory(
+    		ConsoleServer consoleServer,
+    		Map<String, ConsoleCommand> commands) {
+    	this.consoleServer=consoleServer;
+    	this.commands = commands;
     }
     //--------------------------------------------------------------------------
     public class JazminSshCommand implements Command{
@@ -51,6 +55,7 @@ public class CliRunnerCommandFactory implements Factory<Command> {
         //
         public void start(Environment e) throws IOException {
         	repl = new ReplThread(
+        			consoleServer,
             		stdin,
             		stdout, 
             		stderr, 

@@ -21,10 +21,10 @@ public abstract class RpcInvocationHandler implements InvocationHandler {
 	private RpcSession[]sessions;
 	private int sessionCount;
 	protected RpcClient client;
-	protected JazminRPCDriver driver;
+	protected JazminRpcDriver driver;
 	//
 	public RpcInvocationHandler(
-			JazminRPCDriver driver,
+			JazminRpcDriver driver,
 			RpcClient client,
 			List<RpcSession> sessionList) {
 		this.client=client;

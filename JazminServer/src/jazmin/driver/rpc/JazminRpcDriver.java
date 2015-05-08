@@ -37,8 +37,8 @@ import jazmin.server.rpc.RemoteService;
  * @author yama
  * 25 Dec, 2014
  */
-public class JazminRPCDriver extends Driver{
-	private static Logger logger=LoggerFactory.get(JazminRPCDriver.class);
+public class JazminRpcDriver extends Driver{
+	private static Logger logger=LoggerFactory.get(JazminRpcDriver.class);
 	//
 	private RpcClient client;
 	private Map<String,List<RpcSession>>sessionMap;
@@ -63,7 +63,7 @@ public class JazminRPCDriver extends Driver{
 		public String credential;
 	}
 	//
-	public JazminRPCDriver(){
+	public JazminRpcDriver(){
 		sessionMap=new ConcurrentHashMap<String, List<RpcSession>>();
 		serverInfoMap=new ConcurrentHashMap<String, List<RemoteServerInfo>>();
 		syncProxyMap=new ConcurrentHashMap<String, Object>();
@@ -294,9 +294,9 @@ public class JazminRPCDriver extends Driver{
 		InvocationHandler handler=handlerMap.get(clusterName);
 		if(handler==null){
 			if(isAsync){
-				handler=new AsyncRPCInvocationHandler(this,client,sessions);	
+				handler=new AsyncRpcInvocationHandler(this,client,sessions);	
 			}else{
-				handler=new SyncRPCInvocationHandler(this,client,sessions);			
+				handler=new SyncRpcInvocationHandler(this,client,sessions);			
 			}
 			handlerMap.put(clusterName, handler);
 		}
@@ -444,7 +444,7 @@ public class JazminRPCDriver extends Driver{
 				this::checkSessionActiveStatus, 30,30, TimeUnit.SECONDS);
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
-			cs.registerCommand(JazminRPCDriverCommand.class);
+			cs.registerCommand(JazminRpcDriverCommand.class);
 		}
 	}
 	//

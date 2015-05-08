@@ -18,9 +18,9 @@ public class HistoryCommand extends ConsoleCommand {
     @Override
     public void run(){
     	if(cli.hasOption('c')){
-    		commandHistory.clear();
+    		consoleServer.clearHistory();
     	}else{
-    		commandHistory.forEach(cmd->out.printf("%s\n", cmd)); 
+    		consoleServer.getCommandHistory().forEach(cmd->out.printf("%s\n", cmd)); 
     	}
     }
 }

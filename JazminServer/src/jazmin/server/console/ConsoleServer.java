@@ -3,9 +3,15 @@
  */
 package jazmin.server.console;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,12 +38,17 @@ public class ConsoleServer extends Server{
 	SshServer sshServer;
 	Authenticator authenticator;
 	Map<String,ConsoleCommand>commands=new HashMap<String, ConsoleCommand>();
+	LinkedList<String>commandHistory=new LinkedList<String>();
+	int maxCommandHistory;
+	BufferedWriter historyWriter;
 	//
 	private void startSshServer()throws Exception {
+		maxCommandHistory=500;
 		sshServer= SshServer.setUpDefaultServer();
 		sshServer.setNioWorkers(2);//we just need 2 nio worker for service
 		sshServer.setPort(port);
-		sshServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider("jch.ser"));
+		String jchPath=Jazmin.getServerPath()+"/"+"jch.ser";
+		sshServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(jchPath));
 		sshServer.setPasswordAuthenticator(new PasswordAuthenticator() {
             public boolean authenticate(String u, String p, ServerSession session) {
             	String loginUser=u;
@@ -52,11 +63,12 @@ public class ConsoleServer extends Server{
             	}
             }
         });
+		loadCommandHistory();
         //
         loadCommand();
         //
         resetBanner();
-        sshServer.setShellFactory(new CliRunnerCommandFactory(commands));
+        sshServer.setShellFactory(new CliRunnerCommandFactory(this,commands));
         sshServer.start();
     }
 	//
@@ -96,6 +108,43 @@ public class ConsoleServer extends Server{
 		registerCommand(new ManCommand());
 	}
 	//--------------------------------------------------------------------------
+	void loadCommandHistory(){
+		String historyFilePath=Jazmin.getServerPath()+"/.console-history";
+		File historyFile=new File(historyFilePath);
+		if(!historyFile.exists()){
+			try {
+				historyFile.createNewFile();
+				historyWriter=new BufferedWriter(new FileWriter(historyFile));
+			} catch (IOException e) {
+				logger.warn("can not create history file {}",historyFile);
+			}
+		}else{
+			try {
+				Files.lines(historyFile.toPath()).forEach((s)->{
+					addCommandHistory(s);
+				});
+				historyWriter=new BufferedWriter(new FileWriter(historyFile));
+			} catch (IOException e) {
+				logger.warn("can not creat read history file {}",historyFile);
+			}
+		}
+		
+		
+	}
+	//
+	void addCommandHistory(String line){
+		commandHistory.add(line);
+		if(commandHistory.size()>maxCommandHistory){
+			commandHistory.removeFirst();
+		}
+	}
+	void clearHistory(){
+		commandHistory.clear();
+	}
+	List<String>getCommandHistory(){
+		return new LinkedList<String>(commandHistory);
+	}
+	//
 	/**
 	 * register command to console server
 	 * @param cmd
@@ -119,12 +168,25 @@ public class ConsoleServer extends Server{
 		return (ConsoleCommand)commands.get(name);
 	}
 	//
+	
 	/**
 	 * 
 	 * @param a
 	 */
 	public void setAuthenticator(Authenticator a){
 		this.authenticator=a;
+	}
+	/**
+	 * @return the maxCommandHistory
+	 */
+	public int getMaxCommandHistory() {
+		return maxCommandHistory;
+	}
+	/**
+	 * @param maxCommandHistory the maxCommandHistory to set
+	 */
+	public void setMaxCommandHistory(int maxCommandHistory) {
+		this.maxCommandHistory = maxCommandHistory;
 	}
 	//
 	/**
