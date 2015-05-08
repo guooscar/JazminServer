@@ -198,7 +198,7 @@ public class MessageIntegrityAttribute extends StunAttribute implements ContextD
 		binValue[2] = (byte) (getDataLength() >> 8);
 		binValue[3] = (byte) (getDataLength() & 0x00FF);
 
-		char msgType = (char) ((data[0] << 8) + data[1]);
+		//char msgType = (char) ((data[0] << 8) + data[1]);
 
 		// now calculate the HMAC-SHA1
 		this.hmacSha1Content = calculateHmacSha1(data, offset, length, this.key);

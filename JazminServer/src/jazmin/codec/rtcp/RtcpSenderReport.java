@@ -120,12 +120,11 @@ public class RtcpSenderReport extends RtcpReport {
 		this.osent <<= 8;
 		this.osent |= rawData[offSet++] & 0xFF;
 
-		int tmpCount = 0;
 		while ((offSet - tmp) < this.length) {
 			RtcpReportBlock rtcpReceptionReportItem = new RtcpReportBlock();
 			offSet = rtcpReceptionReportItem.decode(rawData, offSet);
 			addReceiverReport(rtcpReceptionReportItem);
-			tmpCount++;
+			
 		}
 
 		return offSet;

@@ -10,9 +10,9 @@ package jazmin.server.ftp;
  */
 public interface CommandListener {
 
-	void onConnect(FTPSession session)throws Exception;
-	void onDisconnect(FTPSession session)throws Exception;
+	void onConnect(FtpSession session)throws Exception;
+	void onDisconnect(FtpSession session)throws Exception;
 	//
-	void afterCommand(FTPSession session, FTPRequest req,FTPReply reply)throws Exception;
-	void beforeCommand(FTPSession session, FTPRequest req)throws Exception;
+	void afterCommand(FtpSession session, FtpRequest req,FtpReply reply)throws Exception;
+	void beforeCommand(FtpSession session, FtpRequest req)throws Exception;
 }

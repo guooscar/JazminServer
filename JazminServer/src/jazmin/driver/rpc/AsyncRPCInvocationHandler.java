@@ -3,19 +3,19 @@ package jazmin.driver.rpc;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import jazmin.server.rpc.RPCClient;
-import jazmin.server.rpc.RPCSession;
+import jazmin.server.rpc.RpcClient;
+import jazmin.server.rpc.RpcSession;
 
 /**
  * @author yama
  * @date Jun 4, 2014
  */
-public class AsyncRPCInvocationHandler extends RPCInvocationHandler {
+public class AsyncRPCInvocationHandler extends RpcInvocationHandler {
 	private Method asyncCallbackMethod;
 	public AsyncRPCInvocationHandler(
 			JazminRPCDriver driver,
-			RPCClient client,
-			List<RPCSession> sessions) {
+			RpcClient client,
+			List<RpcSession> sessions) {
 		super(driver,client,sessions);
 		asyncCallbackMethod=AsyncCallback.class.getMethods()[0];
 	}
@@ -23,7 +23,7 @@ public class AsyncRPCInvocationHandler extends RPCInvocationHandler {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected Object invoke0(
-			RPCSession session, 
+			RpcSession session, 
 			Object proxy, 
 			Method method,
 			Object[] args) throws Throwable {

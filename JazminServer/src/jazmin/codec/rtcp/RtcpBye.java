@@ -41,7 +41,6 @@ public class RtcpBye extends RtcpHeader {
 
 	protected int decode(byte[] rawData, int offSet) {
 
-		int tmp = offSet;
 		offSet = super.decode(rawData, offSet);
 
 		for (int i = 0; i < this.count; i++) {

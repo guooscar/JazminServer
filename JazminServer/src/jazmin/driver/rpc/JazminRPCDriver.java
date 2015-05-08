@@ -27,9 +27,9 @@ import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
 import jazmin.misc.io.InvokeStat;
 import jazmin.server.console.ConsoleServer;
-import jazmin.server.rpc.RPCClient;
-import jazmin.server.rpc.RPCMessage;
-import jazmin.server.rpc.RPCSession;
+import jazmin.server.rpc.RpcClient;
+import jazmin.server.rpc.RpcMessage;
+import jazmin.server.rpc.RpcSession;
 import jazmin.server.rpc.RemoteService;
 
 /**
@@ -40,8 +40,8 @@ import jazmin.server.rpc.RemoteService;
 public class JazminRPCDriver extends Driver{
 	private static Logger logger=LoggerFactory.get(JazminRPCDriver.class);
 	//
-	private RPCClient client;
-	private Map<String,List<RPCSession>>sessionMap;
+	private RpcClient client;
+	private Map<String,List<RpcSession>>sessionMap;
 	private Map<String,List<RemoteServerInfo>>serverInfoMap;
 	private Map<String,Object>syncProxyMap;
 	private Map<String,InvocationHandler>syncHandlerMap;
@@ -64,7 +64,7 @@ public class JazminRPCDriver extends Driver{
 	}
 	//
 	public JazminRPCDriver(){
-		sessionMap=new ConcurrentHashMap<String, List<RPCSession>>();
+		sessionMap=new ConcurrentHashMap<String, List<RpcSession>>();
 		serverInfoMap=new ConcurrentHashMap<String, List<RemoteServerInfo>>();
 		syncProxyMap=new ConcurrentHashMap<String, Object>();
 		syncHandlerMap=new ConcurrentHashMap<String, InvocationHandler>();
@@ -184,7 +184,7 @@ public class JazminRPCDriver extends Driver{
 	}
 	//
 	private void connectToRemoteServer(RemoteServerInfo serverInfo){
-		RPCSession session=new RPCSession();
+		RpcSession session=new RpcSession();
 		session.setRemoteHostAddress(serverInfo.remoteHostAddress);
 		session.setRemotePort(serverInfo.remotePort);
 		session.setCluster(serverInfo.cluster);
@@ -196,9 +196,9 @@ public class JazminRPCDriver extends Driver{
 			topics.forEach((topic)->session.subscribe(topic));
 		}
 		client.connect(session);	
-		List<RPCSession>sessionList=sessionMap.get(serverInfo.cluster);
+		List<RpcSession>sessionList=sessionMap.get(serverInfo.cluster);
 		if(sessionList==null){
-			sessionList=(new ArrayList<RPCSession>());
+			sessionList=(new ArrayList<RpcSession>());
 			sessionMap.put(serverInfo.cluster,sessionList);
 		}
 		logger.info("create rpc session:"+session);
@@ -222,10 +222,10 @@ public class JazminRPCDriver extends Driver{
 	/**
 	 * return all session of this driver
 	 * @return all session of this driver
-	 * @see RPCSession
+	 * @see RpcSession
 	 */
-	public List<RPCSession>getSessions(){
-		List<RPCSession>ss=new ArrayList<RPCSession>();
+	public List<RpcSession>getSessions(){
+		List<RpcSession>ss=new ArrayList<RpcSession>();
 		sessionMap.forEach((cluster,sessionList)->ss.addAll(sessionList));
 		return ss;
 	}
@@ -285,7 +285,7 @@ public class JazminRPCDriver extends Driver{
 			return (T) proxyObject;
 		}
 		//
-		List<RPCSession>sessions=sessionMap.get(clusterName);
+		List<RpcSession>sessions=sessionMap.get(clusterName);
 		if(sessions==null){
 			throw new IllegalArgumentException("can not find cluster with name:"
 					+clusterName);
@@ -369,7 +369,7 @@ public class JazminRPCDriver extends Driver{
 		topics.add(topic);	
 	}
 	//--------------------------------------------------------------------------
-	private void handlePushMessage(RPCSession session,RPCMessage message){
+	private void handlePushMessage(RpcSession session,RpcMessage message){
 		if(pushCallback==null){
 			return;
 		}
@@ -430,7 +430,7 @@ public class JazminRPCDriver extends Driver{
 		if(principal==null){
 			principal=Jazmin.getServerName();
 		}
-		client=new RPCClient();
+		client=new RpcClient();
 		client.setPrincipal(principal);
 		client.setPushMessageCallback(this::handlePushMessage);
 		serverInfoMap.forEach((cluster,serverList)->{

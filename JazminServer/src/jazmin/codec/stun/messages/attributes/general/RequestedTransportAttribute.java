@@ -24,7 +24,7 @@ public class RequestedTransportAttribute extends StunAttribute {
 	public static final char DATA_LENGTH = 4;
 
 	private static final byte UDP = 17;
-	private static final byte TCP = 6;
+	//private static final byte TCP = 6;
 
 	private byte requestedTransport;
 

@@ -10,6 +10,6 @@ package jazmin.server.ftp;
  */
 public interface SimpleAuthCallback {
 	
-	public FTPUserInfo authenticate(String user,String password)throws Exception;
-	public FTPUserInfo getUserByName(String user)throws Exception;
+	public FtpUserInfo authenticate(String user,String password)throws Exception;
+	public FtpUserInfo getUserByName(String user)throws Exception;
 }

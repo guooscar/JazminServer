@@ -21,7 +21,7 @@ import org.apache.ftpserver.usermanager.impl.WritePermission;
  * @author yama
  *
  */
-public class SimpleUserManager implements FTPUserManager{
+public class SimpleUserManager implements FtpUserManager{
 	private SimpleAuthCallback callback;
 	public SimpleUserManager(SimpleAuthCallback callback) {
 		this.callback=callback;
@@ -60,7 +60,7 @@ public class SimpleUserManager implements FTPUserManager{
 		if(auth instanceof UsernamePasswordAuthentication){
 			try {
 				UsernamePasswordAuthentication ua=(UsernamePasswordAuthentication) auth;
-				FTPUserInfo user= callback.authenticate(ua.getUsername(),ua.getPassword());
+				FtpUserInfo user= callback.authenticate(ua.getUsername(),ua.getPassword());
 				//
 				if(user==null){
 					throw new AuthenticationFailedException("Authentication failed");
@@ -75,7 +75,7 @@ public class SimpleUserManager implements FTPUserManager{
 		
 	}
 	//
-	private User getUser(FTPUserInfo ftpUser){
+	private User getUser(FtpUserInfo ftpUser){
 		BaseUser user = new BaseUser();
 		user.setName(ftpUser.userName);
 		user.setEnabled(ftpUser.enableFlag);
@@ -101,7 +101,7 @@ public class SimpleUserManager implements FTPUserManager{
 	@Override
 	public User getUserByName(String u) throws FtpException {
 		try {
-			FTPUserInfo ftpUser = callback.getUserByName(u);
+			FtpUserInfo ftpUser = callback.getUserByName(u);
 			return getUser(ftpUser);
 		} catch (Exception e) {
 			throw new FtpException(e);

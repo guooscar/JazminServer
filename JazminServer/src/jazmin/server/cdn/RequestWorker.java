@@ -48,7 +48,6 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.regex.Pattern;
 
 import javax.activation.MimetypesFileTypeMap;
 
@@ -232,13 +231,9 @@ public class RequestWorker implements ChannelProgressiveFutureListener,FileReque
 				if(logger.isDebugEnabled()){
 					logger.debug("uri {} is directory",uri);
 				}
-				if(cdnServer.isListDir()){
+				if(cdnServer.getDirectioryPrinter()!=null){
 					if (uri.endsWith("/")) {
-						if(cdnServer.isListDirInHtml()){
-							sendHtmlListing(ctx, file);
-						}else{
-							sendListing(ctx, file);		
-						}
+						sendListing(ctx,file,cdnServer.getDirectioryPrinter());
 					} else {
 						sendRedirect(ctx, uri + '/');
 					}
@@ -378,80 +373,17 @@ public class RequestWorker implements ChannelProgressiveFutureListener,FileReque
 		response.headers().set(CONTENT_TYPE,
 				mimeTypesMap.getContentType(file.getPath()));
 	}
-
-	
 	//
-	private static final Pattern ALLOWED_FILE_NAME = Pattern
-			.compile("[A-Za-z0-9][-_A-Za-z0-9\\.]*");
-	//
-	private static void sendListing(ChannelHandlerContext ctx, File dir) {
+	private static void sendListing(
+			ChannelHandlerContext ctx,
+			File dir,
+			DirectioryPrinter printer) {
 		FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
-		response.headers().set(CONTENT_TYPE, "text/plain; charset=UTF-8");
-		StringBuilder buf = new StringBuilder();
-		for (File f : dir.listFiles()) {
-			if (f.isHidden() || !f.canRead()) {
-				continue;
-			}
-			String name = f.getName();
-			if (!ALLOWED_FILE_NAME.matcher(name).matches()) {
-				continue;
-			}
-			buf.append(name).append("\r\n");
-		}
-		ByteBuf buffer = Unpooled.copiedBuffer(buf, CharsetUtil.UTF_8);
+		response.headers().set(CONTENT_TYPE, printer.contentType());
+		ByteBuf buffer = Unpooled.copiedBuffer(printer.print(dir), CharsetUtil.UTF_8);
 		response.content().writeBytes(buffer);
 		buffer.release();
 		// Close the connection as soon as the error message is sent.
 		ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
 	}
-	//
-	private static void sendHtmlListing(ChannelHandlerContext ctx, File dir) {
-        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
-        response.headers().set(CONTENT_TYPE, "text/html; charset=UTF-8");
-        String dirPath = dir.getPath();
-        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        StringBuilder buf = new StringBuilder()
-            .append("<!DOCTYPE html>\r\n")
-            .append("<html><head><title>")
-            .append("Index of: ")
-            .append(dirPath)
-            .append("</title></head><body>\r\n")
-            .append("<h3>Index of: ")
-            .append(dirPath)
-            .append("</h3>\r\n")
-            .append("<table>")
-            .append("<tr><td>Name</td><td>Last modified</td><td>Size</td></tr>\r\n")
-            .append("<tr><td><a href=\"../\">..</a></td><td></td><td></td></tr>\r\n");
-
-        for (File f: dir.listFiles()) {
-            if (f.isHidden() || !f.canRead()) {
-                continue;
-            }
-            String name = f.getName();
-            if (!ALLOWED_FILE_NAME.matcher(name).matches()) {
-                continue;
-            }
-            buf.append("<tr><td><a href=\"")
-               .append(name)
-               .append("\">")
-               .append(name)
-               .append("</a></td>")
-               .append("<td>")
-               .append(sdf.format(new Date(f.lastModified())))
-               .append("</td>")
-               .append("<td>")
-               .append(f.length())
-               .append(" bytes")
-               .append("</td>")
-               .append("</tr>\r\n");
-        }
-        buf.append("</table></body></html>\r\n");
-        ByteBuf buffer = Unpooled.copiedBuffer(buf, CharsetUtil.UTF_8);
-        response.content().writeBytes(buffer);
-        buffer.release();
-
-        // Close the connection as soon as the error message is sent.
-        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-    }
-
 }

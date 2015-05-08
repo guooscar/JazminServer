@@ -8,7 +8,7 @@ import io.netty.handler.codec.CorruptedFrameException;
 import java.util.List;
 
 import jazmin.misc.io.NetworkTrafficStat;
-import jazmin.server.rpc.RPCMessage;
+import jazmin.server.rpc.RpcMessage;
 
 import org.nustaq.serialization.FSTConfiguration;
 
@@ -51,8 +51,8 @@ public class FSTDecoder extends ByteToMessageDecoder {
 		byte[] decoded = new byte[dataLength];
 		in.readBytes(decoded);
 		//
-		RPCMessage msg;
-		msg=(RPCMessage) conf.asObject(decoded);
+		RpcMessage msg;
+		msg=(RpcMessage) conf.asObject(decoded);
 		out.add(msg);
 	}
 }

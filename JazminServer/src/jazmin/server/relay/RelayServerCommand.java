@@ -6,6 +6,7 @@ import java.util.Map;
 
 import jazmin.core.Jazmin;
 import jazmin.server.console.ConsoleCommand;
+import jazmin.server.relay.misc.HexDumpRelayChannel;
 import jazmin.util.DumpUtil;
 /**
  * 

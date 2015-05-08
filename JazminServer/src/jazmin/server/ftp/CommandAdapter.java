@@ -10,22 +10,22 @@ package jazmin.server.ftp;
 public abstract class CommandAdapter implements CommandListener{
 
 	@Override
-	public void onConnect(FTPSession session) throws Exception{
+	public void onConnect(FtpSession session) throws Exception{
 		
 	}
 
 	@Override
-	public void onDisconnect(FTPSession session)throws Exception {
+	public void onDisconnect(FtpSession session)throws Exception {
 		
 	}
 
 	@Override
-	public void afterCommand(FTPSession session, FTPRequest req, FTPReply reply)throws Exception{
+	public void afterCommand(FtpSession session, FtpRequest req, FtpReply reply)throws Exception{
 		
 	}
 
 	@Override
-	public void beforeCommand(FTPSession session, FTPRequest req) throws Exception{
+	public void beforeCommand(FtpSession session, FtpRequest req) throws Exception{
 		
 	}
 	

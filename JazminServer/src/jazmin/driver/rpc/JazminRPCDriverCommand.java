@@ -8,7 +8,7 @@ import jazmin.misc.io.InvokeStat;
 import jazmin.server.console.AsciiChart;
 import jazmin.server.console.ConsoleCommand;
 import jazmin.server.console.TerminalWriter;
-import jazmin.server.rpc.RPCSession;
+import jazmin.server.rpc.RpcSession;
 /**
  * 
  * @author yama
@@ -58,7 +58,7 @@ public class JazminRPCDriverCommand extends ConsoleCommand {
     private void showSessions(String args){
 		String format="%-5s : %-20s %-20s %-10s %-15s %-10s %-10s %-10s %-10s %-10s %-10s\n";
 		int i=0;
-		List<RPCSession> sessions=driver.getSessions();
+		List<RpcSession> sessions=driver.getSessions();
 		out.println("total "+sessions.size()+" sessions");
 		out.format(format,"#",
 				"PRINCIPAL",
@@ -71,7 +71,7 @@ public class JazminRPCDriverCommand extends ConsoleCommand {
 				"RECEIVE",
 				"PUSH",
 				"CREATETIME");	
-		for(RPCSession s:sessions){
+		for(RpcSession s:sessions){
 			out.format(format,
 					i++,
 					s.getPrincipal(),

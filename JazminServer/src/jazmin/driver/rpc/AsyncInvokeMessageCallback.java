@@ -7,16 +7,16 @@ import jazmin.core.aop.Dispatcher;
 import jazmin.core.app.AppException;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.server.rpc.RPCMessage;
-import jazmin.server.rpc.RPCMessage.AppExceptionMessage;
-import jazmin.server.rpc.RPCMessageCallback;
-import jazmin.server.rpc.RPCSession;
+import jazmin.server.rpc.RpcMessage;
+import jazmin.server.rpc.RpcMessage.AppExceptionMessage;
+import jazmin.server.rpc.RpcMessageCallback;
+import jazmin.server.rpc.RpcSession;
 /**
  * 
  * @author yama
  * 16 Jan, 2015
  */
-public class AsyncInvokeMessageCallback implements RPCMessageCallback {
+public class AsyncInvokeMessageCallback implements RpcMessageCallback {
 	private static Logger logger=LoggerFactory.get(AsyncInvokeMessageCallback.class);
 	//
 	public AsyncCallback<Object> callback;
@@ -37,7 +37,7 @@ public class AsyncInvokeMessageCallback implements RPCMessageCallback {
 	}
 	//
 	@Override
-	public void callback(RPCSession session, RPCMessage msg) {
+	public void callback(RpcSession session, RpcMessage msg) {
 		Throwable e = null;
 		if (msg.payloads[1] != null) {
 			Object eo = msg.payloads[1];

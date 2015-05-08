@@ -6,7 +6,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.CorruptedFrameException;
 import io.netty.handler.codec.MessageToByteEncoder;
 import jazmin.misc.io.NetworkTrafficStat;
-import jazmin.server.rpc.RPCMessage;
+import jazmin.server.rpc.RpcMessage;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -16,7 +16,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
  * 23 Dec, 2014
  */
 @Sharable
-public class JSONEncoder extends MessageToByteEncoder<RPCMessage> {
+public class JSONEncoder extends MessageToByteEncoder<RpcMessage> {
 	private static final int MAX_MESSAGE_LENGTH=1024*1024;
 	//
 	NetworkTrafficStat networkTrafficStat;
@@ -27,7 +27,7 @@ public class JSONEncoder extends MessageToByteEncoder<RPCMessage> {
 	@Override
 	protected void encode(
 			ChannelHandlerContext ctx, 
-			RPCMessage msg,
+			RpcMessage msg,
 			ByteBuf out) throws Exception {
 		byte payloadBytes[]=JSON.toJSONBytes(msg,SerializerFeature.WriteClassName);
 		int dataLength=payloadBytes.length;

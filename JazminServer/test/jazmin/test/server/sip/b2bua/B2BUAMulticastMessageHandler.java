@@ -156,10 +156,10 @@ public class B2BUAMulticastMessageHandler extends SimpleSipMessageHandler {
 				ss.videoRelayChannelA=relayServer.createRelayChannel(TransportType.UDP_MULTICAST,"v-c-"+fromAddress);
 				ss.videoRtcpRelayChannelA=relayServer.createRelayChannel(TransportType.UDP_MULTICAST,"vr-c-"+fromAddress);
 				
-				ss.audioRelayChannelB=relayServer.createRelayChannel(TransportType.UDP,"a-d-"+toAddress);
-				ss.videoRelayChannelB=relayServer.createRelayChannel(TransportType.UDP,"v-d-"+toAddress);
-				ss.audioRtcpRelayChannelB=relayServer.createRelayChannel(TransportType.UDP,"ac-d-"+toAddress);
-				ss.videoRtcpRelayChannelB=relayServer.createRelayChannel(TransportType.UDP,"vc-d-"+toAddress);
+				ss.audioRelayChannelB=relayServer.createRelayChannel(TransportType.UDP_UNICAST,"a-d-"+toAddress);
+				ss.videoRelayChannelB=relayServer.createRelayChannel(TransportType.UDP_UNICAST,"v-d-"+toAddress);
+				ss.audioRtcpRelayChannelB=relayServer.createRelayChannel(TransportType.UDP_UNICAST,"ac-d-"+toAddress);
+				ss.videoRtcpRelayChannelB=relayServer.createRelayChannel(TransportType.UDP_UNICAST,"vc-d-"+toAddress);
 				
 				ss.audioRtcpRelayChannelA.bidiRelay(ss.audioRtcpRelayChannelB);
 				ss.videoRtcpRelayChannelA.bidiRelay(ss.videoRtcpRelayChannelB);

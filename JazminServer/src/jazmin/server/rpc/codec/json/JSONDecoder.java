@@ -8,7 +8,7 @@ import io.netty.handler.codec.CorruptedFrameException;
 import java.util.List;
 
 import jazmin.misc.io.NetworkTrafficStat;
-import jazmin.server.rpc.RPCMessage;
+import jazmin.server.rpc.RpcMessage;
 
 import com.alibaba.fastjson.JSON;
 
@@ -49,8 +49,8 @@ public class JSONDecoder extends ByteToMessageDecoder {
 		byte[] decoded = new byte[dataLength];
 		in.readBytes(decoded);
 		//
-		RPCMessage msg;
-		msg=JSON.parseObject(decoded,RPCMessage.class);
+		RpcMessage msg;
+		msg=JSON.parseObject(decoded,RpcMessage.class);
 		out.add(msg);
 	}
 }

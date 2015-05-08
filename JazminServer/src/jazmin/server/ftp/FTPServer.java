@@ -46,14 +46,14 @@ public class FTPServer extends Server{
 	private ConnectionConfigFactory connectionConfigFactory;
 	private LinkedHashMap<String,Ftplet>ftplets;
 	private CommandListener commandListener;
-	private FTPStatistics statistics;
+	private FtpStatistics statistics;
 	private Map<String,FileTransferInfo>fileTransferInfos;
 	private Method listenerBeforeMethod;
 	private Method listenerAfterMethod;
 	private Method listenerOnConnectMethod;
 	private Method listenerOnDisConnectMethod;
-	private FTPUserManager userManager;
-	private Map<String, FTPSession>sessionMap;
+	private FtpUserManager userManager;
+	private Map<String, jazmin.server.ftp.FtpSession>sessionMap;
 	private DataConnectionConfigurationFactory dataConnectionConfigurationFactory;
 	//
 	public FTPServer() {
@@ -64,19 +64,19 @@ public class FTPServer extends Server{
 		ftplets.put("EX",new ServiceFtplet());
 		fileTransferInfos=new ConcurrentHashMap<String, FileTransferInfo>();
 		dataConnectionConfigurationFactory=new DataConnectionConfigurationFactory();
-		sessionMap=new ConcurrentHashMap<String, FTPSession>();
+		sessionMap=new ConcurrentHashMap<String, jazmin.server.ftp.FtpSession>();
 		listenerBeforeMethod=Dispatcher.getMethod(
 				CommandListener.class,
-				"beforeCommand",FTPSession.class, FTPRequest.class);
+				"beforeCommand",FtpSession.class, FtpRequest.class);
 		listenerAfterMethod=Dispatcher.getMethod(
 				CommandListener.class,
-				"afterCommand",FTPSession.class, FTPRequest.class,FTPReply.class);
+				"afterCommand",FtpSession.class, FtpRequest.class,FtpReply.class);
 		listenerOnConnectMethod=Dispatcher.getMethod(
 				CommandListener.class,
-				"onConnect",FTPSession.class);
+				"onConnect",FtpSession.class);
 		listenerOnDisConnectMethod=Dispatcher.getMethod(
 				CommandListener.class,
-				"onDisconnect",FTPSession.class);
+				"onDisconnect",FtpSession.class);
 	}
 	
 	/**
@@ -316,7 +316,7 @@ public class FTPServer extends Server{
 	/**
 	 * @return the statistics
 	 */
-	public FTPStatistics getStatistics() {
+	public FtpStatistics getStatistics() {
 		return statistics;
 	}
 
@@ -419,14 +419,14 @@ public class FTPServer extends Server{
 	 * return user manager
 	 * @return
 	 */
-	public FTPUserManager getUserManager() {
+	public FtpUserManager getUserManager() {
 		return userManager;
 	}
 	/**
 	 * set user manager
 	 * @param userManager
 	 */
-	public void setUserManager(FTPUserManager userManager) {
+	public void setUserManager(FtpUserManager userManager) {
 		if(isStarted()){
 			throw new IllegalStateException("set before inited.");
 		}
@@ -435,8 +435,8 @@ public class FTPServer extends Server{
 	/**
 	 * @return all sessions
 	 */
-	public List<FTPSession>getSessions(){
-		return new ArrayList<FTPSession>(sessionMap.values());
+	public List<jazmin.server.ftp.FtpSession>getSessions(){
+		return new ArrayList<jazmin.server.ftp.FtpSession>(sessionMap.values());
 	}
 	//--------------------------------------------------------------------------
 	
@@ -445,9 +445,9 @@ public class FTPServer extends Server{
 		public FtpletResult afterCommand(FtpSession arg0, FtpRequest arg1,
 				FtpReply arg2) throws FtpException, IOException {
 			if(commandListener!=null){
-				FTPSession session=new FTPSession();
-				FTPRequest request=new FTPRequest();
-				FTPReply reply=new FTPReply();
+				jazmin.server.ftp.FtpSession session=new jazmin.server.ftp.FtpSession();
+				jazmin.server.ftp.FtpRequest request=new jazmin.server.ftp.FtpRequest();
+				jazmin.server.ftp.FtpReply reply=new jazmin.server.ftp.FtpReply();
 				//
 				session.session=arg0;
 				request.request=arg1;
@@ -469,8 +469,8 @@ public class FTPServer extends Server{
 		public FtpletResult beforeCommand(FtpSession arg0, FtpRequest arg1)
 				throws FtpException, IOException {
 			if(commandListener!=null){
-				FTPSession session=new FTPSession();
-				FTPRequest request=new FTPRequest();
+				jazmin.server.ftp.FtpSession session=new jazmin.server.ftp.FtpSession();
+				jazmin.server.ftp.FtpRequest request=new jazmin.server.ftp.FtpRequest();
 				//
 				session.session=arg0;
 				request.request=arg1;
@@ -499,7 +499,7 @@ public class FTPServer extends Server{
 
 		@Override
 		public void init(FtpletContext ctx) throws FtpException {
-			statistics=new FTPStatistics();
+			statistics=new FtpStatistics();
 			statistics.statistics=ctx.getFtpStatistics();
 		}
 
@@ -507,7 +507,7 @@ public class FTPServer extends Server{
 		public FtpletResult onConnect(FtpSession arg0) throws FtpException,
 				IOException {
 			if(commandListener!=null){
-				FTPSession session=new FTPSession();
+				jazmin.server.ftp.FtpSession session=new jazmin.server.ftp.FtpSession();
 				session.session=arg0;
 				sessionMap.put(session.getSessionId().toString(),session);
 				Jazmin.dispatcher.invokeInPool("", 
@@ -521,7 +521,7 @@ public class FTPServer extends Server{
 		public FtpletResult onDisconnect(FtpSession arg0) throws FtpException,
 				IOException {
 			if(commandListener!=null){
-				FTPSession session=new FTPSession();
+				jazmin.server.ftp.FtpSession session=new jazmin.server.ftp.FtpSession();
 				session.session=arg0;
 				sessionMap.remove(session.getSessionId().toString());
 				Jazmin.dispatcher.invokeInPool("", 
@@ -537,7 +537,7 @@ public class FTPServer extends Server{
 	public void init() throws Exception {
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
-			cs.registerCommand(FTPServerCommand.class);
+			cs.registerCommand(FtpServerCommand.class);
 		}
 	}
 	//

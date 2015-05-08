@@ -13,16 +13,15 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class RelayChannel {
 	//
-	String id;
+	protected String id;
 	//
 	protected final long createTime;
-	long lastAccessTime;
+	protected long lastAccessTime;
 	//
 	protected long packetRelayCount;
 	protected long byteRelayCount;
 	//
 	protected String name;
-	
 	protected List<RelayChannel>linkedChannels;
 	static AtomicInteger channelId=new AtomicInteger();
 	//
@@ -35,11 +34,23 @@ public abstract class RelayChannel {
 		server.addChannel(this);
 	}
 	//--------------------------------------------------------------------------
+	
 	//
 	public void bidiRelay(RelayChannel channel){
 		relayTo(channel);
 		channel.relayTo(this);
 	}
+	/**
+	 * @return the id
+	 */
+	public String getId() {
+		return id;
+	}
+	//
+	public void lastAccess(){
+		lastAccessTime=System.currentTimeMillis();
+	}
+	//
 	//
 	public void relayFrom(RelayChannel channel){
 		channel.relayTo(this);

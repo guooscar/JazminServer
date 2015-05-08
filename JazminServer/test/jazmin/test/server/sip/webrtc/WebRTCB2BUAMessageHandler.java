@@ -8,10 +8,10 @@ import jazmin.codec.sdp.fields.MediaDescriptionField;
 import jazmin.codec.sdp.ice.attributes.CandidateAttribute;
 import jazmin.codec.sdp.rtcp.attributes.RtcpAttribute;
 import jazmin.core.Jazmin;
-import jazmin.server.relay.DtlsRelayChannel;
 import jazmin.server.relay.RelayServer;
 import jazmin.server.relay.TransportType;
-import jazmin.server.relay.UDPRelayChannel;
+import jazmin.server.relay.udp.DtlsRelayChannel;
+import jazmin.server.relay.udp.UDPUnicastRelayChannel;
 import jazmin.server.sip.SipContext;
 import jazmin.server.sip.SipLocationBinding;
 import jazmin.server.sip.SipSession;
@@ -38,10 +38,10 @@ public class WebRTCB2BUAMessageHandler extends B2BUAMessageHandler {
 	public class SessionStatus {
 		public String webRtcSDP;
 		public Connection connection;
-		public UDPRelayChannel sipPhoneAudioChannel;
-		public UDPRelayChannel sipPhoneAudioRtcpChannel;
-		public UDPRelayChannel sipPhoneVideoChannel;
-		public UDPRelayChannel sipPhoneVideoRtcpChannel;
+		public UDPUnicastRelayChannel sipPhoneAudioChannel;
+		public UDPUnicastRelayChannel sipPhoneAudioRtcpChannel;
+		public UDPUnicastRelayChannel sipPhoneVideoChannel;
+		public UDPUnicastRelayChannel sipPhoneVideoRtcpChannel;
 		
 		public DtlsRelayChannel webrtcAudioChannel;
 		public DtlsRelayChannel webrtcVideoChannel;
@@ -157,15 +157,15 @@ public class WebRTCB2BUAMessageHandler extends B2BUAMessageHandler {
 				ss.webrtcVideoChannel=(DtlsRelayChannel) 
 						relayServer.createRelayChannel(TransportType.DTLS,"webrtcaVideo");
 				//
-				ss.sipPhoneAudioChannel=(UDPRelayChannel) 
-						relayServer.createRelayChannel(TransportType.UDP,"sipAudio");
-				ss.sipPhoneAudioRtcpChannel=(UDPRelayChannel) 
-						relayServer.createRelayChannel(TransportType.UDP,"sipAudioRtcp");
+				ss.sipPhoneAudioChannel=(UDPUnicastRelayChannel) 
+						relayServer.createRelayChannel(TransportType.UDP_UNICAST,"sipAudio");
+				ss.sipPhoneAudioRtcpChannel=(UDPUnicastRelayChannel) 
+						relayServer.createRelayChannel(TransportType.UDP_UNICAST,"sipAudioRtcp");
 				//
-				ss.sipPhoneVideoChannel=(UDPRelayChannel) 
-						relayServer.createRelayChannel(TransportType.UDP,"sipVideo");
-				ss.sipPhoneVideoRtcpChannel=(UDPRelayChannel) 
-						relayServer.createRelayChannel(TransportType.UDP,"sipVideoRtcp");
+				ss.sipPhoneVideoChannel=(UDPUnicastRelayChannel) 
+						relayServer.createRelayChannel(TransportType.UDP_UNICAST,"sipVideo");
+				ss.sipPhoneVideoRtcpChannel=(UDPUnicastRelayChannel) 
+						relayServer.createRelayChannel(TransportType.UDP_UNICAST,"sipVideoRtcp");
 				//
 				ss.webrtcAudioChannel.bidiRelay(ss.sipPhoneAudioChannel);
 				ss.webrtcAudioChannel.bidiRelay(ss.sipPhoneAudioRtcpChannel);

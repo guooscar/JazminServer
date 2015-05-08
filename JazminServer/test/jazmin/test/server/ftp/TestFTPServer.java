@@ -6,12 +6,12 @@ package jazmin.test.server.ftp;
 import jazmin.core.Jazmin;
 import jazmin.server.console.ConsoleServer;
 import jazmin.server.ftp.CommandAdapter;
-import jazmin.server.ftp.FTPReply;
-import jazmin.server.ftp.FTPRequest;
+import jazmin.server.ftp.FtpReply;
+import jazmin.server.ftp.FtpRequest;
 import jazmin.server.ftp.FTPServer;
-import jazmin.server.ftp.FTPSession;
-import jazmin.server.ftp.FTPUserInfo;
-import jazmin.server.ftp.FTPPropUserManager;
+import jazmin.server.ftp.FtpSession;
+import jazmin.server.ftp.FtpUserInfo;
+import jazmin.server.ftp.FtpPropUserManager;
 
 /**
  * @author g2131
@@ -28,19 +28,19 @@ public class TestFTPServer {
 		FTPServer server=new FTPServer();
 		server.setPort(2221);
 		//
-		FTPUserInfo admin=new FTPUserInfo();
+		FtpUserInfo admin=new FtpUserInfo();
 		admin.userName="admin";
 		admin.homeDirectory="d:/ftp";
 		admin.userPassword="202CB962AC59075B964B07152D234B70";//123
 		//admin.homedirectory="/";
-		FTPPropUserManager userManager=new FTPPropUserManager("admin");
+		FtpPropUserManager userManager=new FtpPropUserManager("admin");
 		userManager.addUser(admin);
 		server.setUserManager(userManager);
 		//
 		server.setCommandListener(new CommandAdapter() {
 			@Override
-			public void afterCommand(FTPSession session, FTPRequest req,
-					FTPReply reply) throws Exception {
+			public void afterCommand(FtpSession session, FtpRequest req,
+					FtpReply reply) throws Exception {
 				System.out.println(session.getUser()+"/"
 					+req.getRequestLine()
 					+" /"+reply.getCode()

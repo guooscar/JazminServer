@@ -4,7 +4,7 @@
 package jazmin.test.core.app;
 
 import jazmin.core.app.AutoWired;
-import jazmin.driver.jdbc.C3P0ConnectionDriver;
+import jazmin.driver.jdbc.C3p0ConnectionDriver;
 
 /**
  * @author yama
@@ -13,5 +13,5 @@ import jazmin.driver.jdbc.C3P0ConnectionDriver;
 public class TestDAO {
 	
 	@AutoWired
-	C3P0ConnectionDriver connectionDriver;
+	C3p0ConnectionDriver connectionDriver;
 }

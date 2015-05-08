@@ -6,6 +6,7 @@ package jazmin.server.relay;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -14,6 +15,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
+import java.net.BindException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +30,15 @@ import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
 import jazmin.misc.io.IOWorker;
 import jazmin.server.console.ConsoleServer;
+import jazmin.server.relay.tcp.TCPMulticastRelayChannel;
+import jazmin.server.relay.tcp.TCPMulticastRelayChannelHandler;
+import jazmin.server.relay.tcp.TCPUnicastRelayChannel;
+import jazmin.server.relay.tcp.TCPUnicastRelayChannelHandler;
+import jazmin.server.relay.udp.DtlsRelayChannel;
+import jazmin.server.relay.udp.DtlsRelayChannelHandler;
+import jazmin.server.relay.udp.UDPMulticastRelayChannel;
+import jazmin.server.relay.udp.UDPRelayChannelHandler;
+import jazmin.server.relay.udp.UDPUnicastRelayChannel;
 
 /**
  * relay UDP/TCP/DTLS-SRTP package for NAT through
@@ -115,7 +126,18 @@ public class RelayServer extends Server{
 	 * @return
 	 * @throws Exception
 	 */
-	public NetworkRelayChannel createRelayChannel(TransportType transportType) 
+	public NetworkRelayChannel createRelayChannel(TransportType transportType)
+			throws Exception{
+		for(int i=0;i<10;i++){
+			NetworkRelayChannel rc=createRelayChannel0(transportType);
+			if(rc!=null){
+				return rc;
+			}
+		}
+		throw new IllegalStateException("can not assign port");
+	}
+	//
+	private NetworkRelayChannel createRelayChannel0(TransportType transportType) 
 			throws Exception {
 		synchronized (portPool) {
 			int nextPortIdx=-1;
@@ -130,34 +152,50 @@ public class RelayServer extends Server{
 			}
 			int nextPort= nextPortIdx+minBindPort;
 			NetworkRelayChannel finalRelayChannel=null;
-			switch (transportType) {
-			case UDP:
-				UDPRelayChannel rc=new UDPRelayChannel(this,hostAddress,nextPort);
-				rc.outboundChannel=bindUDP(rc,nextPort);
-				finalRelayChannel=rc;
-				break;
-			case UDP_MULTICAST:
-				UDPMulticastRelayChannel urc=new UDPMulticastRelayChannel(this,hostAddress,nextPort);
-				urc.outboundChannel=bindUDP(urc,nextPort);
-				finalRelayChannel=urc;
-				break;
-			case TCP:
-				TCPRelayChannel rc2=new TCPRelayChannel(this,hostAddress,nextPort);
-				rc2.serverChannel=bindTCP(rc2,nextPort);
-				finalRelayChannel=rc2;
-				break;
-			case DTLS:
-				DtlsRelayChannel rc3=new DtlsRelayChannel(this,hostAddress,nextPort);
-				rc3.outboundChannel=bindDtls(rc3,nextPort);
-				finalRelayChannel=rc3;
-				break;
-			default:
-				throw new IllegalArgumentException("unspport transport type:"
-						+transportType);
+			try{
+				finalRelayChannel=bindPort(transportType, nextPort);
+			}catch(BindException e){
+				logger.warn("port {} already in use",nextPort);
+			}finally{
+				portPool[nextPortIdx]=true;		
 			}
-			portPool[nextPortIdx]=true;
 			return finalRelayChannel;
 		}
+	}
+	//
+	private NetworkRelayChannel bindPort(TransportType transportType,int nextPort) throws Exception{
+		NetworkRelayChannel finalRelayChannel=null;
+		switch (transportType) {
+		case UDP_UNICAST:
+			UDPUnicastRelayChannel rc=new UDPUnicastRelayChannel(this,hostAddress,nextPort);
+			rc.setServerChannel(bindUDP(rc,nextPort));
+			finalRelayChannel=rc;
+			break;
+		case UDP_MULTICAST:
+			UDPMulticastRelayChannel urc=new UDPMulticastRelayChannel(this,hostAddress,nextPort);
+			urc.setServerChannel(bindUDP(urc,nextPort));
+			finalRelayChannel=urc;
+			break;
+		case TCP_UNICAST:
+			TCPUnicastRelayChannel rc2=new TCPUnicastRelayChannel(this,hostAddress,nextPort);
+			rc2.setServerChannel(bindTCP(rc2,nextPort));
+			finalRelayChannel=rc2;
+			break;
+		case TCP_MULTICAST:
+			TCPMulticastRelayChannel tmrc=new TCPMulticastRelayChannel(this,hostAddress,nextPort);
+			tmrc.setServerChannel(bindTCP(tmrc,nextPort));
+			finalRelayChannel=tmrc;
+			break;
+		case DTLS:
+			DtlsRelayChannel rc3=new DtlsRelayChannel(this,hostAddress,nextPort);
+			rc3.setServerChannel(bindDtls(rc3,nextPort));
+			finalRelayChannel=rc3;
+			break;
+		default:
+			throw new IllegalArgumentException("unspport transport type:"
+					+transportType);
+		}
+		return finalRelayChannel;
 	}
 	//
 	private Channel bindDtls(DtlsRelayChannel rc, int port) throws Exception {
@@ -178,14 +216,14 @@ public class RelayServer extends Server{
 		return udpBootstrap.bind(hostAddress, port).sync().channel();
 	}
 	//
-	private Channel bindTCP(TCPRelayChannel rc,int port) throws Exception {
+	private Channel bindTCP(NetworkRelayChannel rc,int port,ChannelHandler handler) throws Exception {
 		ServerBootstrap tcpBootstrap=new ServerBootstrap();
 		tcpBootstrap.group(this.bossGroup, this.workerGroup)
 		.channel(NioServerSocketChannel.class)
 		.childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
             public void initChannel(final SocketChannel ch) throws Exception {
-            	ch.pipeline().addLast(new TCPRelayChannelHandler(rc));
+            	ch.pipeline().addLast(handler);
             }
         }).option(ChannelOption.SO_BACKLOG, 128)
 		.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
@@ -193,6 +231,16 @@ public class RelayServer extends Server{
 		.childOption(ChannelOption.TCP_NODELAY, true);
 		logger.info("bind to tcp {}:{}", hostAddress, port);
 		return tcpBootstrap.bind(port).sync().channel();
+	}
+	//
+	private Channel bindTCP(NetworkRelayChannel rc,int port) throws Exception {
+		if(rc instanceof TCPUnicastRelayChannel){
+			return bindTCP(rc, port, new TCPUnicastRelayChannelHandler((TCPUnicastRelayChannel)rc));			
+		}
+		if(rc instanceof TCPMulticastRelayChannel){
+			return bindTCP(rc, port, new TCPMulticastRelayChannelHandler((TCPMulticastRelayChannel)rc));			
+		}
+		throw new IllegalArgumentException("not support");
 	}
 	//
 	private void checkIdleChannel(){

@@ -8,7 +8,7 @@ import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.console.ConsoleServer;
 import jazmin.server.ftp.FTPServer;
-import jazmin.server.ftp.FTPUserInfo;
+import jazmin.server.ftp.FtpUserInfo;
 import jazmin.server.ftp.SimpleAuthCallback;
 import jazmin.server.ftp.SimpleUserManager;
 
@@ -37,11 +37,11 @@ public class TestSimpleAuthFTPServer {
 	static class SimpleCallback implements SimpleAuthCallback{
 
 		@Override
-		public FTPUserInfo authenticate(String user, String password)
+		public FtpUserInfo authenticate(String user, String password)
 				throws Exception {
 			logger.info("authxxxxx");
 			if(user.equals("admin")&&password.equals("123")){
-				FTPUserInfo uu=new FTPUserInfo();
+				FtpUserInfo uu=new FtpUserInfo();
 				uu.userName="admin";
 				uu.homeDirectory=".";
 				return uu;
@@ -51,9 +51,9 @@ public class TestSimpleAuthFTPServer {
 		}
 		//
 		@Override
-		public FTPUserInfo getUserByName(String user) throws Exception {
+		public FtpUserInfo getUserByName(String user) throws Exception {
 			System.err.println("getUserByName");
-			FTPUserInfo uu=new FTPUserInfo();
+			FtpUserInfo uu=new FtpUserInfo();
 			uu.userName="admin";
 			uu.homeDirectory=".";
 			return uu;

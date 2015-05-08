@@ -57,8 +57,6 @@ public class CdnServer extends Server {
 	private EventLoopGroup workerGroup;
 	//
 	private File homeDir;
-	private boolean listDir;
-	private boolean listDirInHtml;
 	private URL orginSiteURL;
 	private LongAdder requestIdGenerator;
 	private Map<String,FileRequest>requests;
@@ -66,6 +64,7 @@ public class CdnServer extends Server {
 	AsyncHttpClientConfig.Builder clientConfigBuilder;
 	AsyncHttpClientConfig clientConfig;
 	AsyncHttpClient asyncHttpClient;
+	private DirectioryPrinter directioryPrinter;
 	//
 	CachePolicy cachePolicy;
 	//
@@ -81,8 +80,7 @@ public class CdnServer extends Server {
 		clientConfigBuilder.setAsyncHttpClientProviderConfig(new NettyAsyncHttpProviderConfig());
 		clientConfig=clientConfigBuilder.build();
 		asyncHttpClient = new AsyncHttpClient(clientConfig);
-		listDir=true;
-		listDirInHtml=true;
+		directioryPrinter=new HtmlDirectoryPrinter();
 		cachePolicy=new CachePolicy();
 	}
 	//
@@ -171,29 +169,18 @@ public class CdnServer extends Server {
 		}
 		this.homeDir = ff;	
 	}
+	
 	/**
-	 * @return the listDir
+	 * @return the directioryPrinter
 	 */
-	public boolean isListDir() {
-		return listDir;
+	public DirectioryPrinter getDirectioryPrinter() {
+		return directioryPrinter;
 	}
 	/**
-	 * @param listDir the listDir to set
+	 * @param directioryPrinter the directioryPrinter to set
 	 */
-	public void setListDir(boolean listDir) {
-		this.listDir = listDir;
-	}
-	/**
-	 * @return the listDirInHtml
-	 */
-	public boolean isListDirInHtml() {
-		return listDirInHtml;
-	}
-	/**
-	 * @param listDirInHtml the listDirInHtml to set
-	 */
-	public void setListDirInHtml(boolean listDirInHtml) {
-		this.listDirInHtml = listDirInHtml;
+	public void setDirectioryPrinter(DirectioryPrinter directioryPrinter) {
+		this.directioryPrinter = directioryPrinter;
 	}
 	/**
 	 * @return the port
@@ -286,8 +273,7 @@ public class CdnServer extends Server {
 		.print("port",getPort())
 		.print("homeDir",getHomeDir())
 		.print("orginSiteURL",getOrginSiteURL())
-		.print("listDir",isListDir())
-		.print("listDirInHtml",isListDirInHtml())
+		.print("directioryPrinter",getDirectioryPrinter())
 		.print("requestFilter",getRequestFilter());
 		
 		for(Entry<String,Long> e:getPolicyMap().entrySet()){

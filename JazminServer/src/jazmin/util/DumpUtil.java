@@ -102,11 +102,11 @@ public class DumpUtil {
 	public static  String byteCountToString(long bytes){
 		double bb=bytes;
 		if(bytes<1024){
-			return bytes+" B";
+			return bytes+"bytes";
 		}
 		if(bytes<1024*1024){
-			return String.format("%.2f KB",bb/1024);
+			return String.format("%.2fK",bb/1024);
 		}
-		return String.format("%.2f MB",bb/(1024*1024));
+		return String.format("%.2fM",bb/(1024*1024));
 	}
 }

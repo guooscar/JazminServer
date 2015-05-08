@@ -6,7 +6,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.CorruptedFrameException;
 import io.netty.handler.codec.MessageToByteEncoder;
 import jazmin.misc.io.NetworkTrafficStat;
-import jazmin.server.rpc.RPCMessage;
+import jazmin.server.rpc.RpcMessage;
 
 import org.nustaq.serialization.FSTConfiguration;
 /**
@@ -15,7 +15,7 @@ import org.nustaq.serialization.FSTConfiguration;
  * 23 Dec, 2014
  */
 @Sharable
-public class FSTEncoder extends MessageToByteEncoder<RPCMessage> {
+public class FSTEncoder extends MessageToByteEncoder<RpcMessage> {
 	private static final int MAX_MESSAGE_LENGTH=1024*1024;
 	//
 	NetworkTrafficStat networkTrafficStat;
@@ -28,7 +28,7 @@ public class FSTEncoder extends MessageToByteEncoder<RPCMessage> {
 	@Override
 	protected void encode(
 			ChannelHandlerContext ctx, 
-			RPCMessage msg,
+			RpcMessage msg,
 			ByteBuf out) throws Exception {
 		byte payloadBytes[]=conf.asByteArray(msg);
 		int dataLength=payloadBytes.length;

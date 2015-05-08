@@ -5,10 +5,10 @@ import jazmin.codec.sdp.SessionDescriptionParser;
 import jazmin.codec.sdp.fields.ConnectionField;
 import jazmin.codec.sdp.fields.MediaDescriptionField;
 import jazmin.core.Jazmin;
-import jazmin.server.relay.EchoRelayChannel;
 import jazmin.server.relay.RelayServer;
 import jazmin.server.relay.TransportType;
-import jazmin.server.relay.UDPRelayChannel;
+import jazmin.server.relay.misc.EchoRelayChannel;
+import jazmin.server.relay.udp.UDPUnicastRelayChannel;
 import jazmin.server.sip.SimpleSipMessageHandler;
 import jazmin.server.sip.SipContext;
 import jazmin.server.sip.SipSession;
@@ -30,8 +30,8 @@ import jazmin.server.sip.io.sip.header.ContentTypeHeader;
 public class SipEchoMessageHandler extends SimpleSipMessageHandler {
 	//
 	public class SessionStatus {
-		public UDPRelayChannel rtpMuxRelayChannelA;
-		public UDPRelayChannel rtpMuxRelayChannelB;
+		public UDPUnicastRelayChannel rtpMuxRelayChannelA;
+		public UDPUnicastRelayChannel rtpMuxRelayChannelB;
 		
 	}
 	//
@@ -44,10 +44,10 @@ public class SipEchoMessageHandler extends SimpleSipMessageHandler {
 				ss=new SessionStatus();
 				session.setUserObject(ss);
 				//
-				ss.rtpMuxRelayChannelA=(UDPRelayChannel) 
-						relayServer.createRelayChannel(TransportType.UDP,"rtpmuxa");
-				ss.rtpMuxRelayChannelB=(UDPRelayChannel) 
-						relayServer.createRelayChannel(TransportType.UDP,"rtpmuxb");
+				ss.rtpMuxRelayChannelA=(UDPUnicastRelayChannel) 
+						relayServer.createRelayChannel(TransportType.UDP_UNICAST,"rtpmuxa");
+				ss.rtpMuxRelayChannelB=(UDPUnicastRelayChannel) 
+						relayServer.createRelayChannel(TransportType.UDP_UNICAST,"rtpmuxb");
 				//
 				EchoRelayChannel echoRelayChannel=new EchoRelayChannel(relayServer);
 				ss.rtpMuxRelayChannelA.relayTo(echoRelayChannel);

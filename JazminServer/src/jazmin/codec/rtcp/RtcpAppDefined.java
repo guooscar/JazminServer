@@ -48,10 +48,7 @@ public class RtcpAppDefined extends RtcpHeader {
 	}
 
 	protected int decode(byte[] rawData, int offSet) {
-		int tmp = offSet;
-
 		offSet = super.decode(rawData, offSet);
-
 		this.ssrc |= rawData[offSet++] & 0xFF;
 		this.ssrc <<= 8;
 		this.ssrc |= rawData[offSet++] & 0xFF;

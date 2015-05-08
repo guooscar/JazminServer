@@ -20,11 +20,11 @@ public abstract class NetworkRelayChannel extends RelayChannel{
 	protected final String localHostAddress;
 	protected final int localPort;
 	//
-	protected Channel outboundChannel;
 	protected final TransportType transportType;
 	//
 	protected long packetPeerCount;
 	protected long bytePeerCount;
+	protected Channel serverChannel;
 	//
 	//
 	public NetworkRelayChannel(
@@ -59,20 +59,6 @@ public abstract class NetworkRelayChannel extends RelayChannel{
 		return localHostAddress;
 	}
 	
-	@Override
-	public boolean isActive(){
-		if(outboundChannel==null){
-			return false;
-		}
-		return outboundChannel.isActive();
-	}
-	//
-	@Override
-	public void closeChannel()throws Exception{
-		if(outboundChannel!=null){
-			outboundChannel.close().sync();
-		}
-	}
 	/**
 	 * @return the localPort
 	 */
@@ -85,6 +71,29 @@ public abstract class NetworkRelayChannel extends RelayChannel{
 	public TransportType getTransportType() {
 		return transportType;
 	}
+	//
+	@Override
+	public void closeChannel() throws Exception {
+		super.closeChannel();
+		if(serverChannel!=null){
+			serverChannel.close();
+		}
+	}
+	/**
+	 * @param serverChannel the serverChannel to set
+	 */
+	public void setServerChannel(Channel serverChannel) {
+		this.serverChannel = serverChannel;
+	}
+	//
+	@Override
+	public boolean isActive() {
+		if(serverChannel==null){
+			return false;
+		}
+		return serverChannel.isActive();
+	}
+
 	/**
 	 * 
 	 */

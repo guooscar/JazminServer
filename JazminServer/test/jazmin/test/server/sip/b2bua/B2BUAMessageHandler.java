@@ -11,8 +11,8 @@ import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.relay.NetworkRelayChannel;
 import jazmin.server.relay.RelayServer;
-import jazmin.server.relay.RtpDumpRelayChannel;
 import jazmin.server.relay.TransportType;
+import jazmin.server.relay.misc.RtpDumpRelayChannel;
 import jazmin.server.sip.SimpleSipMessageHandler;
 import jazmin.server.sip.SipContext;
 import jazmin.server.sip.SipLocationBinding;
@@ -115,10 +115,10 @@ public class B2BUAMessageHandler extends SimpleSipMessageHandler {
 				ss.connection=ctx.getConnection();
 				session.setUserObject(ss);
 				//
-				ss.audioRelayChannelA=relayServer.createRelayChannel(TransportType.UDP);
-				ss.audioRelayChannelB=relayServer.createRelayChannel(TransportType.UDP);
-				ss.videoRelayChannelA=relayServer.createRelayChannel(TransportType.UDP);
-				ss.videoRelayChannelB=relayServer.createRelayChannel(TransportType.UDP);
+				ss.audioRelayChannelA=relayServer.createRelayChannel(TransportType.UDP_UNICAST);
+				ss.audioRelayChannelB=relayServer.createRelayChannel(TransportType.UDP_UNICAST);
+				ss.videoRelayChannelA=relayServer.createRelayChannel(TransportType.UDP_UNICAST);
+				ss.videoRelayChannelB=relayServer.createRelayChannel(TransportType.UDP_UNICAST);
 				ss.audioRelayChannelA.bidiRelay(ss.audioRelayChannelB);
 				ss.videoRelayChannelA.bidiRelay(ss.videoRelayChannelB);
 				//

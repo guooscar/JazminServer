@@ -6,29 +6,29 @@ import java.util.List;
 import jazmin.core.app.AppException;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.server.rpc.RPCClient;
-import jazmin.server.rpc.RPCException;
-import jazmin.server.rpc.RPCMessage;
-import jazmin.server.rpc.RPCMessage.AppExceptionMessage;
-import jazmin.server.rpc.RPCSession;
+import jazmin.server.rpc.RpcClient;
+import jazmin.server.rpc.RpcException;
+import jazmin.server.rpc.RpcMessage;
+import jazmin.server.rpc.RpcMessage.AppExceptionMessage;
+import jazmin.server.rpc.RpcSession;
 
 /**
  * @author yama
  * @date Jun 4, 2014
  */
-public class SyncRPCInvocationHandler extends RPCInvocationHandler {
+public class SyncRPCInvocationHandler extends RpcInvocationHandler {
 	private static Logger logger=LoggerFactory.get(SyncRPCInvocationHandler.class);
 	//
 	public SyncRPCInvocationHandler(
 			JazminRPCDriver driver,
-			RPCClient client,
-			List<RPCSession> sessions) {
+			RpcClient client,
+			List<RpcSession> sessions) {
 		super(driver,client,sessions);
 	}
 	//
 	@Override
 	protected Object invoke0(
-			RPCSession session, 
+			RpcSession session, 
 			Object proxy, 
 			Method method,
 			Object[] args) throws Throwable {
@@ -37,7 +37,7 @@ public class SyncRPCInvocationHandler extends RPCInvocationHandler {
 		if(logger.isDebugEnabled()){
 			logger.debug(">invoke {}",serviceId);
 		}
-		RPCMessage msg=client.invokeSync(session, serviceId, args);
+		RpcMessage msg=client.invokeSync(session, serviceId, args);
 		int useTime= (int)(System.currentTimeMillis()-startTime);
 		if(logger.isDebugEnabled()){
 			logger.debug("<invoke {} time {}",serviceId,useTime);
@@ -56,8 +56,8 @@ public class SyncRPCInvocationHandler extends RPCInvocationHandler {
 		}
 		driver.statMethod(method, e, useTime);
 		if(e!=null){
-			if(e instanceof RPCException){
-				throw new RPCException(e.getMessage());
+			if(e instanceof RpcException){
+				throw new RpcException(e.getMessage());
 			}
 			throw e;
 		}

@@ -41,8 +41,7 @@ public class CdnServerCommand extends ConsoleCommand {
 		out.printf(format,"port",server.getPort());
 		out.printf(format,"homeDir",server.getHomeDir());
 		out.printf(format,"orginSiteURL",server.getOrginSiteURL());
-		out.printf(format,"listDir",server.isListDir());
-		out.printf(format,"listDirInHtml",server.isListDirInHtml());
+		out.printf(format,"directioryPrinter",server.getDirectioryPrinter());
 		out.printf(format,"requestFilter",server.getRequestFilter());
 		
 		for(Entry<String,Long> e:server.getPolicyMap().entrySet()){
