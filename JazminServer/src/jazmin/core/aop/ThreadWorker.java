@@ -27,6 +27,7 @@ public class ThreadWorker implements Runnable {
 	private List<DispatcherCallback>globalDispatcherCallbacks;
 	private Object ret = null;
 	private Throwable exception = null;
+	private long startTime;
 	//
 	public ThreadWorker(
 			Dispatcher dispatcher,
@@ -52,14 +53,14 @@ public class ThreadWorker implements Runnable {
 		this.args = args;
 		this.method = method;
 		this.callback = callback;
+		startTime = System.currentTimeMillis();
 	}
-
 	//
 	@Override
 	public void run() {
 		String oldName=Thread.currentThread().getName();
 		Thread.currentThread().setName(oldName+"-"+traceId);
-		long startTime = System.currentTimeMillis();
+		long runStartTime=System.currentTimeMillis();;
 		String methodName=method.getDeclaringClass().getSimpleName() + "."+ method.getName();
 		if (logger.isInfoEnabled()) {
 			logger.info(">invoke:-{}",methodName);
@@ -87,7 +88,9 @@ public class ThreadWorker implements Runnable {
 		} catch (Throwable e) {
 			exception = e;
 		} finally {
-			long useTime=System.currentTimeMillis()-startTime;
+			long current=System.currentTimeMillis();
+			long fullTime=current-startTime;
+			long runTime=current-runStartTime;
 			if (exception != null) {
 				if(exception instanceof AppException){
 					AppException ae=(AppException)exception;
@@ -100,8 +103,8 @@ public class ThreadWorker implements Runnable {
 				}
 			}
 			if (logger.isInfoEnabled()) {
-				logger.info("<invoke:{} time:{}", methodName,
-						(useTime));
+				logger.info("<invoke:{} time:{}-{}", methodName,
+						runTime,fullTime);
 			}
 			if (logger.isDebugEnabled()) {
 				logger.debug(DumpUtil.dumpInvokeObject("<invoke:" + methodName,ret));
@@ -112,7 +115,7 @@ public class ThreadWorker implements Runnable {
 				}
 			}
 			callback.end(instance, method,args,ret,exception);
-			dispatcher.statMethod(method, exception, (int)useTime);
+			dispatcher.statMethod(method, exception,(int) runTime,(int) fullTime);
 			Thread.currentThread().setName(oldName);
 		}
 	}

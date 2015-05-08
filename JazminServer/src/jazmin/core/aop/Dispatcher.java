@@ -34,7 +34,7 @@ public class Dispatcher extends Lifecycle implements Executor{
 	public static final DispatcherCallback EMPTY_CALLBACK=new DispatcherCallbackAdapter(){};
 	//
 	private static final int DEFAULT_CORE_POOL_SIZE=32;
-	private static final int DEFAULT_MAX_POOL_SIZE=64;
+	private static final int DEFAULT_MAX_POOL_SIZE=256;
 	//
 	private ThreadPoolExecutor poolExecutor;
 	private LinkedBlockingQueue<Runnable> requestQueue;
@@ -51,7 +51,7 @@ public class Dispatcher extends Lifecycle implements Executor{
 	public Dispatcher() {
 		corePoolSize=DEFAULT_CORE_POOL_SIZE;
 		maxPoolSize=DEFAULT_MAX_POOL_SIZE;
-		requestQueue=new LinkedBlockingQueue<Runnable>(1024);
+		requestQueue=new LinkedBlockingQueue<Runnable>(10240);
 		globalCallbacks=new ArrayList<DispatcherCallback>();
 		methodStats=new ConcurrentHashMap<String, InvokeStat>();
 		totalInvokeCount=new LongAdder();
@@ -67,7 +67,7 @@ public class Dispatcher extends Lifecycle implements Executor{
 				TimeUnit.SECONDS, 
 				requestQueue, new JazminThreadFactory("WorkerThread"));
 		poolExecutor.setRejectedExecutionHandler(
-				new ThreadPoolExecutor.AbortPolicy());
+				new ThreadPoolExecutor.CallerRunsPolicy());
 	}
 	/**
 	 * 
@@ -109,7 +109,7 @@ public class Dispatcher extends Lifecycle implements Executor{
 		return requestQueue.size();
 	}
 	//
-	void statMethod(Method m,Throwable e,int time){
+	void statMethod(Method m,Throwable e,int runTime,int fullTime){
 		String name=m.getDeclaringClass().getSimpleName()+"."+m.getName();
 		InvokeStat ms=methodStats.get(name);
 		if(ms==null){
@@ -117,7 +117,7 @@ public class Dispatcher extends Lifecycle implements Executor{
 			ms.name=name;
 			methodStats.put(name, ms);
 		}
-		ms.invoke(e!=null, time);
+		ms.invoke(e!=null, runTime,fullTime);
 		totalInvokeCount.increment();
 	}
 	//

@@ -5,6 +5,7 @@ package jazmin.core.boot;
 
 import jazmin.core.Driver;
 import jazmin.core.Server;
+import jazmin.core.aop.Dispatcher;
 
 
 
@@ -82,4 +83,7 @@ public interface BootContext{
 	 * @param v the variable value
 	 */
 	void setEnv(String k,String v);
+	
+	//
+	Dispatcher getDispatcher();
 }

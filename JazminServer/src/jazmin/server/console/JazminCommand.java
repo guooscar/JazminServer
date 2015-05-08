@@ -158,20 +158,23 @@ public class JazminCommand extends ConsoleCommand {
     }
     //
     private void showThreadPoolStats(String args){
-    	String format="%-5s : %-50s %-10s %-10s %-10s %-10s %-10s\n";
+    	String format="%-5s : %-50s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-10s\n";
 		int i=0;
 		List<InvokeStat>stats=Jazmin.dispatcher.getInvokeStats();
 		out.println("total "+stats.size()+" method stats");
 		Collections.sort(stats);
-		out.format(format,"#","NAME","IVC","ERR","MINT","MAXT","AVGT");	
+		out.format(format,"#","NAME","IVC","ERR","MINT-FULL","MAXT-FULL","AVGT-FULL","MINT-RUN","MAXT-RUN","AVGT-RUN");	
 		for(InvokeStat stat:stats){
 			out.format(format,i++,
 					stat.name,
 					stat.invokeCount,
 					stat.errorCount,
-					stat.minTime,
-					stat.maxTime,
-					stat.avgTime());
+					stat.minFullTime,
+					stat.maxFullTime,
+					stat.avgFullTime(),
+					stat.minRunTime,
+					stat.maxRunTime,
+					stat.avgRunTime());
 		};
     }
     //

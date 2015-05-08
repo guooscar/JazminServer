@@ -53,9 +53,9 @@ public class C3p0DriverCommand extends ConsoleCommand {
 			out.format(format,i++,
 					stat.invokeCount,
 					stat.errorCount,
-					stat.minTime,
-					stat.maxTime,
-					stat.avgTime(),
+					stat.minFullTime,
+					stat.maxFullTime,
+					stat.avgFullTime(),
 					sql);
 		};
     }

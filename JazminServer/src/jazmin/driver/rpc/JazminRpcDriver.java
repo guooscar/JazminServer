@@ -392,7 +392,7 @@ public class JazminRpcDriver extends Driver{
 			ms.name=name;
 			methodStats.put(name, ms);
 		}
-		ms.invoke(e!=null, time);
+		ms.invoke(e!=null, time,time);
 		totalInvokeCount.increment();
 	}
 	/**

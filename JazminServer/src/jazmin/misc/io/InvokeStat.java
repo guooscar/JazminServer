@@ -13,35 +13,61 @@ public class InvokeStat implements Comparable<InvokeStat>{
 	public String name;
 	public LongAdder invokeCount=new LongAdder();
 	public LongAdder errorCount=new LongAdder();
-	public LongAdder minTime=new LongAdder();
-	public LongAdder maxTime=new LongAdder();
-	public LongAdder totalTime=new LongAdder();
+	
+	public LongAdder minRunTime=new LongAdder();
+	public LongAdder maxRunTime=new LongAdder();
+	public LongAdder totalRunTime=new LongAdder();
+	//
+	public LongAdder minFullTime=new LongAdder();
+	public LongAdder maxFullTime=new LongAdder();
+	public LongAdder totalFullTime=new LongAdder();
+	//
+	
 	//
 	public InvokeStat() {
-		minTime.add(Integer.MAX_VALUE);
+		minRunTime.add(Integer.MAX_VALUE);
+		minFullTime.add(Integer.MAX_VALUE);
 	}
 	//
-	public void invoke(boolean error,int time){
+	public void invoke(boolean error,int runTime,int fullTime){
 		invokeCount.increment();
 		if(error){
 			errorCount.increment();
 		}
-		if(minTime.intValue()>time){
-			minTime.reset();
-			minTime.add(time);
+		if(minRunTime.intValue()>runTime){
+			minRunTime.reset();
+			minRunTime.add(runTime);
 		}
-		if(maxTime.intValue()<time){
-			maxTime.reset();
-			maxTime.add(time);
+		if(maxRunTime.intValue()<runTime){
+			maxRunTime.reset();
+			maxRunTime.add(runTime);
 		}
-		totalTime.add(time);
+		totalRunTime.add(runTime);
+		//
+		if(minFullTime.intValue()>fullTime){
+			minFullTime.reset();
+			minFullTime.add(fullTime);
+		}
+		if(maxFullTime.intValue()<fullTime){
+			maxFullTime.reset();
+			maxFullTime.add(fullTime);
+		}
+		totalFullTime.add(fullTime);
 	}
 	//
-	public int avgTime(){
+	public int avgRunTime(){
 		if(invokeCount.intValue()==0){
 			return 0;
 		}
-		return totalTime.intValue()/invokeCount.intValue();
+		return totalRunTime.intValue()/invokeCount.intValue();
+	}
+	//
+	//
+	public int avgFullTime(){
+		if(invokeCount.intValue()==0){
+			return 0;
+		}
+		return totalFullTime.intValue()/invokeCount.intValue();
 	}
 	//
 	/**

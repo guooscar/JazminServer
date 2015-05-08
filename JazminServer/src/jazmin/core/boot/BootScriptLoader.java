@@ -14,8 +14,10 @@ import javax.script.SimpleScriptContext;
 import jazmin.core.Driver;
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
+import jazmin.core.aop.Dispatcher;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
+import jazmin.util.DumpUtil;
 import jazmin.util.IOUtil;
 import jazmin.util.StringUtil;
 
@@ -42,6 +44,11 @@ public class BootScriptLoader {
 		//
 		String importScript=
 				"load('nashorn:mozilla_compat.js');"+
+				"importPackage(Packages.jazmin.core);"+
+				"importPackage(Packages.jazmin.core.aop);"+
+				"importPackage(Packages.jazmin.core.app);"+
+				"importPackage(Packages.jazmin.core.job);"+
+				"importPackage(Packages.jazmin.core.task);"+
 				//drivers
 				"importPackage(Packages.jazmin.driver.jdbc);"+
 				"importPackage(Packages.jazmin.driver.memcached);"+
@@ -135,25 +142,23 @@ public class BootScriptLoader {
 				if(percent>=lastPercent.intValue()+10||lastPercent.intValue()<0){
 					lastPercent.set((int)percent);
 					logger.info("total {} current {} percent {}%",
-							dumpByte(total),
-							dumpByte(current),
+							DumpUtil.byteCountToString(current),
+							DumpUtil.byteCountToString(total),
 							StringUtil.format("%.2f",percent));
 				}
 			});
 			logger.info("file saved to {}",destFilePath);
 		}
-		//
-		private static String dumpByte(long byteCount){
-	    	return StringUtil.format(
-	    			"(%5s KB %5s MB)", 
-			    	byteCount/1024+"",
-			    	byteCount/(1024*1024)+"");
-	    	
-	    }
+		
 		//
 		@Override
 		public void setEnv(String k, String v) {
 			Jazmin.environment.put(k, v);
+		}
+		//
+		@Override
+		public Dispatcher getDispatcher() {
+			return Jazmin.dispatcher;
 		}
 	}
 }

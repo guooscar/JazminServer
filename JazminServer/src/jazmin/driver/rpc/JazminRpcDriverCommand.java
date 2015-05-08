@@ -99,9 +99,9 @@ public class JazminRpcDriverCommand extends ConsoleCommand {
 					stat.name,
 					stat.invokeCount,
 					stat.errorCount,
-					stat.minTime,
-					stat.maxTime,
-					stat.avgTime());
+					stat.minFullTime,
+					stat.maxFullTime,
+					stat.avgFullTime());
 		};
     }
     //
