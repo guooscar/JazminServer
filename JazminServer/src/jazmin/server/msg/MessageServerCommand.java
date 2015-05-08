@@ -61,7 +61,7 @@ public class MessageServerCommand extends ConsoleCommand {
     //
     private void showServices(String args){
 		String format="%-5s : %-30s %-10s %-10s %-10s\n";
-		int i=0;
+		int i=1;
 		List<ServiceStub> services=messageServer.getServices();
 		Collections.sort(services);
 		out.println("total "+services.size()+" services");
@@ -108,7 +108,7 @@ public class MessageServerCommand extends ConsoleCommand {
     //
     private void showSessions(String args){
 		String format="%-5s: %-10s %-30s %-10s %-15s %-10s %-10s %-15s %-15s %-10s\n";
-		int i=0;
+		int i=1;
 		List<Session> sessions=messageServer.getSessions();
 		//
 		String querySql=cli.getOptionValue('q');
@@ -145,7 +145,7 @@ public class MessageServerCommand extends ConsoleCommand {
     //
     private void showChannels(String args){
 		String format="%-5s: %-30s %-20s %-10s \n";
-		int i=0;
+		int i=1;
 		List<Channel> channels=messageServer.getChannels();
 		out.println("total "+channels.size()+" channels");
 		out.format(format,"#","ID","AUTOREMOVESESSION","CREATETIME");	

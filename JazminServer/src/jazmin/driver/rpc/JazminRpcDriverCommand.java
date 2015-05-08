@@ -57,7 +57,7 @@ public class JazminRpcDriverCommand extends ConsoleCommand {
     //
     private void showSessions(String args){
 		String format="%-5s : %-20s %-20s %-10s %-15s %-10s %-10s %-10s %-10s %-10s %-10s\n";
-		int i=0;
+		int i=1;
 		List<RpcSession> sessions=driver.getSessions();
 		out.println("total "+sessions.size()+" sessions");
 		out.format(format,"#",

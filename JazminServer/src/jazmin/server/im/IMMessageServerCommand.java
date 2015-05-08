@@ -60,7 +60,7 @@ public class IMMessageServerCommand extends ConsoleCommand {
     //
     private void showServices(String args){
 		String format="%-5s : %-30s %-10s %-10s\n";
-		int i=0;
+		int i=1;
 		List<IMServiceStub> services=messageServer.getServices();
 		Collections.sort(services);
 		out.println("total "+services.size()+" services");
@@ -106,7 +106,7 @@ public class IMMessageServerCommand extends ConsoleCommand {
     //
     private void showSessions(String args){
 		String format="%-5s: %-30s %-10s %-10s  %-15s %-10s %-10s %-15s %-15s %-10s\n";
-		int i=0;
+		int i=1;
 		List<IMSession> sessions=messageServer.getSessions();
 		//
 		String querySql=cli.getOptionValue('q');
@@ -142,7 +142,7 @@ public class IMMessageServerCommand extends ConsoleCommand {
     //
     private void showChannels(String args){
 		String format="%-5s: %-10s %-20s %-10s \n";
-		int i=0;
+		int i=1;
 		List<IMChannel> channels=messageServer.getChannels();
 		out.println("total "+channels.size()+" channels");
 		out.format(format,"#","ID","AUTOREMOVESESSION","CREATETIME");	

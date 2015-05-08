@@ -1,16 +1,18 @@
 /**
  * 
  */
-package jazmin.core.aop;
+package jazmin.core.thread;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
@@ -24,9 +26,18 @@ import jazmin.misc.InfoBuilder;
 import jazmin.misc.io.InvokeStat;
 
 /**
+ * <pre>
  * NOTE by default INFO logger level will print all invoke trace to file and console,
  * console output will cost a lot time. REMEBER to close console log via 
  * LoggerFactory.disableConsoleLog(); or BootContext.disableConsoleLog();
+ * 
+ * N(threads)=N(cpu)*U(cpu)*(1+w/c);
+ * N(threads)是最后得到的结果大小 。
+ * N(cpu)是cpu数量，我的电脑是双核四线程，cpu的数量会是4，可以通过        
+ * System.out.println(Runtime.getRuntime().availableProcessors());来得到cpu数量
+ * U(cpu)是目标cpu使用率，取决于程序员的期望，一般在50%左右。这个值限制在0到1之间
+ * w/c是wait time/compute time的比率。
+ * </pre>
  * @author yama
  * 23 Dec, 2014
  */
@@ -42,35 +53,32 @@ public class Dispatcher extends Lifecycle implements Executor{
 	private ThreadPoolExecutor poolExecutor;
 	private LinkedBlockingQueue<Runnable> requestQueue;
 	//
-	private int corePoolSize;
-	private int maxPoolSize;
 	List<DispatcherCallback>globalCallbacks;
 	private Map<String,InvokeStat>methodStats;
 	private LongAdder totalInvokeCount;
 	private LongAdder totalSubmitCount;
+
 	/**
 	 * 
 	 */
 	public Dispatcher() {
-		corePoolSize=DEFAULT_CORE_POOL_SIZE;
-		maxPoolSize=DEFAULT_MAX_POOL_SIZE;
 		requestQueue=new LinkedBlockingQueue<Runnable>(10240);
 		globalCallbacks=new ArrayList<DispatcherCallback>();
 		methodStats=new ConcurrentHashMap<String, InvokeStat>();
 		totalInvokeCount=new LongAdder();
 		totalSubmitCount=new LongAdder();
-		//
-	}
-	//--------------------------------------------------------------------------
-	@Override
-	public void init() throws Exception {
 		poolExecutor=new ThreadPoolExecutor(
-				corePoolSize, maxPoolSize,
-				60L,
+				DEFAULT_CORE_POOL_SIZE, DEFAULT_MAX_POOL_SIZE,
+				60,
 				TimeUnit.SECONDS, 
 				requestQueue, new JazminThreadFactory("WorkerThread"));
 		poolExecutor.setRejectedExecutionHandler(
 				new ThreadPoolExecutor.CallerRunsPolicy());
+	}
+	//--------------------------------------------------------------------------
+	@Override
+	public void init() throws Exception {
+	
 	}
 	/**
 	 * 
@@ -85,8 +93,10 @@ public class Dispatcher extends Lifecycle implements Executor{
 	@Override
 	public String info() {
 		InfoBuilder ib=InfoBuilder.create().format("%-30s:%-30s\n");
-		ib.print("corePoolSize:",corePoolSize);
-		ib.print("maxPoolSize:",maxPoolSize);
+		ib.print("corePoolSize:",getCorePoolSize());
+		ib.print("maxPoolSize:",getMaximumPoolSize());
+		ib.print("rejectedExecutionHandler:",getRejectedExecutionHandler());
+		ib.print("availableProcessors:",Runtime.getRuntime().availableProcessors());
 		ib.section("global callbacks");
 		globalCallbacks.forEach(ib::println);
 		return ib.toString();
@@ -193,36 +203,6 @@ public class Dispatcher extends Lifecycle implements Executor{
 	}
 	//--------------------------------------------------------------------------
 	
-	/**
-	 * @return the corePoolSize
-	 */
-	public int getCorePoolSize() {
-		return corePoolSize;
-	}
-	/**
-	 * @param corePoolSize the corePoolSize to set
-	 */
-	public void setCorePoolSize(int corePoolSize) {
-		if(isInited()){
-			throw new IllegalStateException("set before inited");
-		}
-		this.corePoolSize = corePoolSize;
-	}
-	/**
-	 * @return the maxPoolSize
-	 */
-	public int getMaxPoolSize() {
-		return maxPoolSize;
-	}
-	/**
-	 * @param maxPoolSize the maxPoolSize to set
-	 */
-	public void setMaxPoolSize(int maxPoolSize) {
-		if(isInited()){
-			throw new IllegalStateException("set before inited");
-		}
-		this.maxPoolSize = maxPoolSize;
-	}
 	//
 	/**
 	 * @return
@@ -230,6 +210,64 @@ public class Dispatcher extends Lifecycle implements Executor{
 	 */
 	public int getActiveCount() {
 		return poolExecutor.getActiveCount();
+	}
+	/**
+	 * @param corePoolSize
+	 * @see java.util.concurrent.ThreadPoolExecutor#setCorePoolSize(int)
+	 */
+	public void setCorePoolSize(int corePoolSize) {
+		poolExecutor.setCorePoolSize(corePoolSize);
+	}
+	/**
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#getCorePoolSize()
+	 */
+	public int getCorePoolSize() {
+		return poolExecutor.getCorePoolSize();
+	}
+	/**
+	 * @param maximumPoolSize
+	 * @see java.util.concurrent.ThreadPoolExecutor#setMaximumPoolSize(int)
+	 */
+	public void setMaximumPoolSize(int maximumPoolSize) {
+		poolExecutor.setMaximumPoolSize(maximumPoolSize);
+	}
+	/**
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#getMaximumPoolSize()
+	 */
+	public int getMaximumPoolSize() {
+		return poolExecutor.getMaximumPoolSize();
+	}
+	/**
+	 * @param time
+	 * @param unit
+	 * @see java.util.concurrent.ThreadPoolExecutor#setKeepAliveTime(long, java.util.concurrent.TimeUnit)
+	 */
+	public void setKeepAliveTime(long time, TimeUnit unit) {
+		poolExecutor.setKeepAliveTime(time, unit);
+	}
+	/**
+	 * @param unit
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#getKeepAliveTime(java.util.concurrent.TimeUnit)
+	 */
+	public long getKeepAliveTime(TimeUnit unit) {
+		return poolExecutor.getKeepAliveTime(unit);
+	}
+	/**
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#getQueue()
+	 */
+	public BlockingQueue<Runnable> getQueue() {
+		return poolExecutor.getQueue();
+	}
+	/**
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#getPoolSize()
+	 */
+	public int getPoolSize() {
+		return poolExecutor.getPoolSize();
 	}
 	/**
 	 * @return
@@ -252,6 +290,28 @@ public class Dispatcher extends Lifecycle implements Executor{
 	//
 	public long getTotalSubmitCount(){
 		return totalSubmitCount.longValue();
+	}
+	
+	/**
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#getRejectedExecutionHandler()
+	 */
+	public RejectedExecutionHandler getRejectedExecutionHandler() {
+		return poolExecutor.getRejectedExecutionHandler();
+	}
+	/**
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#allowsCoreThreadTimeOut()
+	 */
+	public boolean allowsCoreThreadTimeOut() {
+		return poolExecutor.allowsCoreThreadTimeOut();
+	}
+	/**
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#getLargestPoolSize()
+	 */
+	public int getLargestPoolSize() {
+		return poolExecutor.getLargestPoolSize();
 	}
 	//--------------------------------------------------------------------------
 	@Override

@@ -33,12 +33,12 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import jazmin.core.aop.Dispatcher;
 import jazmin.core.app.Application;
 import jazmin.core.app.ApplicationLoader;
 import jazmin.core.boot.BootScriptLoader;
 import jazmin.core.job.JobStore;
 import jazmin.core.task.TaskStore;
+import jazmin.core.thread.Dispatcher;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;

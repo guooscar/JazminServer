@@ -6,8 +6,8 @@ package jazmin.driver.rpc;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-import jazmin.core.aop.Dispatcher;
-import jazmin.core.aop.ThreadWorker;
+import jazmin.core.thread.Dispatcher;
+import jazmin.core.thread.ThreadWorker;
 
 /**
  * @author yama

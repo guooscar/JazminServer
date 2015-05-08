@@ -7,9 +7,9 @@ import java.util.concurrent.TimeUnit;
 import jazmin.core.Driver;
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
-import jazmin.core.aop.DispatcherCallback;
 import jazmin.core.job.JazminJob;
 import jazmin.core.task.JazminTask;
+import jazmin.core.thread.DispatcherCallback;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.io.InvokeStat;
@@ -37,9 +37,23 @@ public class JazminCommand extends ConsoleCommand {
     	addOption("pstat",false,"show method stats",this::showThreadPoolStats);  	
     	addOption("pdb",false,"show thread pool dashboard",this::showThreadPoolDashboard); 
     	addOption("preset",false,"reset method stats",this::resetThreadPoolStats); 
-    	
+    	addOption("pcoresize",true,"set core pool size",this::setCorePoolSize); 
+    	addOption("pmaxsize",true,"set max pool size",this::setMaxPoolSize); 
     	addOption("dump",false,"dump servers and drivers",this::dump); 
         
+    }
+    //
+    private void setMaxPoolSize(String args){
+     	int count=Integer.valueOf(args);
+    	Jazmin.dispatcher.setMaximumPoolSize(count);
+    	out.println("max pool size set to:"+count);
+    }
+    //
+    private void setCorePoolSize(String args){
+     	int count=Integer.valueOf(args);
+    	Jazmin.dispatcher.setCorePoolSize(count);
+    	out.println("core pool size set to:"+count);
+    	
     }
     //
     private void showServerInfo(String args){
@@ -64,7 +78,7 @@ public class JazminCommand extends ConsoleCommand {
     //
     private void showLoggers(String args){
 		String format="%-5s: %-100s\n";
-		int i=0;
+		int i=1;
 		List<Logger>loggers=LoggerFactory.getLoggers();
 		out.println("total "+loggers.size()+" loggers");
 		out.format(format,"#","NAME");	
@@ -75,7 +89,7 @@ public class JazminCommand extends ConsoleCommand {
     //
     private void showJobs(String args)throws Exception{
     	String format="%-5s:%-40s %-20s %-15s %-15s %-10s\n";
-		int i=0;
+		int i=1;
 		List<JazminJob>jobs=Jazmin.jobStore.getJobs();
 		out.println("total "+jobs.size()+" jobs");
 		out.format(format,"#","NAME","CRON","LAST RUN","NEXT RUN","RUNTIMES");	
@@ -91,7 +105,7 @@ public class JazminCommand extends ConsoleCommand {
     //
     private void showTasks(String args){
     	String format="%-5s:%-40s %-10s %-10s %-10s %-10s\n";
-		int i=0;
+		int i=1;
 		List<JazminTask>tasks=Jazmin.taskStore.getTasks();
 		out.println("total "+tasks.size()+" tasks");
 		out.format(format,"#","NAME","INITDELAY","PERIOD","TIMEUNIT","RUNTIMES");	
@@ -117,7 +131,7 @@ public class JazminCommand extends ConsoleCommand {
     //
     private void showServers(String args){
 		String format="%-5s : %-100s\n";
-		int i=0;
+		int i=1;
 		List<Server>servers=Jazmin.getServers();
 		out.println("total "+servers.size()+" servers");
 		out.format(format,"#","NAME");	
@@ -128,7 +142,7 @@ public class JazminCommand extends ConsoleCommand {
     //
     private void showDrivers(String args){
 		String format="%-5s : %-100s\n";
-		int i=0;
+		int i=1;
 		List<Driver>drivers=Jazmin.getDrivers();
 		out.println("total "+drivers.size()+" drivers");
 		out.format(format,"#","NAME");	
@@ -141,7 +155,12 @@ public class JazminCommand extends ConsoleCommand {
     private void showThreadPoolInfo(String args){
     	String format="%-20s : %-10s\n";
 		out.printf(format,"corePoolSize",Jazmin.dispatcher.getCorePoolSize());
-		out.printf(format,"maxPoolSize",Jazmin.dispatcher.getMaxPoolSize());
+		out.printf(format,"maxPoolSize",Jazmin.dispatcher.getMaximumPoolSize());
+		out.printf(format,"keepAliveTime",Jazmin.dispatcher.getKeepAliveTime(TimeUnit.SECONDS)+" seconds");
+		out.printf(format,"largestPoolSize",Jazmin.dispatcher.getLargestPoolSize());
+		out.printf(format,"allowsCoreThreadTimeOut",Jazmin.dispatcher.allowsCoreThreadTimeOut());
+		out.printf(format,"rejectedExecutionHandler",Jazmin.dispatcher.getRejectedExecutionHandler());
+		
 		int index=1;
 		for(DispatcherCallback c: Jazmin.dispatcher.getGlobalDispatcherCallbacks()){
 			out.printf(format,"dispatcherCallback-"+(index++),c);
@@ -159,7 +178,7 @@ public class JazminCommand extends ConsoleCommand {
     //
     private void showThreadPoolStats(String args){
     	String format="%-5s:%-30s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-10s\n";
-		int i=0;
+		int i=1;
 		List<InvokeStat>stats=Jazmin.dispatcher.getInvokeStats();
 		out.println("total "+stats.size()+" method stats");
 		Collections.sort(stats);

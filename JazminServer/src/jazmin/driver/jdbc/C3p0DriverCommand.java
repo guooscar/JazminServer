@@ -38,7 +38,7 @@ public class C3p0DriverCommand extends ConsoleCommand {
 	  //
     private void showStats(String args){
     	String format="%-5s : %-10s %-10s %-10s %-10s %-10s %-50s \n";
-		int i=0;
+		int i=1;
 		List<InvokeStat>stats=connectionDriver.getInvokeStats();
 		out.println("total "+stats.size()+" sql stats");
 		Collections.sort(stats);

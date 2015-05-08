@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jazmin.core.aop;
+package jazmin.core.thread;
 
 import java.lang.reflect.Method;
 

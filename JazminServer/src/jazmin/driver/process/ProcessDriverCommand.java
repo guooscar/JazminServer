@@ -37,7 +37,7 @@ public class ProcessDriverCommand extends ConsoleCommand {
     //
     private void showProcesses(String args){
 		String format="%-5s : %-20s %-30s %-10s\n";
-		int i=0;
+		int i=1;
 		List<ProcessInfo> ps=driver.getProcesses();
 		out.println("total "+ps.size()+" processes");
 		out.format(format,

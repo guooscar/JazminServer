@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import jazmin.core.Driver;
 import jazmin.core.Jazmin;
-import jazmin.core.aop.DispatcherCallbackAdapter;
+import jazmin.core.thread.DispatcherCallbackAdapter;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.io.InvokeStat;

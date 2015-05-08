@@ -56,7 +56,7 @@ public class RpcServerCommand extends ConsoleCommand {
     //
     private void showServices(String args){
 		String format="%-5s: %-100s\n";
-		int i=0;
+		int i=1;
 		List<String> services=rpcServer.getServiceNames();
 		Collections.sort(services);
 		out.println("total "+services.size()+" services");
@@ -101,7 +101,7 @@ public class RpcServerCommand extends ConsoleCommand {
     			"#",
     			"TOPIC",
     			"COUNT");
-    	int i=0;
+    	int i=1;
     	for(Entry<String,LongAdder>e:topicCount.entrySet()){
     		out.printf(format, i++,e.getKey(),e.getValue());
     		if(i>maxCount){
@@ -200,7 +200,7 @@ public class RpcServerCommand extends ConsoleCommand {
     //
     private void showSessions(int maxCount){
 		String format="%-5s:%-30s %-15s %-10s %-10s %-10s %-10s %-10s %-10s\n";
-		int i=0;
+		int i=1;
 		List<RpcSession> sessions=rpcServer.getSessions();
 		out.println("total "+sessions.size()+" sessions");
 		out.format(format,"#",
@@ -228,7 +228,7 @@ public class RpcServerCommand extends ConsoleCommand {
     //
     //
     private void showTopics(String args){
-		int i=0;
+		int i=1;
 		String format="%-5s: %-20s %-10s\n";
 		List<String> topicNames=rpcServer.getTopicNames();
 		Map<String,LongAdder>topicCount=rpcServer.getPushMessageCountMap();

@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.LongAdder;
 
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
-import jazmin.core.aop.Dispatcher;
+import jazmin.core.thread.Dispatcher;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;

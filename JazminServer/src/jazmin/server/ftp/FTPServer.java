@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
-import jazmin.core.aop.Dispatcher;
+import jazmin.core.thread.Dispatcher;
 import jazmin.misc.InfoBuilder;
 import jazmin.server.console.ConsoleServer;
 

@@ -83,7 +83,7 @@ public class FtpServerCommand extends ConsoleCommand {
     	List<FileTransferInfo>transferList=ftpServer.getFileTransferInfos();
     	out.format("total %d transfers\n",transferList.size());
     	String format="%-5s : %-6s %-20s %-20s %-30s\n";
-		int i=0;
+		int i=1;
 		out.format(format,"#","TYPE","SESSION","STARTTIME","FILE");	
 		for(FileTransferInfo s:transferList){
 			out.format(format,
@@ -102,7 +102,7 @@ public class FtpServerCommand extends ConsoleCommand {
     	List<FtpSession>sessions=ftpServer.getSessions();
     	out.format("total %d sessions\n",sessions.size());
     	String format="%-5s : %-10s %-20s %-10s %-10s %-15s %-15s %-15s %-10s %-10s %-10s\n";
-		int i=0;
+		int i=1;
 		out.format(format,
 				"#",
 				"USER",

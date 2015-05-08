@@ -3,7 +3,7 @@
  */
 package jazmin.test.core.aop;
 
-import jazmin.core.aop.Dispatcher;
+import jazmin.core.thread.Dispatcher;
 
 /**
  * @author yama

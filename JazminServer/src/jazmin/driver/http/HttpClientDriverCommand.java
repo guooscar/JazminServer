@@ -43,7 +43,7 @@ public class HttpClientDriverCommand extends ConsoleCommand {
 	//
     private void showStats(String args){
     	String format="%-5s : %-8s %-8s %-20s %-10s %-10s %-10s %-10s %-50s \n";
-		int i=0;
+		int i=1;
 		List<HttpHandler>handlers=httpDriver.getHandlers();
 		out.println("total "+handlers.size()+" requests");
 		out.format(format,"#","METHOD","STATUS","START","CTN-LEN","SENT","RECEIVED","RATE","URL");	

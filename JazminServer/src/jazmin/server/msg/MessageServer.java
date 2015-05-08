@@ -40,9 +40,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
-import jazmin.core.aop.Dispatcher;
-import jazmin.core.aop.DispatcherCallbackAdapter;
 import jazmin.core.app.AppException;
+import jazmin.core.thread.Dispatcher;
+import jazmin.core.thread.DispatcherCallbackAdapter;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;

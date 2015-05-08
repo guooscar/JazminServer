@@ -3,8 +3,8 @@ package jazmin.driver.rpc;
 import java.lang.reflect.Method;
 
 import jazmin.core.Jazmin;
-import jazmin.core.aop.Dispatcher;
 import jazmin.core.app.AppException;
+import jazmin.core.thread.Dispatcher;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.rpc.RpcMessage;

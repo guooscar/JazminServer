@@ -27,7 +27,8 @@ public class IMServerTest {
 		LoggerFactory.setLevel("INFO");
 		LoggerFactory.setFile("/tmp/xxx.log");
 		LoggerFactory.disableConsoleLog();
-		Jazmin.dispatcher.setMaxPoolSize(256);
+		Jazmin.dispatcher.setCorePoolSize(16);
+		Jazmin.dispatcher.setMaximumPoolSize(16);
 		IMMessageServer server=new IMMessageServer();
 		server.registerService(new IMServerTest());
 		//
