@@ -41,14 +41,14 @@ public class Session {
 	//
 	private int frequencyCounter;
 	private long frequencyTime;
-	private int maxFrequencyCountPerSec;
+	private int maxRequestCountPerSecond;
 	private AtomicBoolean processSyncServiceState;
 	//
 	Session(io.netty.channel.Channel channel) {
 		setChannel(channel);
 		lastAccess();
 		totalMessageCount=0;
-		maxFrequencyCountPerSec=10;
+		maxRequestCountPerSecond=10;
 		resetFrequencyState();
 		processSyncServiceState=new AtomicBoolean();
 		processSyncService(false);
@@ -57,12 +57,27 @@ public class Session {
 	}
 	//--------------------------------------------------------------------------
 	//public interface
+	
 	/**
 	 * @return the createTime
 	 */
 	public Date getCreateTime() {
 		return createTime;
 	}
+	/**
+	 * @return the maxRequestCountPerSecond
+	 */
+	public int getMaxRequestCountPerSecond() {
+		return maxRequestCountPerSecond;
+	}
+
+	/**
+	 * @param maxRequestCountPerSecond the maxRequestCountPerSecond to set
+	 */
+	public void setMaxRequestCountPerSecond(int maxRequestCountPerSecond) {
+		this.maxRequestCountPerSecond = maxRequestCountPerSecond;
+	}
+
 	/**
 	 * @return the id
 	 */
@@ -237,7 +252,10 @@ public class Session {
 	}
 	//
 	boolean isFrequencyReach(){
-		int maxRequestCount=maxFrequencyCountPerSec*10;
+		if(maxRequestCountPerSecond<=0){
+			return false;
+		}
+		int maxRequestCount=maxRequestCountPerSecond*10;
 		if(maxRequestCount<=0){
 			return false;
 		}

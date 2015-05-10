@@ -55,6 +55,7 @@ public class IMMessageServer extends Server{
 	int idleTime;
 	int maxSessionCount;
 	int maxChannelCount;
+	int maxSessionRequestCountPerSecond;
 	NetworkTrafficStat networkTrafficStat;
 	//
 	Map<Integer,IMServiceStub>serviceMap;
@@ -88,6 +89,7 @@ public class IMMessageServer extends Server{
 		sessionDisconnectedMethod=Dispatcher.getMethod(
 				IMSessionLifecycleListener.class,
 				"sessionDisconnected",IMSession.class);
+		maxSessionRequestCountPerSecond=10;
 	}
 	/**
 	 * @return the port
@@ -119,7 +121,19 @@ public class IMMessageServer extends Server{
 		this.idleTime = idleTime;
 	}
 
-
+	/**
+	 * @return the maxSessionRequestCountPerSecond
+	 */
+	public int getMaxSessionRequestCountPerSecond() {
+		return maxSessionRequestCountPerSecond;
+	}
+	/**
+	 * @param maxSessionRequestCountPerSecond the maxSessionRequestCountPerSecond to set
+	 */
+	public void setMaxSessionRequestCountPerSecond(
+			int maxSessionRequestCountPerSecond) {
+		this.maxSessionRequestCountPerSecond = maxSessionRequestCountPerSecond;
+	}
 	/**
 	 * @return the maxSessionCount
 	 */
@@ -438,6 +452,7 @@ public class IMMessageServer extends Server{
 	}
 	//
 	private void sessionCreated0(IMSession session){
+		session.setMaxRequestCountPerSecond(maxSessionRequestCountPerSecond);
 		if(sessionMap.size()>=maxSessionCount){
 			session.kick("too many sessions:"+maxSessionCount);
 			return;

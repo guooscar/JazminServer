@@ -26,20 +26,20 @@ public class JazminCommand extends ConsoleCommand {
     	addOption("i",false,"show server information.",this::showServerInfo);
     	addOption("env",false,"show env info.",this::showEnvInfo);
     	addOption("log",false,"show all loggers",this::showLoggers);
-    	addOption("log.level",true,"set log level.ALL/DEBUG/INFO/WARN/ERROR/FATAL",this::setLogLevel);
+    	addOption("log_level",true,"set log level.ALL/DEBUG/INFO/WARN/ERROR/FATAL",this::setLogLevel);
     	addOption("task",false,"show tasks",this::showTasks);
     	addOption("job",false,"show jobs",this::showJobs);  
-    	addOption("job-run",true,"run job",this::runJob);  
-    	addOption("task-run",true,"run task",this::runTask);  
+    	addOption("job_run",true,"run job",this::runJob);  
+    	addOption("task_run",true,"run task",this::runTask);  
     	addOption("driver",false,"show all drivers",this::showDrivers);  	
     	addOption("server",false,"show all servers",this::showServers);  	
-    	addOption("pool-info",false,"show thread pool info",this::showThreadPoolInfo);  	
-    	addOption("poll-stat",false,"show method stats",this::showThreadPoolStats);  	
-    	addOption("pool-db",false,"show thread pool dashboard",this::showThreadPoolDashboard); 
-    	addOption("pool-mchart",true,"show thread pool method invoke chart",this::showThreadPoolMethodChart); 
-    	addOption("pool-reset",false,"reset method stats",this::resetThreadPoolStats); 
-    	addOption("pool-coresize",true,"set core pool size",this::setCorePoolSize); 
-    	addOption("pool-maxsize",true,"set max pool size",this::setMaxPoolSize); 
+    	addOption("pool_info",false,"show thread pool info",this::showThreadPoolInfo);  	
+    	addOption("pool_stat",false,"show method stats",this::showThreadPoolStats);  	
+    	addOption("pool_db",false,"show thread pool dashboard",this::showThreadPoolDashboard); 
+    	addOption("pool_mchart",true,"show thread pool method invoke chart",this::showThreadPoolMethodChart); 
+    	addOption("pool_reset",false,"reset method stats",this::resetThreadPoolStats); 
+    	addOption("pool_coresize",true,"set core pool size",this::setCorePoolSize); 
+    	addOption("pool_maxsize",true,"set max pool size",this::setMaxPoolSize); 
     	
     	addOption("dump",false,"dump servers and drivers",this::dump); 
         

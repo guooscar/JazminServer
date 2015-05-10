@@ -85,6 +85,8 @@ public class MessageServer extends Server{
 	int sessionTimeout;
 	int maxSessionCount;
 	int maxChannelCount;
+	int maxSessionRequestCountPerSecond;
+
 	NetworkTrafficStat networkTrafficStat;
 	//
 	Map<String,ServiceStub>serviceMap;
@@ -119,6 +121,7 @@ public class MessageServer extends Server{
 		sessionDisconnectedMethod=Dispatcher.getMethod(
 				SessionLifecycleListener.class,
 				"sessionDisconnected",Session.class);
+		maxSessionRequestCountPerSecond=10;
 	}
 	/**
 	 * return port of this server
@@ -189,6 +192,19 @@ public class MessageServer extends Server{
 		return maxSessionCount;
 	}
 
+	/**
+	 * @return the maxSessionRequestCountPerSecond
+	 */
+	public int getMaxSessionRequestCountPerSecond() {
+		return maxSessionRequestCountPerSecond;
+	}
+	/**
+	 * @param maxSessionRequestCountPerSecond the maxSessionRequestCountPerSecond to set
+	 */
+	public void setMaxSessionRequestCountPerSecond(
+			int maxSessionRequestCountPerSecond) {
+		this.maxSessionRequestCountPerSecond = maxSessionRequestCountPerSecond;
+	}
 	/**
 	 * set max session count
 	 * @param maxSessionCount the maxSessionCount to set
@@ -615,6 +631,7 @@ public class MessageServer extends Server{
 	}
 	//
 	private void sessionCreated0(Session session){
+		session.setMaxRequestCountPerSecond(maxSessionRequestCountPerSecond);
 		if(sessionMap.size()>=maxSessionCount){
 			session.kick("too many sessions:"+maxSessionCount);
 			return;
@@ -842,6 +859,7 @@ public class MessageServer extends Server{
 		.print("sessionTimeout", sessionTimeout+" seconds")
 		.print("maxSessionCount", maxSessionCount)
 		.print("maxChannelCount", maxChannelCount)
+		.print("maxSessionRequestCountPerSecond", maxSessionRequestCountPerSecond)
 		.print("sessionLifecycleListener", sessionLifecycleListener)
 		.print("serviceFilter", serviceFilter);
 		ib.section("services");

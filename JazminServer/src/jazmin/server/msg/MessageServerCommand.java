@@ -49,6 +49,7 @@ public class MessageServerCommand extends ConsoleCommand {
 		out.printf(format,"idleTime",messageServer.getIdleTime());
 		out.printf(format,"maxChannelCount",messageServer.getMaxChannelCount());
 		out.printf(format,"maxSessionCount",messageServer.getMaxSessionCount());
+		out.printf(format,"maxSessionRequestCountPerSecond",messageServer.getMaxSessionRequestCountPerSecond());
 		out.printf(format,"messageType",messageServer.getMessageType());
 		out.printf(format,"serviceFilter",messageServer.getServiceFilter());
 		out.printf(format,"sessionLifecycleListener",messageServer.getSessionLifecycleListener());
