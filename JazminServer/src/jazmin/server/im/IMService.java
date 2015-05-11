@@ -21,5 +21,6 @@ import java.lang.annotation.Target;
 public @interface IMService{
 	int id();
 	boolean syncOnSession() default true;
+	boolean restrictRequestRate() default true;
 	boolean continuation() default false;
 }

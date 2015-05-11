@@ -16,16 +16,25 @@ public class ServiceStub implements Comparable<ServiceStub>{
 	public boolean isSyncOnSessionService;
 	public boolean isDisableResponseService;
 	public boolean isContinuationService;
+	public boolean isRestrictRequestRate;
+
 	
 	@Override
 	public int compareTo(ServiceStub o) {
 		return serviceId.compareTo(o.serviceId);
 	}
-	//
+
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
-		return "[isSyncOnSession=" + isSyncOnSessionService
-				+ ", isDisableResponse=" + isDisableResponseService
-				+ ", isContinuation=" + isContinuationService + "]";
+		return "ServiceStub [serviceId=" + serviceId
+				+ ", isSyncOnSessionService=" + isSyncOnSessionService
+				+ ", isDisableResponseService=" + isDisableResponseService
+				+ ", isContinuationService=" + isContinuationService
+				+ ", isRestrictRequestRate=" + isRestrictRequestRate + "]";
 	}
+	
 }

@@ -59,18 +59,19 @@ public class IMMessageServerCommand extends ConsoleCommand {
     //
     //
     private void showServices(String args){
-		String format="%-5s : %-30s %-15s %-15s\n";
+		String format="%-5s : %-30s %-15s %-15s %-15\n";
 		int i=1;
 		List<IMServiceStub> services=messageServer.getServices();
 		Collections.sort(services);
 		out.println("total "+services.size()+" services");
-		out.format(format,"#","NAME","SYNCONSESSION","CONTINUATION");	
+		out.format(format,"#","NAME","SYNCONSESSION","CONTINUATION","RESTRICTRATE");	
 		for(IMServiceStub s:services){
 			out.format(format,
 					i++,
 					"0x"+Integer.toHexString(s.serviceId),
 					s.isSyncOnSessionService,
-					s.isContinuationService);
+					s.isContinuationService,
+					s.isRestrictRequestRate);
 		};
     }
     //

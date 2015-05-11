@@ -19,6 +19,7 @@ import java.lang.annotation.Target;
 @Documented
 @Inherited  
 public @interface Service{
+	boolean restrictRequestRate() default true;
 	boolean syncOnSession() default true;
 	boolean continuation() default false;
 	boolean disableResponse() default false;	

@@ -307,6 +307,7 @@ public class IMMessageServer extends Server{
 			IMServiceStub ss=new IMServiceStub();
 			ss.serviceId=serviceAnno.id();
 			ss.isSyncOnSessionService=serviceAnno.syncOnSession();
+			ss.isRestrictRequestRate=serviceAnno.restrictRequestRate();
 			ss.isContinuationService=serviceAnno.continuation();
 			ss.instance=instance;
 			ss.method=m;
@@ -318,30 +319,7 @@ public class IMMessageServer extends Server{
 	//
 	private IMServiceStub checkMessage(IMSession session,IMRequestMessage message){
 		session.lastAccess();
-		//1.bad message
-		/*if(message.isBadRequest||message.requestId<=0){
-			session.sendError(
-					message,ResponseMessage.SC_BAD_MESSAGE,"bad message");
-			return null;
-		}
-		//2.replay attack
-		if(message.requestId<=session.getRequestId()){
-			session.sendError(
-					message,ResponseMessage.SC_REPEAT_ATTACK,
-					"same request id:"+message.requestId);
-			return null;
-		}*/
 		session.receivedMessage(message);
-		//3.request rate check
-		if(session.isFrequencyReach()){
-			if(logger.isWarnEnabled()){
-				logger.warn("request rate too high");
-			}
-			session.sendError(
-					message,ResponseMessage.SC_REQUEST_RATE_TOO_HIGH,
-					"request rate too high");
-			return null;
-		}
 		//4.get service 
 		IMServiceStub ss=serviceMap.get(message.serviceId);
 		if(ss==null){
@@ -350,6 +328,17 @@ public class IMMessageServer extends Server{
 					"can not find serviceId:"+message.serviceId);
 			return null;
 		}
+		//3.request rate check
+		if(ss.isRestrictRequestRate&&session.isFrequencyReach()){
+			if(logger.isWarnEnabled()){
+				logger.warn("request rate too high");
+			}
+			session.sendError(
+					message,ResponseMessage.SC_REQUEST_RATE_TOO_HIGH,
+					"request rate too high");
+			return null;
+		}
+		
 		//5.check async state
 		if(ss.isSyncOnSessionService&&session.isProcessSyncService()){
 			if(logger.isWarnEnabled()){

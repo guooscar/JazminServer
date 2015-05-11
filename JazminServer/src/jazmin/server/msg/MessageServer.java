@@ -459,9 +459,20 @@ public class MessageServer extends Server{
 					"same request id:"+message.requestId);
 			return null;
 		}
+		//4.get service 
+		ServiceStub ss=serviceMap.get(message.serviceId);
+		if(ss==null){
+			if(logger.isWarnEnabled()){
+				logger.warn("{} can not found service:{}",session,message.serviceId);	
+			}
+			session.sendError(
+				message,ResponseMessage.SC_BAD_MESSAGE,
+				"can not find serviceId:"+message.serviceId);
+				return null;
+		}
 		session.receivedMessage(message);
 		//3.request rate check
-		if(session.isFrequencyReach()){
+		if(ss.isRestrictRequestRate&&session.isFrequencyReach()){
 			if(logger.isWarnEnabled()){
 				logger.warn("{} frequency reach",session);
 			}
@@ -470,17 +481,7 @@ public class MessageServer extends Server{
 					"request rate too high");
 			return null;
 		}
-		//4.get service 
-		ServiceStub ss=serviceMap.get(message.serviceId);
-		if(ss==null){
-			if(logger.isWarnEnabled()){
-				logger.warn("{} can not found service:{}",session,message.serviceId);	
-			}
-			session.sendError(
-					message,ResponseMessage.SC_BAD_MESSAGE,
-					"can not find serviceId:"+message.serviceId);
-			return null;
-		}
+		
 		//5.check async state
 		if(ss.isSyncOnSessionService&&session.isProcessSyncService()){
 			if(logger.isWarnEnabled()){
