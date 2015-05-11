@@ -54,7 +54,7 @@ public class InputBeanForm<T> extends HorizontalLayout {
 			addComponent(fl);
 		}
 		//
-		Field ff[]=beanClass.getDeclaredFields();
+		Field ff[]=beanClass.getFields();
 		int idx=0;
 		for(Field f:ff){
 			String fieldName=f.getName();

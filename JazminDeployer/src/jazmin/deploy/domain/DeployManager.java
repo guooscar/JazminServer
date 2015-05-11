@@ -12,11 +12,12 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
 import java.nio.file.WatchEvent.Kind;
+import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -47,16 +48,20 @@ public class DeployManager {
 	//
 	private static Map<String,Instance>instanceMap;
 	private static Map<String,Machine>machineMap;
-	private static Map<String,AppPackage>packages;
+	private static Map<String,AppPackage>packageMap;
+	private static Map<String,Application>applicationMap;
 	private static List<PackageDownloadInfo>downloadInfos;
 	private static WatchKey key;
+	private static GraphVizRenderer graphVizRenderer;
 	private static StringBuffer actionReport=new StringBuffer();
 	//
 	static{
 		instanceMap=new ConcurrentHashMap<String, Instance>();
 		machineMap=new ConcurrentHashMap<String, Machine>();
-		packages=new ConcurrentHashMap<String, AppPackage>();
+		packageMap=new ConcurrentHashMap<String, AppPackage>();
+		applicationMap=new ConcurrentHashMap<String, Application>();
 		downloadInfos=Collections.synchronizedList(new LinkedList<PackageDownloadInfo>());
+		graphVizRenderer=new GraphVizRenderer();
 	}
 	//
 	@SuppressWarnings("rawtypes")
@@ -95,6 +100,8 @@ public class DeployManager {
 			configDir="./workspace/config";
 		}
 		try{
+
+			reloadApplicationConfig(configDir);
 			reloadMachineConfig(configDir);
 			reloadInstanceConfig(configDir);
 			reloadPackage();
@@ -141,7 +148,7 @@ public class DeployManager {
 	}
 	//
 	private static void reloadPackage(){
-		packages.clear();
+		packageMap.clear();
 		String packageDir=Jazmin.environment.getString("deploy.package.path");
 		if(packageDir==null){
 			packageDir="./workspace/package";
@@ -154,7 +161,7 @@ public class DeployManager {
 					String fileName=ff.getName();
 					pkg.id=(fileName);
 					pkg.file=(ff.getAbsolutePath());
-					packages.put(pkg.id,pkg);
+					packageMap.put(pkg.id,pkg);
 				}
 			}	
 		}
@@ -173,7 +180,29 @@ public class DeployManager {
 	}
 	//
 	public static List<AppPackage>getPackages(){
-		return new ArrayList<AppPackage>(packages.values());
+		return new ArrayList<AppPackage>(packageMap.values());
+	}
+	//
+	public static List<Application>getApplications(String search){
+		if(search==null||search.trim().isEmpty()){
+			return new ArrayList<Application>();
+		}
+		String queryBegin="select * from "+Application.class.getName()+" where 1=1 and ";
+		return BeanUtil.query(getApplications(),queryBegin+search);
+	}
+	//
+	public static List<Application>getApplications(){
+		return new ArrayList<Application>(applicationMap.values());
+	}
+	//
+	public static List<Application>getApplicationBySystem(String system){
+		List<Application>result=new ArrayList<Application>();
+		for(Application a:applicationMap.values()){
+			if(a.system.equals(system)){
+				result.add(a);
+			}
+		}
+		return result;
 	}
 	//
 	public static List<AppPackage>getPackages(String search)throws Exception{
@@ -224,6 +253,20 @@ public class DeployManager {
 			logger.warn("can not find :"+configFile);
 		}
 	}
+	private static void reloadApplicationConfig(String configDir)throws Exception{
+		File configFile=new File(configDir,"application.json");
+		if(configFile.exists()){
+			applicationMap.clear();
+			logger.info("load application from:"+configFile.getAbsolutePath());
+			String ss=FileUtil.getContent(configFile);
+			List<Application>apps= JSONUtil.fromJsonList(ss,Application.class);
+			apps.forEach(in->{
+				applicationMap.put(in.id,in);
+			});
+		}else{
+			logger.warn("can not find :"+configFile);
+		}
+	}
 	//
 	private static void reloadInstanceConfig(String configDir)throws Exception{
 		File configFile=new File(configDir,"instance.json");
@@ -249,8 +292,15 @@ public class DeployManager {
 					logger.error("can not find machine {} for instance {}",in.machineId,in.id);
 				}else{
 					in.machine=(m);
-					instanceMap.put(in.id,in);			
 				}
+				Application app=applicationMap.get(in.appId);
+				if(app==null){
+					logger.error("can not find application {} for instance {}",in.appId,in.id);
+				}else{
+					in.application=(app);
+				}
+				
+				instanceMap.put(in.id,in);			
 			});
 		}else{
 			logger.warn("can not find :"+configFile);
@@ -262,25 +312,42 @@ public class DeployManager {
 		if(instance==null){
 			return null;
 		}
-		return renderTemplate(instance,instance.app);
+		return renderTemplate(instance);
 	}
 	//
-	private static String renderTemplate(Instance instance,String app){
+	private static String renderTemplate(Instance instance){
 		Velocity.init();
 		VelocityContext ctx=new VelocityContext();
 		ctx.put("instances",getInstances());
+		ctx.put("instanceMap",instanceMap);
 		ctx.put("machines",getMachines());
+		ctx.put("machineMap",machineMap);
+		ctx.put("applications",getApplications());
+		ctx.put("applicationMap",applicationMap);
 		ctx.put("instance", instance);
+		//
+		Map<String,String>properties=new HashMap<String, String>();
+		properties.putAll(instance.properties);
+		properties.putAll(instance.application.properties);
+		properties.putAll(instance.machine.properties);
+		//
+		ctx.put("properties", properties);
+		
 		StringWriter sw=new StringWriter();
 		String templateDir=Jazmin.environment.getString("deploy.template.path");
 		if(templateDir==null){
-			templateDir=".";
+			templateDir="./workspace/template";
 		}
-		File file=new File(templateDir+"/"+app+".vm");
+		File file=new File(templateDir+"/"+instance.appId+".vm");
 		if(!file.exists()){
+			logger.info("can not find {} use Default.vm to render",file);
+			file=new File(templateDir+"/Default.vm");
+		}
+		if(!file.exists()){
+			logger.warn("can not find template {}",file);
 			return null;
 		}
-		Velocity.mergeTemplate(templateDir+"/"+app+".vm","UTF-8", ctx, sw);
+		Velocity.mergeTemplate(file.getPath(),"UTF-8", ctx, sw);
 		return sw.toString();
 	}
 	//
@@ -367,42 +434,42 @@ public class DeployManager {
 	}
 	//
 	public static void startInstance(Instance instance){
-		if(instance.type.startsWith("jazmin")){
+		if(instance.application.type.startsWith("jazmin")){
 			appendActionReport(exec(instance,instance.machine.jazminHome
 				+"/jazmin startbg "+instance.id));
 		}
-		if(instance.type.equals(Instance.TYPE_MEMCACHED)){
+		if(instance.application.type.equals(Application.TYPE_MEMCACHED)){
 			appendActionReport(exec(instance,instance.machine.memcachedHome
 				+"/memctl start "+instance.id));
 		}
-		if(instance.type.equals(Instance.TYPE_HAPROXY)){
+		if(instance.application.type.equals(Application.TYPE_HAPROXY)){
 			appendActionReport(exec(instance,instance.machine.haproxyHome
 				+"/hactl start "+instance.id));
 		}
 	}
 	//
 	public static void stopInstance(Instance instance){
-		if(instance.type.startsWith("jazmin")){
+		if(instance.application.type.startsWith("jazmin")){
 			appendActionReport(exec(instance,instance.machine.jazminHome
 					+"/jazmin stop "+instance.id));
 		}
-		if(instance.type.equals(Instance.TYPE_MEMCACHED)){
+		if(instance.application.type.equals(Application.TYPE_MEMCACHED)){
 			appendActionReport(exec(instance,instance.machine.memcachedHome
 				+"/memctl stop "+instance.id));
 		}
-		if(instance.type.equals(Instance.TYPE_HAPROXY)){
+		if(instance.application.type.equals(Application.TYPE_HAPROXY)){
 			appendActionReport(exec(instance,instance.machine.haproxyHome
 				+"/hactl stop "+instance.id));
 		}
 	}
 	public static String getTailLog(Instance instance) {
-		if(instance.type.startsWith("jazmin")){
+		if(instance.application.type.startsWith("jazmin")){
 			return exec(instance,
 							"tail -n 100 "+
 							instance.machine.jazminHome+"/log/"+
 							instance.id+".log");
 		}
-		return "not support instance type :"+instance.type;
+		return "not support instance type :"+instance.application.type;
 	}
 	//
 	public static String getTailLog(String instanceName){
@@ -410,6 +477,7 @@ public class DeployManager {
 		if(instance==null){
 			return null;
 		}
+		
 		return getTailLog(instance);
 	}
 	/**
@@ -422,15 +490,15 @@ public class DeployManager {
 		}
 		String suffex="";
 		suffex=".jaz";
-		if(ins.type.equals(Instance.TYPE_JAZMIN_WEB)){
+		if(ins.application.type.equals(Application.TYPE_JAZMIN_WEB)){
 			suffex=".war";
 		}
-		String packageName=ins.app+"-"+ins.packageVersion+suffex;
-		return packages.get(packageName);
+		String packageName=ins.appId+"-"+ins.packageVersion+suffex;
+		return packageMap.get(packageName);
 	}
 	//
 	public static AppPackage getPackage(String name){
-		return packages.get(name);
+		return packageMap.get(name);
 	}
 	//
 	public static void resetActionReport(){
@@ -443,5 +511,18 @@ public class DeployManager {
 	//
 	public static void appendActionReport(String content){
 		actionReport.append(content+"\n");
+	}
+	//
+	public static String renderApplicationGraph(String system){
+		return graphVizRenderer.renderInstanceGraph(system,"");
+	}
+	//
+	public static String renderInstanceGraph(String system,String cluster){
+		return graphVizRenderer.renderInstanceGraph(system, cluster);
+	}
+	//--------------------------------------------------------------------------
+	public static void main(String[] args)throws Exception{
+		DeployManager.reload();
+		System.out.println(DeployManager.renderTemplate("cdag_001_domaintest"));
 	}
 }

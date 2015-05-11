@@ -97,7 +97,7 @@ public class BeanTable<T> extends Table{
 			row.getItemProperty("$object").setValue(o);
 			for(Object id:getContainerPropertyIds()){
 				try {
-					Field ff=targetClass.getDeclaredField(id.toString());
+					Field ff=targetClass.getField(id.toString());
 					Property<Object> p=row.getItemProperty(id);
 					Object oo=ff.get(o);
 					if(oo!=null){

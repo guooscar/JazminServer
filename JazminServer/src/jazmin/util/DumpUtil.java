@@ -41,11 +41,17 @@ public class DumpUtil {
 				sb.append("args[")
 					.append(i)
 					.append("]:");
-					if(args[i].getClass().isAnnotationPresent(DumpIgnore.class)){
-						sb.append(args[i]);
-					}else if(args[i].getClass().equals(byte[].class)){
-						byte bb[]=(byte[]) args[i];
-						sb.append(bb+" "+(bb==null?"":bb.length));
+					if(args[i]==null){
+						sb.append("null");
+					}else{
+						if(args[i].getClass().isAnnotationPresent(DumpIgnore.class)){
+							sb.append(args[i]);
+						}else if(args[i].getClass().equals(byte[].class)){
+							byte bb[]=(byte[]) args[i];
+							sb.append(bb+" "+(bb==null?"":bb.length));
+						}else{
+							sb.append(JSON.toJSONString(args[i],SerializerFeature.PrettyFormat));
+						}
 					}
 					sb.append("\n");
 			}

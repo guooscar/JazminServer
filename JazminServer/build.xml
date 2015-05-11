@@ -166,6 +166,7 @@
 			<fileset dir="${src.dir}">
 					<include name="**/*.png"/>
 					<include name="**/*.pem"/>
+					<include name="**/*.java"/>
 			</fileset>
 		</copy>
 		<jar destfile="${release.dir}/jazmin.jar">

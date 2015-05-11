@@ -20,6 +20,6 @@ import java.lang.annotation.Target;
 @Inherited  
 public @interface IMService{
 	int id();
-	boolean async() default false;
+	boolean syncOnSession() default true;
 	boolean continuation() default false;
 }

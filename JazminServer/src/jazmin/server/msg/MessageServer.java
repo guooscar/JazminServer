@@ -422,11 +422,11 @@ public class MessageServer extends Server{
 			ss.serviceId=methodName;
 			Service srvAnnotation=m.getAnnotation(Service.class);
 			if(srvAnnotation!=null){
-				ss.isAsyncService=srvAnnotation.async();
+				ss.isSyncOnSessionService=srvAnnotation.syncOnSession();
 				ss.isContinuationService=srvAnnotation.continuation();
 				ss.isDisableResponseService=srvAnnotation.disableResponse();
 			}else{
-				ss.isAsyncService=false;
+				ss.isSyncOnSessionService=false;
 				ss.isContinuationService=false;
 				ss.isDisableResponseService=false;
 			}
@@ -482,7 +482,7 @@ public class MessageServer extends Server{
 			return null;
 		}
 		//5.check async state
-		if(!ss.isAsyncService&&session.isProcessSyncService()){
+		if(ss.isSyncOnSessionService&&session.isProcessSyncService()){
 			if(logger.isWarnEnabled()){
 				logger.warn("{} process sync service:{}",session,message.serviceId);	
 			}
@@ -553,7 +553,7 @@ public class MessageServer extends Server{
 			return;
 		}
 		//mark async 
-		session.processSyncService(!stub.isAsyncService);
+		session.processSyncService(stub.isSyncOnSessionService);
 		//
 		MessageDispatcherCallback callback=new MessageDispatcherCallback();
 		callback.session=session;

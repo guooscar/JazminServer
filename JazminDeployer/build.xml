@@ -14,6 +14,8 @@
 	<!-- src dir-->
 	<property name="src.dir" value="${project.root}/src" />
 	<property name="lib.dir" value="${project.root}/lib" />
+
+	<property name="config.dir" value="${project.root}/config" />
 	<property name="webroot.dir" value="${project.root}/webroot" />
 	
 	<!-- build dir -->
@@ -93,6 +95,11 @@
 				<include name="**/*"/>  
 			</fileset>  
 		</copy>
+		<copy todir="${release.dir}/${project.name}/WEB-INF/">  
+					<fileset dir="${config.dir}" >  
+						<include name="**/*"/>  
+					</fileset>  
+				</copy>
 		<copy todir="${release.dir}/${project.name}/WEB-INF/lib">  
 			 <fileset dir="${lib.dir}">
 			 	<include name="**/*.jar"/>

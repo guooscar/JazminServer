@@ -7,23 +7,12 @@ package jazmin.deploy.domain;
  * @author yama
  * 6 Jan, 2015
  */
-public class Instance {
-	public static final String TYPE_JAZMIN_RPC="jazmin-rpc";
-	public static final String TYPE_JAZMIN_WEB="jazmin-web";
-	public static final String TYPE_JAZMIN_MSG="jazmin-msg";
-	public static final String TYPE_JAZMIN_FTP="jazmin-ftp";
-	public static final String TYPE_JAZMIN_RTMP="jazmin-rtmp";
-	public static final String TYPE_JAZMIN_SIP="jazmin-sip";
+public class Instance extends BaseDomain{
 	
-	public static final String TYPE_MYSQL="mysql";
-	public static final String TYPE_MEMCACHED="memcached";
-	public static final String TYPE_HAPROXY="haproxy";
-	public static final String TYPE_REDIS="redis";
 	//
-	public String id;
 	public String cluster;
-	public String type;
-	public String app;
+	public String appId;
+	public Application application;
 	public String machineId;
 	public Machine machine;
 	public int port;
@@ -33,17 +22,8 @@ public class Instance {
 	public int priority;
 	public String packageVersion;
 	//
-	/**
-	 * @return the id
-	 */
-	public String getId() {
-		return id;
-	}
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(String id) {
-		this.id = id;
+	public Instance() {
+		super();
 	}
 	/**
 	 * @return the cluster
@@ -58,28 +38,16 @@ public class Instance {
 		this.cluster = cluster;
 	}
 	/**
-	 * @return the type
-	 */
-	public String getType() {
-		return type;
-	}
-	/**
-	 * @param type the type to set
-	 */
-	public void setType(String type) {
-		this.type = type;
-	}
-	/**
 	 * @return the app
 	 */
 	public String getApp() {
-		return app;
+		return appId;
 	}
 	/**
 	 * @param app the app to set
 	 */
 	public void setApp(String app) {
-		this.app = app;
+		this.appId = app;
 	}
 	/**
 	 * @return the machineId
@@ -176,6 +144,30 @@ public class Instance {
 	 */
 	public void setPackageVersion(String packageVersion) {
 		this.packageVersion = packageVersion;
+	}
+	/**
+	 * @return the appId
+	 */
+	public String getAppId() {
+		return appId;
+	}
+	/**
+	 * @param appId the appId to set
+	 */
+	public void setAppId(String appId) {
+		this.appId = appId;
+	}
+	/**
+	 * @return the application
+	 */
+	public Application getApplication() {
+		return application;
+	}
+	/**
+	 * @param application the application to set
+	 */
+	public void setApplication(Application application) {
+		this.application = application;
 	}
 	
 }

@@ -36,7 +36,7 @@ public class InstanceInfoView extends DeployBaseView{
 	public BeanTable<?> createTable() {
 		instances=new ArrayList<Instance>();
 		table= new BeanTable<Instance>(null, Instance.class,
-				"machine","user","password");
+				"machine","user","password","application","properties");
 		table.setCellStyleGenerator(new Table.CellStyleGenerator() {
 			@Override
 			public String getStyle(Table source, Object itemId, Object propertyId) {

@@ -25,7 +25,7 @@ public class IMServerTest {
 	 */
 	public static void main(String[] args) {
 		LoggerFactory.setLevel("INFO");
-		LoggerFactory.setFile("/tmp/xxx.log");
+		//LoggerFactory.setFile("/tmp/xxx.log");
 		LoggerFactory.disableConsoleLog();
 		Jazmin.dispatcher.setCorePoolSize(16);
 		Jazmin.dispatcher.setMaximumPoolSize(16);
@@ -38,14 +38,14 @@ public class IMServerTest {
 		Jazmin.start();
 	}
 	//
-	@IMService(id=0x01,async=true)
+	@IMService(id=0x01,syncOnSession=true)
 	public void login(IMContext ctx,byte[]content)throws Exception{
 		int length=RandomUtil.randomInt(100);
 		byte empty[]=new byte[length];
 		if(ctx.getSession().getPrincipal()==null){
 			ctx.getServer().setPrincipal(ctx.getSession(),UUID.randomUUID().toString(), "");			
 		}
-		//Thread.sleep(RandomUtil.randomInt(25,50));
+		Thread.sleep(RandomUtil.randomInt(230,240));
 		ctx.setResult(new IMResult(empty));
 	}
 }

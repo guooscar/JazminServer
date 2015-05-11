@@ -13,7 +13,7 @@ public class ServiceStub implements Comparable<ServiceStub>{
 	public String serviceId;
 	public Object instance;
 	public Method method;
-	public boolean isAsyncService;
+	public boolean isSyncOnSessionService;
 	public boolean isDisableResponseService;
 	public boolean isContinuationService;
 	
@@ -24,7 +24,7 @@ public class ServiceStub implements Comparable<ServiceStub>{
 	//
 	@Override
 	public String toString() {
-		return "[isAsync=" + isAsyncService
+		return "[isSyncOnSession=" + isSyncOnSessionService
 				+ ", isDisableResponse=" + isDisableResponseService
 				+ ", isContinuation=" + isContinuationService + "]";
 	}

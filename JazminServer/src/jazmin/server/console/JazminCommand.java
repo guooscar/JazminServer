@@ -155,7 +155,7 @@ public class JazminCommand extends ConsoleCommand {
     //
     //
     private void showThreadPoolInfo(String args){
-    	String format="%-20s : %-10s\n";
+    	String format="%-350s : %-10s\n";
 		out.printf(format,"corePoolSize",Jazmin.dispatcher.getCorePoolSize());
 		out.printf(format,"maxPoolSize",Jazmin.dispatcher.getMaximumPoolSize());
 		out.printf(format,"keepAliveTime",Jazmin.dispatcher.getKeepAliveTime(TimeUnit.SECONDS)+" seconds");

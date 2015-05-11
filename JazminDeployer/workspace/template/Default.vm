@@ -1,0 +1,63 @@
+//logger
+#set($logLevel	=	$properties.getOrDefault("jazmin.log.level","'INFO'"))
+#set($logFile 	=	$properties.getOrDefault("jazmin.log.file","'./log/'+jazmin.getServerName()+'.log'"))
+
+jazmin.setLogLevel($logLevel);
+jazmin.setLogFile($logFile,true);
+//------------------------------------------------------------------------------
+//server
+#if($instance.application.type=="jazmin-msg")
+//message server 
+messageServer=new IMMessageServer();
+messageServer.setPort($instance.port);
+jazmin.addServer(messageServer);
+#end
+//
+#if($instance.application.type=="jazmin-rpc")
+//rpc server 
+rpcServer=new RpcServer();
+rpcServer.setPort($instance.port);
+jazmin.addServer(rpcServer);
+#end
+//------------------------------------------------------------------------------
+//driver
+#foreach($i in $instance.application.depends)
+#set ($app = $applicationMap.get($i))
+#if($app.type=="jazmin-rpc")
+//rpc
+#foreach($dependsInstance in $instances)
+#if ($dependsInstance.appId == $app.id)
+var rpcDriver=new JazminRpcDriver();
+rpcDriver.addRemoteServer("$app.id","$dependsInstance.id","$dependsInstance.machine.publicHost",$dependsInstance.port);
+//rpcDriver.subscribe("MainData", "MainData"+jazmin.getServerName());
+jazmin.addDriver(rpcDriver);
+#end
+#end
+#end
+	
+#if($app.type=="mysql")
+//mysql
+#foreach($dependsInstance in $instances)
+#if ($dependsInstance.appId == $app.id)
+var db=new C3p0ConnectionDriver();
+db.setUser('$dependsInstance.user');
+db.setPassword('$dependsInstance.password');
+db.setUrl("jdbc:mysql://$dependsInstance.machine.privateHost:$dependsInstance.port/$dependsInstance.id?useUnicode=true&characterEncoding=utf8");
+db.setDriverClass("com.mysql.jdbc.Driver");
+jazmin.addDriver(db);
+#end
+#end
+#end
+
+#end
+//------------------------------------------------------------------------------
+//console
+consoleServer=new ConsoleServer();
+#set($monitorPort = $instance.port +10000)
+consoleServer.setPort($monitorPort);
+jazmin.addServer(consoleServer);
+//------------------------------------------------------------------------------
+//app
+var targetApp="./instance/$instance.id/$instance.appId"+".jaz"
+jazmin.copyFile("http://10.44.218.35:7001/srv/deploy/pkg/"+jazmin.getServerName(),targetApp)
+jazmin.loadApplication(targetApp);

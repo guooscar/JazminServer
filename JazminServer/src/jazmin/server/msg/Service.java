@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
 @Documented
 @Inherited  
 public @interface Service{
-	boolean async() default false;
+	boolean syncOnSession() default true;
 	boolean continuation() default false;
 	boolean disableResponse() default false;	
 }

@@ -18,7 +18,7 @@ import com.vaadin.server.VaadinServlet;
  * @author yama
  * 28 Dec, 2014
  */
-@WebServlet(value = "/*",asyncSupported = true,loadOnStartup=1)
+@WebServlet(value = "/deployer/*",asyncSupported = true,loadOnStartup=1)
 @VaadinServletConfiguration(
         productionMode = true,
         ui = DeploySystemUI.class)

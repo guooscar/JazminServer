@@ -14,6 +14,7 @@ import jazmin.server.web.mvc.Controller;
 import jazmin.server.web.mvc.ErrorView;
 import jazmin.server.web.mvc.FileView;
 import jazmin.server.web.mvc.PlainTextView;
+import jazmin.server.web.mvc.ResourceView;
 import jazmin.server.web.mvc.Service;
 
 /**
@@ -51,6 +52,31 @@ public class DeployController {
 		if(result!=null){
 			c.view(new PlainTextView(result));
 		}
+	}
+	//
+	@Service(id="sysgraph")
+	public void getSystemGraph(Context c){
+		List<String>querys=c.request().querys();
+		if(querys.size()<3){
+			return;
+		}
+		String systemName=querys.get(2);
+		String result=DeployManager.renderApplicationGraph(systemName);
+		c.put("dot_string",result);
+		c.view(new ResourceView("/jsp/graph.jsp"));
+	}
+	//
+	@Service(id="insgraph")
+	public void getInstanceGraph(Context c){
+		List<String>querys=c.request().querys();
+		if(querys.size()<4){
+			return;
+		}
+		String systemName=querys.get(2);
+		String clusterName=querys.get(3);
+		String result=DeployManager.renderInstanceGraph(systemName,clusterName);
+		c.put("dot_string",result);
+		c.view(new ResourceView("/jsp/graph.jsp"));
 	}
 	//
 	@Service(id="report")

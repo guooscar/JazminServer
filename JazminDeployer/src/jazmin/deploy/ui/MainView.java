@@ -2,6 +2,7 @@ package jazmin.deploy.ui;
 
 import java.io.File;
 
+import jazmin.deploy.view.ApplicationInfoView;
 import jazmin.deploy.view.DashboardView;
 import jazmin.deploy.view.InstanceInfoView;
 import jazmin.deploy.view.MachineInfoView;
@@ -57,6 +58,7 @@ public class MainView extends HorizontalLayout {
     	menuView.addMenuItem("Dashboard", FontAwesome.DASHBOARD,DashboardView.class);	
     	menuView.addMenuItem("Instances", FontAwesome.HOME,new InstanceInfoView());
     	menuView.addMenuItem("Machines", FontAwesome.GEAR,new MachineInfoView());	
+    	menuView.addMenuItem("Applications", FontAwesome.ANDROID,new ApplicationInfoView());	
     	menuView.addMenuItem("Packages", FontAwesome.ANCHOR,new PackageInfoView());	
     }
 }

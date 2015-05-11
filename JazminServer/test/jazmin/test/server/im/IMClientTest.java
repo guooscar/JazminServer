@@ -40,7 +40,7 @@ public class IMClientTest extends NetTestClient {
 		}
 		//
 		while(true){
-			Thread.sleep(10);
+			Thread.sleep(1000);
 			for(IMClientTest t:clients){
 				t.login();
 			}

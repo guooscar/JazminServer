@@ -306,7 +306,7 @@ public class IMMessageServer extends Server{
 			}
 			IMServiceStub ss=new IMServiceStub();
 			ss.serviceId=serviceAnno.id();
-			ss.isAsyncService=serviceAnno.async();
+			ss.isSyncOnSessionService=serviceAnno.syncOnSession();
 			ss.isContinuationService=serviceAnno.continuation();
 			ss.instance=instance;
 			ss.method=m;
@@ -351,7 +351,7 @@ public class IMMessageServer extends Server{
 			return null;
 		}
 		//5.check async state
-		if(!ss.isAsyncService&&session.isProcessSyncService()){
+		if(ss.isSyncOnSessionService&&session.isProcessSyncService()){
 			if(logger.isWarnEnabled()){
 				logger.warn("processing sync service:"+ss.serviceId);
 			}
@@ -373,7 +373,7 @@ public class IMMessageServer extends Server{
 		Object []parameters=new Object[]{context,message.rawData};
 		
 		//mark async 
-		session.processSyncService(!stub.isAsyncService);
+		session.processSyncService(stub.isSyncOnSessionService);
 		//
 		MessageDispatcherCallback callback=new MessageDispatcherCallback();
 		callback.session=session;

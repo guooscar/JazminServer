@@ -1,0 +1,23 @@
+<web-fragment>
+	<welcome-file-list>
+		<welcome-file>deployer</welcome-file>
+	</welcome-file-list>
+  <jsp-config>
+    <taglib>
+      <taglib-uri>/tags/c-rt</taglib-uri>
+      <taglib-location>/WEB-INF/tlds/c-rt.tld</taglib-location>
+    </taglib>
+    <taglib>
+      <taglib-uri>/tags/c</taglib-uri>
+      <taglib-location>/WEB-INF/tlds/c.tld</taglib-location>
+    </taglib>
+    <taglib>
+      <taglib-uri>/tags/fn</taglib-uri>
+      <taglib-location>/WEB-INF/tlds/fn.tld</taglib-location>
+    </taglib>
+    <taglib>
+      <taglib-uri>/tags/fmt</taglib-uri>
+      <taglib-location>/WEB-INF/tlds/fmt.tld</taglib-location>
+    </taglib>
+  </jsp-config>
+</web-fragment>

@@ -13,7 +13,7 @@ public class IMServiceStub implements Comparable<IMServiceStub>{
 	public int serviceId;
 	public Object instance;
 	public Method method;
-	public boolean isAsyncService;
+	public boolean isSyncOnSessionService;
 	public boolean isContinuationService;
 	
 	@Override
@@ -23,7 +23,7 @@ public class IMServiceStub implements Comparable<IMServiceStub>{
 	//
 	@Override
 	public String toString() {
-		return "[isAsync=" + isAsyncService
+		return "[isSyncOnSession=" + isSyncOnSessionService
 				+ ", isContinuation=" + isContinuationService + "]";
 	}
 }

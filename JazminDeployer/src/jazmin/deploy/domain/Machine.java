@@ -7,8 +7,7 @@ package jazmin.deploy.domain;
  * @author yama
  * 6 Jan, 2015
  */
-public class Machine {
-	public String id;
+public class Machine extends BaseDomain{
 	public boolean isAlive;
 	public String privateHost;
 	public String publicHost;
@@ -19,17 +18,8 @@ public class Machine {
 	public String memcachedHome;
 	public String haproxyHome;
 	//
-	/**
-	 * @return the id
-	 */
-	public String getId() {
-		return id;
-	}
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(String id) {
-		this.id = id;
+	public Machine() {
+		super();
 	}
 	/**
 	 * @return the isAlive
