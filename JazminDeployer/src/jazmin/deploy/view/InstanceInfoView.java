@@ -56,6 +56,7 @@ public class InstanceInfoView extends DeployBaseView{
 	}
 	//
 	private void initUI(){
+		addOptButton("View Detail",null, (e)->viewDetail());
 		addOptButton("View BootFile",null, (e)->viewBootFile());
 		addOptButton("View TailLog",null, (e)->viewTailLog());
 		addOptButton("View Report",null, (e)->viewActionReport());
@@ -66,6 +67,18 @@ public class InstanceInfoView extends DeployBaseView{
 		addOptButton("Start Instances",ValoTheme.BUTTON_DANGER, (e)->startInstance());
 		addOptButton("Stop Instances",ValoTheme.BUTTON_DANGER, (e)->stopInstance());
 		addOptButton("Restart Instances",ValoTheme.BUTTON_DANGER, (e)->restartInstance());
+	}
+	//
+	private void viewDetail(){
+		Instance instance=table.getSelectValue();
+		if(instance==null){
+			DeploySystemUI.showNotificationInfo("Info",
+					"Please choose which instance to view.");
+		}else{
+			InstanceDetailWindow bfw=new InstanceDetailWindow(instance);
+			UI.getCurrent().addWindow(bfw);
+			bfw.focus();
+		}
 	}
 	//
 	private void viewBootFile(){

@@ -36,8 +36,21 @@ public class ApplicationInfoView extends DeployBaseView{
 	}
 	//
 	private void initUI(){
+		addOptButton("View Detail",null, (e)->viewDetail());
 		addOptButton("System Graph",null, (e)->viewSystemGraph());
 		addOptButton("Instance Graph",null, (e)->viewInstanceGraph());
+	}
+	//
+	private void viewDetail(){
+		Application app=table.getSelectValue();
+		if(app==null){
+			DeploySystemUI.showNotificationInfo("Info",
+					"Please choose which app to view.");
+		}else{
+			ApplicationDetailWindow bfw=new ApplicationDetailWindow(app);
+			UI.getCurrent().addWindow(bfw);
+			bfw.focus();
+		}
 	}
 	//
 	private void viewSystemGraph(){

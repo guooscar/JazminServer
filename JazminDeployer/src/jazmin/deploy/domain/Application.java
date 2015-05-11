@@ -38,6 +38,7 @@ public class Application extends BaseDomain{
 	//
 	public Application() {
 		super();	
+		type="";
 		depends=new LinkedList<String>();
 	}
 	/**
