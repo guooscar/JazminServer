@@ -180,15 +180,21 @@ public class ConsoleCommand{
 			this.err.println(e2.getMessage());
 		}catch (Exception e) {
 			logger.catching(e);	
+			this.err.println(e.getMessage());
 		}finally{
 			try{
 				this.out.flush();
 				this.out.close();
+			}catch(Exception e){
+				logger.catching(e);
+			}
+			try{
 				this.err.flush();
 				this.err.close();
 			}catch(Exception e){
 				logger.catching(e);
 			}
+			
 		}
     }
     //

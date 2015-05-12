@@ -20,6 +20,7 @@ public class C3p0DriverCommand extends ConsoleCommand {
     	addOption("enablestat",false,"enable stat sql.",this::enableStatSql);
     	addOption("disablestat",false,"disable stat sql.",this::disableStatSql);
     	addOption("stat",false,"show sql stat.",this::showStats);
+    	addOption("max_poolsize",true,"set max pool size.",this::setMaxPoolSize);
     	addOption("f",false,"show full sql",null);
     	
     	//
@@ -35,7 +36,11 @@ public class C3p0DriverCommand extends ConsoleCommand {
 		 super.run();
 	}
 	//
-	  //
+	private void setMaxPoolSize(String args){
+		connectionDriver.setMaxPoolSize(Integer.valueOf(args));
+		out.println("max pool size set to :"+args);
+	}
+	//
     private void showStats(String args){
     	String format="%-5s : %-10s %-10s %-10s %-10s %-10s %-50s \n";
 		int i=1;

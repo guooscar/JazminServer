@@ -3,6 +3,8 @@
  */
 package jazmin.server.im;
 
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
 import jazmin.util.DumpIgnore;
 
 
@@ -12,6 +14,8 @@ import jazmin.util.DumpIgnore;
  */
 @DumpIgnore
 public class IMContext {
+	private static Logger logger=LoggerFactory.get(IMContext.class);
+	//
 	private boolean isFlush;
 	private boolean isContinuation;
 	private IMSession session;
@@ -78,6 +82,14 @@ public class IMContext {
 	void close(){
 		if(!isContinuation){
 			flush();
+		}
+	}
+	//
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+		if(!isFlush){
+			logger.fatal("context did not call flush {}",requestMessage);
 		}
 	}
 }

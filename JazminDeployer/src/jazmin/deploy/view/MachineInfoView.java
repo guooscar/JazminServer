@@ -59,6 +59,7 @@ public class MachineInfoView extends DeployBaseView{
 	//
 	private void initUI(){
 		addOptButton("View Detail",null, (e)->viewDetail());
+		addOptButton("View Stat",null, (e)->viewStat());
 		addOptButton("Test Machine",null, (e)->checkMachine());
 		addOptButton("Run Command",ValoTheme.BUTTON_DANGER, (e)->runCmd());
 	}
@@ -70,6 +71,19 @@ public class MachineInfoView extends DeployBaseView{
 					"Please choose which machine to view.");
 		}else{
 			MachineDetailWindow bfw=new MachineDetailWindow(machine);
+			UI.getCurrent().addWindow(bfw);
+			bfw.focus();
+		}
+	}
+	//
+	//
+	private void viewStat(){
+		Machine machine=table.getSelectValue();
+		if(machine==null){
+			DeploySystemUI.showNotificationInfo("Info",
+					"Please choose which machine to view.");
+		}else{
+			MachineStatWindow bfw=new MachineStatWindow(machine);
 			UI.getCurrent().addWindow(bfw);
 			bfw.focus();
 		}

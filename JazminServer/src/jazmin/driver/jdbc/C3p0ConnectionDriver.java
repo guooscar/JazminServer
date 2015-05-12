@@ -169,9 +169,6 @@ public class C3p0ConnectionDriver extends ConnectionDriver {
 	 * @param checkoutTimeout
 	 */
 	public void setCheckoutTimeout(int checkoutTimeout) {
-		if(isInited()){
-			throw new IllegalArgumentException("set before inited");
-		}
 		dataSource.setCheckoutTimeout(checkoutTimeout);
 	}
 	/**
@@ -190,9 +187,7 @@ public class C3p0ConnectionDriver extends ConnectionDriver {
 	 * @param initialPoolSize initial jdbc connection pool size
 	 */
 	public void setInitialPoolSize(int initialPoolSize) {
-		if(isInited()){
-			throw new IllegalArgumentException("set before inited");
-		}
+		
 		dataSource.setInitialPoolSize(initialPoolSize);
 	}
 	/**
@@ -211,9 +206,7 @@ public class C3p0ConnectionDriver extends ConnectionDriver {
 	 * @throws SQLException
 	 */
 	public void setLoginTimeout(int seconds) throws SQLException {
-		if(isInited()){
-			throw new IllegalArgumentException("set before inited");
-		}
+		
 		dataSource.setLoginTimeout(seconds);
 	}
 	/**
@@ -221,9 +214,7 @@ public class C3p0ConnectionDriver extends ConnectionDriver {
 	 * @param maxConnectionAge max connection alive time
 	 */
 	public void setMaxConnectionAge(int maxConnectionAge) {
-		if(isInited()){
-			throw new IllegalArgumentException("set before inited");
-		}
+		
 		dataSource.setMaxConnectionAge(maxConnectionAge);
 	}
 	/**
@@ -231,9 +222,7 @@ public class C3p0ConnectionDriver extends ConnectionDriver {
 	 * @param maxIdleTime  max connection idle time
 	 */
 	public void setMaxIdleTime(int maxIdleTime) {
-		if(isInited()){
-			throw new IllegalArgumentException("set before inited");
-		}
+		
 		dataSource.setMaxIdleTime(maxIdleTime);
 	}
 	/**
@@ -241,9 +230,7 @@ public class C3p0ConnectionDriver extends ConnectionDriver {
 	 * @param maxPoolSize  max connection pool size
 	 */
 	public void setMaxPoolSize(int maxPoolSize) {
-		if(isInited()){
-			throw new IllegalArgumentException("set before inited");
-		}
+		
 		dataSource.setMaxPoolSize(maxPoolSize);
 	}
 	/**
@@ -251,9 +238,7 @@ public class C3p0ConnectionDriver extends ConnectionDriver {
 	 * @param maxStatements
 	 */
 	public void setMaxStatements(int maxStatements) {
-		if(isInited()){
-			throw new IllegalArgumentException("set before inited");
-		}
+	
 		dataSource.setMaxStatements(maxStatements);
 	}
 	/**
@@ -261,9 +246,7 @@ public class C3p0ConnectionDriver extends ConnectionDriver {
 	 * @param minPoolSize
 	 */
 	public void setMinPoolSize(int minPoolSize) {
-		if(isInited()){
-			throw new IllegalArgumentException("set before inited");
-		}
+		
 		dataSource.setMinPoolSize(minPoolSize);
 	}
 	/**

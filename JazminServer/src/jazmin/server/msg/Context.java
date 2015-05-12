@@ -21,6 +21,8 @@ package jazmin.server.msg;
 import java.util.HashMap;
 import java.util.Map;
 
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
 import jazmin.server.msg.codec.RequestMessage;
 import jazmin.server.msg.codec.ResponseMessage;
 import jazmin.util.DumpIgnore;
@@ -31,6 +33,8 @@ import jazmin.util.DumpIgnore;
  */
 @DumpIgnore
 public class Context {
+	private static Logger logger=LoggerFactory.get(Context.class);
+	//
 	private boolean isFlush;
 	private boolean isDisableResponse;
 	private boolean isContinuation;
@@ -145,6 +149,14 @@ public class Context {
 	void close(){
 		if(!isContinuation){
 			flush();
+		}
+	}
+	//
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+		if(!isFlush){
+			logger.fatal("context did not call flush {}",requestMessage);
 		}
 	}
 }
