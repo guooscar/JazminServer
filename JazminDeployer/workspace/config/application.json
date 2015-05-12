@@ -2,56 +2,49 @@
 	{
 		"system":"wlw",
 		"id":"Device",
-		"layer":"user",
+		"type":"client",
 		"depends":["CdagSystem"]
 	},
 	{
 		"system":"wlw",
 		"id":"MainDataSystem",
 		"type":"jazmin-rpc",
-		"layer":"app",
 		"depends":["MainDataSystemDB"]
 	},
 	{
 		"system":"wlw",
 		"type":"jazmin-msg",
 		"id":"CdagSystem",
-		"layer":"web",
 		"depends":["MainDataSystem"]
 	},
 	{
 		"system":"wlw",
 		"type":"jazmin-msg",
 		"id":"RdtsSystem",
-		"layer":"web",
 		"depends":["MainDataSystem"]
 	},
 	{
 		"system":"wlw",
 		"type":"jazmin-msg",
 		"id":"GftpSystem",
-		"layer":"web",
 		"depends":["MainDataSystem"]
 	},
 	{
 		"system":"wlw",
 		"type":"jazmin-msg",
 		"id":"MddsSystem",
-		"layer":"web",
 		"depends":["MainDataSystem"]
 	},
 	{
 		"system":"wlw",
 		"type":"jazmin-ftp",
 		"id":"FTPSystem",
-		"layer":"web",
 		"depends":["MainDataSystem"]
 	},
 	{
 		"system":"wlw",
 		"type":"mysql",
 		"id":"MainDataSystemDB",
-		"layer":"db",
 		"depends":[]
 	}
 ]

@@ -43,6 +43,9 @@ public class InvokeStat implements Comparable<InvokeStat>{
 			maxRunTime.add(runTime);
 		}
 		totalRunTime.add(runTime);
+		if(totalRunTime.longValue()<0){
+			totalRunTime.reset();
+		}
 		//
 		if(minFullTime.intValue()>fullTime){
 			minFullTime.reset();
@@ -53,6 +56,9 @@ public class InvokeStat implements Comparable<InvokeStat>{
 			maxFullTime.add(fullTime);
 		}
 		totalFullTime.add(fullTime);
+		if(totalFullTime.longValue()<0){
+			totalFullTime.reset();
+		}
 	}
 	//
 	public int avgRunTime(){

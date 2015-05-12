@@ -116,6 +116,8 @@ public class GraphVizRenderer {
 		return i.id+"\\n"+i.application.type+"["+i.machineId+":"+i.port+"]";
 	}
 	//
+	
+	//
 	private  void renderNodeList(
 			StringBuilder sb,
 			String layer,
@@ -126,7 +128,7 @@ public class GraphVizRenderer {
 		sb.append("rank = same;\n");
 		sb.append("\""+layer+"\";\n");
 		for(Application a:apps){
-			if(a.layer.equals(layer)){
+			if(a.getLayer().equals(layer)){
 				boolean find=false;
 				for(Instance i:instances){
 					if(i.appId.equals(a.id)&&i.cluster.equals(cluster)){

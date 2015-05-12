@@ -155,7 +155,7 @@ public class JazminCommand extends ConsoleCommand {
     //
     //
     private void showThreadPoolInfo(String args){
-    	String format="%-350s : %-10s\n";
+    	String format="%-35s : %-10s\n";
 		out.printf(format,"corePoolSize",Jazmin.dispatcher.getCorePoolSize());
 		out.printf(format,"maxPoolSize",Jazmin.dispatcher.getMaximumPoolSize());
 		out.printf(format,"keepAliveTime",Jazmin.dispatcher.getKeepAliveTime(TimeUnit.SECONDS)+" seconds");
@@ -171,6 +171,12 @@ public class JazminCommand extends ConsoleCommand {
 		out.printf(format,"activeCount",Jazmin.dispatcher.getActiveCount());
 		out.printf(format,"completedTaskCount",Jazmin.dispatcher.getCompletedTaskCount());
 		out.printf(format,"taskCount",Jazmin.dispatcher.getTaskCount());	
+		double totalFull=Jazmin.dispatcher.getTotalFullTime();
+		double totalRun=Jazmin.dispatcher.getTotalRunTime();
+		double totalCount=Jazmin.dispatcher.getTotalInvokeCount();
+		out.printf(format,"avgFullTime",String.format("%.2f", totalFull/totalCount));	
+		out.printf(format,"avgRunTime",String.format("%.2f", totalRun/totalCount));	
+		
     }
     //
     private void resetThreadPoolStats(String args){

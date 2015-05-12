@@ -75,6 +75,7 @@ public class ApplicationInfoView extends DeployBaseView{
 				@Override
 				public void accept(InputWindow t) {
 					String cluster=t.getInputValue();
+					t.close();
 					if(cluster!=null){
 						DeployGraphWindow bfw=new DeployGraphWindow(DeployGraphWindow.TYPE_INSTANCE,app.system,cluster);
 						UI.getCurrent().addWindow(bfw);

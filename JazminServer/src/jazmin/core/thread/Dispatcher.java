@@ -57,7 +57,8 @@ public class Dispatcher extends Lifecycle implements Executor{
 	private Map<String,InvokeStat>methodStats;
 	private LongAdder totalInvokeCount;
 	private LongAdder totalSubmitCount;
-
+	private LongAdder totalRunTime;
+	private LongAdder totalFullTime;
 	/**
 	 * 
 	 */
@@ -67,6 +68,8 @@ public class Dispatcher extends Lifecycle implements Executor{
 		methodStats=new ConcurrentHashMap<String, InvokeStat>();
 		totalInvokeCount=new LongAdder();
 		totalSubmitCount=new LongAdder();
+		totalRunTime=new LongAdder();
+		totalFullTime=new LongAdder();
 		poolExecutor=new ThreadPoolExecutor(
 				DEFAULT_CORE_POOL_SIZE, DEFAULT_MAX_POOL_SIZE,
 				60,
@@ -132,10 +135,39 @@ public class Dispatcher extends Lifecycle implements Executor{
 		}
 		ms.invoke(e!=null, runTime,fullTime);
 		totalInvokeCount.increment();
+		totalFullTime.add(fullTime);
+		totalRunTime.add(runTime);
+		//
+		if(totalInvokeCount.longValue()<0){
+			totalInvokeCount.reset();
+		}
+		if(totalFullTime.longValue()<0){
+			totalFullTime.reset();
+		}
+		if(totalRunTime.longValue()<0){
+			totalRunTime.reset();
+		}
+	}
+	
+	/**
+	 * @return the totalRunTime
+	 */
+	public long getTotalRunTime() {
+		return totalRunTime.longValue();
+	}
+	/**
+	 * @return the totalFullTime
+	 */
+	public long getTotalFullTime() {
+		return totalFullTime.longValue();
 	}
 	//
 	public void resetInvokeStats(){
 		methodStats.clear();
+		totalFullTime.reset();
+		totalInvokeCount.reset();
+		totalSubmitCount.reset();
+		totalRunTime.reset();
 	}
 	//
 	public List<InvokeStat>getInvokeStats(){

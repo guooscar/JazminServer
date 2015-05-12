@@ -45,7 +45,7 @@ public class IMServerTest {
 		if(ctx.getSession().getPrincipal()==null){
 			ctx.getServer().setPrincipal(ctx.getSession(),UUID.randomUUID().toString(), "");			
 		}
-		Thread.sleep(RandomUtil.randomInt(230,240));
+		//Thread.sleep(RandomUtil.randomInt(25));
 		ctx.setResult(new IMResult(empty));
 	}
 }

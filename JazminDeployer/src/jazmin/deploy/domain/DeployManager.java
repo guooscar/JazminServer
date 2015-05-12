@@ -100,10 +100,11 @@ public class DeployManager {
 			configDir="./workspace/config";
 		}
 		try{
-
 			reloadApplicationConfig(configDir);
+			checkApplicationConfig();
 			reloadMachineConfig(configDir);
 			reloadInstanceConfig(configDir);
+			setInstancePrioriy();
 			reloadPackage();
 		}catch(Exception e){
 			logger.error(e.getMessage(),e);
@@ -268,6 +269,25 @@ public class DeployManager {
 		}
 	}
 	//
+	private static void checkApplicationConfig(){
+		for(Application a:applicationMap.values()){
+			for(String depend:a.depends){
+				if(!applicationMap.containsKey(depend)){
+					logger.error("can not find depend application {} for {}",depend,a.id);
+				}
+				//
+				if(depend.equals(a)){
+					logger.error("can not depend self {}",depend);	
+				}
+			}
+		}
+		//do topsearch and cal priority
+		int idx=0;
+		for(Application a:TopSearch.topSearch(getApplications())){
+			a.priority=idx++;
+		}
+	}
+	//
 	private static void reloadInstanceConfig(String configDir)throws Exception{
 		File configFile=new File(configDir,"instance.json");
 		if(configFile.exists()){
@@ -304,6 +324,12 @@ public class DeployManager {
 			});
 		}else{
 			logger.warn("can not find :"+configFile);
+		}
+	}
+	//
+	private static void setInstancePrioriy(){
+		for(Instance i:getInstances()){
+			i.priority=i.application.priority;
 		}
 	}
 	//
@@ -523,6 +549,7 @@ public class DeployManager {
 	//--------------------------------------------------------------------------
 	public static void main(String[] args)throws Exception{
 		DeployManager.reload();
-		System.out.println(DeployManager.renderTemplate("cdag_001_domaintest"));
+		System.out.println(TopSearch.topSearch(DeployManager.getApplications()));
+		
 	}
 }
