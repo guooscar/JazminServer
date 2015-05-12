@@ -40,7 +40,6 @@ public class ConsoleServer extends Server{
 	Map<String,ConsoleCommand>commands=new HashMap<String, ConsoleCommand>();
 	LinkedList<String>commandHistory=new LinkedList<String>();
 	int maxCommandHistory;
-	BufferedWriter historyWriter;
 	//
 	private void startSshServer()throws Exception {
 		maxCommandHistory=500;
@@ -111,25 +110,33 @@ public class ConsoleServer extends Server{
 	void loadCommandHistory(){
 		String historyFilePath=Jazmin.getServerPath()+"/.console-history";
 		File historyFile=new File(historyFilePath);
-		if(!historyFile.exists()){
-			try {
-				historyFile.createNewFile();
-				historyWriter=new BufferedWriter(new FileWriter(historyFile));
-			} catch (IOException e) {
-				logger.warn("can not create history file {}",historyFile);
-			}
-		}else{
+		if(historyFile.exists()){
 			try {
 				Files.lines(historyFile.toPath()).forEach((s)->{
 					addCommandHistory(s);
 				});
-				historyWriter=new BufferedWriter(new FileWriter(historyFile));
 			} catch (IOException e) {
 				logger.warn("can not creat read history file {}",historyFile);
 			}
 		}
-		
-		
+	}
+	//
+	void saveCommandHistory()throws Exception{
+		String historyFilePath=Jazmin.getServerPath()+"/.console-history";
+		File historyFile=new File(historyFilePath);
+		if(!historyFile.exists()){
+			if(!historyFile.createNewFile()){
+				logger.error("can not create {} file",historyFilePath);
+				return;
+			}
+		}
+		try(BufferedWriter historyWriter=new BufferedWriter(new FileWriter(historyFile,false));){
+			for(String s:commandHistory){
+				historyWriter.write(s+"\n");
+			}
+			historyWriter.flush();
+			historyWriter.close();
+		}
 	}
 	//
 	void addCommandHistory(String line){
@@ -213,6 +220,7 @@ public class ConsoleServer extends Server{
 	//
 	@Override
 	public void stop()throws Exception {
+		saveCommandHistory();
 		if(sshServer!=null){
 			sshServer.stop();
 		}

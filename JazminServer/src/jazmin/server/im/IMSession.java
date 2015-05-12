@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
+import jazmin.misc.RateLimiter;
 
 /**
  * @author yama
@@ -37,17 +38,14 @@ public class IMSession {
 	Set<String>channels;
 	Date createTime;
 	//
-	private int frequencyCounter;
-	private long frequencyTime;
-	private int maxRequestCountPerSecond;
+	RateLimiter rateLimiter;
 	private AtomicBoolean processSyncServiceState;
 	//
 	IMSession(io.netty.channel.Channel channel) {
 		setChannel(channel);
 		lastAccess();
 		totalMessageCount=0;
-		maxRequestCountPerSecond=10;
-		resetFrequencyState();
+		rateLimiter=new RateLimiter();
 		processSyncServiceState=new AtomicBoolean();
 		processSyncService(false);
 		channels=new TreeSet<String>();
@@ -70,14 +68,14 @@ public class IMSession {
 	 * @return the maxRequestCountPerSecond
 	 */
 	public int getMaxRequestCountPerSecond() {
-		return maxRequestCountPerSecond;
+		return rateLimiter.getMaxRequestCountPerSecond();
 	}
 
 	/**
 	 * @param maxRequestCountPerSecond the maxRequestCountPerSecond to set
 	 */
 	public void setMaxRequestCountPerSecond(int maxRequestCountPerSecond) {
-		this.maxRequestCountPerSecond = maxRequestCountPerSecond;
+		this.rateLimiter.setMaxRequestCountPerSecond(maxRequestCountPerSecond);
 	}
 
 	/**
@@ -217,30 +215,7 @@ public class IMSession {
 	}
 	//
 	boolean isFrequencyReach(){
-		if(maxRequestCountPerSecond<=0){
-			return false;
-		}
-		int maxRequestCount=maxRequestCountPerSecond*10;
-		if(maxRequestCount<=0){
-			return false;
-		}
-		frequencyCounter++;
-		final int TEN_SECONDS=10*1000;
-		//sample every 10 second
-		long now=System.currentTimeMillis();
-		if((now-frequencyTime)>TEN_SECONDS){
-			resetFrequencyState();
-		}else{
-			if(frequencyCounter>maxRequestCount){
-				return true;
-			}
-		}
-		return false;
-	}
-	//
-	void resetFrequencyState(){
-		frequencyTime=System.currentTimeMillis();
-		frequencyCounter=0;
+		return rateLimiter.accessAndTest();
 	}
 	//
 	void receivedMessage(IMRequestMessage message){
