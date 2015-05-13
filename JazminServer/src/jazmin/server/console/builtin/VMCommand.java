@@ -62,9 +62,9 @@ public class VMCommand extends ConsoleCommand {
 
     //
     private void showThreadInfo(String args)throws Exception{
-    	out.print("total:"+threadMXBean.getThreadCount()+" ");
-    	out.print("total-started:"+threadMXBean.getTotalStartedThreadCount()+" ");
-    	out.print("peak:"+threadMXBean.getPeakThreadCount()+" ");
+    	out.print("total:"+threadMXBean.getThreadCount()+",");
+    	out.print("started:"+threadMXBean.getTotalStartedThreadCount()+",");
+    	out.print("peak:"+threadMXBean.getPeakThreadCount()+",");
     	out.println("deamon:"+threadMXBean.getDaemonThreadCount()+" ");
     	//
     	long threadIds[]=threadMXBean.getAllThreadIds();

@@ -17,6 +17,7 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -154,11 +155,12 @@ public class DeployManager {
 		File packageFolder=new File(packageDir);
 		if(packageFolder.exists()&&packageFolder.isDirectory()){
 			for(File ff:packageFolder.listFiles()){
-				if(ff.isFile()){
+				if(ff.isFile()&&!ff.isHidden()){
 					AppPackage pkg=new AppPackage();
 					String fileName=ff.getName();
 					pkg.id=(fileName);
 					pkg.file=(ff.getAbsolutePath());
+					pkg.lastModifiedTime=new Date(ff.lastModified());
 					packageMap.put(pkg.id,pkg);
 				}
 			}	

@@ -27,6 +27,7 @@ import jazmin.server.msg.codec.ResponseMessage;
 public class Session {
 	private static Logger logger=LoggerFactory.get(Session.class);
 	//
+	String connectionType;
 	int id;
 	String principal;
 	String userAgent;
@@ -54,6 +55,7 @@ public class Session {
 		processSyncService(false);
 		channels=new TreeSet<String>();
 		createTime=new Date();
+		connectionType="tcp";
 	}
 	//--------------------------------------------------------------------------
 	//public interface
@@ -64,6 +66,13 @@ public class Session {
 	public Date getCreateTime() {
 		return createTime;
 	}
+	/**
+	 * @return the connectionType
+	 */
+	public String getConnectionType() {
+		return connectionType;
+	}
+
 	/**
 	 * @return the maxRequestCountPerSecond
 	 */

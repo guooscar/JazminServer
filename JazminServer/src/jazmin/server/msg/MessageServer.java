@@ -25,6 +25,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 
 import java.lang.reflect.Method;
@@ -75,11 +78,14 @@ public class MessageServer extends Server{
 	static final int DEFAULT_MAX_SESSION_COUNT=8000;
 	static final int DEFAULT_MAX_CHANNEL_COUNT=1000;
 	//
-	ServerBootstrap nettyServer;
+	ServerBootstrap tcpNettyServer;
+	ServerBootstrap webSocketNettyServer;
 	EventLoopGroup bossGroup;
 	EventLoopGroup workerGroup;
 	ChannelInitializer<SocketChannel> channelInitializer;
+	IOWorker ioWorker;
 	int port;
+	int webSocketPort;
 	int idleTime;
 	String messageType;
 	int sessionTimeout;
@@ -122,6 +128,7 @@ public class MessageServer extends Server{
 				SessionLifecycleListener.class,
 				"sessionDisconnected",Session.class);
 		maxSessionRequestCountPerSecond=10;
+		webSocketPort=-1;
 	}
 	/**
 	 * return port of this server
@@ -131,6 +138,21 @@ public class MessageServer extends Server{
 		return port;
 	}
 	
+	/**
+	 * @return the webSocketPort
+	 */
+	public int getWebSocketPort() {
+		return webSocketPort;
+	}
+	/**
+	 * @param webSocketPort the webSocketPort to set
+	 */
+	public void setWebSocketPort(int webSocketPort) {
+		if(isInited()){
+			throw new IllegalArgumentException("set before inited");
+		}
+		this.webSocketPort = webSocketPort;
+	}
 	/**
 	 * set port of this server
 	 * @param port the port to set
@@ -357,13 +379,10 @@ public class MessageServer extends Server{
 		}
 	}
 	//
-	protected void initNettyServer(){
-		nettyServer=new ServerBootstrap();
+	private void initTcpNettyServer(){
+		tcpNettyServer=new ServerBootstrap();
 		channelInitializer=new MessageServerChannelInitializer();
-		IOWorker worker=new IOWorker("MsgServerIO",Runtime.getRuntime().availableProcessors()*2+1);
-		bossGroup = new NioEventLoopGroup(1,worker);
-		workerGroup = new NioEventLoopGroup(0,worker);
-		nettyServer.group(bossGroup, workerGroup)
+		tcpNettyServer.group(bossGroup, workerGroup)
 		.channel(NioServerSocketChannel.class)
 		.option(ChannelOption.SO_BACKLOG, 128)    
 		.option(ChannelOption.SO_REUSEADDR, true)    
@@ -374,6 +393,27 @@ public class MessageServer extends Server{
 		.childHandler(channelInitializer);
 	}
 	//
+	private void initWsNettyServer(){
+		webSocketNettyServer=new ServerBootstrap();
+		channelInitializer=new WSMessageServerChannelInitializer();
+		webSocketNettyServer.group(bossGroup, workerGroup)
+		.channel(NioServerSocketChannel.class)
+		.option(ChannelOption.SO_BACKLOG, 128)    
+		.option(ChannelOption.SO_REUSEADDR, true)    
+		.childOption(ChannelOption.TCP_NODELAY, true)
+        .childOption(ChannelOption.SO_KEEPALIVE, true) 
+		.childHandler(channelInitializer);
+	}
+	class WSMessageServerChannelInitializer extends ChannelInitializer<SocketChannel>{
+		@Override
+		protected void initChannel(SocketChannel ch) throws Exception {
+			ch.pipeline().addLast("idleStateHandler",new IdleStateHandler(idleTime,idleTime,0));
+			ch.pipeline().addLast(new HttpServerCodec());
+			ch.pipeline().addLast(new HttpObjectAggregator(65536));
+			ch.pipeline().addLast(new WebSocketServerCompressionHandler());
+			ch.pipeline().addLast(new WebSocketServerHandler(MessageServer.this));
+		}
+	}
 	//--------------------------------------------------------------------------
 	//
 	private boolean checkParameterTypes(Method m){
@@ -827,7 +867,13 @@ public class MessageServer extends Server{
 	//lifecycle
 	@Override
 	public void init() throws Exception {
-		initNettyServer();
+		ioWorker=new IOWorker("MsgServerIO",Runtime.getRuntime().availableProcessors()*2+1);
+		bossGroup = new NioEventLoopGroup(1,ioWorker);
+		workerGroup = new NioEventLoopGroup(0,ioWorker);
+		initTcpNettyServer();
+		if(webSocketPort>0){
+			initWsNettyServer();
+		}
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
 			cs.registerCommand( MessageServerCommand.class);
@@ -836,7 +882,10 @@ public class MessageServer extends Server{
 	//
 	@Override
 	public void start() throws Exception {
-		nettyServer.bind(port).sync();
+		tcpNettyServer.bind(port).sync();
+		if(webSocketNettyServer!=null){
+			webSocketNettyServer.bind(webSocketPort).sync();
+		}
 		startSessionChecker();
 	}
 	//
@@ -855,6 +904,7 @@ public class MessageServer extends Server{
 		.section("info")
 		.format("%-50s:%-30s\n")
 		.print("port", port)
+		.print("webSocketPort", webSocketPort)
 		.print("idleTime", idleTime+" seconds")
 		.print("messageType", messageType)
 		.print("sessionTimeout", sessionTimeout+" seconds")

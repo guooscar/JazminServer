@@ -1,4 +1,7 @@
 package jazmin.deploy.domain;
+
+import java.util.Date;
+
 /**
  * 
  * @author yama
@@ -6,6 +9,7 @@ package jazmin.deploy.domain;
  */
 public class AppPackage {
 	public String id;
+	public Date lastModifiedTime;
 	public String file;
 	/**
 	 * @return the id
@@ -30,6 +34,19 @@ public class AppPackage {
 	 */
 	public void setFile(String file) {
 		this.file = file;
+	}
+	
+	/**
+	 * @return the lastModifiedTime
+	 */
+	public Date getLastModifiedTime() {
+		return lastModifiedTime;
+	}
+	/**
+	 * @param lastModifiedTime the lastModifiedTime to set
+	 */
+	public void setLastModifiedTime(Date lastModifiedTime) {
+		this.lastModifiedTime = lastModifiedTime;
 	}
 	
 }

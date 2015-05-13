@@ -26,7 +26,9 @@ import io.netty.util.AttributeKey;
 import io.netty.util.CharsetUtil;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
+import jazmin.server.msg.codec.JSONRequestParser;
 import jazmin.server.msg.codec.RequestMessage;
+import jazmin.util.DumpUtil;
 
 /**
  * Handles handshakes and messages
@@ -38,9 +40,9 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 	private static final AttributeKey<Session> SESSION_KEY = AttributeKey.valueOf("s");
 	private static final String WEBSOCKET_PATH = "/websocket";
 	private WebSocketServerHandshaker handshaker;
-	private WebSocketMessageServer messageServer;
+	private MessageServer messageServer;
 
-	public WebSocketServerHandler(WebSocketMessageServer messageServer) {
+	public WebSocketServerHandler(MessageServer messageServer) {
 		this.messageServer = messageServer;
 	}
 
@@ -94,6 +96,9 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 			ctx.channel().write(new PongWebSocketFrame(frame.content().retain()));
 			return;
 		}
+		if (frame instanceof PongWebSocketFrame) {
+			return;
+		}
 		if (!(frame instanceof TextWebSocketFrame)) {
 			throw new UnsupportedOperationException(String.format(
 					"%s frame types not supported", frame.getClass().getName()));
@@ -105,7 +110,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 			ctx.close();
 			return;
 		}
-		RequestMessage message=messageServer.decodeMessage(request.trim());
+		RequestMessage message=decodeMessage(request.trim());
 		Session session = ctx.channel().attr(SESSION_KEY).get();
 		messageServer.receiveMessage(session, message);
 	}
@@ -162,4 +167,16 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 			messageServer.sessionIdle(session);
 		}
 	}
+	//
+	//--------------------------------------------------------------------------
+	private RequestMessage decodeMessage(String s){
+		RequestMessage reqMessage=JSONRequestParser.createRequestMessage(s);
+     	if(logger.isDebugEnabled()){
+     		logger.debug("\ndecode message--------------------------------------\n"
+     						+DumpUtil.formatJSON(s));
+     	}
+    	messageServer.networkTrafficStat.inBound(s.getBytes().length);
+     	return reqMessage;
+	}
+	
 }

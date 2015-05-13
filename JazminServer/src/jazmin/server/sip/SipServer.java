@@ -111,9 +111,9 @@ public class SipServer extends Server{
         this.publicAddress="127.0.0.1";
         this.publicPort=5060;
         this.port = 5060;
-        this.tlsPort=5061;
-        this.webSocketPort=1443;
-        this.swebSocketPort=1444;
+        this.tlsPort=-1;
+        this.webSocketPort=-1;
+        this.swebSocketPort=-1;
         
         privateKeyFile="cert/jazmin_private_key_pkcs8.pem";
         certificateFile="cert/jazmin_cert.pem";
@@ -141,10 +141,15 @@ public class SipServer extends Server{
     	final InetSocketAddress wssSocketAddress = new InetSocketAddress(this.address, this.swebSocketPort);
     	this.udpListeningPoint = this.bootstrap.bind(socketAddress).sync().channel();
         this.tcpServerBootstrap.bind(socketAddress).sync();
-        this.tlsServerBootstrap.bind(tlsSocketAddress).sync();
-        this.webSocketServerBootstrap.bind(wsSocketAddress).sync();
-        this.swebSocketServerBootstrap.bind(wssSocketAddress).sync();
-        
+        if(tlsPort>0){
+        	this.tlsServerBootstrap.bind(tlsSocketAddress).sync();
+        }
+        if(webSocketPort>0){
+        	this.webSocketServerBootstrap.bind(wsSocketAddress).sync();
+        }
+        if(swebSocketPort>0){
+        	this.swebSocketServerBootstrap.bind(wssSocketAddress).sync();
+        }
     }
     //
     private Bootstrap createUDPListeningPoint() {
@@ -676,9 +681,15 @@ public class SipServer extends Server{
     	udpGroup=new NioEventLoopGroup(0,ioWorker);
         this.bootstrap = createUDPListeningPoint();
         this.tcpServerBootstrap = createTCPListeningPoint(false);
-        this.tlsServerBootstrap = createTCPListeningPoint(true);
-        this.webSocketServerBootstrap=createWSListeningPoint(false);
-        this.swebSocketServerBootstrap=createWSListeningPoint(true);
+        if(tlsPort>0){
+        	this.tlsServerBootstrap = createTCPListeningPoint(true);
+        }
+        if(webSocketPort>0){
+        	this.webSocketServerBootstrap=createWSListeningPoint(false);
+        }
+        if(swebSocketPort>0){
+        	this.swebSocketServerBootstrap=createWSListeningPoint(true);
+        }
         startNetty();
         //session timeout checker
         Jazmin.scheduleAtFixedRate(this::checkSessionTimeout,

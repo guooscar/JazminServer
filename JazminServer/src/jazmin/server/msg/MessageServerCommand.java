@@ -111,12 +111,13 @@ public class MessageServerCommand extends ConsoleCommand {
     //
     private void showSessions(String args){
     	TablePrinter tp=TablePrinter.create(out)
-    			.length(10,20,10,15,10,10,10,15,15,10)
+    			.length(10,20,10,15,10,10,10,10,15,15,10)
     			.headers("ID",
     					"PRINCIPAL",
     					"USERAGENT",
     					"HOST",
     					"PORT",
+    					"CONN",
     					"RECEIVE",
     					"SENT",
     					"LACC",
@@ -137,6 +138,7 @@ public class MessageServerCommand extends ConsoleCommand {
 					s.getUserAgent(),
 					s.getRemoteHostAddress(),
 					s.getRemotePort(),
+					s.getConnectionType(),
 					s.getReceiveMessageCount(),
 					s.getSentMessageCount(),
 					formatDate(new Date(s.getLastAccessTime())),
