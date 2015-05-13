@@ -20,12 +20,10 @@ import com.vaadin.ui.themes.ValoTheme;
  * @author yama
  * 8 Jan, 2015
  */
+@SuppressWarnings("serial")
 public class BeanTable<T> extends Table{
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+	private CellRender cellRender;
+	//
 	public BeanTable(String caption,Class<T>beanClass,String ...excludeProperity) {
 		super(caption);
 		createTable(beanClass,excludeProperity);
@@ -48,30 +46,8 @@ public class BeanTable<T> extends Table{
 			if(Modifier.isPublic(f.getModifiers())
 					&&!Modifier.isStatic(f.getModifiers())
 					&&!excludeSet.contains(fieldName)){
-				Class<?>fieldType=f.getType();
-				if(fieldType.equals(int.class)){
-					fieldType=Integer.class;
-				}
-				if(fieldType.equals(float.class)){
-					fieldType=Float.class;
-				}
-				if(fieldType.equals(double.class)){
-					fieldType=Double.class;
-				}
-				if(fieldType.equals(long.class)){
-					fieldType=Long.class;
-				}
-				if(fieldType.equals(char.class)){
-					fieldType=Character.class;
-				}
-				if(fieldType.equals(byte.class)){
-					fieldType=Byte.class;
-				}
-				if(fieldType.equals(boolean.class)){
-					fieldType=Boolean.class;
-				}
 				showColumns.add(fieldName);
-				addContainerProperty(fieldName,fieldType, null);
+				addContainerProperty(fieldName,String.class, null);
 			}			
 		}
 		//
@@ -97,13 +73,23 @@ public class BeanTable<T> extends Table{
 			row.getItemProperty("$object").setValue(o);
 			for(Object id:getContainerPropertyIds()){
 				try {
-					Field ff=targetClass.getField(id.toString());
+					String idStr=id.toString();
+					if(idStr.equals("$object")){
+						continue;
+					}
+					Field ff=targetClass.getField(idStr);
 					Property<Object> p=row.getItemProperty(id);
 					Object oo=ff.get(o);
 					if(oo!=null){
-						p.setValue(ff.get(o));
+						String result=oo+"";
+						if(cellRender!=null){
+							result=cellRender.renderCell(idStr,oo);
+						}
+						p.setValue(result);
 					}
-				} catch (Exception e) {}	
+				} catch (Exception e) {
+					e.printStackTrace();
+				}	
 			}
 		}
 	}
@@ -117,4 +103,17 @@ public class BeanTable<T> extends Table{
 		Item item= getItem(itemId);
 		return (T)item.getItemProperty("$object").getValue();
 	}
+	/**
+	 * @return the cellRender
+	 */
+	public CellRender getCellRender() {
+		return cellRender;
+	}
+	/**
+	 * @param cellRender the cellRender to set
+	 */
+	public void setCellRender(CellRender cellRender) {
+		this.cellRender = cellRender;
+	}
+	
 }

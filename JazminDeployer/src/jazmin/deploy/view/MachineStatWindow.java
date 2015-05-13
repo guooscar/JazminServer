@@ -3,6 +3,8 @@
  */
 package jazmin.deploy.view;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 
 import jazmin.core.Jazmin;
@@ -11,7 +13,9 @@ import jazmin.deploy.domain.MachineStat;
 import jazmin.deploy.domain.MachineStat.FSInfo;
 import jazmin.deploy.domain.MachineStat.NetInfInfo;
 import jazmin.deploy.ui.BeanTable;
+import jazmin.deploy.ui.CellRender;
 import jazmin.deploy.ui.StaticBeanForm;
+import jazmin.util.DumpUtil;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Responsive;
@@ -27,7 +31,7 @@ import com.vaadin.ui.themes.ValoTheme;
  * 6 Jan, 2015
  */
 @SuppressWarnings("serial")
-public class MachineStatWindow extends Window{
+public class MachineStatWindow extends Window implements CellRender{
 	//
 	private MachineStat machineStat;
 	private Machine machine;
@@ -52,6 +56,7 @@ public class MachineStatWindow extends Window{
         beanForm=new StaticBeanForm<MachineStat>(
         		machineStat,2,"fsinfos","netInfInfos");
         beanForm.setSizeFull();
+        beanForm.setCellRender(this);
         content.addComponent(beanForm);
         content.setExpandRatio(beanForm, 1.0f);
         //
@@ -59,12 +64,14 @@ public class MachineStatWindow extends Window{
         		FSInfo.class);
         fsinfoTable.setWidth(100.f,Unit.PERCENTAGE);
         fsinfoTable.setHeight(200,Unit.PIXELS);
+        fsinfoTable.setCellRender(this);
         content.addComponent(fsinfoTable);
         //
         networkInfoTable=new BeanTable<MachineStat.NetInfInfo>("NetInfInfo", 
         		MachineStat.NetInfInfo.class);
         networkInfoTable.setWidth(100.f,Unit.PERCENTAGE);
         networkInfoTable.setHeight(200,Unit.PIXELS);
+        networkInfoTable.setCellRender(this);
         content.addComponent(networkInfoTable);
         //
         HorizontalLayout footer = new HorizontalLayout();
@@ -103,5 +110,33 @@ public class MachineStatWindow extends Window{
 			fsinfoTable.setData(machineStat.fsinfos);
 			networkInfoTable.setData(new ArrayList<MachineStat.NetInfInfo>(machineStat.netInfInfos.values()));
 		});
+	}
+	@Override
+	public String renderCell(String propertyName, Object value) {
+		String result=value+"";
+		switch (propertyName) {
+		case "upTime":
+			Long upTime=(Long) value;
+			Duration d=Duration.of(upTime,ChronoUnit.SECONDS);
+			result= d.toString();
+			break;
+		case "memTotal":
+		case "memFree":
+		case "memCached":
+		case "memBuffers":
+		case "memSwapFree":
+		case "memSwapTotal":
+		//
+		case "used":
+		case "free":
+		case "rx":
+		case "tx":
+			Long memoryBytes=(Long) value;
+			result=DumpUtil.byteCountToString(memoryBytes);
+			break;
+		default:
+			break;
+		}
+		return result;
 	}
 }

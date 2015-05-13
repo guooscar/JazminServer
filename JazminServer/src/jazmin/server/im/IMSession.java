@@ -34,7 +34,8 @@ public class IMSession {
 	String remoteHostAddress;
 	int remotePort;
 	int requestId;
-	int totalMessageCount;
+	long receiveMessageCount;
+	long sentMessageCount;
 	Set<String>channels;
 	Date createTime;
 	//
@@ -44,7 +45,8 @@ public class IMSession {
 	IMSession(io.netty.channel.Channel channel) {
 		setChannel(channel);
 		lastAccess();
-		totalMessageCount=0;
+		receiveMessageCount=0;
+		sentMessageCount=0;
 		rateLimiter=new RateLimiter();
 		processSyncServiceState=new AtomicBoolean();
 		processSyncService(false);
@@ -84,12 +86,21 @@ public class IMSession {
 	public int getId() {
 		return id;
 	}
+	
 	/**
-	 * @return the totalMessageCount
+	 * @return the receiveMessageCount
 	 */
-	public int getTotalMessageCount() {
-		return totalMessageCount;
+	public long getReceiveMessageCount() {
+		return receiveMessageCount;
 	}
+
+	/**
+	 * @return the sentMessageCount
+	 */
+	public long getSentMessageCount() {
+		return sentMessageCount;
+	}
+
 	/**
 	 * @return the principal
 	 */
@@ -219,7 +230,7 @@ public class IMSession {
 	}
 	//
 	void receivedMessage(IMRequestMessage message){
-		totalMessageCount++;
+		receiveMessageCount++;
 		//requestId=message.requestId;
 		lastAccess();
 	}
@@ -247,6 +258,7 @@ public class IMSession {
 	void sendMessage(IMResponseMessage responseMessage){
 		lastAccess();
 		if(channel!=null){
+			sentMessageCount++;
 			channel.writeAndFlush(responseMessage);
 		}
 	}

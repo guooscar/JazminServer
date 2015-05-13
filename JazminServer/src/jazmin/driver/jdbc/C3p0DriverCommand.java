@@ -4,7 +4,7 @@ import java.util.List;
 
 import jazmin.core.Jazmin;
 import jazmin.misc.io.InvokeStat;
-import jazmin.server.console.ConsoleCommand;
+import jazmin.server.console.builtin.ConsoleCommand;
 /**
  * 
  * @author yama

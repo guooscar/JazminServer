@@ -31,8 +31,6 @@ public class WebRequestLog extends AbstractLifeCycle implements RequestLog {
 					.append(req.getRemotePort()).append("] ");
 			sb.append(req.getProtocol() + " ");
 			sb.append("[").append(req.getMethod()).append("] ");
-			sb.append('[').append(req.getRequestURI()).append("] ");
-
 			long rspLen = rsp.getContentCount();
 			if (rspLen >= 0) {
 				sb.append(" ");

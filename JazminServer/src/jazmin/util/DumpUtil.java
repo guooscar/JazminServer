@@ -16,6 +16,9 @@ public class DumpUtil {
 	}
 	//
     public static String cut(String string,int maxLength){
+    	if(maxLength<=0){
+    		return string;
+    	}
     	if(string==null){
     		return null;
     	}
@@ -30,6 +33,12 @@ public class DumpUtil {
 		for(int i=0;i<count;i++){
 			sb.append(c);
 		}
+	}
+	//
+	public static String repeat(String c,int count){
+		StringBuilder sb=new StringBuilder();
+		repeat(sb,c, count);
+		return sb.toString();
 	}
 	//
 	public static String dumpInvokeArgs(String callToken,Object []args,int startIndex){
@@ -131,6 +140,9 @@ public class DumpUtil {
 		if(bytes<1024*1024){
 			return String.format("%.2fK",bb/1024);
 		}
-		return String.format("%.2fM",bb/(1024*1024));
+		if(bytes<1024*1024*1024){
+			return String.format("%.2fM",bb/(1024*1024));
+		}
+		return String.format("%.2fG",bb/(1024*1024*1024));
 	}
 }

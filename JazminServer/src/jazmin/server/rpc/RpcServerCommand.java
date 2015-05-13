@@ -9,9 +9,9 @@ import java.util.concurrent.atomic.LongAdder;
 
 import jazmin.core.Jazmin;
 import jazmin.misc.io.IOWorker;
-import jazmin.server.console.AsciiChart;
-import jazmin.server.console.ConsoleCommand;
-import jazmin.server.console.TerminalWriter;
+import jazmin.server.console.ascii.AsciiChart;
+import jazmin.server.console.ascii.TerminalWriter;
+import jazmin.server.console.builtin.ConsoleCommand;
 import jazmin.util.DumpUtil;
 /**
  * 

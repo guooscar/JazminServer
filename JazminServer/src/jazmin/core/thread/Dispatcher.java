@@ -47,7 +47,7 @@ public class Dispatcher extends Lifecycle implements Executor{
 	public static final Object EMPTY_ARGS[]=new Object[]{};
 	public static final DispatcherCallback EMPTY_CALLBACK=new DispatcherCallbackAdapter(){};
 	//
-	private static final int DEFAULT_CORE_POOL_SIZE=32;
+	private static final int DEFAULT_CORE_POOL_SIZE=16;
 	private static final int DEFAULT_MAX_POOL_SIZE=64;
 	//
 	private ThreadPoolExecutor poolExecutor;

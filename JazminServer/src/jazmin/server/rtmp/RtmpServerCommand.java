@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import jazmin.core.Jazmin;
-import jazmin.server.console.ConsoleCommand;
+import jazmin.server.console.ascii.TablePrinter;
+import jazmin.server.console.builtin.ConsoleCommand;
 import jazmin.server.rtmp.rtmp.RtmpPublisher;
 import jazmin.util.DumpUtil;
 
@@ -48,28 +49,24 @@ public class RtmpServerCommand extends ConsoleCommand {
 	}
     //
     private void showHandlerPublisher(String args){
+    	TablePrinter tp=TablePrinter.create(out)
+    			.length(10,10,20,10,6,6,10,6,15,10,10,10)
+    			.headers("CLIENTID",
+    	    			"PLAYNAME",
+    	    			"REMOTEHOST",
+    	    			"STREAMID",
+    	    			"BD",
+    	    			"CC",
+    	    			"PLAYLEN",
+    	    			"SEEK",
+    	    			"STARTTIME",
+    	    			"TIMEPOS",
+    	    			"TIMETICK",
+    	    			"CREATETIME");
     	List<ServerHandler>handlers=server.getHandlers();
-    	out.format("total %d handlers\n",handlers.size());
-    	String format="%-5s %-10s %-10s %-20s %-10s %-6s %-6s %-10s %-6s %-15s %-10s %-10s %-10s\n";
-    	out.printf(format,
-				"#",
-    			"CLIENTID",
-    			"PLAYNAME",
-    			"REMOTEHOST",
-    			"STREAMID",
-    			"BD",
-    			"CC",
-    			"PLAYLEN",
-    			"SEEK",
-    			"STARTTIME",
-    			"TIMEPOS",
-    			"TIMETICK",
-    			"CREATETIME");
-    	int idx=1;
     	for(ServerHandler sh:handlers){
     		RtmpPublisher p=sh.getPublisher();
-    		out.printf(format,
-        			idx++,
+    		tp.print(
         			sh.getClientId(),
         			sh.getPlayName(),
         			sh.getRemoteHost()+":"+sh.getRemotePort(),
@@ -90,35 +87,31 @@ public class RtmpServerCommand extends ConsoleCommand {
     }
     //
     private void showHandlers(String args,Map<String,Long>lastValue){
+    	TablePrinter tp=TablePrinter.create(out)
+    			.length(15,10,20,10,10,20,20,15)
+    			.headers("CLIENTID",
+    	    			"PLAYNAME",
+    	    			"REMOTEHOST",
+    	    			"STREAMID",
+    	    			"BUFFERDURA",
+    	    			"R/W",
+    	    			"R/W RATE",
+    	    			"CREATETIME");
     	List<ServerHandler>handlers=server.getHandlers();
-    	out.format("total %d handlers\n",handlers.size());
-    	String format="%-5s %-15s %-10s %-20s %-10s %-10s %-20s %-20s %-15s\n";
-    	out.printf(format,
-				"#",
-    			"CLIENTID",
-    			"PLAYNAME",
-    			"REMOTEHOST",
-    			"STREAMID",
-    			"BUFFERDURA",
-    			"R/W",
-    			"R/W RATE",
-    			"CREATETIME");
-    	int idx=1;
     	for(ServerHandler sh:handlers){
     		String rate="--";
     		if(lastValue!=null){
     			long lastRead=lastValue.getOrDefault(sh.getClientId()+"R",0L);
     			long lastWritten=lastValue.getOrDefault(sh.getClientId()+"W",0L);
-    			double rateR=sh.getBytesRead()-lastRead;
-    			double rateW=sh.getBytesWritten()-lastWritten;
+    			long rateR=sh.getBytesRead()-lastRead;
+    			long rateW=sh.getBytesWritten()-lastWritten;
     			//
-    			rate=String.format("%.2fK/%.2fK", rateR/1024,rateW/1024);
+    			rate=DumpUtil.byteCountToString(rateR)+"/"+DumpUtil.byteCountToString(rateW);
     			//
     			lastValue.put(sh.getClientId()+"R", sh.getBytesRead());
     			lastValue.put(sh.getClientId()+"W", sh.getBytesWritten());
     		}
-    		out.printf(format,
-        			idx++,
+    		tp.print(
         			sh.getClientId(),
         			sh.getPlayName(),
         			sh.getRemoteHost()+":"+sh.getRemotePort(),

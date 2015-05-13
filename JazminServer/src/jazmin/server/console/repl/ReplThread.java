@@ -9,8 +9,8 @@ import java.util.Map;
 import jazmin.core.Jazmin;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.server.console.ConsoleCommand;
 import jazmin.server.console.ConsoleServer;
+import jazmin.server.console.builtin.ConsoleCommand;
 
 /**
  * @author <a href="mailto:trygvis@java.no">Trygve Laugst&oslash;l</a>

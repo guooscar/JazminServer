@@ -119,14 +119,17 @@ public class MachineStat {
 			BufferedReader br=new BufferedReader(new StringReader(out));
 			String line=null;
 			try {
+				StringBuilder sb=new StringBuilder();
 				while((line=br.readLine())!=null){
 					line=line.trim();
 					if(line.startsWith("#")||line.isEmpty()){
 						continue;
 					}
-					ulimit+=(line+"\n");
+					sb.append(line+"\n");
 				}
+				ulimit=sb.toString();
 			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		});
 	}
@@ -148,6 +151,7 @@ public class MachineStat {
 					String ss[]=line.split("\\s+");
 					if(ss.length==3){
 						long val=Long.valueOf(ss[1]);
+						val*=1024;
 						switch( ss[0] ){
 						case "MemTotal:":
 							memTotal = val;
@@ -165,6 +169,7 @@ public class MachineStat {
 					}
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		});
 	}
@@ -185,6 +190,7 @@ public class MachineStat {
 					}
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		});
 	}
@@ -206,6 +212,7 @@ public class MachineStat {
 					}
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		});
 	}
@@ -235,6 +242,7 @@ public class MachineStat {
 					}
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		});
 	}

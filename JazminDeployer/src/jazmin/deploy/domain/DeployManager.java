@@ -31,13 +31,10 @@ import jazmin.log.LoggerFactory;
 import jazmin.util.BeanUtil;
 import jazmin.util.FileUtil;
 import jazmin.util.JSONUtil;
+import jazmin.util.JSONUtil.JSONPropertyFilter;
 
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.PropertyFilter;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 
 /**
  * @author yama
@@ -130,9 +127,9 @@ public class DeployManager {
 		List<Instance>list=getInstances();
 		Collections.sort(list,(o1,o2)->o1.priority-o2.priority);
 		if(configFile.exists()){
-			String result=JSON.toJSONString(
+			String result=JSONUtil.toJson(
 					list,
-					new PropertyFilter(){
+					new JSONPropertyFilter(){
 						@Override
 						public boolean apply(Object arg0, String name,
 								Object arg2) {
@@ -143,7 +140,7 @@ public class DeployManager {
 							}
 							return true;
 						}
-					},SerializerFeature.PrettyFormat);
+					},true);
 			FileUtil.saveContent(result, configFile);
 		}
 	}

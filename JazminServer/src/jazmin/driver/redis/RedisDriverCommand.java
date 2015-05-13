@@ -1,6 +1,6 @@
 package jazmin.driver.redis;
 import jazmin.core.Jazmin;
-import jazmin.server.console.ConsoleCommand;
+import jazmin.server.console.builtin.ConsoleCommand;
 import jazmin.util.DumpUtil;
 import redis.clients.jedis.JedisShardInfo;
 /**

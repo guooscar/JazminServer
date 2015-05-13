@@ -7,8 +7,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
-import jazmin.server.console.ConsoleCommand;
 import jazmin.server.console.ConsoleServer;
+import jazmin.server.console.builtin.ConsoleCommand;
 
 import org.apache.sshd.common.Factory;
 import org.apache.sshd.common.PtyMode;

@@ -2,7 +2,8 @@ package jazmin.server.ftp;
 import java.util.List;
 
 import jazmin.core.Jazmin;
-import jazmin.server.console.ConsoleCommand;
+import jazmin.server.console.ascii.TablePrinter;
+import jazmin.server.console.builtin.ConsoleCommand;
 /**
  * 
  * @author yama
@@ -80,14 +81,12 @@ public class FtpServerCommand extends ConsoleCommand {
     }
     //
     private void showList(String args){
+    	TablePrinter tp=TablePrinter.create(out)
+    			.length(6,20,20,30)
+    			.headers("TYPE","SESSION","STARTTIME","FILE");
     	List<FileTransferInfo>transferList=ftpServer.getFileTransferInfos();
-    	out.format("total %d transfers\n",transferList.size());
-    	String format="%-5s : %-6s %-20s %-20s %-30s\n";
-		int i=1;
-		out.format(format,"#","TYPE","SESSION","STARTTIME","FILE");	
-		for(FileTransferInfo s:transferList){
-			out.format(format,
-					i++,
+    	for(FileTransferInfo s:transferList){
+    		tp.print(
 					s.type,
 					s.session.getUser().userName+"@"+
 					s.session.getClientAddress().getAddress().getHostAddress()
@@ -99,13 +98,9 @@ public class FtpServerCommand extends ConsoleCommand {
     }
     //
     private void showSessions(String args){
-    	List<FtpSession>sessions=ftpServer.getSessions();
-    	out.format("total %d sessions\n",sessions.size());
-    	String format="%-5s : %-10s %-20s %-10s %-10s %-15s %-15s %-15s %-10s %-10s %-10s\n";
-		int i=1;
-		out.format(format,
-				"#",
-				"USER",
+    	TablePrinter tp=TablePrinter.create(out)
+    			.length(10,20,10,10,15,15,15,10,10,10)
+    			.headers("USER",
 				"ADDR",
 				"FLOGINS",
 				"FOFFSET",
@@ -114,10 +109,11 @@ public class FtpServerCommand extends ConsoleCommand {
 				"LOGINTIME",
 				"MAXIDLE",
 				"ISLOGIN",
-				"ISSECURE");	
-		for(FtpSession s:sessions){
-			out.format(format,
-					i++,
+				"ISSECURE");
+    	
+    	List<FtpSession>sessions=ftpServer.getSessions();
+    	for(FtpSession s:sessions){
+    		tp.print(
 					s.getUser().userName,
 					s.getClientAddress().getAddress().getHostAddress()+":"+s.getClientAddress().getPort(),
 					s.getFailedLogins(),

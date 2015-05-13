@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import jazmin.core.Jazmin;
-import jazmin.server.console.ConsoleCommand;
+import jazmin.server.console.builtin.ConsoleCommand;
 import jazmin.util.DumpUtil;
 
 /**

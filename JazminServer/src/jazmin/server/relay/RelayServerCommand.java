@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import jazmin.core.Jazmin;
-import jazmin.server.console.ConsoleCommand;
+import jazmin.server.console.builtin.ConsoleCommand;
 import jazmin.server.relay.misc.HexDumpRelayChannel;
 import jazmin.util.DumpUtil;
 /**

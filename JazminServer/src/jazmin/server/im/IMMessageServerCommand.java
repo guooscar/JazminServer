@@ -4,9 +4,11 @@ import java.util.Date;
 import java.util.List;
 
 import jazmin.core.Jazmin;
-import jazmin.server.console.AsciiChart;
-import jazmin.server.console.ConsoleCommand;
-import jazmin.server.console.TerminalWriter;
+import jazmin.server.console.ascii.AsciiChart;
+import jazmin.server.console.ascii.FormPrinter;
+import jazmin.server.console.ascii.TablePrinter;
+import jazmin.server.console.ascii.TerminalWriter;
+import jazmin.server.console.builtin.ConsoleCommand;
 import jazmin.util.BeanUtil;
 import jazmin.util.DumpUtil;
 /**
@@ -44,30 +46,27 @@ public class IMMessageServerCommand extends ConsoleCommand {
 	}
     //
     private void showServerInfo(String args){
-    	String format="%-20s: %-10s\n";
-		out.printf(format,"port",messageServer.getPort());
-		out.printf(format,"idleTime",messageServer.getIdleTime());
-		out.printf(format,"maxChannelCount",messageServer.getMaxChannelCount());
-		out.printf(format,"maxSessionCount",messageServer.getMaxSessionCount());
-		out.printf(format,"serviceFilter",messageServer.getServiceFilter());
-		out.printf(format,"sessionLifecycleListener",messageServer.getSessionLifecycleListener());
+    	FormPrinter fp=FormPrinter.create(out,20);
+    	fp.print("port",messageServer.getPort());
+    	fp.print("idleTime",messageServer.getIdleTime());
+    	fp.print("maxChannelCount",messageServer.getMaxChannelCount());
+    	fp.print("maxSessionCount",messageServer.getMaxSessionCount());
+    	fp.print("serviceFilter",messageServer.getServiceFilter());
+    	fp.print("sessionLifecycleListener",messageServer.getSessionLifecycleListener());
 		//
-		out.printf(format,"sessionCount",messageServer.getSessionCount());
-		out.printf(format,"channelCount",messageServer.getChannelCount());
-		
+    	fp.print("sessionCount",messageServer.getSessionCount());
+    	fp.print("channelCount",messageServer.getChannelCount());
 	}
     //
     //
     private void showServices(String args){
-		String format="%-5s : %-30s %-15s %-15s %-15\n";
-		int i=1;
+    	TablePrinter tp=TablePrinter.create(out)
+    			.length(30,15,15,15)
+    			.headers("NAME","SYNCONSESSION","CONTINUATION","RESTRICTRATE");
 		List<IMServiceStub> services=messageServer.getServices();
 		Collections.sort(services);
-		out.println("total "+services.size()+" services");
-		out.format(format,"#","NAME","SYNCONSESSION","CONTINUATION","RESTRICTRATE");	
 		for(IMServiceStub s:services){
-			out.format(format,
-					i++,
+			tp.print(
 					"0x"+Integer.toHexString(s.serviceId),
 					s.isSyncOnSessionService,
 					s.isContinuationService,
@@ -82,17 +81,18 @@ public class IMMessageServerCommand extends ConsoleCommand {
     		err.println("can not find session:"+args);
     		return;
     	}
-    	String format="%-20s: %-10s\n";
-		out.printf(format,"id",session.getId());
-		out.printf(format,"principal",session.getPrincipal());
-		out.printf(format,"userAgent",session.getUserAgent());
-		out.printf(format,"remoteHostAddress",session.getRemoteHostAddress());
-		out.printf(format,"remotePort",session.getRemotePort());
-		out.printf(format,"lastAccessTime",formatDate(new Date(session.getLastAccessTime())));
-		out.printf(format,"createTime",formatDate(session.getCreateTime()));
-		out.printf(format,"totalMessageCount",session.getTotalMessageCount());
-		out.printf(format,"channels",session.getChannels());
-		out.printf(format,"userObject",DumpUtil.dump(session.getUserObject()));		
+    	FormPrinter fp=FormPrinter.create(out,20);
+    	fp.print("id",session.getId());
+    	fp.print("principal",session.getPrincipal());
+    	fp.print("userAgent",session.getUserAgent());
+    	fp.print("remoteHostAddress",session.getRemoteHostAddress());
+    	fp.print("remotePort",session.getRemotePort());
+    	fp.print("lastAccessTime",formatDate(new Date(session.getLastAccessTime())));
+    	fp.print("createTime",formatDate(session.getCreateTime()));
+    	fp.print("receiveMessageCount",session.getReceiveMessageCount());
+    	fp.print("sentMessageCount",session.getSentMessageCount());
+    	fp.print("channels",session.getChannels());
+    	fp.print("userObject",DumpUtil.dump(session.getUserObject()));		
 	}
     //
     //
@@ -106,35 +106,35 @@ public class IMMessageServerCommand extends ConsoleCommand {
 	}
     //
     private void showSessions(String args){
-		String format="%-5s: %-30s %-10s %-10s  %-15s %-10s %-10s %-15s %-15s %-10s\n";
-		int i=1;
+    	TablePrinter tp=TablePrinter.create(out)
+    			.length(10,20,10,15,10,10,10,15,15,10)
+    			.headers("ID",
+    					"PRINCIPAL",
+    					"USERAGENT",
+    					"HOST",
+    					"PORT",
+    					"RECEIVE",
+    					"SENT",
+    					"LACC",
+    					"CRTIME",
+    					"SYNCFLAG");
+    	
 		List<IMSession> sessions=messageServer.getSessions();
 		//
 		String querySql=cli.getOptionValue('q');
 		if(querySql!=null){
 			sessions=BeanUtil.query(sessions,querySql);
 		}
-		//
-		out.println("total "+sessions.size()+" sessions");
-		out.format(format,"#",
-				"ID",
-				"PRINCIPAL",
-				"USERAGENT",
-				"HOST",
-				"PORT",
-				"TOTALMSG",
-				"LACC",
-				"CRTIME",
-				"SYNCFLAG");	
+		
 		for(IMSession s:sessions){
-			out.format(format,
-					i++,
+			tp.print(
 					s.getId(),
 					s.getPrincipal(),
 					s.getUserAgent(),
 					s.getRemoteHostAddress(),
 					s.getRemotePort(),
-					s.getTotalMessageCount(),
+					s.getReceiveMessageCount(),
+					s.getSentMessageCount(),
 					formatDate(new Date(s.getLastAccessTime())),
 					formatDate(s.getCreateTime()),
 					s.isProcessSyncService());
@@ -142,14 +142,12 @@ public class IMMessageServerCommand extends ConsoleCommand {
     }
     //
     private void showChannels(String args){
-		String format="%-5s: %-10s %-20s %-10s \n";
-		int i=1;
+    	TablePrinter tp=TablePrinter.create(out)
+    			.length(10,20,10)
+    			.headers("ID","AUTOREMOVESESSION","CREATETIME");
 		List<IMChannel> channels=messageServer.getChannels();
-		out.println("total "+channels.size()+" channels");
-		out.format(format,"#","ID","AUTOREMOVESESSION","CREATETIME");	
 		for(IMChannel s:channels){
-			out.format(format,
-					i++,
+			tp.print(
 					s.getId(),
 					s.isAutoRemoveDisconnectedSession(),
 					formatDate(new Date(s.getCreateTime())));
@@ -161,11 +159,11 @@ public class IMMessageServerCommand extends ConsoleCommand {
     		err.println("can not find channel:"+args);
     		return;
     	}
-    	String format="%-20s: %-10s\n";
-		out.printf(format,"id",channel.getId());
-		out.printf(format,"autoRemoveDisconnectedSession",channel.isAutoRemoveDisconnectedSession());
-		out.printf(format,"createTime",formatDate(new Date(channel.getCreateTime())));
-		out.printf(format,"userObject",DumpUtil.dump(channel.getUserObject()));		
+    	FormPrinter fp=FormPrinter.create(out,20);
+    	fp.print("id",channel.getId());
+    	fp.print("autoRemoveDisconnectedSession",channel.isAutoRemoveDisconnectedSession());
+    	fp.print("createTime",formatDate(new Date(channel.getCreateTime())));
+    	fp.print("userObject",DumpUtil.dump(channel.getUserObject()));		
 	}
     //
     //

@@ -33,6 +33,7 @@ import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.thread.ThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 /**
  * WebServer is a wrapper of Jetty(http://www.eclipse.org/jetty/)
@@ -192,13 +193,38 @@ public class WebServer extends jazmin.core.Server{
 	public WebAppContext getWebAppContext(){
 		return webAppContext;
 	}
-	//-------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
+	//
+	static class JettyThreadPool implements ThreadPool{
+		@Override
+		public void execute(Runnable command) {
+			Jazmin.dispatcher.execute(command);
+		}
+		//
+		@Override
+		public int getIdleThreads() {
+			return Jazmin.dispatcher.getMaximumPoolSize()-Jazmin.dispatcher.getActiveCount();
+		}
+		//
+		@Override
+		public int getThreads() {
+			return Jazmin.dispatcher.getMaximumPoolSize();
+		}
+		//
+		@Override
+		public boolean isLowOnThreads() {
+			return false;
+		}
+		//
+		@Override
+		public void join() throws InterruptedException {
+			logger.info("call JettyThreadPool join");
+		}
+	}
 	//
 	public void init()throws Exception{
 		//set up jetty logger
-		
-		//
-		server = new Server();
+		server = new Server(new JettyThreadPool());
 		// Setup JMX
 		MBeanContainer mbContainer=new MBeanContainer(ManagementFactory.getPlatformMBeanServer());
 		server.addEventListener(mbContainer);

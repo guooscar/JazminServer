@@ -4,7 +4,8 @@ import java.util.Collections;
 import java.util.List;
 
 import jazmin.core.Jazmin;
-import jazmin.server.console.ConsoleCommand;
+import jazmin.server.console.ascii.TablePrinter;
+import jazmin.server.console.builtin.ConsoleCommand;
 import jazmin.server.web.mvc.ControllerStub;
 import jazmin.server.web.mvc.DispatchServlet;
 import jazmin.server.web.mvc.MethodStub;
@@ -70,19 +71,20 @@ public class WebServerCommand extends ConsoleCommand {
 	}
     //
     private void showServices(String args){
+    	TablePrinter tp=TablePrinter.create(out)
+    			.length(40,10,10)
+    			.headers("URL","METHOD","ACTION");
     	List<ControllerStub>csList=DispatchServlet.dispatcher.controllerStubs();
 		List<MethodStub>msList=new ArrayList<MethodStub>();
 		csList.forEach(cs->msList.addAll(cs.methodStubs()));
 		Collections.sort(msList);
-		out.println("total "+msList.size()+" services");
-		String format="%-40s %-10s %-10s\n";
-		out.format(format,"URL","METHOD","ACTION");
 		for(MethodStub ms:msList){
-			out.format(format,
+			String action=ms.invokeMethod.getDeclaringClass().getSimpleName()
+					+"."+ms.invokeMethod.getName();
+			tp.print(
 					ms.controllerId+"/"+ms.id,
 					ms.method,
-					ms.invokeMethod.getDeclaringClass().getSimpleName()+"."+
-					ms.invokeMethod.getName());	
+					action);	
 		}
     }
 }

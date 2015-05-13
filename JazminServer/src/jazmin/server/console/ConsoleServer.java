@@ -20,6 +20,22 @@ import jazmin.core.Server;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
+import jazmin.server.console.builtin.ConsoleCommand;
+import jazmin.server.console.builtin.EchoCommand;
+import jazmin.server.console.builtin.GrepCommand;
+import jazmin.server.console.builtin.HeadCommand;
+import jazmin.server.console.builtin.HelpCommand;
+import jazmin.server.console.builtin.HistoryCommand;
+import jazmin.server.console.builtin.JazCommand;
+import jazmin.server.console.builtin.JazminCommand;
+import jazmin.server.console.builtin.LessCommand;
+import jazmin.server.console.builtin.ManCommand;
+import jazmin.server.console.builtin.SortCommand;
+import jazmin.server.console.builtin.TailCommand;
+import jazmin.server.console.builtin.UniqCommand;
+import jazmin.server.console.builtin.VMCommand;
+import jazmin.server.console.builtin.WcCommand;
+import jazmin.server.console.builtin.WhoCommand;
 import jazmin.server.console.repl.CliRunnerCommandFactory;
 
 import org.apache.sshd.SshServer;
@@ -139,16 +155,17 @@ public class ConsoleServer extends Server{
 		}
 	}
 	//
-	void addCommandHistory(String line){
+	public void addCommandHistory(String line){
 		commandHistory.add(line);
 		if(commandHistory.size()>maxCommandHistory){
 			commandHistory.removeFirst();
 		}
 	}
-	void clearHistory(){
+	public void clearHistory(){
 		commandHistory.clear();
 	}
-	List<String>getCommandHistory(){
+	//
+	public List<String>getCommandHistory(){
 		return new LinkedList<String>(commandHistory);
 	}
 	//
@@ -175,7 +192,23 @@ public class ConsoleServer extends Server{
 		return (ConsoleCommand)commands.get(name);
 	}
 	//
-	
+	public List<ConsoleCommand>getCommands(){
+		return new ArrayList<ConsoleCommand>(commands.values());
+	}
+	//
+	public List<ConsoleSession>getConsoleSession(){
+		List<ConsoleSession>sessions=new ArrayList<ConsoleSession>();
+		sshServer.getActiveSessions().forEach(session->{
+    		InetSocketAddress sa=(InetSocketAddress)session.getIoSession().getRemoteAddress();
+        	String loginHostAddress=sa.getAddress().getHostAddress();
+        	ConsoleSession s=new ConsoleSession();
+        	s.user= session.getUsername();
+        	s.remoteHost=loginHostAddress;
+        	s.remotePort=sa.getPort();
+        	sessions.add(s);
+    	});
+		return sessions;
+	}
 	/**
 	 * 
 	 * @param a

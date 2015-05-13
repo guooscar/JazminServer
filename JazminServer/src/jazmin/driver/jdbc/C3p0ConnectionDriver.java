@@ -26,6 +26,7 @@ public class C3p0ConnectionDriver extends ConnectionDriver {
 	public C3p0ConnectionDriver() {
 		dataSource=new ComboPooledDataSource();
 		dataSource.setMaxConnectionAge(3600);
+		dataSource.setMaxPoolSize(64);
 	}
 	//
 	@Override

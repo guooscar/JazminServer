@@ -36,7 +36,8 @@ public class Session {
 	String remoteHostAddress;
 	int remotePort;
 	int requestId;
-	int totalMessageCount;
+	long sentMessageCount;
+	long receiveMessageCount;
 	Set<String>channels;
 	Date createTime;
 	//
@@ -46,7 +47,8 @@ public class Session {
 	Session(io.netty.channel.Channel channel) {
 		setChannel(channel);
 		lastAccess();
-		totalMessageCount=0;
+		sentMessageCount=0;
+		receiveMessageCount=0;
 		rateLimiter=new RateLimiter();
 		processSyncServiceState=new AtomicBoolean();
 		processSyncService(false);
@@ -82,12 +84,21 @@ public class Session {
 	public int getId() {
 		return id;
 	}
+	
 	/**
-	 * @return the totalMessageCount
+	 * @return the sentMessageCount
 	 */
-	public int getTotalMessageCount() {
-		return totalMessageCount;
+	public long getSentMessageCount() {
+		return sentMessageCount;
 	}
+
+	/**
+	 * @return the receiveMessageCount
+	 */
+	public long getReceiveMessageCount() {
+		return receiveMessageCount;
+	}
+
 	/**
 	 * @return the principal
 	 */
@@ -255,7 +266,7 @@ public class Session {
 	
 	//
 	void receivedMessage(RequestMessage message){
-		totalMessageCount++;
+		receiveMessageCount++;
 		requestId=message.requestId;
 		lastAccess();
 	}
@@ -283,6 +294,7 @@ public class Session {
 	void sendMessage(ResponseMessage responseMessage){
 		lastAccess();
 		if(channel!=null){
+			sentMessageCount++;
 			channel.writeAndFlush(responseMessage);
 		}
 	}

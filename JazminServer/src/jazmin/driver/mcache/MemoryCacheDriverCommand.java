@@ -1,6 +1,6 @@
 package jazmin.driver.mcache;
 import jazmin.core.Jazmin;
-import jazmin.server.console.ConsoleCommand;
+import jazmin.server.console.builtin.ConsoleCommand;
 import jazmin.util.DumpUtil;
 /**
  * 

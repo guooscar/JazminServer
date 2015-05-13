@@ -29,6 +29,7 @@ public class StaticBeanForm<T> extends HorizontalLayout {
 	private List<FormLayout>formList;
 	private int columnCount;
 	private Set<String>excludeSet;
+	private CellRender cellRender;
 	public StaticBeanForm(
 			T bean,
 			int columnCount,
@@ -38,6 +39,21 @@ public class StaticBeanForm<T> extends HorizontalLayout {
 		excludeSet=new TreeSet<String>(Arrays.asList(excludeProperity));
 		initUI();
 	}
+	
+	/**
+	 * @return the cellRender
+	 */
+	public CellRender getCellRender() {
+		return cellRender;
+	}
+
+	/**
+	 * @param cellRender the cellRender to set
+	 */
+	public void setCellRender(CellRender cellRender) {
+		this.cellRender = cellRender;
+	}
+
 	//
 	public void setBean(T bean){
 		Class<?>beanClass=bean.getClass();
@@ -50,7 +66,8 @@ public class StaticBeanForm<T> extends HorizontalLayout {
 				try {
 					value = f.get(bean);
 					if(value!=null){
-						label.setValue(value+"");
+						String vv=cellRender==null?(value+""):cellRender.renderCell(fieldName, value);
+						label.setValue(vv+"");
 					}else{
 						label.setValue("");
 					}

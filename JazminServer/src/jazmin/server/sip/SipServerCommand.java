@@ -3,7 +3,8 @@ package jazmin.server.sip;
 import java.util.List;
 
 import jazmin.core.Jazmin;
-import jazmin.server.console.ConsoleCommand;
+import jazmin.server.console.ascii.TablePrinter;
+import jazmin.server.console.builtin.ConsoleCommand;
 import jazmin.util.DumpUtil;
 
 /**
@@ -74,49 +75,40 @@ public class SipServerCommand extends ConsoleCommand {
     }
 	//
 	private void showSessions(String args){
-    	List<SipSession>sessions=server.getSessions();
-    	out.format("total %d sessions\n",sessions.size());
-    	String format="%-5s %-10s %-20s %-5s %-15s %-15s  %-30s\n";
-    	out.printf(format,
-				"#",
-				"SESSIONID",
+		TablePrinter tp=TablePrinter.create(out)
+				.length(10,20,5,15,15,30)
+				.headers("SESSIONID",
     			"REMOTEADDRESS",
     			"REMOTE PORT",
     			"CREATETIME",
     			"LASTACCTIME",
     			"CALLID");
-    	int idx=1;
+    	List<SipSession>sessions=server.getSessions();
     	for(SipSession s:sessions){
-    		out.printf(format,
-        			idx++,
-        			s.getSessionId(),
+    		tp.print(s.getSessionId(),
         			s.getRemoteAddress(),
         			s.getRemotePort(),
         			formatDate(s.getCreateTime()),
         			formatDate(s.getLastAccessTime()),
-        			cut(s.getCallId(),30));
+        			s.getCallId());
     	}
     }
 	//
 	private void showChannels(String args){
+		TablePrinter tp=TablePrinter.create(out)
+				.length(15,10,15,10,15,10,10,10,15)
+				.headers("ID",
+						"TRANSPORT",
+						"REMOTEADDRESS",
+		    			"REMOTEPORT",
+		    			"LOCALADDRESS",
+		    			"LOCALPORT",
+		    			"SENTCNT",
+		    			"RECECNT",
+		    			"CREATETIME");
     	List<SipChannel>channels=server.getChannels();
-    	out.format("total %d channels\n",channels.size());
-    	String format="%-5s %-15s %-10s %-15s %-10s %-15s %-10s %-10s %-10s %-15s\n";
-    	out.printf(format,
-				"#",
-				"ID",
-				"TRANSPORT",
-				"REMOTEADDRESS",
-    			"REMOTEPORT",
-    			"LOCALADDRESS",
-    			"LOCALPORT",
-    			"SENTCNT",
-    			"RECECNT",
-    			"CREATETIME");
-    	int idx=1;
     	for(SipChannel s:channels){
-    		out.printf(format,
-        			idx++,
+    		tp.print(
         			s.id,
         			s.transport,
         			s.remoteAddress,

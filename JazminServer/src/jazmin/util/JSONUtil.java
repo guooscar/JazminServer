@@ -11,12 +11,41 @@ package jazmin.util;
 import java.util.List;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.PropertyFilter;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 
 /**
  * @author yama
  * @date Jun 5, 2014
  */
 public class JSONUtil {
+	public static interface JSONPropertyFilter{
+		boolean apply(Object object, String name, Object arg2);
+	}
+	/**
+	 *convert object to json string 
+	 */
+	public static String toJson(Object obj,
+			JSONPropertyFilter propertyFilter,
+			boolean prettyFormat){
+		if(prettyFormat){
+			return JSON.toJSONString(obj,new FastJsonPropertyFilter(propertyFilter),
+					SerializerFeature.PrettyFormat);
+		}else{
+			return JSON.toJSONString(obj,new FastJsonPropertyFilter(propertyFilter));	
+		}
+	}
+	//
+	private static class FastJsonPropertyFilter implements PropertyFilter{
+		JSONPropertyFilter propertyFilter;
+		public FastJsonPropertyFilter(JSONPropertyFilter filter) {
+			this.propertyFilter=filter;
+		}
+		@Override
+		public boolean apply(Object arg0, String arg1, Object arg2) {
+			return propertyFilter.apply(arg0, arg1, arg2);
+		}
+	} 
 	/**
 	 *convert object to json string 
 	 */

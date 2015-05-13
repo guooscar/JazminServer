@@ -44,8 +44,8 @@ public class InstanceInfoView extends DeployBaseView{
 					return null;
 				}
 				if(propertyId.equals("isAlive")){
-					Boolean isTrue=(Boolean)
-							source.getItem(itemId).getItemProperty(propertyId).getValue();
+					Boolean isTrue=Boolean.valueOf(
+							source.getItem(itemId).getItemProperty(propertyId).getValue()+"");
 					return isTrue?"green":"red";
 				}else{
 					return null;

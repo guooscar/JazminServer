@@ -4,9 +4,10 @@ import java.util.Date;
 import java.util.List;
 
 import jazmin.core.Jazmin;
-import jazmin.server.console.AsciiChart;
-import jazmin.server.console.ConsoleCommand;
-import jazmin.server.console.TerminalWriter;
+import jazmin.server.console.ascii.AsciiChart;
+import jazmin.server.console.ascii.TablePrinter;
+import jazmin.server.console.ascii.TerminalWriter;
+import jazmin.server.console.builtin.ConsoleCommand;
 import jazmin.util.BeanUtil;
 import jazmin.util.DumpUtil;
 /**
@@ -61,21 +62,19 @@ public class MessageServerCommand extends ConsoleCommand {
     //
     //
     private void showServices(String args){
-		String format="%-5s : %-30s %-15s %-15s %-15s %-15s\n";
-		int i=1;
+		TablePrinter tp=TablePrinter.create(out)
+    			.length(30,15,15,15,15)
+    			.headers("NAME","SYNCONSESSION","CONTINUATION","DISABLERSP","RESTRICTRATE");
 		List<ServiceStub> services=messageServer.getServices();
 		Collections.sort(services);
-		out.println("total "+services.size()+" services");
-		out.format(format,"#","NAME","SYNCONSESSION","CONTINUATION","DISABLERSP","RESTRICTRATE");	
 		for(ServiceStub s:services){
-			out.format(format,
-					i++,
-					cut(s.serviceId,30),
+			tp.print(
+					s.serviceId,
 					s.isSyncOnSessionService,
 					s.isContinuationService,
 					s.isDisableResponseService,
 					s.isRestrictRequestRate);
-		};
+		}
     }
     //
     //
@@ -93,7 +92,9 @@ public class MessageServerCommand extends ConsoleCommand {
 		out.printf(format,"remotePort",session.getRemotePort());
 		out.printf(format,"lastAccessTime",formatDate(new Date(session.getLastAccessTime())));
 		out.printf(format,"createTime",formatDate(session.getCreateTime()));
-		out.printf(format,"totalMessageCount",session.getTotalMessageCount());
+		out.printf(format,"sentMessageCount",session.getSentMessageCount());
+		out.printf(format,"receiveMessageCount",session.getReceiveMessageCount());
+		
 		out.printf(format,"channels",session.getChannels());
 		out.printf(format,"userObject",DumpUtil.dump(session.getUserObject()));		
 	}
@@ -109,35 +110,35 @@ public class MessageServerCommand extends ConsoleCommand {
 	}
     //
     private void showSessions(String args){
-		String format="%-5s: %-10s %-30s %-10s %-15s %-10s %-10s %-15s %-15s %-10s\n";
-		int i=1;
+    	TablePrinter tp=TablePrinter.create(out)
+    			.length(10,20,10,15,10,10,10,15,15,10)
+    			.headers("ID",
+    					"PRINCIPAL",
+    					"USERAGENT",
+    					"HOST",
+    					"PORT",
+    					"RECEIVE",
+    					"SENT",
+    					"LACC",
+    					"CRTIME",
+    					"SYNCFLAG");
+    	
 		List<Session> sessions=messageServer.getSessions();
 		//
 		String querySql=cli.getOptionValue('q');
 		if(querySql!=null){
 			sessions=BeanUtil.query(sessions,querySql);
 		}
-		//
-		out.println("total "+sessions.size()+" sessions");
-		out.format(format,"#",
-				"ID",
-				"PRINCIPAL",
-				"USERAGENT",
-				"HOST",
-				"PORT",
-				"TOTALMSG",
-				"LACC",
-				"CRTIME",
-				"SYNCFLAG");	
+		
 		for(Session s:sessions){
-			out.format(format,
-					i++,
+			tp.print(
 					s.getId(),
-					cut(s.getPrincipal(),30),
+					s.getPrincipal(),
 					s.getUserAgent(),
 					s.getRemoteHostAddress(),
 					s.getRemotePort(),
-					s.getTotalMessageCount(),
+					s.getReceiveMessageCount(),
+					s.getSentMessageCount(),
 					formatDate(new Date(s.getLastAccessTime())),
 					formatDate(s.getCreateTime()),
 					s.isProcessSyncService());
