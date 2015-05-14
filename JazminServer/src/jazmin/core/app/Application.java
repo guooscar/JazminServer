@@ -4,8 +4,11 @@
 package jazmin.core.app;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,6 +17,7 @@ import jazmin.core.Driver;
 import jazmin.core.Jazmin;
 import jazmin.core.Lifecycle;
 import jazmin.core.Server;
+import jazmin.core.app.AutoWiredObject.AutoWiredField;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 /**
@@ -24,7 +28,8 @@ import jazmin.log.LoggerFactory;
 public class Application extends Lifecycle {
 	private static Logger logger=LoggerFactory.get(Application.class);
 	//
-	private Map<Class<?>,Object>autoWiredMap=new ConcurrentHashMap<Class<?>, Object>();
+	private Map<Class<?>,AutoWiredObject>autoWiredMap=
+			new ConcurrentHashMap<Class<?>, AutoWiredObject>();
 	//
 	@Override
 	public String info() {
@@ -49,18 +54,26 @@ public class Application extends Lifecycle {
 	@SuppressWarnings("unchecked")
 	public <T> T createWired(Class<T>clazz)throws Exception{
 		T instance =clazz.newInstance();
-		autoWiredMap.put(clazz,instance);
+		AutoWiredObject autoWiredObject=new AutoWiredObject();
+		autoWiredObject.clazz=clazz;
+		autoWiredObject.instance=instance;
+		autoWiredMap.put(clazz,autoWiredObject);
 		if(logger.isDebugEnabled()){
 			logger.debug("create wired object {}",clazz.getName());
 		}
+		//
+		//
 		for(Field f:getField(clazz)){
 			if(f.isAnnotationPresent(AutoWired.class)){
 				AutoWired aw=f.getAnnotation(AutoWired.class);
+				AutoWiredField af=new AutoWiredField(f.getName(),f.getType(),aw.shared());
+				autoWiredObject.fields.add(af);
 				f.setAccessible(true);
 				Class<?>fieldType=f.getType();
 				if(Driver.class.isAssignableFrom(fieldType)){
 					Object target=Jazmin.getDriver(
 							(Class<? extends Driver>) fieldType);
+					af.hasValue=target!=null;
 					if(target!=null){
 						f.set(instance,target);		
 					}else{
@@ -69,15 +82,18 @@ public class Application extends Lifecycle {
 				}else if(Server.class.isAssignableFrom(fieldType)){
 					Object target=Jazmin.getServer(
 							(Class<? extends Server>) fieldType);
+					af.hasValue=target!=null;
 					if(target!=null){
 						f.set(instance,target);		
 					}else{
 						logger.warn("can not find autowired server:"+fieldType);
 					}
 				}else{
+					af.hasValue=true;
 					//shared auto wire property 
 					if(aw.shared()){
-						Object target=autoWiredMap.get(fieldType);
+						AutoWiredObject ao=autoWiredMap.get(fieldType);
+						Object target=(ao==null?null:ao.instance);
 						if(target==null){
 							target=createWired(fieldType);
 						}
@@ -90,6 +106,20 @@ public class Application extends Lifecycle {
 				}
 			}
 		}
+		//
+		for(Method f:clazz.getMethods()){
+			if(f.isAnnotationPresent(AutoWireCompleted.class)){
+				if(f.getParameterTypes().length!=0){
+					logger.warn("AutoWireCompleted method:{} must be zero args",f);
+					continue;
+				}
+				if(logger.isDebugEnabled()){
+					logger.debug("invoke AutoWireCompleted method:{}",f);
+				}
+				f.invoke(instance);
+			}
+		}
+		//
 		return instance;
 	}
 	//
@@ -101,7 +131,7 @@ public class Application extends Lifecycle {
 		}
 		return result;
 	}
-	
+	//
 	private void getParentField(Class<?>clazz,Set<Field>fields){
 		Class<?>superClass=clazz.getSuperclass();
 		if(clazz.getSuperclass()==null){
@@ -109,5 +139,9 @@ public class Application extends Lifecycle {
 		}
 		fields.addAll(Arrays.asList(superClass.getDeclaredFields()));
 		getParentField(superClass, fields);
+	}
+	//
+	public List<AutoWiredObject>getAutoWiredObjects(){
+		return new ArrayList<>(autoWiredMap.values());
 	}
 }

@@ -7,6 +7,9 @@ import java.util.concurrent.TimeUnit;
 import jazmin.core.Driver;
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
+import jazmin.core.app.Application;
+import jazmin.core.app.AutoWiredObject;
+import jazmin.core.app.AutoWiredObject.AutoWiredField;
 import jazmin.core.job.JazminJob;
 import jazmin.core.task.JazminTask;
 import jazmin.core.thread.DispatcherCallback;
@@ -17,6 +20,7 @@ import jazmin.server.console.ascii.AsciiChart;
 import jazmin.server.console.ascii.FormPrinter;
 import jazmin.server.console.ascii.TablePrinter;
 import jazmin.server.console.ascii.TerminalWriter;
+import jazmin.util.DumpUtil;
 /**
  * 
  * @author yama
@@ -36,7 +40,9 @@ public class JazminCommand extends ConsoleCommand {
     	addOption("job_run",true,"run job",this::runJob);  
     	addOption("task_run",true,"run task",this::runTask);  
     	addOption("driver",false,"show all drivers",this::showDrivers);  	
-    	addOption("server",false,"show all servers",this::showServers);  	
+    	addOption("server",false,"show all servers",this::showServers);  
+    	addOption("app",false,"show app information",this::showApp);  
+
     	addOption("pool_info",false,"show thread pool info",this::showThreadPoolInfo);  	
     	addOption("pool_stat",false,"show method stats",this::showThreadPoolStats);  	
     	addOption("pool_db",false,"show thread pool dashboard",this::showThreadPoolDashboard); 
@@ -135,6 +141,28 @@ public class JazminCommand extends ConsoleCommand {
 		for(Server server:servers){
 			tp.print(server.getClass().getSimpleName());
 		};
+    }
+    //
+    private void showApp(String args){
+    	Application app=Jazmin.getApplication();
+    	if(app==null){
+    		out.println("can not find application");
+    		return;
+    	}
+    	FormPrinter fp=FormPrinter.create(out,35);
+    	fp.print("application",app.getClass());
+    	fp.print("package",Jazmin.getApplicationPackage());
+    	fp.print("classLoader",Jazmin.getAppClassLoader());
+    	//
+    	TablePrinter tp=TablePrinter.create(out)
+    			.length(30,30,30,10,10)
+    			.headers("WIREDCLASS","FIELDNAME","FIELDCLASS","SHARED","HASVALUE");
+    	for(AutoWiredObject obj:app.getAutoWiredObjects()){
+    		tp.printfRaw("%-38s %s\n",obj.clazz.getSimpleName(),DumpUtil.repeat("-",80));
+    		for(AutoWiredField f:obj.fields){
+    			tp.print("-",f.fieldName,f.fieldClass.getSimpleName(),f.shared,f.hasValue);
+    		}
+    	}
     }
     //
     private void showDrivers(String args){

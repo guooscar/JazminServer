@@ -20,7 +20,8 @@ import jazmin.core.app.AutoWired;
  */
 public class JazminDAO {
 	@AutoWired
-	private ConnectionDriver connectionDriver;
+	protected ConnectionDriver connectionDriver;
+	//
 	public JazminDAO() {	
 	}
 	//

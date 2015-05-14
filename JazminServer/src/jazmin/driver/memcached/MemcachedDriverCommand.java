@@ -1,5 +1,7 @@
 package jazmin.driver.memcached;
 import jazmin.core.Jazmin;
+import jazmin.server.console.ascii.FormPrinter;
+import jazmin.server.console.ascii.TablePrinter;
 import jazmin.server.console.builtin.ConsoleCommand;
 import jazmin.util.DumpUtil;
 /**
@@ -17,6 +19,7 @@ public class MemcachedDriverCommand extends ConsoleCommand {
     	addOption("stat",false,"show query stat.",this::showQueryStat);
     	addOption("get",true,"get memory cache item by key",this::getItem);
     	addOption("delete",true,"delete memory cache item by key",this::deleteItem);
+    	addOption("set_poolsize",true,"set connection pool size",this::setPoolSize);
     	//
     	driver=Jazmin.getDriver(MemcachedDriver.class);
     }
@@ -31,21 +34,27 @@ public class MemcachedDriverCommand extends ConsoleCommand {
 	}
     //
     private void showDriverInfo(String args){
-    	String format="%-20s: %-10s\n";
-    	out.printf(format,"name",driver.getName());
-    	out.printf(format,"port",driver.getServerAddr());
-		out.printf(format,"idleTimeout",driver.getOpTimeout());
-		out.printf(format,"connectTimeout",driver.getConnectTimeout());
-		out.printf(format,"connectionPoolSize",driver.getConnectionPoolSize());
+    	FormPrinter tp=FormPrinter.create(out,20);
+    	tp.print("name",driver.getName());
+    	tp.print("servers",driver.getServerAddrs());
+    	tp.print("idleTimeout",driver.getOpTimeout());
+    	tp.print("connectTimeout",driver.getConnectTimeout());
+    	tp.print("connectionPoolSize",driver.getConnectionPoolSize());
 	}
     //
+    private void setPoolSize(String args){
+    	driver.setConnectionPoolSize(Integer.valueOf(args));
+    	out.println("connection pool size set to "+args);
+    }
+    //
     private void showQueryStat(String args){
-    	String format="%-20s %-20s %-20s %-20s\n";
-    	out.printf(format,"QUERY","HIT","ERROR","HIT RATIO");
+    	TablePrinter tp=TablePrinter.create(out)
+    			.length(20,20,20,20)
+    			.headers("QUERY","HIT","ERROR","HIT RATIO");
     	double qc=driver.getTotalQueryCount();
     	double hit=driver.getHitQueryCount();
     	double hitRatio=(driver.getTotalQueryCount()==0)?0:hit/qc;
-    	out.printf(format,
+    	tp.print(
     			driver.getTotalQueryCount(),
     			driver.getHitQueryCount(),
     			driver.getErrorQueryCount(),

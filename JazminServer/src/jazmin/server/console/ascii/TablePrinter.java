@@ -44,6 +44,20 @@ public class TablePrinter extends BasePrinter{
 		this.format=f.toString();
 		return this;
 	}
+	public TablePrinter printfRaw(String format,Object ...o){
+		out.printf(format,o);
+		return this;
+	}
+	//
+	public TablePrinter printlnRaw(Object o){
+		out.println(o);
+		return this;
+	}
+	//
+	public TablePrinter printRaw(Object o){
+		out.print(o);
+		return this;
+	}
 	//
 	public TablePrinter print(Object ...values){
 		Object []result=new Object[headerLengths.length+1];

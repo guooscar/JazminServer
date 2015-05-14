@@ -2,6 +2,8 @@ package jazmin.driver.memcached;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.LongAdder;
 
@@ -30,8 +32,8 @@ public class MemcachedDriver extends Driver{
 	private static Logger logger=LoggerFactory.get(MemcachedDriver.class);
 	//--------------------------------------------------------------------------
 	private MemcachedClient memcachedClient;
-	private String serverAddr;
-	private int connectionPoolSize=4;
+	private List<String> serverAddrs;
+	private int connectionPoolSize=16;
 	private int opTimeout=5000;
 	private LongAdder totalQueryCount;
 	private LongAdder hitQueryCount;
@@ -40,6 +42,7 @@ public class MemcachedDriver extends Driver{
 		totalQueryCount=new LongAdder();
 		hitQueryCount=new LongAdder();
 		errorQueryCount=new LongAdder();	
+		serverAddrs=new ArrayList<String>();
 	}
 	
 	//--------------------------------------------------------------------------
@@ -126,28 +129,24 @@ public class MemcachedDriver extends Driver{
 		}
 	}
 	//
-	
 	/**
 	 * @return String
 	 */
-	public String getServerAddr() {
-		return serverAddr;
+	public List<String> getServerAddrs() {
+		return serverAddrs;
 	}
-	
+	//
+	public void addServerAddr(String host,int port){
+		serverAddrs.add(host+":"+port);
+	}
+	//
 	public void setOpTimeout(long arg0) {
 		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		memcachedClient.setOpTimeout(arg0);
 	}
-	/**
-	 */
-	public void setServerAddr(String serverAddr) {
-		if(isInited()){
-			throw new IllegalArgumentException("set before inited");
-		}
-		this.serverAddr = serverAddr;
-	}
+	
 	/**
 	 * 
 	 * @return
@@ -258,12 +257,15 @@ public class MemcachedDriver extends Driver{
 	 */
 	@Override
 	public void init() throws Exception{
-		if(serverAddr==null){
+		if(serverAddrs.isEmpty()){
 			logger.warn("can not find server addr");
 			return;
 		}
-		MemcachedClientBuilder builder=new XMemcachedClientBuilder(
-				AddrUtil.getAddresses(serverAddr));
+		List<InetSocketAddress>address=new ArrayList<InetSocketAddress>();
+		serverAddrs.forEach(s->{
+			address.add(AddrUtil.getOneAddress(s));
+		});
+		MemcachedClientBuilder builder=new XMemcachedClientBuilder(address);
 		builder.setSessionLocator(new KetamaMemcachedSessionLocator());
 		builder.setConnectionPoolSize(connectionPoolSize);
 		memcachedClient=builder.build();
@@ -293,7 +295,7 @@ public class MemcachedDriver extends Driver{
 	@Override
 	public String info() {
 		return InfoBuilder.create().format("%-30s:%-30s\n")
-		.print("serverAddr",getServerAddr())
+		.print("serverAddr",serverAddrs)
 		.print("connectionPoolSize",getConnectionPoolSize())
 		.print("name",getName())
 		.print("connectTimeout",getConnectTimeout())

@@ -9,7 +9,7 @@
 		"system":"wlw",
 		"id":"MainDataSystem",
 		"type":"jazmin-rpc",
-		"depends":["MainDataSystemDB"]
+		"depends":["MainDataSystemDB","MainDataMemcached"]
 	},
 	{
 		"system":"wlw",
@@ -45,6 +45,12 @@
 		"system":"wlw",
 		"type":"mysql",
 		"id":"MainDataSystemDB",
+		"depends":[]
+	},
+	{
+		"system":"wlw",
+		"type":"memcached",
+		"id":"MainDataMemcached",
 		"depends":[]
 	}
 ]
