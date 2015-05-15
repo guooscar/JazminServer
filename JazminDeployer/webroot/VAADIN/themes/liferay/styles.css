@@ -29,7 +29,7 @@
 	}
 
 .v-vaadin-version:after {
-	content: "7.3.7";
+	content: "7.4.6";
 }
 
 .v-generated-body {
@@ -348,6 +348,10 @@
 .liferay .v-colorpicker-area {
 	border: 1px solid silver;
 	margin: 1px auto;
+}
+
+.liferay .v-colorpicker.v-default-caption-width {
+	width: 100px;
 }
 
 .liferay .v-colorpicker-history {
@@ -1707,6 +1711,129 @@ body .liferay.v-app .v-app-loading {
 	display: inline-block;
 }
 
+.liferay .v-escalator {
+	position: relative;
+}
+
+.liferay .v-escalator-scroller {
+	position: absolute;
+	z-index: 1;
+	outline: none;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.liferay .v-escalator-scroller-horizontal {
+	left: 0;
+	right: 0;
+	bottom: 0;
+	overflow-y: hidden;
+	-ms-overflow-y: hidden;
+}
+
+.liferay .v-escalator-scroller-vertical {
+	right: 0;
+	top: 0;
+	bottom: 0;
+	overflow-x: hidden;
+	-ms-overflow-x: hidden;
+}
+
+.liferay .v-escalator-tablewrapper {
+	position: absolute;
+	overflow: hidden;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	z-index: 5;
+}
+
+.liferay .v-escalator-tablewrapper > table {
+	border-spacing: 0;
+	table-layout: fixed;
+	width: inherit;
+}
+
+.liferay .v-escalator-header-deco, .liferay .v-escalator-footer-deco {
+	position: absolute;
+	right: 0;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.liferay .v-escalator-horizontal-scrollbar-deco {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.liferay .v-escalator-header, .liferay .v-escalator-body, .liferay .v-escalator-footer {
+	position: absolute;
+	left: 0;
+	width: inherit;
+	z-index: 10;
+}
+
+.liferay .v-escalator-header, .liferay .v-escalator-header-deco {
+	top: 0;
+}
+
+.liferay .v-escalator-footer, .liferay .v-escalator-footer-deco {
+	bottom: 0;
+}
+
+.liferay .v-escalator-body {
+	z-index: 0;
+	top: 0;
+}
+
+.liferay .v-escalator-body .v-escalator-row {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.liferay .v-escalator-row {
+	display: block;
+}
+
+.v-ie8 .liferay .v-escalator-row, .v-ie9 .liferay .v-escalator-row {
+	float: left;
+	clear: left;
+	margin-top: 0;
+}
+
+.liferay .v-escalator-row  > td, .liferay .v-escalator-row  > th {
+	background-color: #fff;
+}
+
+.liferay .v-escalator-row {
+	width: inherit;
+}
+
+.liferay .v-escalator-cell {
+	display: block;
+	float: left;
+	padding: 2px;
+	white-space: nowrap;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	overflow: hidden;
+	font-size: 16px;
+}
+
+.liferay .v-escalator-cell.frozen {
+	position: relative;
+	z-index: 1;
+}
+
 .liferay .v-formlayout.v-has-width > table {
 	width: 100%;
 }
@@ -1762,6 +1889,401 @@ body .liferay.v-app .v-app-loading {
 
 .liferay .v-formlayout-captioncell .v-caption .v-required-field-indicator {
 	float: none;
+}
+
+.liferay .v-grid {
+	position: relative;
+}
+
+.liferay .v-grid-scroller {
+	position: absolute;
+	z-index: 1;
+	outline: none;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.liferay .v-grid-scroller-horizontal {
+	left: 0;
+	right: 0;
+	bottom: 0;
+	overflow-y: hidden;
+	-ms-overflow-y: hidden;
+}
+
+.liferay .v-grid-scroller-vertical {
+	right: 0;
+	top: 0;
+	bottom: 0;
+	overflow-x: hidden;
+	-ms-overflow-x: hidden;
+}
+
+.liferay .v-grid-tablewrapper {
+	position: absolute;
+	overflow: hidden;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	z-index: 5;
+}
+
+.liferay .v-grid-tablewrapper > table {
+	border-spacing: 0;
+	table-layout: fixed;
+	width: inherit;
+}
+
+.liferay .v-grid-header-deco, .liferay .v-grid-footer-deco {
+	position: absolute;
+	right: 0;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.liferay .v-grid-horizontal-scrollbar-deco {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.liferay .v-grid-header, .liferay .v-grid-body, .liferay .v-grid-footer {
+	position: absolute;
+	left: 0;
+	width: inherit;
+	z-index: 10;
+}
+
+.liferay .v-grid-header, .liferay .v-grid-header-deco {
+	top: 0;
+}
+
+.liferay .v-grid-footer, .liferay .v-grid-footer-deco {
+	bottom: 0;
+}
+
+.liferay .v-grid-body {
+	z-index: 0;
+	top: 0;
+}
+
+.liferay .v-grid-body .v-grid-row {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.liferay .v-grid-row {
+	display: block;
+}
+
+.v-ie8 .liferay .v-grid-row, .v-ie9 .liferay .v-grid-row {
+	float: left;
+	clear: left;
+	margin-top: 0;
+}
+
+.liferay .v-grid-row  > td, .liferay .v-grid-row  > th {
+	background-color: #fff;
+}
+
+.liferay .v-grid-row {
+	width: inherit;
+}
+
+.liferay .v-grid-cell {
+	display: block;
+	float: left;
+	padding: 2px;
+	white-space: nowrap;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	overflow: hidden;
+	font-size: 16px;
+}
+
+.liferay .v-grid-cell.frozen {
+	position: relative;
+	z-index: 1;
+}
+
+.liferay .v-grid {
+	outline: none;
+}
+
+.liferay .v-grid-scroller-vertical, .liferay .v-grid-scroller-horizontal {
+	border: 1px solid #ddd;
+}
+
+.liferay .v-grid-scroller-vertical {
+	border-left: none;
+}
+
+.liferay .v-grid-scroller-horizontal {
+	border-top: none;
+}
+
+.liferay .v-grid-tablewrapper {
+	border: 1px solid #ddd;
+}
+
+.liferay .v-grid-cell {
+	background-color: #fff;
+	padding: 0 5px;
+	line-height: 24px;
+	text-overflow: ellipsis;
+}
+
+.liferay .v-grid-cell  > * {
+	line-height: normal;
+	vertical-align: middle;
+}
+
+.liferay .v-grid-cell  > div {
+	display: inline-block;
+}
+
+.liferay .v-grid-cell.frozen {
+	-webkit-box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
+	-moz-box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
+	box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
+	border-right: 1px solid #ddd;
+}
+
+.liferay .v-grid-cell.frozen  + th, .liferay .v-grid-cell.frozen  + td {
+	border-left: none;
+}
+
+.liferay .v-grid-row > td, .liferay .v-grid-editor-cells > div {
+	border-left: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+}
+
+.liferay .v-grid-row > td:first-child, .liferay .v-grid-editor-cells > div:first-child {
+	border-left: none;
+}
+
+.liferay .v-grid-row-stripe > td {
+	background-color: #f2f2f2;
+}
+
+.liferay .v-grid-row-selected > td {
+	background: #bfbfbf;
+}
+
+.liferay .v-grid-row-focused > td {
+	
+}
+
+.liferay .v-grid-header th {
+	position: relative;
+	background-color: #fff;
+	font-size: 16px;
+	font-weight: inherit;
+	border-left: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+	
+	text-align: left;
+}
+
+.liferay .v-grid-header th:first-child {
+	border-left: none;
+}
+
+.liferay .v-grid-header .sort-asc, .liferay .v-grid-header .sort-desc {
+	padding-right: 24px;
+}
+
+.liferay .v-grid-header .sort-asc:after, .liferay .v-grid-header .sort-desc:after {
+	font-family: FontAwesome, sans-serif;
+	content: "\f0de" " " attr(sort-order);
+	position: absolute;
+	right: 5px;
+	font-size: 14px;
+}
+
+.liferay .v-grid-header .sort-desc:after {
+	content: "\f0dd" " " attr(sort-order);
+}
+
+.liferay .v-grid-footer td {
+	background-color: #fff;
+	font-size: 16px;
+	font-weight: inherit;
+	border-left: 1px solid #ddd;
+	border-top: 1px solid #ddd;
+	border-bottom: none;
+	
+}
+
+.liferay .v-grid-footer td:first-child {
+	border-left: none;
+}
+
+.liferay .v-grid-header-deco {
+	border-top: 1px solid #ddd;
+	border-right: 1px solid #ddd;
+	background-color: #fff;
+}
+
+.liferay .v-grid-footer-deco {
+	border-bottom: 1px solid #ddd;
+	border-right: 1px solid #ddd;
+	background-color: #fff;
+}
+
+.liferay .v-grid-horizontal-scrollbar-deco {
+	background-color: #fff;
+	border: 1px solid #ddd;
+	border-top: none;
+}
+
+.liferay .v-grid-cell-focused {
+	position: relative;
+}
+
+.liferay .v-grid-cell-focused:before {
+	content: "";
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	border: 1px solid;
+	display: none;
+	pointer-events: none;
+}
+
+.ie8 .liferay .v-grid-cell-focused:before, .ie9 .liferay .v-grid-cell-focused:before, .ie10 .liferay .v-grid-cell-focused:before {
+	content: url(data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==);
+}
+
+.liferay .v-grid:focus .v-grid-cell-focused:before {
+	display: block;
+}
+
+.liferay .v-grid.v-disabled:focus .v-grid-cell-focused:before {
+	display: none;
+}
+
+.liferay .v-grid-editor {
+	position: absolute;
+	z-index: 20;
+	overflow: hidden;
+	left: 0;
+	right: 0;
+	border: 1px solid #ddd;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	margin-top: -1px;
+	-webkit-box-shadow: 0 0 9px rgba(0, 0, 0, 0.2);
+	-moz-box-shadow: 0 0 9px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 0 9px rgba(0, 0, 0, 0.2);
+}
+
+.liferay .v-grid-editor-cells {
+	position: relative;
+	white-space: nowrap;
+}
+
+.liferay .v-grid-editor-cells  > div {
+	display: inline-block;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	vertical-align: middle;
+	background: #fff;
+}
+
+.liferay .v-grid-editor-cells  > div:first-child {
+	border-left: none;
+}
+
+.liferay .v-grid-editor-cells  > div  > * {
+	vertical-align: middle;
+	display: inline-block;
+}
+
+.liferay .v-grid-editor-cells  > div .v-textfield, .liferay .v-grid-editor-cells  > div .v-datefield, .liferay .v-grid-editor-cells  > div .v-filterselect {
+	min-width: 100%;
+	max-width: 100%;
+	min-height: 100%;
+	max-height: 100%;
+}
+
+.liferay .v-grid-editor-cells  > div .v-select, .liferay .v-grid-editor-cells  > div .v-select-select {
+	min-width: 100%;
+	max-width: 100%;
+}
+
+.liferay .v-grid-editor-cells .error::before {
+	position: absolute;
+	display: block;
+	height: 0;
+	width: 0;
+	content: "";
+	border-top: 5px solid red;
+	border-right: 5px solid transparent;
+}
+
+.liferay .v-grid-editor-cells .error, .liferay .v-grid-editor-cells .error > input {
+	background-color: #fee;
+}
+
+.liferay .v-grid-editor-footer {
+	display: table;
+	height: 24px;
+	border-top: 1px solid #ddd;
+	margin-top: -1px;
+	background: #fff;
+	padding: 0 5px;
+}
+
+.liferay .v-grid-editor-footer  + .v-grid-editor-cells > div {
+	border-bottom: none;
+	border-top: 1px solid #ddd;
+}
+
+.liferay .v-grid-editor-footer:first-child {
+	border-top: none;
+	margin-top: 0;
+	border-bottom: 1px solid #ddd;
+	margin-bottom: -1px;
+}
+
+.liferay .v-grid-editor-message, .liferay .v-grid-editor-buttons {
+	display: table-cell;
+	white-space: nowrap;
+	vertical-align: middle;
+}
+
+.liferay .v-grid-editor-message {
+	width: 100%;
+	position: relative;
+}
+
+.liferay .v-grid-editor-message  > div {
+	position: absolute;
+	width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	line-height: 24px;
+	top: 0;
+}
+
+.liferay .v-grid-editor-save {
+	margin-right: 4px;
+}
+
+.liferay .v-grid-cell > .v-progressbar {
+	width: 100%;
 }
 
 .liferay .v-gridlayout {
@@ -2788,6 +3310,10 @@ body .liferay.v-app .v-app-loading {
 	color: #ddd;
 }
 
+.liferay .v-table .v-checkbox {
+	display: inline-block;
+}
+
 .liferay .v-table-drag .v-table-body {
 	border-color: #1d9dff;
 }
@@ -3391,7 +3917,7 @@ body .liferay.v-app .v-app-loading {
 	height: 0;
 }
 
-.liferay .v-window-resizebox-disabled, .liferay .v-window-restorebox-disabled, .liferay .v-window-maximizebox-disabled {
+.liferay .v-window-resizebox-disabled, .liferay .v-window-closebox-disabled, .liferay .v-window-restorebox-disabled, .liferay .v-window-maximizebox-disabled {
 	cursor: default;
 	display: none;
 }

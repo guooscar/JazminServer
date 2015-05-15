@@ -29,7 +29,7 @@
 	}
 
 .v-vaadin-version:after {
-	content: "7.3.7";
+	content: "7.4.6";
 }
 
 .v-generated-body {
@@ -348,6 +348,10 @@
 .v-colorpicker-area {
 	border: 1px solid silver;
 	margin: 1px auto;
+}
+
+.v-colorpicker.v-default-caption-width {
+	width: 100px;
 }
 
 .v-colorpicker-history {
@@ -1707,6 +1711,129 @@ div.v-csslayout {
 	display: inline-block;
 }
 
+.v-escalator {
+	position: relative;
+}
+
+.v-escalator-scroller {
+	position: absolute;
+	z-index: 1;
+	outline: none;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.v-escalator-scroller-horizontal {
+	left: 0;
+	right: 0;
+	bottom: 0;
+	overflow-y: hidden;
+	-ms-overflow-y: hidden;
+}
+
+.v-escalator-scroller-vertical {
+	right: 0;
+	top: 0;
+	bottom: 0;
+	overflow-x: hidden;
+	-ms-overflow-x: hidden;
+}
+
+.v-escalator-tablewrapper {
+	position: absolute;
+	overflow: hidden;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	z-index: 5;
+}
+
+.v-escalator-tablewrapper > table {
+	border-spacing: 0;
+	table-layout: fixed;
+	width: inherit;
+}
+
+.v-escalator-header-deco, .v-escalator-footer-deco {
+	position: absolute;
+	right: 0;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.v-escalator-horizontal-scrollbar-deco {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.v-escalator-header, .v-escalator-body, .v-escalator-footer {
+	position: absolute;
+	left: 0;
+	width: inherit;
+	z-index: 10;
+}
+
+.v-escalator-header, .v-escalator-header-deco {
+	top: 0;
+}
+
+.v-escalator-footer, .v-escalator-footer-deco {
+	bottom: 0;
+}
+
+.v-escalator-body {
+	z-index: 0;
+	top: 0;
+}
+
+.v-escalator-body .v-escalator-row {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.v-escalator-row {
+	display: block;
+}
+
+.v-ie8 .v-escalator-row, .v-ie9 .v-escalator-row {
+	float: left;
+	clear: left;
+	margin-top: 0;
+}
+
+.v-escalator-row  > td, .v-escalator-row  > th {
+	background-color: #fff;
+}
+
+.v-escalator-row {
+	width: inherit;
+}
+
+.v-escalator-cell {
+	display: block;
+	float: left;
+	padding: 2px;
+	white-space: nowrap;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	overflow: hidden;
+	font-size: 16px;
+}
+
+.v-escalator-cell.frozen {
+	position: relative;
+	z-index: 1;
+}
+
 .v-formlayout.v-has-width > table {
 	width: 100%;
 }
@@ -1762,6 +1889,401 @@ div.v-csslayout {
 
 .v-formlayout-captioncell .v-caption .v-required-field-indicator {
 	float: none;
+}
+
+.v-grid {
+	position: relative;
+}
+
+.v-grid-scroller {
+	position: absolute;
+	z-index: 1;
+	outline: none;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.v-grid-scroller-horizontal {
+	left: 0;
+	right: 0;
+	bottom: 0;
+	overflow-y: hidden;
+	-ms-overflow-y: hidden;
+}
+
+.v-grid-scroller-vertical {
+	right: 0;
+	top: 0;
+	bottom: 0;
+	overflow-x: hidden;
+	-ms-overflow-x: hidden;
+}
+
+.v-grid-tablewrapper {
+	position: absolute;
+	overflow: hidden;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	z-index: 5;
+}
+
+.v-grid-tablewrapper > table {
+	border-spacing: 0;
+	table-layout: fixed;
+	width: inherit;
+}
+
+.v-grid-header-deco, .v-grid-footer-deco {
+	position: absolute;
+	right: 0;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.v-grid-horizontal-scrollbar-deco {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.v-grid-header, .v-grid-body, .v-grid-footer {
+	position: absolute;
+	left: 0;
+	width: inherit;
+	z-index: 10;
+}
+
+.v-grid-header, .v-grid-header-deco {
+	top: 0;
+}
+
+.v-grid-footer, .v-grid-footer-deco {
+	bottom: 0;
+}
+
+.v-grid-body {
+	z-index: 0;
+	top: 0;
+}
+
+.v-grid-body .v-grid-row {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.v-grid-row {
+	display: block;
+}
+
+.v-ie8 .v-grid-row, .v-ie9 .v-grid-row {
+	float: left;
+	clear: left;
+	margin-top: 0;
+}
+
+.v-grid-row  > td, .v-grid-row  > th {
+	background-color: #fff;
+}
+
+.v-grid-row {
+	width: inherit;
+}
+
+.v-grid-cell {
+	display: block;
+	float: left;
+	padding: 2px;
+	white-space: nowrap;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	overflow: hidden;
+	font-size: 16px;
+}
+
+.v-grid-cell.frozen {
+	position: relative;
+	z-index: 1;
+}
+
+.v-grid {
+	outline: none;
+}
+
+.v-grid-scroller-vertical, .v-grid-scroller-horizontal {
+	border: 1px solid #ddd;
+}
+
+.v-grid-scroller-vertical {
+	border-left: none;
+}
+
+.v-grid-scroller-horizontal {
+	border-top: none;
+}
+
+.v-grid-tablewrapper {
+	border: 1px solid #ddd;
+}
+
+.v-grid-cell {
+	background-color: #fff;
+	padding: 0 5px;
+	line-height: 24px;
+	text-overflow: ellipsis;
+}
+
+.v-grid-cell  > * {
+	line-height: normal;
+	vertical-align: middle;
+}
+
+.v-grid-cell  > div {
+	display: inline-block;
+}
+
+.v-grid-cell.frozen {
+	-webkit-box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
+	-moz-box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
+	box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
+	border-right: 1px solid #ddd;
+}
+
+.v-grid-cell.frozen  + th, .v-grid-cell.frozen  + td {
+	border-left: none;
+}
+
+.v-grid-row > td, .v-grid-editor-cells > div {
+	border-left: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+}
+
+.v-grid-row > td:first-child, .v-grid-editor-cells > div:first-child {
+	border-left: none;
+}
+
+.v-grid-row-stripe > td {
+	background-color: #f2f2f2;
+}
+
+.v-grid-row-selected > td {
+	background: #bfbfbf;
+}
+
+.v-grid-row-focused > td {
+	
+}
+
+.v-grid-header th {
+	position: relative;
+	background-color: #fff;
+	font-size: 16px;
+	font-weight: inherit;
+	border-left: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+	
+	text-align: left;
+}
+
+.v-grid-header th:first-child {
+	border-left: none;
+}
+
+.v-grid-header .sort-asc, .v-grid-header .sort-desc {
+	padding-right: 24px;
+}
+
+.v-grid-header .sort-asc:after, .v-grid-header .sort-desc:after {
+	font-family: FontAwesome, sans-serif;
+	content: "\f0de" " " attr(sort-order);
+	position: absolute;
+	right: 5px;
+	font-size: 14px;
+}
+
+.v-grid-header .sort-desc:after {
+	content: "\f0dd" " " attr(sort-order);
+}
+
+.v-grid-footer td {
+	background-color: #fff;
+	font-size: 16px;
+	font-weight: inherit;
+	border-left: 1px solid #ddd;
+	border-top: 1px solid #ddd;
+	border-bottom: none;
+	
+}
+
+.v-grid-footer td:first-child {
+	border-left: none;
+}
+
+.v-grid-header-deco {
+	border-top: 1px solid #ddd;
+	border-right: 1px solid #ddd;
+	background-color: #fff;
+}
+
+.v-grid-footer-deco {
+	border-bottom: 1px solid #ddd;
+	border-right: 1px solid #ddd;
+	background-color: #fff;
+}
+
+.v-grid-horizontal-scrollbar-deco {
+	background-color: #fff;
+	border: 1px solid #ddd;
+	border-top: none;
+}
+
+.v-grid-cell-focused {
+	position: relative;
+}
+
+.v-grid-cell-focused:before {
+	content: "";
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	border: 1px solid;
+	display: none;
+	pointer-events: none;
+}
+
+.ie8 .v-grid-cell-focused:before, .ie9 .v-grid-cell-focused:before, .ie10 .v-grid-cell-focused:before {
+	content: url(data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==);
+}
+
+.v-grid:focus .v-grid-cell-focused:before {
+	display: block;
+}
+
+.v-grid.v-disabled:focus .v-grid-cell-focused:before {
+	display: none;
+}
+
+.v-grid-editor {
+	position: absolute;
+	z-index: 20;
+	overflow: hidden;
+	left: 0;
+	right: 0;
+	border: 1px solid #ddd;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	margin-top: -1px;
+	-webkit-box-shadow: 0 0 9px rgba(0, 0, 0, 0.2);
+	-moz-box-shadow: 0 0 9px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 0 9px rgba(0, 0, 0, 0.2);
+}
+
+.v-grid-editor-cells {
+	position: relative;
+	white-space: nowrap;
+}
+
+.v-grid-editor-cells  > div {
+	display: inline-block;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	vertical-align: middle;
+	background: #fff;
+}
+
+.v-grid-editor-cells  > div:first-child {
+	border-left: none;
+}
+
+.v-grid-editor-cells  > div  > * {
+	vertical-align: middle;
+	display: inline-block;
+}
+
+.v-grid-editor-cells  > div .v-textfield, .v-grid-editor-cells  > div .v-datefield, .v-grid-editor-cells  > div .v-filterselect {
+	min-width: 100%;
+	max-width: 100%;
+	min-height: 100%;
+	max-height: 100%;
+}
+
+.v-grid-editor-cells  > div .v-select, .v-grid-editor-cells  > div .v-select-select {
+	min-width: 100%;
+	max-width: 100%;
+}
+
+.v-grid-editor-cells .error::before {
+	position: absolute;
+	display: block;
+	height: 0;
+	width: 0;
+	content: "";
+	border-top: 5px solid red;
+	border-right: 5px solid transparent;
+}
+
+.v-grid-editor-cells .error, .v-grid-editor-cells .error > input {
+	background-color: #fee;
+}
+
+.v-grid-editor-footer {
+	display: table;
+	height: 24px;
+	border-top: 1px solid #ddd;
+	margin-top: -1px;
+	background: #fff;
+	padding: 0 5px;
+}
+
+.v-grid-editor-footer  + .v-grid-editor-cells > div {
+	border-bottom: none;
+	border-top: 1px solid #ddd;
+}
+
+.v-grid-editor-footer:first-child {
+	border-top: none;
+	margin-top: 0;
+	border-bottom: 1px solid #ddd;
+	margin-bottom: -1px;
+}
+
+.v-grid-editor-message, .v-grid-editor-buttons {
+	display: table-cell;
+	white-space: nowrap;
+	vertical-align: middle;
+}
+
+.v-grid-editor-message {
+	width: 100%;
+	position: relative;
+}
+
+.v-grid-editor-message  > div {
+	position: absolute;
+	width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	line-height: 24px;
+	top: 0;
+}
+
+.v-grid-editor-save {
+	margin-right: 4px;
+}
+
+.v-grid-cell > .v-progressbar {
+	width: 100%;
 }
 
 .v-gridlayout {
@@ -2788,6 +3310,10 @@ div.v-progressindicator-indeterminate-disabled {
 	color: #ddd;
 }
 
+.v-table .v-checkbox {
+	display: inline-block;
+}
+
 .v-table-drag .v-table-body {
 	border-color: #1d9dff;
 }
@@ -3391,7 +3917,7 @@ div.v-window-header {
 	height: 0;
 }
 
-.v-window-resizebox-disabled, .v-window-restorebox-disabled, .v-window-maximizebox-disabled {
+.v-window-resizebox-disabled, .v-window-closebox-disabled, .v-window-restorebox-disabled, .v-window-maximizebox-disabled {
 	cursor: default;
 	display: none;
 }

@@ -4,6 +4,7 @@
 package jazmin.deploy.domain;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -91,6 +92,7 @@ public class DeployManager {
 		};
 		new Thread(r).start();
 		//
+		Velocity.init();
 	}
 	//
 	public static void reload(){
@@ -105,6 +107,44 @@ public class DeployManager {
 			reloadPackage();
 		}catch(Exception e){
 			logger.error(e.getMessage(),e);
+		}
+	}
+	//
+	public static void saveInstanceConfigFile(String value){
+		String configDir=workSpaceDir+"config";
+		try {
+			FileUtil.saveContent(value, new File(configDir,"instance.json"));
+		} catch (IOException e) {
+			logger.catching(e);
+		}
+	}
+	//
+	public static String getInstanceConfigFile(){
+		String configDir=workSpaceDir+"config";
+		try {
+			return FileUtil.getContent(new File(configDir,"instance.json"));
+		} catch (IOException e) {
+			logger.catching(e);
+			return null;
+		}
+	}
+	//
+	public static void saveApplicationConfigFile(String value){
+		String configDir=workSpaceDir+"config";
+		try {
+			FileUtil.saveContent(value, new File(configDir,"application.json"));
+		} catch (IOException e) {
+			logger.catching(e);
+		}
+	}
+	//
+	public static String getApplicationConfigFile(){
+		String configDir=workSpaceDir+"config";
+		try {
+			return FileUtil.getContent(new File(configDir,"application.json"));
+		} catch (IOException e) {
+			logger.catching(e);
+			return null;
 		}
 	}
 	//
@@ -363,8 +403,37 @@ public class DeployManager {
 		return renderTemplate(instance);
 	}
 	//
+	//
+	public static void saveTemplate(String appId,String value){
+		String templateDir=workSpaceDir;
+		templateDir+="template";
+		File file=new File(templateDir+"/"+appId+".vm");
+		try{
+			if(!file.exists()){
+				file.createNewFile();
+			}
+			FileUtil.saveContent(value, file);
+		}catch(Exception e){
+			logger.catching(e);
+		}
+	}
+	//
+	public static String getTemplate(String appId){
+		String templateDir=workSpaceDir;
+		templateDir+="template";
+		File file=new File(templateDir+"/"+appId+".vm");
+		if(!file.exists()){
+			return null;
+		}
+		try {
+			return FileUtil.getContent(file);
+		} catch (IOException e) {
+			logger.catching(e);
+			return null;
+		}
+	}
+	//
 	private static String renderTemplate(Instance instance){
-		Velocity.init();
 		VelocityContext ctx=new VelocityContext();
 		ctx.put("instances",getInstances());
 		ctx.put("instanceMap",instanceMap);
@@ -570,7 +639,6 @@ public class DeployManager {
 	//--------------------------------------------------------------------------
 	public static void main(String[] args)throws Exception{
 		DeployManager.reload();
-		System.out.println(TopSearch.topSearch(DeployManager.getApplications()));
-		
+		DeployManager.renderTemplate("MddsSystem");
 	}
 }

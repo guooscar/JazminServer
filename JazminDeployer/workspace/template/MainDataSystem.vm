@@ -29,6 +29,6 @@ consoleServer=new ConsoleServer();
 consoleServer.setPort($monitorPort);
 jazmin.addServer(consoleServer);
 //------------------------------------------------------------------------------
-var targetApp="./instance/$instance.id/MainDataSystem.jaz"
-jazmin.copyFile("http://10.44.218.35:7001/srv/deploy/pkg/"+jazmin.getServerName(),targetApp)
+var targetApp="./instance/$instance.id/MainDataSystem.jaz";
+jazmin.copyFile("http://10.44.218.35:7001/srv/deploy/pkg/"+jazmin.getServerName(),targetApp);
 jazmin.loadApplication(targetApp);

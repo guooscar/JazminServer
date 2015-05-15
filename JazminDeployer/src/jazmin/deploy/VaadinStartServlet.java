@@ -21,7 +21,8 @@ import com.vaadin.server.VaadinServlet;
 @WebServlet(value = "/deployer/*",asyncSupported = true,loadOnStartup=1)
 @VaadinServletConfiguration(
         productionMode = true,
-        ui = DeploySystemUI.class)
+        ui = DeploySystemUI.class,
+        widgetset="jazmin.deploy.AppWidgetSet")
 public class VaadinStartServlet extends VaadinServlet{
 	/**
 	 * 

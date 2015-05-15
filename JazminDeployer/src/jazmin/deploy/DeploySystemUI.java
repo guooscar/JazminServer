@@ -1,7 +1,7 @@
 package jazmin.deploy;
 
-import jazmin.deploy.ui.LoginView;
-import jazmin.deploy.ui.MainView;
+import jazmin.deploy.view.main.LoginView;
+import jazmin.deploy.view.main.MainView;
 
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
