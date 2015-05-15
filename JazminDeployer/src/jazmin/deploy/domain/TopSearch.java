@@ -19,6 +19,9 @@ import java.util.TreeSet;
  */
 public class TopSearch {
 	public static List<Application> topSearch(List<Application>apps){
+		if(apps.isEmpty()){
+			return apps;
+		}
 		List<Application>result=new ArrayList<Application>();
 		LinkedList<String>zeroInNodes=new LinkedList<String>();
 		Set<String>dependsMap=new TreeSet<String>();

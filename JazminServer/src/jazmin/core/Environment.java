@@ -31,6 +31,13 @@ public class Environment extends Lifecycle{
 	/**
 	 * @return string value by key
 	 */
+	public String getString(String key,String defaultValue){
+		String v=map.get(key);
+		return v==null?defaultValue:v;
+	}
+	/**
+	 * @return string value by key
+	 */
 	public String getString(String key){
 		return map.get(key);
 	}
@@ -43,6 +50,26 @@ public class Environment extends Lifecycle{
 			return null;
 		}
 		return Integer.valueOf(v);
+	}
+	/**
+	 * @return integer value by key
+	 */
+	public Integer getInteger(String key,Integer defaultValue){
+		String v=map.get(key);
+		if(v==null){
+			return defaultValue;
+		}
+		return Integer.valueOf(v);
+	}
+	/**
+	 * @return boolean value by key
+	 */
+	public Boolean getBoolean(String key,Boolean defaultValue){
+		String v=map.get(key);
+		if(v==null){
+			return defaultValue;
+		}
+		return Boolean.valueOf(v);
 	}
 	/**
 	 * @return boolean value by key
@@ -65,6 +92,26 @@ public class Environment extends Lifecycle{
 		return Float.valueOf(v);
 	}
 	/**
+	 * @return float value by key
+	 */
+	public Float getFloat(String key,Float defaultValue){
+		String v=map.get(key);
+		if(v==null){
+			return defaultValue;
+		}
+		return Float.valueOf(v);
+	}
+	/**
+	 * @return double value by key
+	 */
+	public Double getDouble(String key,Double defaultValue){
+		String v=map.get(key);
+		if(v==null){
+			return defaultValue;
+		}
+		return Double.valueOf(v);
+	}
+	/**
 	 * @return double value by key
 	 */
 	public Double getDouble(String key){
@@ -81,6 +128,16 @@ public class Environment extends Lifecycle{
 		String v=map.get(key);
 		if(v==null){
 			return null;
+		}
+		return Long.valueOf(v);
+	}
+	/**
+	 * @return long value by key
+	 */
+	public Long getLong(String key,Long defaultValue){
+		String v=map.get(key);
+		if(v==null){
+			return defaultValue;
 		}
 		return Long.valueOf(v);
 	}

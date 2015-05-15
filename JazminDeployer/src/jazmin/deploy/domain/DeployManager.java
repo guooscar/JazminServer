@@ -62,14 +62,14 @@ public class DeployManager {
 		graphVizRenderer=new GraphVizRenderer();
 	}
 	//
+	private static String workSpaceDir="";
+	//
 	@SuppressWarnings("rawtypes")
 	public static void setup() throws Exception {
+		workSpaceDir=Jazmin.environment.getString("deploy.workspace","./workspace/");
 		WatchService watcher = FileSystems.getDefault().newWatchService();
-		String configDir = Jazmin.environment.getString("deploy.package.path");
-		if (configDir == null) {
-			configDir = "./workspace/package";
-		}
-		Path dir = FileSystems.getDefault().getPath(configDir);
+		String configDir = workSpaceDir;
+		Path dir = FileSystems.getDefault().getPath(configDir+"package");
 		key = dir.register(watcher, StandardWatchEventKinds.ENTRY_MODIFY,
 				StandardWatchEventKinds.ENTRY_CREATE,
 				StandardWatchEventKinds.ENTRY_DELETE);
@@ -90,13 +90,12 @@ public class DeployManager {
 			}
 		};
 		new Thread(r).start();
+		//
 	}
 	//
 	public static void reload(){
-		String configDir=Jazmin.environment.getString("deploy.config.path");
-		if(configDir==null){
-			configDir="./workspace/config";
-		}
+		String configDir=workSpaceDir;
+		configDir+="config";
 		try{
 			reloadApplicationConfig(configDir);
 			checkApplicationConfig();
@@ -120,10 +119,8 @@ public class DeployManager {
 	}
 	//
 	public static void saveInstanceConfig()throws Exception{
-		String configDir=Jazmin.environment.getString("deploy.config.path");
-		if(configDir==null){
-			configDir="./workspace/config";
-		}
+		String configDir=workSpaceDir;
+		configDir+="config";
 		File configFile=new File(configDir,"instance.json");
 		List<Instance>list=getInstances();
 		Collections.sort(list,(o1,o2)->o1.priority-o2.priority);
@@ -148,10 +145,9 @@ public class DeployManager {
 	//
 	private static void reloadPackage(){
 		packageMap.clear();
-		String packageDir=Jazmin.environment.getString("deploy.package.path");
-		if(packageDir==null){
-			packageDir="./workspace/package";
-		}
+		String packageDir=workSpaceDir;
+		packageDir+="package";
+		
 		File packageFolder=new File(packageDir);
 		if(packageFolder.exists()&&packageFolder.isDirectory()){
 			for(File ff:packageFolder.listFiles()){
@@ -211,6 +207,33 @@ public class DeployManager {
 		}
 		String queryBegin="select * from "+AppPackage.class.getName()+" where 1=1 and ";
 		return BeanUtil.query(getPackages(),queryBegin+search);
+	}
+	//
+	//
+	public static List<RepoItem>getRepoItems(String search)throws Exception{
+		if(search==null||search.trim().isEmpty()){
+			return new ArrayList<RepoItem>();
+		}
+		String queryBegin="select * from "+RepoItem.class.getName()+" where 1=1 and ";
+		return BeanUtil.query(getRepoItems(),queryBegin+search);
+	}
+	//	
+	public static List<RepoItem>getRepoItems(){
+		List<RepoItem>items= new ArrayList<RepoItem>();
+		String repoDir=workSpaceDir+"repo";
+		File ff=new File(repoDir);
+		if(ff.isDirectory()){
+			for(File f:ff.listFiles()){
+				if(f.isFile()){
+					RepoItem i=new RepoItem();
+					i.file=f.getAbsolutePath();
+					i.id=f.getName();
+					i.lastModifiedTime=new Date(f.lastModified());
+					items.add(i);
+				}
+			}
+		}
+		return items;
 	}
 	//
 	public static List<Instance>getInstances(String search)throws Exception{
@@ -359,10 +382,9 @@ public class DeployManager {
 		ctx.put("properties", properties);
 		
 		StringWriter sw=new StringWriter();
-		String templateDir=Jazmin.environment.getString("deploy.template.path");
-		if(templateDir==null){
-			templateDir="./workspace/template";
-		}
+		String templateDir=workSpaceDir;
+		templateDir+="template";
+		
 		File file=new File(templateDir+"/"+instance.appId+".vm");
 		if(!file.exists()){
 			logger.info("can not find {} use Default.vm to render",file);

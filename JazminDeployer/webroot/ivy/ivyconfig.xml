@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ivysettings> 
+  <settings defaultResolver="chained"/> 
+  <resolvers> 
+    <chain name="chained" returnFirst="true"> 
+      <url name="integratebutton"> 
+        <artifact pattern="http://10.44.218.35:8080/repo/[artifact]-[revision].[ext]" /> 
+      </url> 
+    </chain> 
+  </resolvers> 
+ </ivysettings>
+

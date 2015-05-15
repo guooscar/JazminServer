@@ -86,14 +86,16 @@ public class Dispatcher {
 			logger.warn("can not find service:{}",request.queryURI());
 			return ctx;		
 		}
-		//
-		if(!methodStub.method.equals(request.requestMethod())){
-			//404
-			logger.warn("method not match url:{} stub:{} request:{}",
-					request.queryURI(),
-					methodStub.method,
-					request.requestMethod());
-			return ctx;				
+		if(!methodStub.method.equals(HttpMethod.ALL.toString())){
+			//
+			if(!methodStub.method.equals(request.requestMethod())){
+				//404
+				logger.warn("method not match url:{} stub:{} request:{}",
+						request.queryURI(),
+						methodStub.method,
+						request.requestMethod());
+				return ctx;				
+			}
 		}
 		//
 		Jazmin.dispatcher.invokeInCaller("", 

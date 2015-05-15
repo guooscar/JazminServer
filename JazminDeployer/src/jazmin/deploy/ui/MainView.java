@@ -7,6 +7,7 @@ import jazmin.deploy.view.DashboardView;
 import jazmin.deploy.view.InstanceInfoView;
 import jazmin.deploy.view.MachineInfoView;
 import jazmin.deploy.view.PackageInfoView;
+import jazmin.deploy.view.RepoInfoView;
 
 import com.vaadin.server.FileResource;
 import com.vaadin.server.FontAwesome;
@@ -60,5 +61,6 @@ public class MainView extends HorizontalLayout {
     	menuView.addMenuItem("Machines", FontAwesome.GEAR,new MachineInfoView());	
     	menuView.addMenuItem("Applications", FontAwesome.ANDROID,new ApplicationInfoView());	
     	menuView.addMenuItem("Packages", FontAwesome.ANCHOR,new PackageInfoView());	
+    	menuView.addMenuItem("Repos", FontAwesome.APPLE,new RepoInfoView());	
     }
 }

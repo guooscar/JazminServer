@@ -31,14 +31,18 @@ public class VaadinStartServlet extends VaadinServlet{
 	public void init() throws ServletException {
 		super.init();
 		//
+		try {
+			DeployManager.setup();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		DeployManager.reload();
 	}
 	//
 	public static void main(String[] args) throws Exception{
 		WebServer ws=new WebServer();
-		Jazmin.environment.put("deploy.config.path","workspace/config/");
-		Jazmin.environment.put("deploy.template.path","workspace/template/");
-		Jazmin.environment.put("deploy.package.path","workspace/package/");
+		Jazmin.environment.put("deploy.workspace","./workspace/");
+		Jazmin.environment.put("deploy.hostname","10.44.218.119");
 		ws.addResource("/","release/JazminDeployer");
 		Jazmin.addServer(ws);
 		Jazmin.addServer(new ConsoleServer());

@@ -10,7 +10,9 @@ public enum HttpMethod {
 	PUT("PUT"), 
 	DELETE("DELETE"),
 	OPTIONS("OPTIONS"),
-	TRACE("TRACE");
+	HEAD("HEAD"),
+	TRACE("TRACE"),
+	ALL("*");
 	
 	private String httpMethod;
 	

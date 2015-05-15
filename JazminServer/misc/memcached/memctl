@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+REMOTE_CONFIG_PATH="http://10.44.218.35:7001/srv/deploy/boot/MainDataMemcached"
 ROOT_PATH="/home/appadmin/memcached"
 CONFIG_FILE="$ROOT_PATH/memcached.cfg"
 #
@@ -10,6 +11,7 @@ function error(){
     echo -e "\033[31m"$1"  \033[0m"
 }
 function start(){
+	wget $REMOTE_CONFIG_PATH -O $CONFIG_FILE
 	size=`grep $INSTANCE_NAME $CONFIG_FILE |awk '{print $2}'`
 	port=`grep $INSTANCE_NAME $CONFIG_FILE |awk '{print $3}'`
 	if [ ! $size ]

@@ -19,5 +19,6 @@ public class DeployDispatchServlet extends DispatchServlet{
 	public void init() throws ServletException {
 		super.init();
 		dispatcher.registerController(new DeployController());
+		dispatcher.registerController(new IvyController());
 	}
 }

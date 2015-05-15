@@ -7,7 +7,7 @@ jazmin.addServer(messageServer);
 //
 var rpcDriver=new JazminRpcDriver();
 #foreach($i in $instances)
-#if ($i.app == 'MainDataSystem')
+#if ($i.appId == 'MainDataSystem')
 rpcDriver.addRemoteServer("MainData","$i.id","$i.machine.publicHost",$i.port);
 #end
 #end

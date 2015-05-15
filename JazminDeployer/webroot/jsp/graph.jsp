@@ -33,8 +33,8 @@
           return inspect(e.toString());
         }
       }
-      document.body.innerHTML = example("cluster", "svg");
-      
+      var ss= example("cluster", "svg");
+      document.body.innerHTML =ss;
     </script>
     
   </body>
