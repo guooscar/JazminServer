@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ivy-module version="1.1">
-	<info 	organisation="yourcompany" 
-			module="XXXSystem" 
+	<info 	organisation="jazmin.example" 
+			module="JazminExample" 
 			status="integration"
 			revision="1.0.0" />
 	
 	<dependencies>
-		<!-- dependency org="jazmin" name="jazmin" rev="1.0"/-->
+		<dependency org="jazmin" name="jazmin" rev="1.0"/>
 	</dependencies>
 	
 </ivy-module>

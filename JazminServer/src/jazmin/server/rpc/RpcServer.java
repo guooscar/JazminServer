@@ -105,9 +105,8 @@ public class RpcServer extends Server{
 		logger.debug("register instance:{}",instanceName);
 		instanceMap.put(instanceName, instance);
 		//
-		Class<?>implClass=instance.getClass();
 		//
-		for(Method m:implClass.getDeclaredMethods()){
+		for(Method m:interfaceClass.getDeclaredMethods()){
 			//Transaction annotation add on impl class so we should use implClass
 			//
 			String methodName=interfaceClass.getSimpleName()+"."+m.getName();

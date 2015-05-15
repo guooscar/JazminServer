@@ -29,16 +29,12 @@ public class JazminJob {
 		return lastRunTime;
 	}
 	//
-	public Date nextRunTime()throws Exception {
+	public Date nextRunTime()throws ParseException {
 		if(lastRunTime==null){
 			lastRunTime=new Date();
 		}
-		try {
-			CronExpression ce=new CronExpression(cron);
-			return ce.getNextValidTimeAfter(lastRunTime);
-		} catch (ParseException e) {
-			throw new Exception(e);
-		}
+		CronExpression ce=new CronExpression(cron);
+		return ce.getNextValidTimeAfter(lastRunTime);
 	}
 
 	/**

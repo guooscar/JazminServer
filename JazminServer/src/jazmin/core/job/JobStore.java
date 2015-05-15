@@ -49,6 +49,11 @@ public class JobStore extends Lifecycle{
 			job.cron=td.cron();
 			job.method=m;
 			job.instance=instance;
+			try {
+				job.nextRunTime();
+			} catch (Exception e) {
+				throw new IllegalArgumentException(e);
+			}
 			jobMap.put(job.id,job);
 		}
 	}
@@ -107,7 +112,7 @@ public class JobStore extends Lifecycle{
 						job.cron,
 						job.nextRunTime());
 			} catch (Exception e) {
-				logger.error(e);
+				logger.catching(e);
 			}
 		};
 		return ib.toString();

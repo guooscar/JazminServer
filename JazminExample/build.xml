@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="DemoSystem" basedir="." 
+<project name="JazminExample" basedir="." 
 	xmlns:ivy="antlib:fr.jayasoft.ivy.ant"
-	default="build">
+	default="all">
 	<!-- scp task-->   
 	<taskdef resource="net/sf/antcontrib/antlib.xml"/>
 	<!-- -->    
@@ -24,21 +24,27 @@
 	<path id="master-classpath">
 		<fileset dir="${lib.dir}" />
 	</path>
-
 	<!-- =================================================================== -->
 	<!-- clean release directory -->
 	<!-- =================================================================== -->
-	<target name="clean" description="release clean">
+	<target name="clean" description="clean all">
+		<delete dir="${release.dir}" />
 		<delete dir="${build.dir}" />
-		<delete dir="${release.dir}/" />
+	</target>
+
+
+	<!-- =================================================================== -->
+	<!-- create build directory -->
+	<!-- =================================================================== -->
+	<target name="init" depends="get-lib" description="">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${build.classes.dir}" />
 	</target>
 
 	<!-- =================================================================== -->
 	<!-- compile java code -->
 	<!-- =================================================================== -->
-	<target name="build" description="build java" >
-		<mkdir dir="${build.dir}" />
-		<mkdir dir="${build.classes.dir}" />
+	<target name="build" description="build java" depends="init">
 		<javac destdir="${build.classes.dir}" 
 			source="1.8" target="1.8" 
 			debug="true" encoding="utf-8" 
@@ -50,20 +56,30 @@
 		</javac>
 	</target>
 	<!-- =================================================================== -->
-	<!-- make release package -->
+	<!-- make jar file -->
 	<!-- =================================================================== -->
-	<target name="package" depends="build">
+	<target name="jar" description="" depends="build">
+	    <copy todir="${build.classes.dir}">
+	        <fileset dir="${src.dir}">
+              <include name="**/*.json" />
+          </fileset>	
+		</copy>
 		<!--copy source file -->
 		<jar destfile="${release.dir}/${project.name}.jar">
 			<fileset dir="${build.classes.dir}">
 				<include name="**/*" />
 			</fileset>
 			<manifest>
-			<attribute name="Implementation-Version" 
-				value="build${release_date}"/>
+				<attribute name="Implementation-Version" 
+					value="build${release_date}"/>
 				<attribute name="Implementation-Title" value="${project.name}"/>			
 			</manifest>
 		</jar>
+	</target>
+	<!-- =================================================================== -->
+	<!-- make release package -->
+	<!-- =================================================================== -->
+	<target name="package" depends="jar">
 		<echo>make jaz package</echo>
 		<delete dir="${release.dir}/${project.name}" />
 		<mkdir dir="${release.dir}/${project.name}" />
@@ -71,27 +87,26 @@
 		    <fileset dir="${lib.dir}">
 		        <include name="**/*.jar"/>
 		    	<exclude name="jazmin.jar"/>
+		    	<exclude name="vaadin.jar"/>
 		    </fileset>
 			<fileset dir="${release.dir}">
 				<include name="*.jar"/>
 			</fileset>			
 		</unzip>
 	</target>	
-	<!-- =================================================================== -->
-	<!-- package demo appsystem -->
-	<!-- =================================================================== -->	
-	<target name="package-DemoAppSystem" depends="package">
-		<zip destfile="${release.dir}/DemoAppSystem-${project.revision}.jaz">
-			<fileset dir="${release.dir}/${project.name}">
-				<include name="**/*" />
-			</fileset>
-		</zip>
-		<delete dir="${release.dir}/${project.name}" />
+	
+	<target name="package-RpcSystem" depends="package">
+			<zip destfile="${release.dir}/RpcSystem-${project.revision}.jaz">
+					<fileset dir="${release.dir}/${project.name}">
+						<include name="**/*" />
+					</fileset>
+			</zip>
 	</target>
 	<!-- =================================================================== -->
 	<!-- deoloy to remote server -->
 	<!-- =================================================================== -->
-	<target name="deploy" depends="clean,clean-libcache,get-lib,package-DemoAppSystem">
+		
+	<target name="deploy" depends="package-RpcSystem">
 		<echo>deploy to ${deploy.dir} from ${release.dir}</echo>
 		<scp todir="${deploy.dir}"
 			trust="true">
@@ -99,27 +114,43 @@
 				<include name="*.jaz" />
 			</fileset>
 		</scp>
-		<echo>publish to ${repo.dir} from ${release.dir}</echo>
-		<scp todir="${repo.dir}" trust="true">
-			<fileset dir="${release.dir}">
-				<include name="*.jar" />
-			</fileset>
-		</scp>
 	</target>	
-
+	<!-- =================================================================== -->
+	<!-- 部署项目 发布jar包 -->
+	<!-- =================================================================== -->    
+	<target name="repo" depends="jar">
+		<echo>publish to ${publish.dir} from ${release.dir}</echo>	
+		<scp file="${release.dir}/${project.name}.jar" 
+			remoteTofile="${publish.dir}/${project.name}-${project.revision}.jar"
+				trust="true">
+		</scp>
+	</target>
+	
+	<!-- =================================================================== -->
+	<!-- 部署项目 发布jar包 -->
+	<!-- =================================================================== -->    
+	<target name="all" depends="clean-libcache,clean,deploy,repo">
+		<echo>build all</echo>
+	</target>
+	
+	<!-- =================================================================== -->
+	<!-- init ivy -->
+	<!-- =================================================================== -->    
+	<target name="init-lib">
+		<ivy:configure url="${ivy.config.path}"/>
+	</target>
 	<!-- =================================================================== -->
     <!-- clean ivy lib cache -->
     <!-- =================================================================== -->
-    <target name="clean-libcache" >
-    	<ivy:configure url="${ivy.config}"/>
+    <target name="clean-libcache" depends="init-lib" description="clean ivy lib cache">
     	<ivy:cleancache/>
     </target>
 
 	<!-- =================================================================== -->
     <!-- get ivy lib -->
     <!-- =================================================================== -->
-	<target name="get-lib">
-		<ivy:configure url="${ivy.config}"/>
+	<target name="get-lib"  depends="init-lib"
+		description="下载或从本地缓存获取第三方包">
 	    <ivy:retrieve pattern="${lib.dir}/[artifact].[ext]" />
     </target>
 </project>
