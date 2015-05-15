@@ -6,13 +6,15 @@
     <title>Graph</title>
   </head>
   <body>
-   <h1 style="text-aligin:center">Loading</h1>
+   <div id="graph"><h1 style="text-aligin:center">Loading</h1></div>
     <script type="text/vnd.graphviz" id="cluster">
 	${dot_string}
 	</script>
     <script src="/js/viz.js"></script>
+    <script src="/js/jquery.min.js"></script>
+    
     <script>
-      
+
       function inspect(s) {
         return "<pre>" + s.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;") + "</pre>"
       }
@@ -34,7 +36,8 @@
         }
       }
       var ss= example("cluster", "svg");
-      document.body.innerHTML =ss;
+      document.getElementById("graph").innerHTML =ss;
+      
     </script>
     
   </body>
