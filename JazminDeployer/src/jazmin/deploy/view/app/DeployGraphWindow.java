@@ -29,7 +29,7 @@ public class DeployGraphWindow extends Window{
         setWidth(90.0f, Unit.PERCENTAGE);
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);
-        setResizable(false);
+        setResizable(true);
         setClosable(true);
         setHeight(90.0f, Unit.PERCENTAGE);
         VerticalLayout content = new VerticalLayout();

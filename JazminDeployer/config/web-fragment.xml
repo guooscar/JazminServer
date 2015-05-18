@@ -2,6 +2,7 @@
 	<welcome-file-list>
 		<welcome-file>deployer</welcome-file>
 	</welcome-file-list>
+	
   <jsp-config>
     <taglib>
       <taglib-uri>/tags/c-rt</taglib-uri>

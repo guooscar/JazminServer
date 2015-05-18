@@ -216,11 +216,27 @@ public class RpcServer extends Server{
 		case RpcMessage.TYPE_SESSION_AUTH:
 			authMessageReceived(session,message);
 			break;
+		case RpcMessage.TYPE_HEARTBEAT:
+			sendHeartbeat(session,message);
+			break;
 		default:
 			logger.error("bad message type:"+message);
 			break;
 		}
 	}
+	//
+	private void sendHeartbeat(RpcSession session,RpcMessage message){
+		synchronized (session) {
+			if(logger.isDebugEnabled()){
+				logger.debug("receive heart beat from {}",session.getPrincipal());
+			}
+			RpcMessage msg=new RpcMessage();
+			msg.id=message.id;
+			msg.type=RpcMessage.TYPE_HEARTBEAT;
+			session.write(msg);
+		}
+	}
+	//
 	private void authMessageReceived(RpcSession session,RpcMessage message){
 		synchronized (session) {
 			String principal=(String)message.payloads[0];

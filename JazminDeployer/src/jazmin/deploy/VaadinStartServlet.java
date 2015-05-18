@@ -4,6 +4,7 @@
 package jazmin.deploy;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
 import javax.servlet.annotation.WebServlet;
 
 import jazmin.core.Jazmin;
@@ -18,7 +19,11 @@ import com.vaadin.server.VaadinServlet;
  * @author yama
  * 28 Dec, 2014
  */
-@WebServlet(value = "/deployer/*",asyncSupported = true,loadOnStartup=1)
+@WebServlet(
+		value = "/deployer/*",
+		asyncSupported = true,
+		loadOnStartup=1,
+initParams={@WebInitParam(name="org.atmosphere.websocket.maxIdleTime",value="100000")})
 @VaadinServletConfiguration(
         productionMode = true,
         ui = DeploySystemUI.class,

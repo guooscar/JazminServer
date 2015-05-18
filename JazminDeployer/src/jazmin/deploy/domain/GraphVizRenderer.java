@@ -42,7 +42,7 @@ public class GraphVizRenderer {
 		append("\"").
 		append(system).
 		append("\"\n{");
-		result.append("graph[page=\"fill\",size=\"12,8.5\",ratio=fill,center=1,bgcolor=\"transparent\"];\n");
+		result.append("graph[page=\"fill\",size=\"16,8.5\",ratio=fill,center=1,bgcolor=\"transparent\"];\n");
 		result.append("rankdir=LR;\n");
 		result.append("node[fontname=\"simhei\",width=3.0,style=\"filled,rounded,solid\"];\n");
 		result.append("edge[fontname=\"simhei\",fillcolor=gray];\n");
@@ -61,6 +61,7 @@ public class GraphVizRenderer {
 		renderNodeList(result,Application.LAYER_CACHE,apps,instances,cluster);
 		renderNodeList(result,Application.LAYER_DB,apps,instances,cluster);
 		renderNodeList(result,Application.LAYER_OTHER,apps,instances,cluster);
+		renderNodeStatusList(result,instances,cluster);
 		//
 		renderEdge(result,Application.LAYER_USER,Application.LAYER_PROXY);
 		renderEdge(result,Application.LAYER_PROXY,Application.LAYER_WEB);
@@ -113,7 +114,8 @@ public class GraphVizRenderer {
 	}
 	//
 	private static String instanceToNode(Instance i){
-		return i.id+"\\n"+i.application.type+"["+i.machineId+":"+i.port+"]";
+		String node= i.id+"\\n"+i.application.type+"["+i.machineId+":"+i.port+"]";
+		return node;
 	}
 	//
 	
@@ -142,6 +144,18 @@ public class GraphVizRenderer {
 			}
 		}
 		sb.append("}\n");
+	}
+	//
+	private  void renderNodeStatusList(
+			StringBuilder sb,
+			List<Instance>instances,String cluster){
+		for(Instance i:instances){
+			if(i.cluster.equals(cluster)){
+				if(!i.isAlive){
+					sb.append("\""+instanceToNode(i)+"\" [fillcolor=gray]\n");		
+				}
+			}
+		}
 	}
 	//
 	private  void renderEdge(StringBuilder sb,String from,String to){

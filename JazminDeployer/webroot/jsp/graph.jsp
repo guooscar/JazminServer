@@ -6,13 +6,13 @@
     <title>Graph</title>
   </head>
   <body>
-   <div id="graph"><h1 style="text-aligin:center">Loading</h1></div>
+   <div id="graph" style="width: 100%; height: 100%"><h1 style="text-aligin:center">Loading</h1></div>
     <script type="text/vnd.graphviz" id="cluster">
 	${dot_string}
 	</script>
     <script src="/js/viz.js"></script>
     <script src="/js/jquery.min.js"></script>
-    
+    <script src="/js/svg-pan-zoom.js"></script>
     <script>
 
       function inspect(s) {
@@ -37,7 +37,20 @@
       }
       var ss= example("cluster", "svg");
       document.getElementById("graph").innerHTML =ss;
-      
+      //
+      window.onload = function() {
+        var svgElement = document.getElementsByTagName("svg")[0];
+       	var zoomSvg = svgPanZoom(svgElement, {
+          zoomEnabled: true,
+          controlIconsEnabled: true,
+          fit: true,
+          center: true,
+          viewportSelector: document.getElementById('graph').querySelector('#graph0')
+        });
+       	zoomSvg.zoom(0.5)
+        zoomSvg.pan({x: 50, y: 650})
+      };
+      //
     </script>
     
   </body>

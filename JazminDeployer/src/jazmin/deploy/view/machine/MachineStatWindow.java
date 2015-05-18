@@ -8,6 +8,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 
 import jazmin.core.Jazmin;
+import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.Machine;
 import jazmin.deploy.domain.MachineStat;
 import jazmin.deploy.domain.MachineStat.FSInfo;
@@ -94,7 +95,10 @@ public class MachineStatWindow extends Window implements CellRender{
 			try {
 				loadData0();
 			} catch (Exception e) {
-				e.printStackTrace();
+				this.getUI().access(()->{
+					DeploySystemUI.showNotificationInfo("Error",e.getMessage());
+					close();
+				});
 			}	
 		});
 	}

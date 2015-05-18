@@ -46,14 +46,11 @@ public class RpcClient {
 	private RpcMessageCallback pushMessageCallback;
 	private NetworkTrafficStat networkTrafficStat;
 	//
-	//
 	private static final int DEFAULT_TIMEOUT=15000;//15 sec
-	//
 	private AtomicInteger messageId;
 	private Map<Integer,RPCLock>lockMap;
 	private long timeout;
 	private String principal;
-	//
 	//
 	static class RPCLock{
 		public int id;
@@ -106,6 +103,7 @@ public class RpcClient {
 			}
 		});
 	}
+
 	//
 	public void stop(){
 		group.shutdownGracefully();
@@ -151,23 +149,20 @@ public class RpcClient {
 	/**
 	 * create a new RPC session using specified host and port.
 	 */
-	public void connect(RpcSession session){
+	public void connect(RpcSession session)throws Exception{
 		String host=session.getRemoteHostAddress();
 		int port=session.getRemotePort();
-		try {
-			if(logger.isWarnEnabled()){
-				logger.warn("connect rpc server {}:{}",host,port);
-			}
-			Channel channel=bootstrap.connect(host, port).sync().channel();
-			channel.attr(SESSION_KEY).set(session);
-			session.setChannel(channel);
-			session.setPrincipal(principal);
-			//
-			//send auth message
-			auth(session);
-		} catch (Exception e) {
-			logger.error("can not connect to server "+host+":"+port,e);
+		
+		if(logger.isWarnEnabled()){
+			logger.warn("connect rpc server {}:{}",host,port);
 		}
+		Channel channel=bootstrap.connect(host, port).sync().channel();
+		channel.attr(SESSION_KEY).set(session);
+		session.setChannel(channel);
+		session.setPrincipal(principal);	
+		//send auth message
+		auth(session);
+		
 	}
 	/**/
 	private void auth(RpcSession session){
@@ -184,6 +179,17 @@ public class RpcClient {
 		}
 		session.write(msg);
 	}
+	/**/
+	public void heartbeat(RpcSession session){
+		try{
+			RpcMessage msg=new RpcMessage();
+			msg.id=messageId.incrementAndGet();
+			msg.type=RpcMessage.TYPE_HEARTBEAT;
+			session.write(msg);
+		}catch(Exception e){
+			logger.catching(e);
+		}
+	}
 	//--------------------------------------------------------------------------
 	//message
 	/**
@@ -196,6 +202,11 @@ public class RpcClient {
 			break;
 		case RpcMessage.TYPE_PUSH:
 			pushMessageReceived(session,message);
+			break;
+		case RpcMessage.TYPE_HEARTBEAT:
+			if(logger.isDebugEnabled()){
+				logger.debug("receive heartheat {}",session.getPrincipal());
+			}
 			break;
 		default:
 			logger.warn("bad message type:"+message);

@@ -195,7 +195,11 @@ public class JazminRpcDriver extends Driver{
 		if(topics!=null){
 			topics.forEach((topic)->session.subscribe(topic));
 		}
-		client.connect(session);	
+		try {
+			client.connect(session);
+		} catch (Exception e) {
+			logger.catching(e);
+		}	
 		List<RpcSession>sessionList=sessionMap.get(serverInfo.cluster);
 		if(sessionList==null){
 			sessionList=(new ArrayList<RpcSession>());
@@ -261,7 +265,33 @@ public class JazminRpcDriver extends Driver{
 						if(logger.isWarnEnabled()){
 							logger.warn("rpc session "+session+" deactived");
 						}
-						client.connect(session);
+						try {
+							client.connect(session);
+						} catch (Exception e) {
+							logger.error("can not connect to {}:{}",
+									session.getRemoteHostAddress(),
+									session.getRemotePort());
+						}
+					}
+				}
+			});
+			
+		});
+	}
+	private void heartbeat(){
+		sessionMap.forEach((cluster,sessionList)->{
+			sessionList.forEach(session->{
+				synchronized (session) {
+					if(session.isConnected()){
+						if(logger.isDebugEnabled()){
+							logger.debug("sent heartbeat {}",session.getPrincipal());
+						}
+						//
+						try{
+							client.heartbeat(session);
+						}catch(Exception e){
+							logger.catching(e);
+						}
 					}
 				}
 			});
@@ -442,6 +472,9 @@ public class JazminRpcDriver extends Driver{
 	public void start() throws Exception {
 		Jazmin.scheduleAtFixedRate(
 				this::checkSessionActiveStatus, 30,30, TimeUnit.SECONDS);
+		Jazmin.scheduleAtFixedRate(
+				this::heartbeat, 5,5, TimeUnit.MINUTES);
+		
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
 			cs.registerCommand(JazminRpcDriverCommand.class);

@@ -27,7 +27,7 @@ public class RpcMessage implements Serializable{
 	public static final int TYPE_RPC_CALL_RSP=2;
 	public static final int TYPE_SESSION_AUTH=3;
 	public static final int TYPE_PUSH=4;
-	
+	public static final int TYPE_HEARTBEAT=5;
 	//
 	public int id;
 	public int type;

@@ -5,7 +5,6 @@
 	<classpathentry kind="lib" path="lib/velocity-1.7-dep.jar"/>
 	<classpathentry kind="lib" path="lib/jsch-0.1.51.jar"/>
 	<classpathentry kind="lib" path="lib/jazmin.jar"/>
-	<classpathentry kind="lib" path="lib/aceeditor-0.8.13.jar"/>
 	<classpathentry kind="lib" path="lib/vaadin/vaadin-push-7.4.6.jar"/>
 	<classpathentry kind="lib" path="lib/vaadin/vaadin-server-7.4.6.jar"/>
 	<classpathentry kind="lib" path="lib/vaadin/vaadin-shared-7.4.6.jar"/>
@@ -38,5 +37,6 @@
 	<classpathentry kind="lib" path="lib/vaadin/serializer-2.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/vaadin/streamhtmlparser-jsilver-0.0.10.vaadin1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/JazminServer"/>
+	<classpathentry kind="lib" path="lib/aceeditor-0.8.13.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
