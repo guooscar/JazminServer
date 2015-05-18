@@ -12,6 +12,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.stream.ChunkedWriteHandler;
@@ -98,6 +99,7 @@ public class CdnServer extends Server {
 						pipeline.addLast(new HttpServerCodec());
 						pipeline.addLast(new HttpObjectAggregator(65536));
 						pipeline.addLast(new ChunkedWriteHandler());
+											//
 						pipeline.addLast(new CdnServerHandler(CdnServer.this));
 					}
 				});
@@ -214,14 +216,33 @@ public class CdnServer extends Server {
 	private Method requestWorkerMethod=Dispatcher.getMethod(
 			RequestWorker.class,
 			"processRequest");
+	//
 	public void processRequest(ChannelHandlerContext ctx, FullHttpRequest request){
-		FileRequest fileRequest=new FileRequest(this,request.uri(),ctx.channel(),request);
-		requestIdGenerator.increment();
-		fileRequest.id=requestIdGenerator.intValue()+"";
-		requests.put(fileRequest.id, fileRequest);
-		RequestWorker rw=new RequestWorker(this,fileRequest,ctx,request);
+		String requestURI=request.uri();
+		HttpMethod method=request.method();
+		if(method.equals(io.netty.handler.codec.http.HttpMethod.GET)){
+			FileRequest fileRequest=new FileRequest(this,requestURI,ctx.channel(),request);
+			requestIdGenerator.increment();
+			fileRequest.id=requestIdGenerator.intValue()+"";
+			requests.put(fileRequest.id, fileRequest);
+			GetRequestWorker rw=new GetRequestWorker(this,fileRequest,ctx,request);
+			Jazmin.dispatcher.invokeInPool(
+					requestURI,
+					rw,requestWorkerMethod);
+			return;
+		}
+		//
+		if(request.method().equals(io.netty.handler.codec.http.HttpMethod.POST)){
+			PostRequestWorker rw=new PostRequestWorker(this,ctx,request);
+			Jazmin.dispatcher.invokeInPool(
+					requestURI,
+					rw,requestWorkerMethod);
+			return;
+		}
+		//
+		OtherRequestWorker rw=new OtherRequestWorker(this,ctx,request);
 		Jazmin.dispatcher.invokeInPool(
-				fileRequest.uri,
+				requestURI,
 				rw,requestWorkerMethod);
 	}
 	//

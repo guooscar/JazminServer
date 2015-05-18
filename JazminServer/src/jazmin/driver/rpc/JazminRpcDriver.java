@@ -483,6 +483,11 @@ public class JazminRpcDriver extends Driver{
 	//
 	@Override
 	public void stop() throws Exception {
+		for(List<RpcSession> sessions:sessionMap.values()){
+			for(RpcSession s:sessions){
+				s.close();
+			}
+		}
 		if(client!=null){
 			client.stop();
 		}

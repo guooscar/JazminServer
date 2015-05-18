@@ -17,18 +17,14 @@ import java.util.Map;
 public class FilterContext {
 	public static final int CODE_OK=200;
 	//
-	FileRequest fileRequest;
 	FullHttpRequest request; 
 	Map<String,String>responseMap;
+	File requestFile;
 	int errorCode;
 	//
 	FilterContext() {
 		errorCode=CODE_OK;
 		responseMap=new HashMap<String, String>();
-	}
-	//
-	public File getFile(){
-		return fileRequest.file;
 	}
 	//
 	public String getURI(){

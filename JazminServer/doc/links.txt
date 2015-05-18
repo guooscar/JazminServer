@@ -5,3 +5,4 @@ openssl key http://wangyan.org/blog/openssl-certificate-generation.html
 threadpool size http://www.infoq.com/cn/articles/Java-Thread-Pool-Performance-Tuning
 http://www.jkeabc.com/p/482496.html
 performance set threadpool max size/set c3p0 pool max size
+http upload curl  -F file=@./restartall.sh  http://10.44.218.119:8080/upload/
