@@ -9,4 +9,7 @@ package jazmin.server.cdn;
  */
 public interface RequestFilter {
 	void filter(FilterContext ctx)throws Exception;
+	void endDownload(FilterContext ctx)throws Exception;
+	void endUpload(FilterContext ctx)throws Exception;
+
 }

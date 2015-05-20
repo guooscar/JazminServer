@@ -11,11 +11,13 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.DefaultHttpContent;
+import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.util.AttributeKey;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,7 +62,7 @@ public class CdnServer extends Server {
 	private File homeDir;
 	private URL orginSiteURL;
 	private LongAdder requestIdGenerator;
-	private Map<String,FileRequest>requests;
+	private Map<String,FileOpt>requests;
 	//
 	AsyncHttpClientConfig.Builder clientConfigBuilder;
 	AsyncHttpClientConfig clientConfig;
@@ -74,7 +76,7 @@ public class CdnServer extends Server {
 	public CdnServer() {
 		port = 8001;
 		requestIdGenerator=new LongAdder();
-		requests=new ConcurrentHashMap<String, FileRequest>();
+		requests=new ConcurrentHashMap<String, FileOpt>();
 		asyncHttpClient = new AsyncHttpClient();
 		clientConfigBuilder=new Builder();
 		clientConfigBuilder.setUserAgent(SERVER_NAME);
@@ -97,9 +99,8 @@ public class CdnServer extends Server {
 					protected void initChannel(Channel ch) throws Exception {
 						ChannelPipeline pipeline = ch.pipeline();
 						pipeline.addLast(new HttpServerCodec());
-						pipeline.addLast(new HttpObjectAggregator(65536));
+						//pipeline.addLast("aggregator", new HttpObjectAggregator(1024*1024*100));
 						pipeline.addLast(new ChunkedWriteHandler());
-											//
 						pipeline.addLast(new CdnServerHandler(CdnServer.this));
 					}
 				});
@@ -217,41 +218,59 @@ public class CdnServer extends Server {
 			RequestWorker.class,
 			"processRequest");
 	//
-	public void processRequest(ChannelHandlerContext ctx, FullHttpRequest request){
-		String requestURI=request.uri();
-		HttpMethod method=request.method();
-		if(method.equals(io.netty.handler.codec.http.HttpMethod.GET)){
-			FileRequest fileRequest=new FileRequest(this,requestURI,ctx.channel(),request);
-			requestIdGenerator.increment();
-			fileRequest.id=requestIdGenerator.intValue()+"";
-			requests.put(fileRequest.id, fileRequest);
-			GetRequestWorker rw=new GetRequestWorker(this,fileRequest,ctx,request);
+	private static final AttributeKey<RequestWorker> WORKER_KEY=
+			AttributeKey.valueOf("s");
+	//
+	public void processRequest(ChannelHandlerContext ctx, HttpObject obj){
+		if(obj instanceof DefaultHttpRequest){
+			DefaultHttpRequest request=(DefaultHttpRequest) obj;
+			String requestURI=request.uri();
+			HttpMethod method=request.method();
+			if(method.equals(io.netty.handler.codec.http.HttpMethod.GET)){
+				FileDownload fileRequest=new FileDownload(this,requestURI,ctx.channel(),request);
+				requestIdGenerator.increment();
+				fileRequest.id=requestIdGenerator.intValue()+"";
+				requests.put(fileRequest.id, fileRequest);
+				GetRequestWorker rw=new GetRequestWorker(this,fileRequest,ctx,request);
+				ctx.channel().attr(WORKER_KEY).set(rw);
+				Jazmin.dispatcher.invokeInPool(
+						requestURI,
+						rw,requestWorkerMethod);
+				return;
+			}
+			//
+			if(request.method().equals(io.netty.handler.codec.http.HttpMethod.POST)){
+				FileUpload upload=new FileUpload(this,requestURI,ctx.channel(),request);
+				requestIdGenerator.increment();
+				upload.id=requestIdGenerator.intValue()+"";
+				requests.put(upload.id, upload);
+				PostRequestWorker worker=new PostRequestWorker(this,ctx,request,upload);
+				ctx.channel().attr(WORKER_KEY).set(worker);
+				worker.request=request;
+				Jazmin.dispatcher.invokeInCaller(
+						requestURI,
+						worker,requestWorkerMethod,Dispatcher.EMPTY_CALLBACK);
+				return;
+			}
+			//
+			OtherRequestWorker rw=new OtherRequestWorker(this,ctx,request);
 			Jazmin.dispatcher.invokeInPool(
 					requestURI,
 					rw,requestWorkerMethod);
 			return;
 		}
-		//
-		if(request.method().equals(io.netty.handler.codec.http.HttpMethod.POST)){
-			PostRequestWorker rw=new PostRequestWorker(this,ctx,request);
-			Jazmin.dispatcher.invokeInPool(
-					requestURI,
-					rw,requestWorkerMethod);
-			return;
+		if(obj instanceof DefaultHttpContent){
+			RequestWorker rw=ctx.channel().attr(WORKER_KEY).get();
+			rw.handleHttpContent((DefaultHttpContent)obj);
 		}
-		//
-		OtherRequestWorker rw=new OtherRequestWorker(this,ctx,request);
-		Jazmin.dispatcher.invokeInPool(
-				requestURI,
-				rw,requestWorkerMethod);
 	}
 	//
 	void removeFileRequest(String id) {
 		requests.remove(id);
 	}
 	//
-	List<FileRequest>getFileRequests(){
-		return new ArrayList<FileRequest>(requests.values());
+	List<FileOpt>getFileRequests(){
+		return new ArrayList<FileOpt>(requests.values());
 	}
 	//-------------------------------------------------------------------------
 	private void checkCachePolicy(){

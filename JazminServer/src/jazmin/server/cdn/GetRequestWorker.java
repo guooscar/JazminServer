@@ -17,8 +17,8 @@ import io.netty.channel.ChannelProgressiveFuture;
 import io.netty.channel.ChannelProgressiveFutureListener;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderUtil;
 import io.netty.handler.codec.http.HttpHeaderValues;
@@ -40,19 +40,61 @@ import jazmin.log.LoggerFactory;
 
 
 /**
- * @author yama
+ * A simple handler that serves incoming HTTP requests to send their respective
+ * HTTP responses.  It also implements {@code 'If-Modified-Since'} header to
+ * take advantage of browser cache, as described in
+ * <a href="http://tools.ietf.org/html/rfc2616#section-14.25">RFC 2616</a>.
  *
+ * <h3>How Browser Caching Works</h3>
+ *
+ * Web browser caching works with HTTP headers as illustrated by the following
+ * sample:
+ * <ol>
+ * <li>Request #1 returns the content of {@code /file1.txt}.</li>
+ * <li>Contents of {@code /file1.txt} is cached by the browser.</li>
+ * <li>Request #2 for {@code /file1.txt} does return the contents of the
+ *     file again. Rather, a 304 Not Modified is returned. This tells the
+ *     browser to use the contents stored in its cache.</li>
+ * <li>The server knows the file has not been modified because the
+ *     {@code If-Modified-Since} date is the same as the file's last
+ *     modified date.</li>
+ * </ol>
+ *
+ * <pre>
+ * Request #1 Headers
+ * ===================
+ * GET /file1.txt HTTP/1.1
+ *
+ * Response #1 Headers
+ * ===================
+ * HTTP/1.1 200 OK
+ * Date:               Tue, 01 Mar 2011 22:44:26 GMT
+ * Last-Modified:      Wed, 30 Jun 2010 21:36:48 GMT
+ * Expires:            Tue, 01 Mar 2012 22:44:26 GMT
+ * Cache-Control:      private, max-age=31536000
+ *
+ * Request #2 Headers
+ * ===================
+ * GET /file1.txt HTTP/1.1
+ * If-Modified-Since:  Wed, 30 Jun 2010 21:36:48 GMT
+ *
+ * Response #2 Headers
+ * ===================
+ * HTTP/1.1 304 Not Modified
+ * Date:               Tue, 01 Mar 2011 22:44:28 GMT
+ *
+ * </pre>
  */
 public class GetRequestWorker extends RequestWorker implements 
-ChannelProgressiveFutureListener,FileRequest.ResultHandler{
+ChannelProgressiveFutureListener,FileDownload.ResultHandler{
 	private static Logger logger=LoggerFactory.get(GetRequestWorker.class);
 	//
-	FileRequest fileRequest;
+	FileDownload fileRequest;
 	GetRequestWorker(
 			CdnServer cdnServer,
-			FileRequest fileRequest,
+			FileDownload fileRequest,
 			ChannelHandlerContext ctx,
-			FullHttpRequest request){
+			DefaultHttpRequest request){
 		super(cdnServer, ctx, request);
 		this.fileRequest=fileRequest;
 	}
@@ -63,6 +105,8 @@ ChannelProgressiveFutureListener,FileRequest.ResultHandler{
 		} catch (Exception e) {
 			sendError(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR);
 			logger.catching(e);
+		}finally{
+			
 		}
 	}
 	@Override
@@ -158,6 +202,9 @@ ChannelProgressiveFutureListener,FileRequest.ResultHandler{
 	public void processRequest(){
 		try {
 			processRequest0();
+			if(cdnServer.requestFilter!=null){
+				cdnServer.requestFilter.endDownload(filterCtx);
+			}
 		} catch (Exception e) {
 			logger.catching(e);
 			sendError(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR);

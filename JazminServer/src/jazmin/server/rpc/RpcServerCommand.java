@@ -283,8 +283,6 @@ public class RpcServerCommand extends ConsoleCommand {
     	out.printf(format,
     			"TOTAL",
     			formatDate(new Date()),
-    			ii,
-    			oo,
     			DumpUtil.byteCountToString(ii),
     			DumpUtil.byteCountToString(oo));
     }

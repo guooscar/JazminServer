@@ -4,7 +4,7 @@
 package jazmin.server.cdn;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 
 
@@ -15,7 +15,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 public class OtherRequestWorker extends RequestWorker{
 	
 	OtherRequestWorker(CdnServer cdnServer, ChannelHandlerContext ctx,
-			FullHttpRequest request) {
+			DefaultHttpRequest request) {
 		super(cdnServer, ctx, request);
 	}
 

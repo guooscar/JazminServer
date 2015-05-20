@@ -25,14 +25,13 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
  *
  */
 public class RtmpServer extends Server{
-	private static Map<String, ServerApplication> applications;
+	private static Map<String, ServerApplication> applications = new ConcurrentHashMap<String, ServerApplication>();;
     private static ChannelFactory factory;
-    private static List<ServerHandler>handlers;
+    private static List<ServerHandler>handlers=Collections.synchronizedList(new ArrayList<>());;
     static RtmpSessionListener sessionListener;
 	//
     public RtmpServer() {
-		applications = new ConcurrentHashMap<String, ServerApplication>();
-	    handlers=Collections.synchronizedList(new ArrayList<>());
+	
 	}
 	//--------------------------------------------------------------------------
 	//

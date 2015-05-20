@@ -11,7 +11,7 @@ import java.util.Base64;
  * @author yama
  *
  */
-public class BasicAuthFilter implements RequestFilter{
+public class BasicAuthFilter extends RequestFilterAdapter{
 	private String user;
 	private String password;
 	public BasicAuthFilter(String user,String password){

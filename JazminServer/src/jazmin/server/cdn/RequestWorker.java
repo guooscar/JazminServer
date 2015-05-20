@@ -17,7 +17,8 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.DefaultHttpContent;
+import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -49,13 +50,15 @@ public class RequestWorker{
 	public static final String HTTP_DATE_GMT_TIMEZONE = "GMT";
 	public static final int HTTP_CACHE_SECONDS = 60;
 	protected ChannelHandlerContext ctx; 
-	protected FullHttpRequest request; 
+	protected DefaultHttpRequest request; 
 	protected CdnServer cdnServer;
+	protected File requestFile;
+	protected FilterContext filterCtx;
 	//
 	RequestWorker(
 			CdnServer cdnServer,
 			ChannelHandlerContext ctx,
-			FullHttpRequest request){
+			DefaultHttpRequest request){
 		this.cdnServer=cdnServer;
 		this.ctx=ctx;
 		this.request=request;
@@ -69,8 +72,9 @@ public class RequestWorker{
 			sendError(ctx, BAD_REQUEST);
 			return false;
 		}
+		requestFile=new File(cdnServer.getHomeDir(),request.uri());
 		if(cdnServer.requestFilter!=null){
-			FilterContext filterCtx=new FilterContext();
+			filterCtx=new FilterContext(requestFile);
 			filterCtx.request=request;
 			cdnServer.requestFilter.filter(filterCtx);
 			if(filterCtx.errorCode!=FilterContext.CODE_OK){
@@ -87,7 +91,10 @@ public class RequestWorker{
 	public void processRequest(){
 		
 	}
-	
+	//
+	public void handleHttpContent(DefaultHttpContent content){
+		
+	}
 	//
 	public static void sendRedirect(ChannelHandlerContext ctx, String newUri) {
 		FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, FOUND);

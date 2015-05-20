@@ -57,7 +57,7 @@ public class DumpUtil {
 							sb.append(args[i]);
 						}else if(args[i].getClass().equals(byte[].class)){
 							byte bb[]=(byte[]) args[i];
-							sb.append(bb+" "+(bb==null?"":bb.length));
+							sb.append("bytes["+(bb==null?"0":bb.length)+"]");
 						}else{
 							sb.append(JSON.toJSONString(args[i],SerializerFeature.PrettyFormat));
 						}

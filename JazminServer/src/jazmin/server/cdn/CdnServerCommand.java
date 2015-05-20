@@ -52,7 +52,7 @@ public class CdnServerCommand extends ConsoleCommand {
 	private Map<String,Long>lastTransferBytes=new HashMap<String, Long>();
 	//
 	private void showRequests(String args){
-    	List<FileRequest>requests=server.getFileRequests();
+    	List<FileOpt>requests=server.getFileRequests();
     	out.format("total %d requests\n",requests.size());
     	String format="%-5s %-10s %-20s %-20s %-15s %-15s %-10s %-30s\n";
     	out.printf(format,
@@ -66,7 +66,7 @@ public class CdnServerCommand extends ConsoleCommand {
     			"URI");
     	int idx=1;
     	long totalRate=0;
-    	for(FileRequest r:requests){
+    	for(FileOpt r:requests){
     		//
     		long lastBytes=lastTransferBytes.getOrDefault(r.id,r.transferedBytes);
     		String transfer=DumpUtil.byteCountToString(r.transferedBytes)+"/"+

@@ -3,7 +3,7 @@
  */
 package jazmin.server.cdn;
 
-import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.DefaultHttpRequest;
 
 import java.io.File;
 import java.util.HashMap;
@@ -17,14 +17,21 @@ import java.util.Map;
 public class FilterContext {
 	public static final int CODE_OK=200;
 	//
-	FullHttpRequest request; 
+	DefaultHttpRequest request; 
 	Map<String,String>responseMap;
 	File requestFile;
 	int errorCode;
 	//
-	FilterContext() {
+	FilterContext(File requestFile) {
+		this.requestFile=requestFile;
 		errorCode=CODE_OK;
 		responseMap=new HashMap<String, String>();
+	}
+	/**
+	 * @return the requestFile
+	 */
+	public File getRequestFile() {
+		return requestFile;
 	}
 	//
 	public String getURI(){
