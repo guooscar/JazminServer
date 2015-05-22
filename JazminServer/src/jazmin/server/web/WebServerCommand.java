@@ -9,8 +9,6 @@ import jazmin.server.console.builtin.ConsoleCommand;
 import jazmin.server.web.mvc.ControllerStub;
 import jazmin.server.web.mvc.DispatchServlet;
 import jazmin.server.web.mvc.MethodStub;
-
-import org.eclipse.jetty.webapp.WebAppContext;
 /**
  * 
  * @author yama
@@ -48,26 +46,7 @@ public class WebServerCommand extends ConsoleCommand {
 	}
     //
     private void showServerInfo(String args){
-    	String format="%-20s: %-10s\n";
-		out.printf(format,"port",webServer.getPort());
-		out.printf(format,"idleTimeout",webServer.getIdleTimeout());
-		out.printf(format,"dirAllowed",webServer.isDirAllowed());
-		out.printf(format,"webAppContext",webServer.getWebAppContext());
-		//
-		out.println("servlets:");
-		int index=0;
-		WebAppContext webAppContext=webServer.getWebAppContext();
-		if(webAppContext!=null){
-			List<String>servletNames=new ArrayList<String>(
-					webAppContext.getServletContext().getServletRegistrations().keySet());
-			for(String s:servletNames){
-				out.printf(format,"servlet-"+(index++),s);		
-			}
-		}
-		out.println("welcome files:");
-		for(String s:webAppContext.getWelcomeFiles()){
-			out.printf(format,"welcome file-"+(index++),s);						
-		}
+    	out.println(webServer.info());
 	}
     //
     private void showServices(String args){

@@ -38,15 +38,7 @@ public class SipServerCommand extends ConsoleCommand {
 	}
 	//
 	private void showServerInfo(String args) {
-		String format = "%-25s: %-10s\n";
-		out.printf(format, "hostAddress", server.getHostAddress());
-		out.printf(format, "port", server.getPort());
-		out.printf(format, "tlsPort", server.getTlsPort());
-		out.printf(format, "webSocketPort",server.getWebSocketPort());
-		out.printf(format, "publicAddress", server.getPublicAddress());
-		out.printf(format, "publicPort", server.getPublicPort());
-		out.printf(format, "sessionTimeout", server.getSessionTimeout());
-		out.printf(format, "messageHandler", server.getMessageHandler());
+		out.println(server.info());
 	}
 	//
 	private void showLocationStore(String args){

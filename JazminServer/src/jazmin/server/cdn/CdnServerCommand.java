@@ -3,7 +3,6 @@ package jazmin.server.cdn;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import jazmin.core.Jazmin;
 import jazmin.server.console.builtin.ConsoleCommand;
@@ -37,16 +36,7 @@ public class CdnServerCommand extends ConsoleCommand {
 	}
 	//
 	private void showServerInfo(String args) {
-		String format = "%-25s: %-10s\n";
-		out.printf(format,"port",server.getPort());
-		out.printf(format,"homeDir",server.getHomeDir());
-		out.printf(format,"orginSiteURL",server.getOrginSiteURL());
-		out.printf(format,"directioryPrinter",server.getDirectioryPrinter());
-		out.printf(format,"requestFilter",server.getRequestFilter());
-		
-		for(Entry<String,Long> e:server.getPolicyMap().entrySet()){
-			out.printf(format,"policy-"+e.getKey(),e.getValue());
-		}
+		out.println(server.info());
 	}
 	//
 	private Map<String,Long>lastTransferBytes=new HashMap<String, Long>();

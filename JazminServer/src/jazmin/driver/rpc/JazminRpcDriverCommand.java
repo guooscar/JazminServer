@@ -38,20 +38,7 @@ public class JazminRpcDriverCommand extends ConsoleCommand {
 	}
     //
     private void showDriverInfo(String args)throws Exception{
-    	String format="%-20s: %-10s\n";
-		out.printf(format,"pushCallback",driver.getPushCallback());
-		out.printf(format,"principal",driver.getPrincipal());	
-		//
-		out.println("remote servers");
-		driver.getRemoteServers().forEach(server->{
-			out.format(format,
-					server.cluster+"."+server.name,
-					server.remoteHostAddress+":"+server.remotePort);	
-		});
-		out.println("async proxy");
-		driver.getAsyncProxys().forEach(out::println);
-		out.println("sync proxy");
-		driver.getSyncProxys().forEach(out::println);	
+    	out.println(driver.info());
     }
    
     //

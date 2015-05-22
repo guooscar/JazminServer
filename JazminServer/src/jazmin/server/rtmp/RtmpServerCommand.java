@@ -43,9 +43,7 @@ public class RtmpServerCommand extends ConsoleCommand {
 	}
     //
     private void showServerInfo(String args){
-    	String format="%-25s: %-10s\n";
-		out.printf(format,"port",server.getPort());
-		out.printf(format,"idleTimeout",server.getServerHome());
+    	out.println(server.info());
 	}
     //
     private void showHandlerPublisher(String args){

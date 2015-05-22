@@ -31,9 +31,7 @@ public class MemoryCacheDriverCommand extends ConsoleCommand {
 	}
     //
     private void showDriverInfo(String args){
-    	String format="%-20s: %-10s\n";
-    	out.printf(format,"maxCacheCount",driver.getMaxCacheCount());
-    	out.printf(format,"size",driver.getCacheSize());
+    	out.println(driver.info());
     }
     //
     private void showQueryStat(String args){

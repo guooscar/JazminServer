@@ -46,8 +46,6 @@ public class HttpClientDriver extends Driver{
 		clientConfigBuilder.setUserAgent(DEFAULT_UA);
 		clientConfig=clientConfigBuilder.build();
 		asyncHttpClient = new AsyncHttpClient(new NettyAsyncHttpProvider(clientConfig),clientConfig);
-		//AsyncHttpClientConfig config = new AsyncHttpClientConfig.Builder().build();
-		//AsyncHttpClient client = new AsyncHttpClient(new GrizzlyAsyncHttpProvider(config), config);
 		//
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
@@ -69,6 +67,10 @@ public class HttpClientDriver extends Driver{
 				.print("maxRequestRetry",getMaxRequestRetry())
 				.print("connectionTTL",getConnectionTTL())
 				.print("connectTimeout",getConnectTimeout())
+				.print("isAcceptAnyCertificate",isAcceptAnyCertificate())
+				.print("isAllowPoolingConnections",isAllowPoolingConnections())
+				.print("isAllowPoolingSslConnections",isAllowPoolingSslConnections())
+				
 				.toString();			
 	}
 	//--------------------------------------------------------------------------
@@ -216,6 +218,55 @@ public class HttpClientDriver extends Driver{
 	}
 
 
+	/**
+	 * @return
+	 * @see com.ning.http.client.AsyncHttpClientConfig#isAcceptAnyCertificate()
+	 */
+	public boolean isAcceptAnyCertificate() {
+		return clientConfig.isAcceptAnyCertificate();
+	}
+	/**
+	 * @return
+	 * @see com.ning.http.client.AsyncHttpClientConfig#isAllowPoolingConnections()
+	 */
+	public boolean isAllowPoolingConnections() {
+		return clientConfig.isAllowPoolingConnections();
+	}
+	/**
+	 * @return
+	 * @see com.ning.http.client.AsyncHttpClientConfig#isAllowPoolingSslConnections()
+	 */
+	public boolean isAllowPoolingSslConnections() {
+		return clientConfig.isAllowPoolingSslConnections();
+	}
+	/**
+	 * @param acceptAnyCertificate
+	 * @return
+	 * @see com.ning.http.client.AsyncHttpClientConfig.Builder#setAcceptAnyCertificate(boolean)
+	 */
+	public void setAcceptAnyCertificate(boolean acceptAnyCertificate) {
+		clientConfigBuilder
+				.setAcceptAnyCertificate(acceptAnyCertificate);
+	}
+	/**
+	 * @param allowPoolingConnections
+	 * @return
+	 * @see com.ning.http.client.AsyncHttpClientConfig.Builder#setAllowPoolingConnections(boolean)
+	 */
+	public void setAllowPoolingConnections(boolean allowPoolingConnections) {
+		clientConfigBuilder
+				.setAllowPoolingConnections(allowPoolingConnections);
+	}
+	/**
+	 * @param allowPoolingSslConnections
+	 * @return
+	 * @see com.ning.http.client.AsyncHttpClientConfig.Builder#setAllowPoolingSslConnections(boolean)
+	 */
+	public void setAllowPoolingSslConnections(
+			boolean allowPoolingSslConnections) {
+		 clientConfigBuilder
+				.setAllowPoolingSslConnections(allowPoolingSslConnections);
+	}
 	/**
 	 */
 	public void setRequestTimeout(int requestTimeout) {

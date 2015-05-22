@@ -45,18 +45,7 @@ public class MessageServerCommand extends ConsoleCommand {
 	}
     //
     private void showServerInfo(String args){
-    	String format="%-20s: %-10s\n";
-		out.printf(format,"port",messageServer.getPort());
-		out.printf(format,"idleTime",messageServer.getIdleTime());
-		out.printf(format,"maxChannelCount",messageServer.getMaxChannelCount());
-		out.printf(format,"maxSessionCount",messageServer.getMaxSessionCount());
-		out.printf(format,"maxSessionRequestCountPerSecond",messageServer.getMaxSessionRequestCountPerSecond());
-		out.printf(format,"messageType",messageServer.getMessageType());
-		out.printf(format,"serviceFilter",messageServer.getServiceFilter());
-		out.printf(format,"sessionLifecycleListener",messageServer.getSessionLifecycleListener());
-		//
-		out.printf(format,"sessionCount",messageServer.getSessionCount());
-		out.printf(format,"channelCount",messageServer.getChannelCount());
+    	out.println(messageServer.info());
 		
 	}
     //

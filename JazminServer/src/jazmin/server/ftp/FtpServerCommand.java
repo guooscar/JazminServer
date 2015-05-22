@@ -56,28 +56,7 @@ public class FtpServerCommand extends ConsoleCommand {
 	  
     //
     private void showServerInfo(String args){
-    	String format="%-25s: %-10s\n";
-		out.printf(format,"port",ftpServer.getPort());
-		out.printf(format,"idleTimeout",ftpServer.getIdleTimeout());
-		out.printf(format,"implicitSsl",ftpServer.isImplicitSsl());
-		out.printf(format,"serverAddress",ftpServer.getServerAddress());
-		out.printf(format,"port",ftpServer.getPort());
-		out.printf(format,"loginFailureDelay",ftpServer.getLoginFailureDelay());
-		out.printf(format,"maxAnonymousLogins",ftpServer.getMaxAnonymousLogins());
-		out.printf(format,"maxLoginFailures", ftpServer.getMaxLoginFailures());
-		out.printf(format,"maxLogins", ftpServer.getMaxLogins());
-		out.printf(format,"maxThreads", ftpServer.getMaxThreads());
-		out.printf(format,"anonymousLoginEnabled",ftpServer.isAnonymousLoginEnabled());
-		out.printf(format,"activeLocalAddress",ftpServer.getActiveLocalAddress());
-		out.printf(format,"activeLocalPort",ftpServer.getActiveLocalPort());
-		out.printf(format,"idleTime",ftpServer.getIdleTime());
-		out.printf(format,"passiveAddress",ftpServer.getPassiveAddress());
-		out.printf(format,"passiveExternalAddress",ftpServer.getPassiveExternalAddress());
-		out.printf(format,"passivePorts",ftpServer.getPassivePorts());
-		out.printf(format,"activeEnabled",ftpServer.isActiveEnabled());
-		out.printf(format,"activeIpCheck",ftpServer.isActiveIpCheck());
-		out.printf(format,"commandListener", ftpServer.getCommandListener());
-		out.printf(format,"userManager", ftpServer.getUserManager());
+    	out.println(ftpServer.info());
     }
     //
     private void showList(String args){

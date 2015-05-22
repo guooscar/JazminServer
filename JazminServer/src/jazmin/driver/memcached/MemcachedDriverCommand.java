@@ -1,6 +1,5 @@
 package jazmin.driver.memcached;
 import jazmin.core.Jazmin;
-import jazmin.server.console.ascii.FormPrinter;
 import jazmin.server.console.ascii.TablePrinter;
 import jazmin.server.console.builtin.ConsoleCommand;
 import jazmin.util.DumpUtil;
@@ -34,12 +33,7 @@ public class MemcachedDriverCommand extends ConsoleCommand {
 	}
     //
     private void showDriverInfo(String args){
-    	FormPrinter tp=FormPrinter.create(out,20);
-    	tp.print("name",driver.getName());
-    	tp.print("servers",driver.getServerAddrs());
-    	tp.print("idleTimeout",driver.getOpTimeout());
-    	tp.print("connectTimeout",driver.getConnectTimeout());
-    	tp.print("connectionPoolSize",driver.getConnectionPoolSize());
+    	out.println(driver.info());
 	}
     //
     private void setPoolSize(String args){

@@ -38,13 +38,7 @@ public class RelayServerCommand extends ConsoleCommand {
 	}
     //
     private void showServerInfo(String args){
-    	String format="%-25s: %-10s\n";
-		out.printf(format,"hostAddress",server.getHostAddress());
-		out.printf(format,"idleTime",server.getIdleTime());
-		out.printf(format,"maxBindPort",server.getMaxBindPort());
-		out.printf(format,"minBindPort",server.getMinBindPort());
-		out.printf(format,"hostAddresses",server.getHostAddresses());
-		
+    	out.println(server.info());
 	}
     //
     private Map<String,Long>lastBytes=new HashMap<String, Long>();

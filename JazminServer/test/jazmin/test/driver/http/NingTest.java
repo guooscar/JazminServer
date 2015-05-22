@@ -16,9 +16,10 @@ public class NingTest {
 	 */
 	public static void main(String[] args)throws Exception {
 		HttpClientDriver d=new HttpClientDriver();
+		d.setAcceptAnyCertificate(true);
 		d.init();
 		d.start();
-		String s=d.get("http://www.baidu.com/").execute().get().getResponseBody();
+		String s=d.get("https://127.0.0.1:8443/").execute().get().getResponseBody();
 		System.out.println(s);
 	}
 

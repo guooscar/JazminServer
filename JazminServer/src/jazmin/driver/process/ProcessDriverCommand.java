@@ -31,8 +31,7 @@ public class ProcessDriverCommand extends ConsoleCommand {
 	}
     //
     private void showDriverInfo(String args){
-    	String format="%-20s: %-10s\n";
-		out.format(format, "lifecycleListener", driver.getLifecycleListener());
+    	out.println(driver.info());
 	}
     //
     private void showProcesses(String args){

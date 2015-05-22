@@ -75,27 +75,7 @@ public class C3p0DriverCommand extends ConsoleCommand {
 	}
     //
     private void showDriverInfo(String args)throws Exception{
-    	String format="%-20s: %-10s\n";
-		out.printf(format,"url",connectionDriver.getUrl());
-		out.printf(format,"user",connectionDriver.getUser());
-		out.printf(format,"autoCommitOnClose",connectionDriver.isAutoCommitOnClose());
-		out.printf(format,"checkoutTimeout",connectionDriver.getCheckoutTimeout());
-		out.printf(format,"driverClass",connectionDriver.getDriverClass());
-		out.printf(format,"initialPoolSize",connectionDriver.getInitialPoolSize());
-		out.printf(format,"loginTimeout",connectionDriver.getLoginTimeout());
-		out.printf(format,"maxConnectionAge",connectionDriver.getMaxConnectionAge());
-		out.printf(format,"minPoolSize",connectionDriver.getMinPoolSize());
-		out.printf(format,"maxPoolSize",connectionDriver.getMaxPoolSize());
-		out.printf(format,"threadPoolSize",connectionDriver.getThreadPoolSize());
-		//
-		out.printf(format,"numConnections",connectionDriver.getNumConnections());
-		out.printf(format,"numIdleConnections",connectionDriver.getNumIdleConnections());
-		out.printf(format,"threadPoolNumActiveThreads",connectionDriver.getThreadPoolNumActiveThreads());
-		out.printf(format,"threadPoolNumIdleThreads",connectionDriver.getThreadPoolNumIdleThreads());
-		out.printf(format,"threadPoolNumTasksPending",connectionDriver.getThreadPoolNumTasksPending());
-		//
-		out.printf(format,"statSql",connectionDriver.isStatSql());
-		
+    	out.println(connectionDriver.info());
     }
     
 }

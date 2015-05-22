@@ -44,13 +44,7 @@ public class RpcServerCommand extends ConsoleCommand {
 	}
     //
     private void showServerInfo(String args){
-    	String format="%-20s: %-10s\n";
-		out.printf(format,"port",rpcServer.getPort());
-		out.printf(format,"idleTime",rpcServer.getIdleTime());
-		int idx=1;
-		for(String host:rpcServer.getAcceptRemoteHosts()){
-			out.printf(format,"acceptHost-"+idx++,host);		
-		}
+    	out.println(rpcServer.info());
 	}
     //
     //

@@ -46,16 +46,7 @@ public class IMMessageServerCommand extends ConsoleCommand {
 	}
     //
     private void showServerInfo(String args){
-    	FormPrinter fp=FormPrinter.create(out,20);
-    	fp.print("port",messageServer.getPort());
-    	fp.print("idleTime",messageServer.getIdleTime());
-    	fp.print("maxChannelCount",messageServer.getMaxChannelCount());
-    	fp.print("maxSessionCount",messageServer.getMaxSessionCount());
-    	fp.print("serviceFilter",messageServer.getServiceFilter());
-    	fp.print("sessionLifecycleListener",messageServer.getSessionLifecycleListener());
-		//
-    	fp.print("sessionCount",messageServer.getSessionCount());
-    	fp.print("channelCount",messageServer.getChannelCount());
+    	out.println(messageServer.info());
 	}
     //
     //

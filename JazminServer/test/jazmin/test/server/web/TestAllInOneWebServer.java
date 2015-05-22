@@ -17,7 +17,7 @@ public class TestAllInOneWebServer {
 	 */
 	public static void main(String[] args) {
 		WebServer ws=new WebServer();
-		ws.setSslPort(8443);
+		ws.setHttpsPort(8443);
 		ws.setKeyStoreType("pkcs12");
 		ws.setKeyStoreFile("./cert/server.pkcs12");
 		ws.setKeyStorePassword("123456");

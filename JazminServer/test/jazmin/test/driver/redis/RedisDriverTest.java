@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jazmin.test.driver;
+package jazmin.test.driver.redis;
 
 import jazmin.core.Jazmin;
 import jazmin.driver.redis.RedisConnection;

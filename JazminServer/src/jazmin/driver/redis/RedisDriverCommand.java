@@ -2,7 +2,6 @@ package jazmin.driver.redis;
 import jazmin.core.Jazmin;
 import jazmin.server.console.builtin.ConsoleCommand;
 import jazmin.util.DumpUtil;
-import redis.clients.jedis.JedisShardInfo;
 /**
  * 
  * @author yama
@@ -31,20 +30,7 @@ public class RedisDriverCommand extends ConsoleCommand {
 	}
     //
     private void showDriverInfo(String args){
-    	String format="%-20s: %-10s\n";
-		out.format(format, "maxTotal", driver.getMaxTotal());
-		out.format(format, "maxIdle", driver.getMaxIdle());
-		out.format(format, "minIdle", driver.getMinIdle());
-		out.format(format, "maxWaitMillis", driver.getMaxWaitMillis());
-		out.format(format, "testOnBorrow", driver.getTestOnBorrow());
-		out.format(format, "testOnCreate", driver.getTestOnCreate());
-		out.format(format, "testOnReturn", driver.getTestOnReturn());
-		out.format(format, "testWhileIdle", driver.getTestWhileIdle());
-		//
-		int index=0;
-		for(JedisShardInfo s:driver.shardInfos){
-			out.format(format,"shard-"+(index++),s.getHost()+":"+s.getPort()+"/"+s.getName());						
-		}	
+    	out.println(driver.info());
 	}
     //
     //

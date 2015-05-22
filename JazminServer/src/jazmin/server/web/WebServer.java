@@ -53,7 +53,7 @@ public class WebServer extends jazmin.core.Server{
 	private ContextHandlerCollection contextHandler;
 	private RequestLogHandler requestLogHandler;
 	private int port=7001;
-	private int sslPort=-1;
+	private int httpsPort=-1;
 	private String keyStoreFile;
 	private String keyStoreType;
 	private String keyStorePassword;
@@ -186,17 +186,18 @@ public class WebServer extends jazmin.core.Server{
 	public int getIdleTimeout() {
 		return idleTimeout;
 	}
+
 	/**
-	 * @return the sslPort
+	 * @return the httpsPort
 	 */
-	public int getSslPort() {
-		return sslPort;
+	public int getHttpsPort() {
+		return httpsPort;
 	}
 	/**
-	 * @param sslPort the sslPort to set
+	 * @param httpsPort the httpsPort to set
 	 */
-	public void setSslPort(int sslPort) {
-		this.sslPort = sslPort;
+	public void setHttpsPort(int httpsPort) {
+		this.httpsPort = httpsPort;
 	}
 	/**
 	 * @return the keyStoreFile
@@ -312,10 +313,10 @@ public class WebServer extends jazmin.core.Server{
 		httpConnector.setIdleTimeout(idleTimeout*1000);
 		connectors.add(httpConnector);
 		//
-		if(sslPort!=-1){
+		if(httpsPort!=-1){
 			 HttpConfiguration sslHttpConfig = new HttpConfiguration();
 			 sslHttpConfig.setSecureScheme("https");
-			 sslHttpConfig.setSecurePort(sslPort);
+			 sslHttpConfig.setSecurePort(httpsPort);
 			 sslHttpConfig.setOutputBufferSize(32768);
 			 SslContextFactory sslContextFactory = new SslContextFactory();
 			 if(keyStoreType!=null){
@@ -331,7 +332,7 @@ public class WebServer extends jazmin.core.Server{
 			 ServerConnector https = new ServerConnector(server,
 			              new SslConnectionFactory(sslContextFactory, "http/1.1"),
 			                new HttpConnectionFactory(https_config));
-			 https.setPort(sslPort);
+			 https.setPort(httpsPort);
 			 https.setIdleTimeout(idleTimeout*1000);
 			 connectors.add(https);
 		}
@@ -371,6 +372,9 @@ public class WebServer extends jazmin.core.Server{
 		ib.section("info");
 		ib.format("%-30s:%-30s\n");
 		ib.print("port",port);
+		ib.print("httpsPort",httpsPort);
+		ib.print("keyStoreFile",keyStoreFile);
+		ib.print("keyStoreType",keyStoreType);
 		ib.print("idleTimeout",idleTimeout);
 		ib.print("dirAllowed",dirAllowed);
 		ib.print("webAppContext",webAppContext);
