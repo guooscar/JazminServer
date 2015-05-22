@@ -85,8 +85,9 @@ public final class MainMenu extends CustomComponent {
         	DeploySystemUI.showNotificationInfo("Info","Config reload complete.");
         });
         //
-        settingsItem.addItem("Instance Config", (selectedItem)->showInstanceConfig());
-        settingsItem.addItem("Application Config", (selectedItem)->showApplicationConfig());
+        settingsItem.addItem("Mainche Config", (selectedItem)->showConfig("machine.json"));
+        settingsItem.addItem("Application Config", (selectedItem)->showConfig("application.json"));
+        settingsItem.addItem("Instance Config", (selectedItem)->showConfig("instance.json"));
         //
         settingsItem.addSeparator();
         settingsItem.addItem("Sign Out", (selectedItem)->{
@@ -96,20 +97,11 @@ public final class MainMenu extends CustomComponent {
         return settings;
     }
     //
-    private void showInstanceConfig(){
+    private void showConfig(String file){
     	CodeEditorWindow cew=new CodeEditorWindow((v)->{
-    		DeployManager.saveInstanceConfigFile(v);
+    		DeployManager.saveConfigFile(file,v);
     	});
-		cew.setValue("Instance",DeployManager.getInstanceConfigFile(),AceMode.json);
-		UI.getCurrent().addWindow(cew);
-		cew.focus();
-    }
-    //
-    private void showApplicationConfig(){
-    	CodeEditorWindow cew=new CodeEditorWindow((v)->{
-    		DeployManager.saveApplicationConfigFile(v);
-    	});
-		cew.setValue("Application",DeployManager.getApplicationConfigFile(),AceMode.json);
+		cew.setValue(file,DeployManager.getConfigFile(file),AceMode.json);
 		UI.getCurrent().addWindow(cew);
 		cew.focus();
     }

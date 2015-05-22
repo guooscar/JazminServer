@@ -23,7 +23,7 @@ public class CdnServerTest {
 		CdnServer cdnServer=new CdnServer();
 		cdnServer.setPort(8080);
 		cdnServer.setHomeDir("d:/cdn-test");
-		//cdnServer.setOrginSiteURL("http://mirrors.163.com/");
+		cdnServer.setOrginSiteURL("http://mirrors.163.com/");
 		Jazmin.addServer(cdnServer);
 		//
 		//cdnServer.setRequestFilter(new BasicAuthFilter("abc","1234"));

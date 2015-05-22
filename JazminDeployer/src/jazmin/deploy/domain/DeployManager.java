@@ -109,44 +109,27 @@ public class DeployManager {
 			logger.error(e.getMessage(),e);
 		}
 	}
-	//
-	public static void saveInstanceConfigFile(String value){
+	
+	public static String getConfigFile(String file){
 		String configDir=workSpaceDir+"config";
 		try {
-			FileUtil.saveContent(value, new File(configDir,"instance.json"));
-		} catch (IOException e) {
-			logger.catching(e);
-		}
-	}
-	//
-	public static String getInstanceConfigFile(){
-		String configDir=workSpaceDir+"config";
-		try {
-			return FileUtil.getContent(new File(configDir,"instance.json"));
+			return FileUtil.getContent(new File(configDir,file));
 		} catch (IOException e) {
 			logger.catching(e);
 			return null;
 		}
 	}
+	
 	//
-	public static void saveApplicationConfigFile(String value){
+	public static void saveConfigFile(String file,String value){
 		String configDir=workSpaceDir+"config";
 		try {
-			FileUtil.saveContent(value, new File(configDir,"application.json"));
+			FileUtil.saveContent(value, new File(configDir,file));
 		} catch (IOException e) {
 			logger.catching(e);
 		}
 	}
-	//
-	public static String getApplicationConfigFile(){
-		String configDir=workSpaceDir+"config";
-		try {
-			return FileUtil.getContent(new File(configDir,"application.json"));
-		} catch (IOException e) {
-			logger.catching(e);
-			return null;
-		}
-	}
+	
 	//
 	public static void setPackageVersion(List<Instance>instances,String version){
 		if(version==null||version.trim().isEmpty()){
