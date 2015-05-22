@@ -99,7 +99,6 @@ public class CdnServer extends Server {
 					protected void initChannel(Channel ch) throws Exception {
 						ChannelPipeline pipeline = ch.pipeline();
 						pipeline.addLast(new HttpServerCodec());
-						//pipeline.addLast("aggregator", new HttpObjectAggregator(1024*1024*100));
 						pipeline.addLast(new ChunkedWriteHandler());
 						pipeline.addLast(new CdnServerHandler(CdnServer.this));
 					}
@@ -217,8 +216,12 @@ public class CdnServer extends Server {
 	private Method requestWorkerMethod=Dispatcher.getMethod(
 			RequestWorker.class,
 			"processRequest");
+	
+	private Method handleHttpContentMethod=Dispatcher.getMethod(
+			RequestWorker.class,
+			"handleHttpContent",DefaultHttpContent.class);
 	//
-	private static final AttributeKey<RequestWorker> WORKER_KEY=
+	public static final AttributeKey<RequestWorker> WORKER_KEY=
 			AttributeKey.valueOf("s");
 	//
 	public void processRequest(ChannelHandlerContext ctx, HttpObject obj){
@@ -239,7 +242,8 @@ public class CdnServer extends Server {
 				return;
 			}
 			//
-			if(request.method().equals(io.netty.handler.codec.http.HttpMethod.POST)){
+			if(method.equals(io.netty.handler.codec.http.HttpMethod.POST)||
+					method.equals(io.netty.handler.codec.http.HttpMethod.PUT)){
 				FileUpload upload=new FileUpload(this,requestURI,ctx.channel(),request);
 				requestIdGenerator.increment();
 				upload.id=requestIdGenerator.intValue()+"";
@@ -247,7 +251,7 @@ public class CdnServer extends Server {
 				PostRequestWorker worker=new PostRequestWorker(this,ctx,request,upload);
 				ctx.channel().attr(WORKER_KEY).set(worker);
 				worker.request=request;
-				Jazmin.dispatcher.invokeInCaller(
+				Jazmin.dispatcher.invokeInPool(
 						requestURI,
 						worker,requestWorkerMethod,Dispatcher.EMPTY_CALLBACK);
 				return;
@@ -261,7 +265,10 @@ public class CdnServer extends Server {
 		}
 		if(obj instanceof DefaultHttpContent){
 			RequestWorker rw=ctx.channel().attr(WORKER_KEY).get();
-			rw.handleHttpContent((DefaultHttpContent)obj);
+			DefaultHttpContent dhc=(DefaultHttpContent) obj;
+			Jazmin.dispatcher.invokeInCaller(
+					rw.request.uri(),
+					rw,handleHttpContentMethod,Dispatcher.EMPTY_CALLBACK,dhc);
 		}
 	}
 	//
@@ -280,7 +287,7 @@ public class CdnServer extends Server {
 	//
 	@Override
 	public void start() throws Exception {
-		initNetty();
+		cachePolicy.cleanEmptyFile(this.homeDir);
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
 			cs.registerCommand(CdnServerCommand.class);
@@ -299,6 +306,7 @@ public class CdnServer extends Server {
 					30, 
 					TimeUnit.MINUTES);
 		}
+		initNetty();
 	}
 	//
 	@Override

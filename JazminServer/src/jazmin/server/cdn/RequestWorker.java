@@ -43,7 +43,7 @@ import jazmin.log.LoggerFactory;
  * @author yama
  *
  */
-public class RequestWorker{
+public abstract class RequestWorker{
 	private static Logger logger=LoggerFactory.get(RequestWorker.class);
 	//
 	public static final String HTTP_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
@@ -88,13 +88,9 @@ public class RequestWorker{
 		return true;
 	}
 	//
-	public void processRequest(){
-		
-	}
-	//
-	public void handleHttpContent(DefaultHttpContent content){
-		
-	}
+	public abstract void processRequest();
+	public abstract void handleHttpContent(DefaultHttpContent content);
+	public abstract void channelClosed();
 	//
 	public static void sendRedirect(ChannelHandlerContext ctx, String newUri) {
 		FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, FOUND);

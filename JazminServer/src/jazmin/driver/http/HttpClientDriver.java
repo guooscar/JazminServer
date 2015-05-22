@@ -15,7 +15,7 @@ import jazmin.server.console.ConsoleServer;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.AsyncHttpClientConfig.Builder;
-import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig;
+import com.ning.http.client.providers.netty.NettyAsyncHttpProvider;
 
 /**
  * 
@@ -44,9 +44,10 @@ public class HttpClientDriver extends Driver{
 	@Override
 	public void init() throws Exception {
 		clientConfigBuilder.setUserAgent(DEFAULT_UA);
-		clientConfigBuilder.setAsyncHttpClientProviderConfig(new NettyAsyncHttpProviderConfig());
 		clientConfig=clientConfigBuilder.build();
-		asyncHttpClient = new AsyncHttpClient(clientConfig);
+		asyncHttpClient = new AsyncHttpClient(new NettyAsyncHttpProvider(clientConfig),clientConfig);
+		//AsyncHttpClientConfig config = new AsyncHttpClientConfig.Builder().build();
+		//AsyncHttpClient client = new AsyncHttpClient(new GrizzlyAsyncHttpProvider(config), config);
 		//
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
@@ -57,7 +58,7 @@ public class HttpClientDriver extends Driver{
 	@Override
 	public String info() {
 		return InfoBuilder.create().format("%-30s:%-30s\n")
-				.print("asyncHttpProvider",clientConfig.getAsyncHttpProviderConfig().getClass())
+				.print("asyncHttpProvider",clientConfig.getAsyncHttpProviderConfig())
 				.print("isCompressionEnforced",isCompressionEnforced())
 				.print("isFollowRedirect",isFollowRedirect())
 				.print("maxConnections",getMaxConnections())

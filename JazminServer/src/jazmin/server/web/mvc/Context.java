@@ -19,6 +19,7 @@ public class Context {
 	Request request;
 	Response response;
 	Map<String,Object>contextMap;
+	int errorCode;
 	//
 	public Context() {
 		contextMap=new HashMap<String, Object>();

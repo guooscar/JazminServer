@@ -31,9 +31,9 @@
 	<classpathentry kind="lib" path="lib/mina-core-2.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/jedis-2.7.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-pool2-2.3.jar"/>
-	<classpathentry kind="lib" path="lib/netty-3.1.5.GA.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-1.50.jar"/>
-	<classpathentry kind="lib" path="lib/async-http-client-1.9.20.jar"/>
+	<classpathentry kind="lib" path="lib/async-http-client-1.9.24.jar"/>
+	<classpathentry kind="lib" path="lib/netty-3.10.3.Final.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

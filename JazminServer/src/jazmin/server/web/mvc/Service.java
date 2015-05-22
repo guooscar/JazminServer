@@ -24,4 +24,5 @@ public @interface Service{
 	String id();
 	HttpMethod method() default HttpMethod.GET;
 	boolean index() default false;
+	int queryCount() default -1;
 }

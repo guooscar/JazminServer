@@ -19,6 +19,7 @@ public class ControllerStub implements Comparable<ControllerStub>{
 	MethodStub indexMethod;
 	Object instance;
 	String id;
+	
 	public ControllerStub(String id) {
 		this.id=id;
 		methodStubs=new ConcurrentHashMap<String, MethodStub>();
@@ -51,6 +52,7 @@ public class ControllerStub implements Comparable<ControllerStub>{
 			MethodStub ms=new MethodStub();
 			ms.controllerId=id;
 			ms.id=srv.id();
+			ms.queryCount=srv.queryCount();
 			ms.method=srv.method().toString();
 			ms.invokeMethod=m;
 			if(methodStubs.containsKey(srv.id())){

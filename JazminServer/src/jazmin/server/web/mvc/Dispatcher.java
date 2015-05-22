@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.servlet.http.HttpServletResponse;
+
 import jazmin.core.Jazmin;
 import jazmin.core.thread.DispatcherCallbackAdapter;
 import jazmin.log.Logger;
@@ -70,6 +72,7 @@ public class Dispatcher {
 		if(controllerStub==null){
 			//404
 			logger.warn("can not find controller:{}",request.queryURI());
+			ctx.errorCode=HttpServletResponse.SC_NOT_FOUND;
 			return ctx;
 		}
 		MethodStub methodStub=null;
@@ -83,8 +86,16 @@ public class Dispatcher {
 		//
 		if(methodStub==null){
 			//404
+			ctx.errorCode=HttpServletResponse.SC_NOT_FOUND;
 			logger.warn("can not find service:{}",request.queryURI());
 			return ctx;		
+		}
+		if(methodStub.queryCount>0){
+			if(querys.size()<methodStub.queryCount){
+				logger.warn("query count mismatch:{} {}",request.queryURI(),methodStub.queryCount);		
+				ctx.errorCode=HttpServletResponse.SC_BAD_REQUEST;
+				return ctx;		
+			}
 		}
 		if(!methodStub.method.equals(HttpMethod.ALL.toString())){
 			//
@@ -94,6 +105,7 @@ public class Dispatcher {
 						request.queryURI(),
 						methodStub.method,
 						request.requestMethod());
+				ctx.errorCode=HttpServletResponse.SC_NOT_ACCEPTABLE;
 				return ctx;				
 			}
 		}

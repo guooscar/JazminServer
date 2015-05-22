@@ -4,7 +4,6 @@
 package jazmin.server.cdn;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,7 +18,7 @@ import jazmin.log.LoggerFactory;
  * @author yama
  * 7 May, 2015
  */
-public class CachePolicy implements FileFilter{
+public class CachePolicy {
 	private static Logger logger=LoggerFactory.get(CachePolicy.class);
 	//
 	long defaultTTL=3600*1000*24;//one day;
@@ -40,7 +39,7 @@ public class CachePolicy implements FileFilter{
 		return new HashMap<String, Long>(policyMap);
 	}
 	//
-	public boolean accept(File file){
+	public boolean acceptExpire(File file){
 		if(file.isDirectory()){
 			return true;
 		}
@@ -59,8 +58,37 @@ public class CachePolicy implements FileFilter{
 		return (now-file.lastModified())>ttl;
 	}
 	//
+	public boolean acceptEmpty(File file){
+		if(file.isDirectory()){
+			return true;
+		}
+		//device file
+		if(!file.isFile()){
+			return false;
+		}
+		if(file.length()==0){
+			return true;
+		}
+		return false;
+	}
+	//
+	public void cleanEmptyFile(File rootDir){
+		for(File f:rootDir.listFiles(this::acceptEmpty)){
+			if(f.isDirectory()){
+				cleanEmptyFile(f);
+			}else{
+				logger.info("delete empty file {},lastModified {}",f,
+						new Date(f.lastModified()));
+				boolean success=f.delete();
+				if(!success){
+					logger.warn("can not delete file {} maybe in use,try next time",f);
+				}
+			}
+		}
+	}
+	//
 	public void cleanFile(File rootDir){
-		for(File f:rootDir.listFiles(this)){
+		for(File f:rootDir.listFiles(this::acceptExpire)){
 			if(f.isDirectory()){
 				cleanFile(f);
 			}else{

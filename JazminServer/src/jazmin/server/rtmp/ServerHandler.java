@@ -47,7 +47,6 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipelineCoverage;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
@@ -57,7 +56,6 @@ import org.jboss.netty.channel.group.ChannelGroup;
 /**
  *
  */
-@ChannelPipelineCoverage("one")
 public class ServerHandler extends SimpleChannelHandler {
     
     private static final Logger logger = LoggerFactory.getLogger(ServerHandler.class);

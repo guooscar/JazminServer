@@ -34,13 +34,14 @@ public class DispatchServlet extends HttpServlet{
 		//
 		Context ctx=dispatcher.invokeService(request, response);
 		//
-		if(ctx.exception==null&&ctx.view==null){
+		if(ctx.errorCode!=0){
 			//404
-			hsp.sendError(HttpServletResponse.SC_NOT_FOUND);
+			hsp.sendError(ctx.errorCode);
 			return;
 		}
 		if(ctx.exception!=null){
-			throw new ServletException(ctx.exception);
+			hsp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			return;
 		}
 		//
 		if(ctx.view==null){

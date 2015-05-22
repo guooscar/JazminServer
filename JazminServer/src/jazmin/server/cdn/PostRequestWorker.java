@@ -62,6 +62,10 @@ public class PostRequestWorker extends RequestWorker {
 		super(cdnServer, ctx, request);
 		this.fileUpload=fileUpload;
 	}
+	@Override
+	public void channelClosed() {
+		clean();
+	}
 	//
 	public void processRequest(){
 		try {
@@ -134,7 +138,7 @@ public class PostRequestWorker extends RequestWorker {
 		} catch (Exception e) {
 			logger.catching(e);
 		}
-		if(requestFile!=null){
+		if(requestFile!=null&&requestFile.length()==0){
 			requestFile.delete();
 		}
 	}
@@ -191,4 +195,5 @@ public class PostRequestWorker extends RequestWorker {
 		// Close the connection as soon as the error message is sent.
 		ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
 	}
+
 }

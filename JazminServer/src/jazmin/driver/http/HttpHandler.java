@@ -11,19 +11,19 @@ import jazmin.driver.http.HttpRequest.HttpResponseRunnable;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 
+import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.AsyncHandler;
 import com.ning.http.client.FluentCaseInsensitiveStringsMap;
 import com.ning.http.client.HttpResponseStatus;
 import com.ning.http.client.Request;
 import com.ning.http.client.Response;
-import com.ning.http.client.listener.TransferCompletionHandler;
 import com.ning.http.client.listener.TransferListener;
 
 /**
  * 
  * @author yama 11 Feb, 2015
  */
-public class HttpHandler extends TransferCompletionHandler implements TransferListener{
+public class HttpHandler extends AsyncCompletionHandler<Response> implements TransferListener{
 	private static Logger logger = LoggerFactory.get(HttpHandler.class);
 	//
 	HttpResponseHandler responseHandler;
@@ -45,21 +45,24 @@ public class HttpHandler extends TransferCompletionHandler implements TransferLi
 		this.request = req;
 		this.driver=driver;
 		startTime = System.currentTimeMillis();
+		System.err.println(req.getMethod());
 		if (logger.isDebugEnabled()) {
-			logger.debug(responseHandler == null ? ">>>sync" : ">>>async "
-					+ request.getMethod() + " " + request.getUrl());
+			logger.debug("{} {} {}",
+					responseHandler == null ? ">>>sync" : ">>>async ",
+							request.getMethod() , 
+							request.getUrl());
 		}
 		this.responseHandler = responseHandler;
-		addTransferListener(this);
 	}
 
 	@Override
 	public Response onCompleted(Response response) throws Exception {
 		endTime = System.currentTimeMillis();
 		if (logger.isDebugEnabled()) {
-			logger.debug(responseHandler == null ? "<<<sync" : "<<<async "
-					+ request.getMethod() + " " + request.getUrl() + " ret:"
-					+ (endTime - startTime));
+			logger.debug("{} {} {} {}",responseHandler == null ? "<<<sync" : "<<<async ",
+					request.getMethod(),
+					request.getUrl(),
+					" ret:"+ (endTime - startTime));
 		}
 		if (responseHandler != null) {
 			Jazmin.dispatcher.invokeInPool(response.getUri().getHost(),
@@ -77,10 +80,13 @@ public class HttpHandler extends TransferCompletionHandler implements TransferLi
 		SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		driver.addErrorLog(sdf.format(new Date())+"\t"+request.getUrl()+"\t"+t.getClass().getName()+"\t"+t.getMessage());
 		if (logger.isDebugEnabled()) {
-			logger.warn(responseHandler == null ? "<<<sync" : "<<<async "
-					+ request.getMethod() + " " + request.getUrl() + "/"
-					+ t.getClass());
+			logger.debug("{} {} {} {}",
+					responseHandler == null ? "<<<sync" : "<<<async ",
+					request.getMethod() ,
+					request.getUrl(),
+					t);
 		}
+		logger.catching(t);
 		if (responseHandler != null) {
 			Jazmin.dispatcher.invokeInPool("", new HttpResponseRunnable(
 					responseHandler, null, t), responseMethod);

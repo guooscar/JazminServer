@@ -35,4 +35,11 @@ public class CdnServerHandler extends SimpleChannelInboundHandler<HttpObject> {
     		logger.catching(cause);
     	}
     }
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    	RequestWorker rw=ctx.channel().attr(CdnServer.WORKER_KEY).get();
+    	if(rw!=null){
+    		rw.channelClosed();
+    	}
+    }
 }

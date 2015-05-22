@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 public class MethodStub implements Comparable<MethodStub>{
 	public String controllerId;
 	public String id;
+	int queryCount;
 	public String method;
 	public Method invokeMethod;
 	//

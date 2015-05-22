@@ -17,6 +17,7 @@ import io.netty.channel.ChannelProgressiveFuture;
 import io.netty.channel.ChannelProgressiveFutureListener;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
@@ -198,7 +199,11 @@ ChannelProgressiveFutureListener,FileDownload.ResultHandler{
 				(System.currentTimeMillis()-fileRequest.createTime.getTime())/1000);
 	}
 	//--------------------------------------------------------------------------
-	
+	@Override
+	public void channelClosed() {
+		
+	}
+	//
 	public void processRequest(){
 		try {
 			processRequest0();
@@ -269,5 +274,9 @@ ChannelProgressiveFutureListener,FileDownload.ResultHandler{
 		buffer.release();
 		// Close the connection as soon as the error message is sent.
 		ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+	}
+	@Override
+	public void handleHttpContent(DefaultHttpContent content) {
+		
 	}
 }

@@ -27,12 +27,11 @@ import jazmin.server.rtmp.rtmp.message.Control;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipelineCoverage;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelDownstreamHandler;
 
-@ChannelPipelineCoverage("one")
+
 public class RtmpEncoder extends SimpleChannelDownstreamHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(RtmpEncoder.class);
