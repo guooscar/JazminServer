@@ -25,14 +25,17 @@ import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 /**
@@ -50,6 +53,10 @@ public class WebServer extends jazmin.core.Server{
 	private ContextHandlerCollection contextHandler;
 	private RequestLogHandler requestLogHandler;
 	private int port=7001;
+	private int sslPort=-1;
+	private String keyStoreFile;
+	private String keyStoreType;
+	private String keyStorePassword;
 	private int idleTimeout=30;//30seconds
 	private boolean dirAllowed=false;
 	static{
@@ -169,12 +176,52 @@ public class WebServer extends jazmin.core.Server{
 		}
 		this.port = port;
 	}
+	//
+	
+	//
 	/**
 	 * return idle timeout time of server connection
 	 * @return idle timeout time of server connection
 	 */
 	public int getIdleTimeout() {
 		return idleTimeout;
+	}
+	/**
+	 * @return the sslPort
+	 */
+	public int getSslPort() {
+		return sslPort;
+	}
+	/**
+	 * @param sslPort the sslPort to set
+	 */
+	public void setSslPort(int sslPort) {
+		this.sslPort = sslPort;
+	}
+	/**
+	 * @return the keyStoreFile
+	 */
+	public String getKeyStoreFile() {
+		return keyStoreFile;
+	}
+	
+	/**
+	 * @return the keyStorePassword
+	 */
+	public String getKeyStorePassword() {
+		return keyStorePassword;
+	}
+	/**
+	 * @param keyStorePassword the keyStorePassword to set
+	 */
+	public void setKeyStorePassword(String keyStorePassword) {
+		this.keyStorePassword = keyStorePassword;
+	}
+	/**
+	 * @param keyStoreFile the keyStoreFile to set
+	 */
+	public void setKeyStoreFile(String keyStoreFile) {
+		this.keyStoreFile = keyStoreFile;
 	}
 	/**
 	 * set server idle timeout time of server connection
@@ -185,6 +232,19 @@ public class WebServer extends jazmin.core.Server{
 			throw new IllegalArgumentException("set before inited");
 		}
 		this.idleTimeout = idleTimeout;
+	}
+	
+	/**
+	 * @return the keyStoreType
+	 */
+	public String getKeyStoreType() {
+		return keyStoreType;
+	}
+	/**
+	 * @param keyStoreType the keyStoreType to set
+	 */
+	public void setKeyStoreType(String keyStoreType) {
+		this.keyStoreType = keyStoreType;
 	}
 	/**
 	 * return WebAppContext of this server
@@ -243,14 +303,40 @@ public class WebServer extends jazmin.core.Server{
 	    if(webAppContext!=null){
 			contextHandler.addHandler(webAppContext);
 		}
+	    List<Connector>connectors=new ArrayList<Connector>();
 		//
 		HttpConfiguration httpConfig = new HttpConfiguration();
         ServerConnector httpConnector = new ServerConnector(server,
         		new HttpConnectionFactory(httpConfig)); 
 		httpConnector.setPort(port);
 		httpConnector.setIdleTimeout(idleTimeout*1000);
+		connectors.add(httpConnector);
 		//
-		server.setConnectors(new Connector[] {httpConnector});		
+		if(sslPort!=-1){
+			 HttpConfiguration sslHttpConfig = new HttpConfiguration();
+			 sslHttpConfig.setSecureScheme("https");
+			 sslHttpConfig.setSecurePort(sslPort);
+			 sslHttpConfig.setOutputBufferSize(32768);
+			 SslContextFactory sslContextFactory = new SslContextFactory();
+			 if(keyStoreType!=null){
+				 sslContextFactory.setKeyStoreType(keyStoreType);	 
+			 }
+			 sslContextFactory.setKeyStorePath(keyStoreFile);
+			 if(keyStorePassword!=null){
+				 sslContextFactory.setKeyStorePassword(keyStorePassword);
+			 }
+			 //sslContextFactory.setKeyManagerPassword("OBF:1u2u1wml1z7s1z7a1wnl1u2g");
+			 HttpConfiguration https_config = new HttpConfiguration(sslHttpConfig);
+			 sslHttpConfig.addCustomizer(new SecureRequestCustomizer());
+			 ServerConnector https = new ServerConnector(server,
+			              new SslConnectionFactory(sslContextFactory, "http/1.1"),
+			                new HttpConnectionFactory(https_config));
+			 https.setPort(sslPort);
+			 https.setIdleTimeout(idleTimeout*1000);
+			 connectors.add(https);
+		}
+		//
+		server.setConnectors(connectors.toArray(new Connector[connectors.size()]));		
         server.setHandler(handlers);
         server.start();
 		if(webAppContext!=null){
