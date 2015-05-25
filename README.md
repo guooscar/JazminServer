@@ -59,7 +59,7 @@ JazminServer is a Java based application/message/rpc/sip/rtmp/udp relay server.
 Start a rpc server and register remote service
 <pre>
    Jazmin.addServer(new ConsoleServer());
-   RPCServer rpcServer=new RPCServer();
+   RpcServer rpcServer=new RpcServer();
    rpcServer.registerService(new TestRemoteServiceImpl());
    Jazmin.addServer(rpcServer);
    Jazmin.start();
