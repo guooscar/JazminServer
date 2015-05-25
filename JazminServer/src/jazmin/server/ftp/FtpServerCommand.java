@@ -10,7 +10,7 @@ import jazmin.server.console.builtin.ConsoleCommand;
  * 26 Dec, 2014
  */
 public class FtpServerCommand extends ConsoleCommand {
-    private FTPServer ftpServer;
+    private FtpServer ftpServer;
 	public FtpServerCommand() {
     	super();
     	id="ftpsrv";
@@ -20,7 +20,7 @@ public class FtpServerCommand extends ConsoleCommand {
     	addOption("stat",false,"show stat info.",this::showStats);
     	addOption("list",false,"list upload/download files.",this::showList);
     	//
-    	ftpServer=Jazmin.getServer(FTPServer.class);
+    	ftpServer=Jazmin.getServer(FtpServer.class);
     }
 	//
 	@Override

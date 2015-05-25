@@ -8,7 +8,7 @@ import jazmin.server.console.ConsoleServer;
 import jazmin.server.ftp.CommandAdapter;
 import jazmin.server.ftp.FtpReply;
 import jazmin.server.ftp.FtpRequest;
-import jazmin.server.ftp.FTPServer;
+import jazmin.server.ftp.FtpServer;
 import jazmin.server.ftp.FtpSession;
 import jazmin.server.ftp.FtpUserInfo;
 import jazmin.server.ftp.FtpPropUserManager;
@@ -25,7 +25,7 @@ public class TestFTPServer {
 	 */
 	public static void main(String[] args) throws Exception{
 		Jazmin.start();
-		FTPServer server=new FTPServer();
+		FtpServer server=new FtpServer();
 		server.setPort(2221);
 		//
 		FtpUserInfo admin=new FtpUserInfo();

@@ -21,7 +21,6 @@ import jazmin.server.console.ConsoleServer;
 
 import org.apache.ftpserver.ConnectionConfigFactory;
 import org.apache.ftpserver.DataConnectionConfigurationFactory;
-import org.apache.ftpserver.FtpServer;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpReply;
 import org.apache.ftpserver.ftplet.FtpRequest;
@@ -38,9 +37,9 @@ import org.apache.ftpserver.ssl.SslConfigurationFactory;
  * @author yama
  * 26 Mar, 2015
  */
-public class FTPServer extends Server{
+public class FtpServer extends Server{
 	//
-	private FtpServer server;
+	private DefaultFtpServer server;
 	private ListenerFactory factory;
 	private SslConfigurationFactory ssl;
 	private ConnectionConfigFactory connectionConfigFactory;
@@ -56,7 +55,7 @@ public class FTPServer extends Server{
 	private Map<String, jazmin.server.ftp.FtpSession>sessionMap;
 	private DataConnectionConfigurationFactory dataConnectionConfigurationFactory;
 	//
-	public FTPServer() {
+	public FtpServer() {
 		factory = new ListenerFactory();
 		ssl = new SslConfigurationFactory();
 		connectionConfigFactory=new ConnectionConfigFactory();
