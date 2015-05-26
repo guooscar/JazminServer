@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jazmin.deploy.view.instance;
+package jazmin.deploy.view.main;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.ExternalResource;

@@ -532,6 +532,16 @@ public class DeployManager {
 		return sb.toString();
 	}
 	//
+	public static void createInstance(Instance instance,String jsFile){
+		if(instance.application.type.startsWith("jazmin")){
+			String instanceDir=instance.machine.jazminHome+"/instance/"+instance.id;
+			appendActionReport(exec(instance,
+					"mkdir "+instanceDir));
+			appendActionReport(exec(instance,
+					"echo \""+jsFile+"\" > "+instanceDir+"/jazmin.js"));
+		}
+	}
+	//
 	public static void startInstance(Instance instance){
 		if(instance.application.type.startsWith("jazmin")){
 			appendActionReport(exec(instance,instance.machine.jazminHome

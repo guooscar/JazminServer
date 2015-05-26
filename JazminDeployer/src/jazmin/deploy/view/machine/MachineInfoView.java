@@ -12,9 +12,9 @@ import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.Machine;
 import jazmin.deploy.ui.BeanTable;
-import jazmin.deploy.view.instance.ActionReportWindow;
 import jazmin.deploy.view.instance.InputWindow;
 import jazmin.deploy.view.instance.OptProgressWindow;
+import jazmin.deploy.view.main.ActionReportWindow;
 import jazmin.deploy.view.main.DeployBaseView;
 
 import com.vaadin.ui.Table;

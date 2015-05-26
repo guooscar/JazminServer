@@ -15,7 +15,9 @@ import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.Instance;
 import jazmin.deploy.ui.BeanTable;
+import jazmin.deploy.view.main.ActionReportWindow;
 import jazmin.deploy.view.main.CodeEditorWindow;
+import jazmin.deploy.view.main.CodeEditorWindow.CodeEditorCallback;
 import jazmin.deploy.view.main.DeployBaseView;
 
 import com.vaadin.ui.Table;
@@ -68,6 +70,7 @@ public class InstanceInfoView extends DeployBaseView{
 		//
 		addOptButton("Set Version",ValoTheme.BUTTON_PRIMARY, (e)->setPackageVersion());
 		//
+		addOptButton("Create Instances",ValoTheme.BUTTON_DANGER, (e)->createInstance());
 		addOptButton("Start Instances",ValoTheme.BUTTON_DANGER, (e)->startInstance());
 		addOptButton("Stop Instances",ValoTheme.BUTTON_DANGER, (e)->stopInstance());
 		addOptButton("Restart Instances",ValoTheme.BUTTON_DANGER, (e)->restartInstance());
@@ -170,6 +173,46 @@ public class InstanceInfoView extends DeployBaseView{
 			window.close();
 			loadData();
 		});
+	}
+	//
+	//
+	private void createInstance(){
+		final CodeEditorWindow cew=new CodeEditorWindow(new CodeEditorCallback() {
+			@Override
+			public void onSave(String value) {
+				createInstacne1(value);	
+			}
+		});
+		cew.setValue("Instance Boot File", "", AceMode.javascript);
+		UI.getCurrent().addWindow(cew);
+	}
+	//
+	private void createInstacne1(String jsFile){
+		OptProgressWindow optWindow=new OptProgressWindow(window->{
+			Jazmin.execute(()->{
+				DeployManager.resetActionReport();
+				createInstance0(window,jsFile);
+			});
+		});
+		optWindow.setCaption("Confirm");
+		optWindow.setInfo("Confirm create total "+instances.size()+" instance(s)?");
+		UI.getCurrent().addWindow(optWindow);
+	}
+	//
+	private void createInstance0(OptProgressWindow window,String jsFile){
+		AtomicInteger counter=new AtomicInteger();
+		instances.forEach(instance->{
+			window.getUI().access(()->{
+				window.setInfo("create "+instance.id+" "+
+						counter.incrementAndGet()+
+						"/"+instances.size()+"...");	
+			});
+			DeployManager.createInstance(instance,jsFile);
+		});
+		window.getUI().access(()->{
+			window.close();
+			DeploySystemUI.showNotificationInfo("Info", "create complete");
+		});	
 	}
 	//
 	private void startInstance(){
