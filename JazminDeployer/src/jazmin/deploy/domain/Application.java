@@ -24,6 +24,7 @@ public class Application extends BaseDomain{
 	public static final String TYPE_JAZMIN_SIP="jazmin-sip";
 	public static final String TYPE_JAZMIN_RELAY="jazmin-relay";
 	public static final String TYPE_JAZMIN_RTSP="jazmin-rtsp";
+	public static final String TYPE_JAZMIN_CDN="jazmin-cdn";
 	
 	//
 	public static final String TYPE_MYSQL="mysql";
@@ -53,6 +54,7 @@ public class Application extends BaseDomain{
 		typeLayerMap.put(TYPE_JAZMIN_SIP,LAYER_WEB);
 		typeLayerMap.put(TYPE_JAZMIN_RELAY,LAYER_WEB);
 		typeLayerMap.put(TYPE_JAZMIN_RTSP,LAYER_WEB);
+		typeLayerMap.put(TYPE_JAZMIN_CDN,LAYER_WEB);
 		//
 		typeLayerMap.put(TYPE_MYSQL,LAYER_DB);
 		typeLayerMap.put(TYPE_MEMCACHED,LAYER_CACHE);

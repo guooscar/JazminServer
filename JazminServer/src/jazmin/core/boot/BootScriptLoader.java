@@ -93,8 +93,10 @@ public class BootScriptLoader {
 				"importPackage(Packages.jazmin.driver.redis);"+
 				"importPackage(Packages.jazmin.driver.http);"+
 				"importPackage(Packages.jazmin.driver.mail);"+
+				"importPackage(Packages.jazmin.driver.mongodb);"+
 				//servers
 				"importPackage(Packages.jazmin.server.console);"+
+				"importPackage(Packages.jazmin.server.cdn);"+
 				"importPackage(Packages.jazmin.server.jmx);"+
 				"importPackage(Packages.jazmin.server.msg);"+
 				"importPackage(Packages.jazmin.server.im);"+
@@ -102,7 +104,6 @@ public class BootScriptLoader {
 				"importPackage(Packages.jazmin.server.sip);"+
 				"importPackage(Packages.jazmin.server.rpc);"+
 				"importPackage(Packages.jazmin.server.ftp);"+
-				"importPackage(Packages.jazmin.server.stun);"+
 				"importPackage(Packages.jazmin.server.relay);"+
 				"importPackage(Packages.jazmin.server.proxy);"+
 				"importPackage(Packages.jazmin.server.web);\n";

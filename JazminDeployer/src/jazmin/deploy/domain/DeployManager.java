@@ -537,6 +537,9 @@ public class DeployManager {
 			String instanceDir=instance.machine.jazminHome+"/instance/"+instance.id;
 			appendActionReport(exec(instance,
 					"mkdir "+instanceDir));
+			//
+			jsFile=jsFile.replace('\"','\'');
+			//
 			appendActionReport(exec(instance,
 					"echo \""+jsFile+"\" > "+instanceDir+"/jazmin.js"));
 		}
@@ -631,7 +634,9 @@ public class DeployManager {
 	}
 	//--------------------------------------------------------------------------
 	public static void main(String[] args)throws Exception{
-		DeployManager.reload();
-		DeployManager.renderTemplate("MddsSystem");
+		String s="include(\"http://www.baidu.com\")";
+		System.out.println(s.replace('\"', '\''));
+		//DeployManager.reload();
+		//DeployManager.renderTemplate("MddsSystem");
 	}
 }
