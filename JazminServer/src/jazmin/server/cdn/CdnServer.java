@@ -81,8 +81,6 @@ public class CdnServer extends Server {
 		clientConfigBuilder=new Builder();
 		clientConfigBuilder.setUserAgent(SERVER_NAME);
 		clientConfigBuilder.setAsyncHttpClientProviderConfig(new NettyAsyncHttpProviderConfig());
-		clientConfig=clientConfigBuilder.build();
-		asyncHttpClient = new AsyncHttpClient(clientConfig);
 		directioryPrinter=new HtmlDirectoryPrinter();
 		cachePolicy=new CachePolicy();
 	}
@@ -115,7 +113,10 @@ public class CdnServer extends Server {
 			workerGroup.shutdownGracefully();
 		}
 	}
-	
+	//
+	public void setUserAgent(String userAgent){
+		clientConfigBuilder.setUserAgent(userAgent);
+	}
 	/**
 	 * @param type
 	 * @param ttlInSeconds
@@ -145,6 +146,9 @@ public class CdnServer extends Server {
 	 * @throws MalformedURLException 
 	 */
 	public void setOrginSiteURL(String siteUrl) throws MalformedURLException {
+		if(siteUrl.endsWith("/")){
+			siteUrl=siteUrl.substring(0,siteUrl.length()-1);
+		}
 		this.orginSiteURL = new URL(siteUrl);
 	}
 	/**
@@ -283,6 +287,11 @@ public class CdnServer extends Server {
 	private void checkCachePolicy(){
 		logger.info("clean expires file in {}",homeDir);
 		cachePolicy.cleanFile(homeDir);
+	}
+	//
+	public void init(){
+		clientConfig=clientConfigBuilder.build();
+		asyncHttpClient = new AsyncHttpClient(clientConfig);
 	}
 	//
 	@Override

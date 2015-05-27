@@ -127,7 +127,7 @@ ChannelProgressiveFutureListener,FileDownload.ResultHandler{
 	@Override
 	public void handleNotFound() {
 		if(logger.isDebugEnabled()){
-			logger.debug("handle not found {} {}",fileRequest.uri);
+			logger.debug("handle not found {} ",fileRequest.uri);
 		}
 		sendError(ctx, HttpResponseStatus.NOT_FOUND);
 	}

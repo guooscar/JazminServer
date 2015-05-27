@@ -125,24 +125,27 @@ public class FileDownload extends FileOpt implements AsyncHandler<String>{
 	//
 	@Override
 	public String onCompleted() throws Exception {
-		if(logger.isDebugEnabled()){
-			logger.debug("complete fetch {}, move to {}",
-					cdnServer.getOrginSiteURL()+uri,
-					file);
+		if(tempFileOutputStream!=null){
+			if(logger.isDebugEnabled()){
+				logger.debug("complete fetch {}, move to {}",
+						cdnServer.getOrginSiteURL()+uri,
+						file);
+			}
+			try{
+				outputStream.flush();
+				outputStream.close();			
+			}catch(Exception e){
+				logger.catching(e);
+			}
+			//
+			try{
+				tempFileOutputStream.flush();
+				tempFileOutputStream.close();		
+			}catch(Exception e){
+				logger.catching(e);	
+			}
+			cdnServer.cachePolicy.moveTo(tempFile,file);	
 		}
-		try{
-			outputStream.flush();
-			outputStream.close();
-		}catch(Exception e){
-			logger.catching(e);
-		}
-		try{
-			tempFileOutputStream.flush();
-			tempFileOutputStream.close();
-		}catch(Exception e){
-			logger.catching(e);	
-		}
-		cdnServer.cachePolicy.moveTo(tempFile,file);
 		return "";
 	}
 	//
@@ -172,6 +175,9 @@ public class FileDownload extends FileOpt implements AsyncHandler<String>{
 	@Override
 	public STATE onStatusReceived(
 			HttpResponseStatus status) throws Exception {
+		if(logger.isDebugEnabled()){
+			logger.debug("got status {} {}",status.getUri(),status.getStatusCode());
+		}
 		if(status.getStatusCode()!=200){
 			resultHandler.handleNotFound();
 			return STATE.ABORT;
@@ -194,6 +200,7 @@ public class FileDownload extends FileOpt implements AsyncHandler<String>{
 			logger.debug("delete temp file {} result {}",tempFile,success);
 		}
 		if(e instanceof IOException){
+			logger.catching(e);
 			logger.warn("uri {} catch exception {}",uri,e);
 		}else{
 			logger.catching(e);
