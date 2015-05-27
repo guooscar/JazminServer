@@ -96,8 +96,8 @@ public class FileDownload extends FileOpt implements AsyncHandler<String>{
 			httpRequest.headers().forEachName(new NameVisitor<CharSequence>() {
 				@Override
 				public boolean visit(CharSequence name) throws Exception {
-					headerMap.put(name.toString(),
-							httpRequest.headers().getAllAndConvert(name));
+					//headerMap.put(name.toString(),
+					//		httpRequest.headers().getAllAndConvert(name));
 					return true;
 				}
 			});
@@ -200,7 +200,6 @@ public class FileDownload extends FileOpt implements AsyncHandler<String>{
 			logger.debug("delete temp file {} result {}",tempFile,success);
 		}
 		if(e instanceof IOException){
-			logger.catching(e);
 			logger.warn("uri {} catch exception {}",uri,e);
 		}else{
 			logger.catching(e);
