@@ -125,6 +125,7 @@ public class DeployManager {
 		String configDir=workSpaceDir+"config";
 		try {
 			FileUtil.saveContent(value, new File(configDir,file));
+			reload();
 		} catch (IOException e) {
 			logger.catching(e);
 		}
