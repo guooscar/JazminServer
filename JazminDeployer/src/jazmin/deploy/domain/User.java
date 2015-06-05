@@ -1,28 +1,26 @@
 /**
  * 
  */
-package jazmin.deploy;
+package jazmin.deploy.domain;
 
 /**
  * @author yama
  * 30 Dec, 2014
  */
-public class UserInfo {
-	private String user;
-	private String password;
-	public UserInfo() {
-	}
+public class User {
+	public String id;
+	public String password;
 	/**
 	 * @return the user
 	 */
-	public String getUser() {
-		return user;
+	public String getId() {
+		return id;
 	}
 	/**
 	 * @param user the user to set
 	 */
-	public void setUser(String user) {
-		this.user = user;
+	public void setId(String user) {
+		this.id = user;
 	}
 	/**
 	 * @return the password
@@ -36,5 +34,5 @@ public class UserInfo {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
+
 }

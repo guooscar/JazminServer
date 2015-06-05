@@ -1,7 +1,9 @@
 package jazmin.deploy.view.main;
 
 import jazmin.deploy.DeploySystemUI;
-import jazmin.deploy.UserInfo;
+import jazmin.deploy.domain.DeployManager;
+import jazmin.deploy.domain.User;
+import jazmin.util.MD5Util;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.FontAwesome;
@@ -16,6 +18,7 @@ import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
+
 /**
  * 
  * @author yama
@@ -65,10 +68,12 @@ public class LoginView extends VerticalLayout {
 		fields.addComponents(username, password, signin);
 		fields.setComponentAlignment(signin, Alignment.BOTTOM_LEFT);
 		signin.addClickListener((event)->{
-			if("admin".equals(username.getValue())){
-				UserInfo ui=new UserInfo();
-				ui.setUser("admin");
-				DeploySystemUI.setUser(ui);
+			String u=username.getValue()+"";
+			String p=password.getValue()+"";
+			p=MD5Util.encodeMD5(p);
+			User uu=DeployManager.validate(u, p);
+			if(uu!=null){
+				DeploySystemUI.setUser(uu);
 				DeploySystemUI.showMainView();		
 			}else{
 				DeploySystemUI.showNotificationInfo("Login failed", 

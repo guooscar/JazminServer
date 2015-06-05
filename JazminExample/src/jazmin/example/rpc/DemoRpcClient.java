@@ -6,6 +6,7 @@ package jazmin.example.rpc;
 import jazmin.core.Jazmin;
 import jazmin.core.app.Application;
 import jazmin.driver.rpc.JazminRpcDriver;
+import jazmin.example.rpc.DemoRpcService.DemoRpcServiceAsync;
 import jazmin.log.LoggerFactory;
 
 /**
@@ -24,5 +25,11 @@ public class DemoRpcClient extends Application{
 		DemoRpcService service=rpcDriver.create(DemoRpcService.class,"test");
 		String echo=service.echo("test");
 		System.out.println(echo);
+		//
+		DemoRpcServiceAsync serviceAsync=rpcDriver.createAsync(DemoRpcServiceAsync.class,"test");
+		serviceAsync.echo("123",(rsp,e)->{
+			System.out.println(rsp);
+		});
+		
 	}
 }

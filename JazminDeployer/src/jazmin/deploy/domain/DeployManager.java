@@ -46,6 +46,7 @@ public class DeployManager {
 	private static Logger logger=LoggerFactory.get(DeployManager.class);
 	//
 	private static Map<String,Instance>instanceMap;
+	private static Map<String,User>userMap;
 	private static Map<String,Machine>machineMap;
 	private static Map<String,AppPackage>packageMap;
 	private static Map<String,Application>applicationMap;
@@ -59,6 +60,7 @@ public class DeployManager {
 		machineMap=new ConcurrentHashMap<String, Machine>();
 		packageMap=new ConcurrentHashMap<String, AppPackage>();
 		applicationMap=new ConcurrentHashMap<String, Application>();
+		userMap=new ConcurrentHashMap<String, User>();
 		downloadInfos=Collections.synchronizedList(new LinkedList<PackageDownloadInfo>());
 		graphVizRenderer=new GraphVizRenderer();
 	}
@@ -103,6 +105,8 @@ public class DeployManager {
 			checkApplicationConfig();
 			reloadMachineConfig(configDir);
 			reloadInstanceConfig(configDir);
+			reloadUserConfig(configDir);
+			
 			setInstancePrioriy();
 			reloadPackage();
 		}catch(Exception e){
@@ -185,6 +189,17 @@ public class DeployManager {
 				}
 			}	
 		}
+	}
+	//
+	public static User validate(String u,String p){
+		User ui=userMap.get(u);
+		if(ui==null){
+			return null;
+		}
+		if(ui.password.equals(p)){
+			return ui;
+		}
+		return null;
 	}
 	//
 	public static List<PackageDownloadInfo>getPackageDownloadInfos(){
@@ -309,6 +324,20 @@ public class DeployManager {
 			List<Application>apps= JSONUtil.fromJsonList(ss,Application.class);
 			apps.forEach(in->{
 				applicationMap.put(in.id,in);
+			});
+		}else{
+			logger.warn("can not find :"+configFile);
+		}
+	}
+	private static void reloadUserConfig(String configDir)throws Exception{
+		File configFile=new File(configDir,"user.json");
+		if(configFile.exists()){
+			userMap.clear();
+			logger.info("load user from:"+configFile.getAbsolutePath());
+			String ss=FileUtil.getContent(configFile);
+			List<User>apps= JSONUtil.fromJsonList(ss,User.class);
+			apps.forEach(in->{
+				userMap.put(in.id,in);
 			});
 		}else{
 			logger.warn("can not find :"+configFile);

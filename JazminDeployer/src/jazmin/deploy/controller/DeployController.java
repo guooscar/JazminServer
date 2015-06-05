@@ -23,6 +23,24 @@ import jazmin.server.web.mvc.Service;
  */
 @Controller(id="deploy")
 public class DeployController {
+	//
+	private boolean checkMachine(Context c,String instanceId){
+		if(c.request().session(true).getAttribute("user")!=null){
+			return true;
+		}
+		Instance instance=DeployManager.getInstance(instanceId);
+		if(instance==null){
+			return false;
+		}
+		String remoteAddr=c.request().raw().getRemoteAddr();
+		if(!instance.machine.publicHost.equals(remoteAddr)
+				||!instance.machine.privateHost.equals(remoteAddr)){
+			c.view(new ErrorView(HttpServletResponse.SC_FORBIDDEN));
+			return false;
+		}
+		return true;
+	}
+	//
 	/**
 	 *get boot file 
 	 */
@@ -33,6 +51,10 @@ public class DeployController {
 			return;
 		}
 		String instanceName=querys.get(2);
+		if(!checkMachine(c,instanceName)){
+			return;
+		}
+		//
 		String result=DeployManager.renderTemplate(instanceName);
 		if(result!=null){
 			c.view(new PlainTextView(result));
@@ -41,8 +63,29 @@ public class DeployController {
 		}
 	}
 	//
+	@Service(id = "pkg")
+	public void downloadInstancePackage(Context c) {
+		List<String> querys = c.request().querys();
+		if (querys.size() < 3) {
+			return;
+		}
+		String instanceId = querys.get(2);
+		Instance instance=DeployManager.getInstance(instanceId);
+		if(!checkMachine(c,instanceId)){
+			return;
+		}
+		jazmin.deploy.domain.AppPackage result = DeployManager
+				.getInstancePackage(instanceId);
+		if (result != null) {
+			c.view(new PackageDownloadView(instance,result));
+		}
+	}
+	//--------------------------------------------------------------------------
 	@Service(id="log")
 	public void getTailLog(Context c){
+		if(!checkMachine(c,"")){
+			return;
+		}
 		List<String>querys=c.request().querys();
 		if(querys.size()<3){
 			return;
@@ -56,6 +99,9 @@ public class DeployController {
 	//
 	@Service(id="sysgraph")
 	public void getSystemGraph(Context c){
+		if(!checkMachine(c,"")){
+			return;
+		}
 		List<String>querys=c.request().querys();
 		if(querys.size()<3){
 			return;
@@ -68,6 +114,9 @@ public class DeployController {
 	//
 	@Service(id="insgraph")
 	public void getInstanceGraph(Context c){
+		if(!checkMachine(c,"")){
+			return;
+		}
 		List<String>querys=c.request().querys();
 		if(querys.size()<4){
 			return;
@@ -81,11 +130,17 @@ public class DeployController {
 	//
 	@Service(id="report")
 	public void getActionReport(Context c){
+		if(!checkMachine(c,"")){
+			return;
+		}
 		c.view(new PlainTextView(DeployManager.actionReport()));
 	}
 	//
 	@Service(id="download")
 	public void downloadPackage(Context c){
+		if(!checkMachine(c,"")){
+			return;
+		}
 		List<String>querys=c.request().querys();
 		if(querys.size()<3){
 			return;
@@ -95,29 +150,5 @@ public class DeployController {
 		if(result!=null){
 			c.view(new FileView(result.file));
 		}
-	}
-
-	@Service(id = "pkg")
-	public void downloadInstancePackage(Context c) {
-		List<String> querys = c.request().querys();
-		if (querys.size() < 3) {
-			return;
-		}
-		String instanceId = querys.get(2);
-		Instance instance=DeployManager.getInstance(instanceId);
-		if(instance==null){
-			return;
-		}
-		String remoteAddr=c.request().raw().getRemoteAddr();
-		if(!instance.machine.publicHost.equals(remoteAddr)
-				||!instance.machine.privateHost.equals(remoteAddr)){
-			c.view(new ErrorView(HttpServletResponse.SC_FORBIDDEN));
-			return ;
-		}
-		jazmin.deploy.domain.AppPackage result = DeployManager
-				.getInstancePackage(instanceId);
-		if (result != null) {
-			c.view(new PackageDownloadView(instance,result));
-		}
-	}
+	}	
 }

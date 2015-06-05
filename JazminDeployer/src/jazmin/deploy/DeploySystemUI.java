@@ -1,5 +1,6 @@
 package jazmin.deploy;
 
+import jazmin.deploy.domain.User;
 import jazmin.deploy.view.main.LoginView;
 import jazmin.deploy.view.main.MainView;
 
@@ -44,12 +45,18 @@ public class DeploySystemUI extends UI {
 		get().setContent(new LoginView());
 	}
 	//
-	public static UserInfo getUser(){
-		return VaadinSession.getCurrent().getAttribute(UserInfo.class);
+	public static User getUser(){
+		VaadinSession vs=VaadinSession.getCurrent();
+		if(vs==null){
+			return null;
+		}
+		return VaadinSession.getCurrent().getAttribute(User.class);
 	}
 	//
-	public static void setUser(UserInfo user){
-		VaadinSession.getCurrent().setAttribute(UserInfo.class, user);
+	public static void setUser(User user){
+		VaadinSession vs=VaadinSession.getCurrent();
+		vs.setAttribute(User.class, user);
+		vs.getSession().setAttribute("user",user);
 	}
 	//
 	public static void showNotificationInfo(String caption,String description){

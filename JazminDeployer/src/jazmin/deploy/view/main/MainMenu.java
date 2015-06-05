@@ -3,8 +3,8 @@ package jazmin.deploy.view.main;
 import org.vaadin.aceeditor.AceMode;
 
 import jazmin.deploy.DeploySystemUI;
-import jazmin.deploy.UserInfo;
 import jazmin.deploy.domain.DeployManager;
+import jazmin.deploy.domain.User;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 
@@ -144,8 +144,8 @@ public final class MainMenu extends CustomComponent {
 
     //
     public void updateUserName() {
-        UserInfo user = DeploySystemUI.getUser();
-        settingsItem.setText(user.getUser()+"");
+        User user = DeploySystemUI.getUser();
+        settingsItem.setText(user.getId()+"");
     }
     //
     private final class ValoMenuItemButton extends Button {
