@@ -628,6 +628,7 @@ public class DeployManager {
 	public static AppPackage getInstancePackage(String instanceId) {
 		Instance ins=instanceMap.get(instanceId);
 		if(ins==null){
+			logger.warn("can not find instance {}",instanceId);
 			return null;
 		}
 		String suffex="";
@@ -636,7 +637,9 @@ public class DeployManager {
 			suffex=".war";
 		}
 		String packageName=ins.appId+"-"+ins.packageVersion+suffex;
-		return packageMap.get(packageName);
+		AppPackage p= packageMap.get(packageName);
+		logger.info("return package {} - {}",p,packageName);
+		return p;
 	}
 	//
 	public static AppPackage getPackage(String name){
