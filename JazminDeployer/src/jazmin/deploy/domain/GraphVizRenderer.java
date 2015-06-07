@@ -42,7 +42,7 @@ public class GraphVizRenderer {
 		append("\"").
 		append(system).
 		append("\"\n{");
-		result.append("graph[page=\"fill\",size=\"16,8.5\",ratio=fill,center=1,bgcolor=\"transparent\"];\n");
+		result.append("graph[page=\"fill\",size=\"13,7\",ratio=fill,center=1,bgcolor=\"transparent\"];\n");
 		result.append("rankdir=LR;\n");
 		result.append("node[fontname=\"simhei\",width=3.0,style=\"filled,rounded,solid\"];\n");
 		result.append("edge[fontname=\"simhei\",fillcolor=gray];\n");
