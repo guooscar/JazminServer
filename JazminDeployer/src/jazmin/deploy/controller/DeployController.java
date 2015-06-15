@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.Instance;
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
 import jazmin.server.web.mvc.Context;
 import jazmin.server.web.mvc.Controller;
 import jazmin.server.web.mvc.ErrorView;
@@ -24,6 +26,8 @@ import jazmin.server.web.mvc.Service;
 @Controller(id="deploy")
 public class DeployController {
 	//
+	private static Logger logger=LoggerFactory.get(DeployController.class);
+	//
 	private boolean checkMachine(Context c,String instanceId){
 		if(c.request().session(true).getAttribute("user")!=null){
 			return true;
@@ -34,7 +38,11 @@ public class DeployController {
 		}
 		String remoteAddr=c.request().raw().getRemoteAddr();
 		if(!instance.machine.publicHost.equals(remoteAddr)
-				||!instance.machine.privateHost.equals(remoteAddr)){
+				&&!instance.machine.privateHost.equals(remoteAddr)){
+			logger.warn("addr check {} - {} - {}",
+					instance.machine.publicHost,
+					instance.machine.privateHost,
+					remoteAddr);	
 			c.view(new ErrorView(HttpServletResponse.SC_FORBIDDEN));
 			return false;
 		}

@@ -48,5 +48,10 @@ public class AppPackage {
 	public void setLastModifiedTime(Date lastModifiedTime) {
 		this.lastModifiedTime = lastModifiedTime;
 	}
+	@Override
+	public String toString() {
+		return "AppPackage [id=" + id + ", lastModifiedTime="
+				+ lastModifiedTime + ", file=" + file + "]";
+	}
 	
 }

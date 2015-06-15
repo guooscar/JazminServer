@@ -47,7 +47,7 @@
           center: true,
           viewportSelector: document.getElementById('graph').querySelector('#graph0')
         });
-       	zoomSvg.zoom(0.5)
+       	zoomSvg.zoom(0.3)
         zoomSvg.pan({x: 50, y: 650})
       };
       //
