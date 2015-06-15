@@ -19,7 +19,8 @@ import java.lang.annotation.Target;
 @Documented
 @Inherited  
 public @interface IMService{
-	int id();
+	int id() default 0;
+	String mobileId() default "";
 	boolean syncOnSession() default true;
 	boolean restrictRequestRate() default true;
 	boolean continuation() default false;

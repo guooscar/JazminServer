@@ -58,7 +58,7 @@ public class IMMessageServerCommand extends ConsoleCommand {
 		Collections.sort(services);
 		for(IMServiceStub s:services){
 			tp.print(
-					"0x"+Integer.toHexString(s.serviceId),
+					s.serviceId,
 					s.isSyncOnSessionService,
 					s.isContinuationService,
 					s.isRestrictRequestRate);

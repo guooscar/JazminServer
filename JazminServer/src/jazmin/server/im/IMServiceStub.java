@@ -10,7 +10,8 @@ import java.lang.reflect.Method;
  * 26 Dec, 2014
  */
 public class IMServiceStub implements Comparable<IMServiceStub>{
-	public int serviceId;
+	public String serviceId;
+	public boolean isMobile;
 	public Object instance;
 	public Method method;
 	public boolean isRestrictRequestRate;
@@ -20,7 +21,7 @@ public class IMServiceStub implements Comparable<IMServiceStub>{
 	
 	@Override
 	public int compareTo(IMServiceStub o) {
-		return serviceId-(o.serviceId);
+		return serviceId.compareTo(o.serviceId);
 	}
 
 	/* (non-Javadoc)
