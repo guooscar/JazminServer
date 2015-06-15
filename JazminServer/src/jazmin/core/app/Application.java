@@ -42,7 +42,11 @@ public class Application extends Lifecycle {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getWired(Class<T>clazz){
-		T instance =(T) autoWiredMap.get(clazz);
+		AutoWiredObject ao=autoWiredMap.get(clazz);
+		if(ao==null){
+			return null;
+		}
+		T instance =(T) ao.instance;
 		return instance;
 	} 
 	/**
