@@ -10,6 +10,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 
 import java.lang.reflect.Method;
@@ -50,10 +53,12 @@ public class IMMessageServer extends Server{
 	static final int DEFAULT_MAX_CHANNEL_COUNT=1000;
 	//
 	ServerBootstrap nettyServer;
+	ServerBootstrap webSocketNettyServer;
 	EventLoopGroup bossGroup;
 	EventLoopGroup workerGroup;
 	ChannelInitializer<SocketChannel> channelInitializer;
 	int port;
+	int websocketPort;
 	int idleTime;
 	int maxSessionCount;
 	int maxChannelCount;
@@ -116,6 +121,20 @@ public class IMMessageServer extends Server{
 		return port;
 	}
 	
+	/**
+	 * @return the websocketPort
+	 */
+	public int getWebsocketPort() {
+		return websocketPort;
+	}
+
+	/**
+	 * @param websocketPort the websocketPort to set
+	 */
+	public void setWebsocketPort(int websocketPort) {
+		this.websocketPort = websocketPort;
+	}
+
 	/**
 	 * @param port the port to set
 	 */
@@ -276,6 +295,28 @@ public class IMMessageServer extends Server{
 						new MobileEncoder(networkTrafficStat),
 						new MobileDecoder(networkTrafficStat),
 						new IMMessageServerHandler(IMMessageServer.this));
+		}
+	}
+	//
+	private void initWsNettyServer(){
+		webSocketNettyServer=new ServerBootstrap();
+		channelInitializer=new WSMessageServerChannelInitializer();
+		webSocketNettyServer.group(bossGroup, workerGroup)
+		.channel(NioServerSocketChannel.class)
+		.option(ChannelOption.SO_BACKLOG, 128)    
+		.option(ChannelOption.SO_REUSEADDR, true)    
+		.childOption(ChannelOption.TCP_NODELAY, true)
+        .childOption(ChannelOption.SO_KEEPALIVE, true) 
+		.childHandler(channelInitializer);
+	}
+	class WSMessageServerChannelInitializer extends ChannelInitializer<SocketChannel>{
+		@Override
+		protected void initChannel(SocketChannel ch) throws Exception {
+			ch.pipeline().addLast("idleStateHandler",new IdleStateHandler(idleTime,idleTime,0));
+			ch.pipeline().addLast(new HttpServerCodec());
+			ch.pipeline().addLast(new HttpObjectAggregator(65536));
+			ch.pipeline().addLast(new WebSocketServerCompressionHandler());
+			ch.pipeline().addLast(new IMWebSocketServerHandler(IMMessageServer.this));
 		}
 	}
 	//
@@ -663,6 +704,9 @@ public class IMMessageServer extends Server{
 	@Override
 	public void init() throws Exception {
 		initNettyServer();
+		if(websocketPort>0){
+			initWsNettyServer();
+		}
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
 			cs.registerCommand(IMMessageServerCommand.class);
@@ -672,6 +716,9 @@ public class IMMessageServer extends Server{
 	@Override
 	public void start() throws Exception {
 		nettyServer.bind(port).sync();
+		if(websocketPort>0){
+			webSocketNettyServer.bind(websocketPort).sync();
+		}
 		startSessionChecker();
 	}
 	//
@@ -690,6 +737,7 @@ public class IMMessageServer extends Server{
 		.section("info")
 		.format("%-50s:%-30s\n")
 		.print("port", port)
+		.print("websocketPort", websocketPort)
 		.print("idleTime", idleTime+" seconds")
 		.print("maxSessionCount", maxSessionCount)
 		.print("maxChannelCount", maxChannelCount)
