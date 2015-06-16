@@ -25,6 +25,9 @@ public class IMWebSocketSession extends IMSession{
 	}
 	//
 	void sendMessage(IMResponseMessage responseMessage){
+		if(responseMessage.rawData==null){
+			return;
+		}
 		lastAccess();
 		if(channel!=null){
 			TextWebSocketFrame frame=new TextWebSocketFrame(

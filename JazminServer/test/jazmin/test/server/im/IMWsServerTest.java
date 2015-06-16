@@ -35,7 +35,7 @@ public class IMWsServerTest {
 		Jazmin.start();
 	}
 	//
-	@IMService(mobileId="test")
+	@IMService(mobileId="test1")
 	public void login(IMContext ctx,byte[]content)throws Exception{
 		String s=new String(content);
 		System.err.println(s);
