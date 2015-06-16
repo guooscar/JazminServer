@@ -47,7 +47,7 @@ public class MobileDecoder extends DelimiterBasedFrameDecoder {
 	private Charset charset;
     NetworkTrafficStat networkTrafficStat;
 	public MobileDecoder(NetworkTrafficStat networkTrafficStat) {
-		super(3000,Unpooled.copiedBuffer(new byte[]{'\r','\n'}));
+		super(3000,Unpooled.copiedBuffer(new byte[]{'\r','\n','\r','\n'}));
 		this.networkTrafficStat=networkTrafficStat;
 		charset=Charset.forName("UTF-8");
 	}
