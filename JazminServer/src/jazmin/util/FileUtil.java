@@ -3,7 +3,9 @@ package jazmin.util;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -130,6 +132,17 @@ public class FileUtil {
 	 * @return
 	 * @throws IOException
 	 */
+	public static byte[] getBytes(String filePath) throws IOException{
+		ByteArrayOutputStream bos=new ByteArrayOutputStream();
+		IOUtil.copy(new FileInputStream(filePath),bos);
+		return bos.toByteArray();
+	}
+	/**
+	 * get content from file
+	 * @param filePath
+	 * @return
+	 * @throws IOException
+	 */
 	public static String getContent(String filePath) throws IOException{
 		return getContent(new File(filePath));
 	}
@@ -148,6 +161,12 @@ public class FileUtil {
 	public static void saveContent(String content,File file) throws IOException{
 		try(FileOutputStream fos=new FileOutputStream(file);
 				ByteArrayInputStream bis=new ByteArrayInputStream(content.getBytes())){
+			IOUtil.copy(bis,fos);
+		}
+	}
+	public static void saveContent(byte bb[],File file) throws IOException{
+		try(FileOutputStream fos=new FileOutputStream(file);
+				ByteArrayInputStream bis=new ByteArrayInputStream(bb)){
 			IOUtil.copy(bis,fos);
 		}
 	}

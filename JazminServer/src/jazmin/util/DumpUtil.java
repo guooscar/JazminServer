@@ -59,7 +59,9 @@ public class DumpUtil {
 							byte bb[]=(byte[]) args[i];
 							sb.append("bytes["+(bb==null?"0":bb.length)+"]");
 						}else{
-							sb.append(JSON.toJSONString(args[i],SerializerFeature.PrettyFormat));
+							sb.append(JSON.toJSONString(args[i],
+									new ByteArrayProperityFilter(args[i].getClass()),
+									SerializerFeature.PrettyFormat));
 						}
 					}
 					sb.append("\n");
@@ -77,7 +79,9 @@ public class DumpUtil {
 		if(o==null){
 			sb.append("<null>\n");
 		}else{
-			sb.append(JSON.toJSONString(o,SerializerFeature.PrettyFormat)).append("\n");
+			sb.append(JSON.toJSONString(o,
+					new ByteArrayProperityFilter(o.getClass()),
+					SerializerFeature.PrettyFormat)).append("\n");
 		}
 		sb.append("--------------------------------------------------------\n");
 		return sb.toString();

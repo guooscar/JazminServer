@@ -45,12 +45,11 @@ public class HttpHandler extends AsyncCompletionHandler<Response> implements Tra
 		this.request = req;
 		this.driver=driver;
 		startTime = System.currentTimeMillis();
-		System.err.println(req.getMethod());
 		if (logger.isDebugEnabled()) {
 			logger.debug("{} {} {}",
 					responseHandler == null ? ">>>sync" : ">>>async ",
 							request.getMethod() , 
-							request.getUrl());
+							request.getUri());
 		}
 		this.responseHandler = responseHandler;
 	}
@@ -61,7 +60,7 @@ public class HttpHandler extends AsyncCompletionHandler<Response> implements Tra
 		if (logger.isDebugEnabled()) {
 			logger.debug("{} {} {} {}",responseHandler == null ? "<<<sync" : "<<<async ",
 					request.getMethod(),
-					request.getUrl(),
+					request.getUri(),
 					" ret:"+ (endTime - startTime));
 		}
 		if (responseHandler != null) {
@@ -83,7 +82,7 @@ public class HttpHandler extends AsyncCompletionHandler<Response> implements Tra
 			logger.debug("{} {} {} {}",
 					responseHandler == null ? "<<<sync" : "<<<async ",
 					request.getMethod() ,
-					request.getUrl(),
+					request.getUri(),
 					t);
 		}
 		logger.catching(t);
