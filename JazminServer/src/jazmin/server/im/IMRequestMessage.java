@@ -23,6 +23,7 @@ public class IMRequestMessage {
 	 */
 	//public int requestId;//requestId
 	public int serviceId;//serviceId
+	public String mobileId;
 	public byte []rawData;
 	public IMRequestMessage() {
 	}

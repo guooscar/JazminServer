@@ -10,6 +10,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 
 import java.lang.reflect.Method;
@@ -34,6 +37,8 @@ import jazmin.misc.InfoBuilder;
 import jazmin.misc.io.IOWorker;
 import jazmin.misc.io.NetworkTrafficStat;
 import jazmin.server.console.ConsoleServer;
+import jazmin.server.im.mobile.MobileDecoder;
+import jazmin.server.im.mobile.MobileEncoder;
 import jazmin.server.msg.codec.ResponseMessage;
 
 /**
@@ -48,17 +53,19 @@ public class IMMessageServer extends Server{
 	static final int DEFAULT_MAX_CHANNEL_COUNT=1000;
 	//
 	ServerBootstrap nettyServer;
+	ServerBootstrap webSocketNettyServer;
 	EventLoopGroup bossGroup;
 	EventLoopGroup workerGroup;
 	ChannelInitializer<SocketChannel> channelInitializer;
 	int port;
+	int websocketPort;
 	int idleTime;
 	int maxSessionCount;
 	int maxChannelCount;
 	int maxSessionRequestCountPerSecond;
 	NetworkTrafficStat networkTrafficStat;
 	//
-	Map<Integer,IMServiceStub>serviceMap;
+	Map<String,IMServiceStub>serviceMap;
 	//
 	Map<Integer,IMSession>sessionMap;
 	Map<String,IMSession>principalMap;
@@ -69,10 +76,11 @@ public class IMMessageServer extends Server{
 	Method sessionDisconnectedMethod;
 	//
 	IMServiceFilter serviceFilter;
+	boolean enableMobile;
 	//
 	public IMMessageServer() {
 		super();
-		serviceMap=new ConcurrentHashMap<Integer, IMServiceStub>();
+		serviceMap=new ConcurrentHashMap<String, IMServiceStub>();
 		sessionMap=new ConcurrentHashMap<>();
 		principalMap=new ConcurrentHashMap<>();
 		channelMap=new ConcurrentHashMap<>();
@@ -91,6 +99,21 @@ public class IMMessageServer extends Server{
 				"sessionDisconnected",IMSession.class);
 		maxSessionRequestCountPerSecond=10;
 	}
+	
+	/**
+	 * @return the enableMobile
+	 */
+	public boolean isEnableMobile() {
+		return enableMobile;
+	}
+
+	/**
+	 * @param enableMobile the enableMobile to set
+	 */
+	public void setEnableMobile(boolean enableMobile) {
+		this.enableMobile = enableMobile;
+	}
+
 	/**
 	 * @return the port
 	 */
@@ -98,6 +121,20 @@ public class IMMessageServer extends Server{
 		return port;
 	}
 	
+	/**
+	 * @return the websocketPort
+	 */
+	public int getWebsocketPort() {
+		return websocketPort;
+	}
+
+	/**
+	 * @param websocketPort the websocketPort to set
+	 */
+	public void setWebsocketPort(int websocketPort) {
+		this.websocketPort = websocketPort;
+	}
+
 	/**
 	 * @param port the port to set
 	 */
@@ -168,8 +205,8 @@ public class IMMessageServer extends Server{
 		}
 	}
 	//
-	public List<Integer>getServiceNames(){
-		return new ArrayList<Integer>(serviceMap.keySet());
+	public List<String>getServiceNames(){
+		return new ArrayList<String>(serviceMap.keySet());
 	}
 	//
 	List<IMServiceStub>getServices(){
@@ -250,10 +287,46 @@ public class IMMessageServer extends Server{
 						new IMMessageServerHandler(IMMessageServer.this));
 		}
 	}
+	class MobileMessageServerChannelInitializer extends ChannelInitializer<SocketChannel>{
+		@Override
+		protected void initChannel(SocketChannel ch) throws Exception {
+			ch.pipeline().addLast("idleStateHandler",new IdleStateHandler(idleTime,idleTime,0));
+				ch.pipeline().addLast(
+						new MobileEncoder(networkTrafficStat),
+						new MobileDecoder(networkTrafficStat),
+						new IMMessageServerHandler(IMMessageServer.this));
+		}
+	}
+	//
+	private void initWsNettyServer(){
+		webSocketNettyServer=new ServerBootstrap();
+		channelInitializer=new WSMessageServerChannelInitializer();
+		webSocketNettyServer.group(bossGroup, workerGroup)
+		.channel(NioServerSocketChannel.class)
+		.option(ChannelOption.SO_BACKLOG, 128)    
+		.option(ChannelOption.SO_REUSEADDR, true)    
+		.childOption(ChannelOption.TCP_NODELAY, true)
+        .childOption(ChannelOption.SO_KEEPALIVE, true) 
+		.childHandler(channelInitializer);
+	}
+	class WSMessageServerChannelInitializer extends ChannelInitializer<SocketChannel>{
+		@Override
+		protected void initChannel(SocketChannel ch) throws Exception {
+			ch.pipeline().addLast("idleStateHandler",new IdleStateHandler(idleTime,idleTime,0));
+			ch.pipeline().addLast(new HttpServerCodec());
+			ch.pipeline().addLast(new HttpObjectAggregator(65536));
+			ch.pipeline().addLast(new WebSocketServerCompressionHandler());
+			ch.pipeline().addLast(new IMWebSocketServerHandler(IMMessageServer.this));
+		}
+	}
 	//
 	protected void initNettyServer(){
 		nettyServer=new ServerBootstrap();
-		channelInitializer=new MessageServerChannelInitializer();
+		if(enableMobile){
+			channelInitializer=new MobileMessageServerChannelInitializer();
+		}else{
+			channelInitializer=new MessageServerChannelInitializer();	
+		}
 		IOWorker worker=new IOWorker("MsgServerIO",Runtime.getRuntime().availableProcessors()*2+1);
 		bossGroup = new NioEventLoopGroup(1,worker);
 		workerGroup = new NioEventLoopGroup(0,worker);
@@ -305,13 +378,18 @@ public class IMMessageServer extends Server{
 					"service:"+serviceAnno.id()+" already exists.");
 			}
 			IMServiceStub ss=new IMServiceStub();
-			ss.serviceId=serviceAnno.id();
+			if(serviceAnno.id()!=0){
+				ss.serviceId=serviceAnno.id()+"";	
+			}else{
+				ss.isMobile=true;
+				ss.serviceId=serviceAnno.mobileId();
+			}
 			ss.isSyncOnSessionService=serviceAnno.syncOnSession();
 			ss.isRestrictRequestRate=serviceAnno.restrictRequestRate();
 			ss.isContinuationService=serviceAnno.continuation();
 			ss.instance=instance;
 			ss.method=m;
-			serviceMap.put(serviceAnno.id(), ss);
+			serviceMap.put(ss.serviceId, ss);
 		}
 	}
 	//
@@ -321,7 +399,8 @@ public class IMMessageServer extends Server{
 		session.lastAccess();
 		session.receivedMessage(message);
 		//4.get service 
-		IMServiceStub ss=serviceMap.get(message.serviceId);
+		String srvid=message.serviceId==0?message.mobileId:message.serviceId+"";
+		IMServiceStub ss=serviceMap.get(srvid);
 		if(ss==null){
 			session.sendError(
 					message,ResponseMessage.SC_BAD_MESSAGE,
@@ -368,8 +447,9 @@ public class IMMessageServer extends Server{
 		callback.session=session;
 		callback.requestMessage=message;
 		callback.serviceFilter=serviceFilter;
+		String srvId=message.serviceId==0?message.mobileId:message.serviceId+"";
 		Jazmin.dispatcher.invokeInPool(
-				"@"+session.principal+"#"+message.serviceId,
+				"@"+session.principal+"#"+srvId,
 				stub.instance,
 				stub.method, 
 				callback,parameters);
@@ -420,7 +500,9 @@ public class IMMessageServer extends Server{
 	void receiveMessage(IMSession session,IMRequestMessage message){
 		IMServiceStub ss=checkMessage(session, message);
 		if(ss==null){
-			logger.warn("can not execute service stub:0x{}",Integer.toHexString(message.serviceId));
+			logger.warn("can not execute service stub:0x{} {}",
+					Integer.toHexString(message.serviceId),
+					message.mobileId);
 			return;
 		}
 		invokeService(session, ss, message);
@@ -622,6 +704,9 @@ public class IMMessageServer extends Server{
 	@Override
 	public void init() throws Exception {
 		initNettyServer();
+		if(websocketPort>0){
+			initWsNettyServer();
+		}
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
 			cs.registerCommand(IMMessageServerCommand.class);
@@ -631,6 +716,9 @@ public class IMMessageServer extends Server{
 	@Override
 	public void start() throws Exception {
 		nettyServer.bind(port).sync();
+		if(websocketPort>0){
+			webSocketNettyServer.bind(websocketPort).sync();
+		}
 		startSessionChecker();
 	}
 	//
@@ -649,6 +737,7 @@ public class IMMessageServer extends Server{
 		.section("info")
 		.format("%-50s:%-30s\n")
 		.print("port", port)
+		.print("websocketPort", websocketPort)
 		.print("idleTime", idleTime+" seconds")
 		.print("maxSessionCount", maxSessionCount)
 		.print("maxChannelCount", maxChannelCount)
@@ -658,7 +747,7 @@ public class IMMessageServer extends Server{
 		List<IMServiceStub>ss=new ArrayList<IMServiceStub>(serviceMap.values());
 		Collections.sort(ss);
 		ss.forEach((stub)->{
-			ib.print("0x"+Integer.toHexString(stub.serviceId), stub);
+			ib.print(stub.serviceId, stub);
 		});			
 		return ib.toString();
 	}
