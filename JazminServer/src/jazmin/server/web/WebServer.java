@@ -2,7 +2,6 @@ package jazmin.server.web;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.Servlet;
@@ -17,7 +16,6 @@ import jazmin.misc.InfoBuilder;
 import jazmin.server.console.ConsoleServer;
 import jazmin.server.web.mvc.ControllerStub;
 import jazmin.server.web.mvc.DispatchServlet;
-import jazmin.server.web.mvc.MethodStub;
 import jazmin.util.FileUtil;
 
 import org.eclipse.jetty.jmx.MBeanContainer;
@@ -393,11 +391,11 @@ public class WebServer extends jazmin.core.Server{
 		}
 		//
 		List<ControllerStub>csList=DispatchServlet.dispatcher.controllerStubs();
-		List<MethodStub>msList=new ArrayList<MethodStub>();
-		csList.forEach(cs->msList.addAll(cs.methodStubs()));
-		Collections.sort(msList);
-		ib.section("services");
-		msList.forEach(ib::println);
+		ib.section("controllers");
+		for(ControllerStub cs:csList){
+			ib.println(cs);
+			cs.methodStubs().forEach(ib::println);
+		}
 		//
 		return ib.toString();
 	}

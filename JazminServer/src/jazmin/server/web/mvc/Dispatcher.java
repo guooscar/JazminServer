@@ -3,6 +3,7 @@
  */
 package jazmin.server.web.mvc;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +26,8 @@ public class Dispatcher {
 	//
 	private Map<String,ControllerStub>controllerMap;
 	private ControllerStub indexController;
-	private WebDispatchCallback webDispatchCallback;
 	public Dispatcher() {
 		controllerMap=new ConcurrentHashMap<String, ControllerStub>();
-		webDispatchCallback=new WebDispatchCallback();
 	}
 	/**
 	 * 
@@ -109,17 +108,68 @@ public class Dispatcher {
 				return ctx;				
 			}
 		}
+		if(!callBeforeMethod(controllerStub, ctx)){
+			return ctx;
+		}
 		//
+		WebDispatchCallback callback=new WebDispatchCallback();
+		callback.controllerStub=controllerStub;
 		Jazmin.dispatcher.invokeInCaller("", 
 				controllerStub.instance,
 				methodStub.invokeMethod,
-				webDispatchCallback,
+				callback,
 				ctx);
 		//
 		return ctx;
 	}
 	//
+	private static boolean callBeforeMethod(ControllerStub controllerStub,Context ctx){
+		if(controllerStub.beforeMethod!=null){
+			
+			Throwable realException=null;
+			boolean ret=false;
+			try {
+				ret=(boolean) controllerStub.beforeMethod.invoke(
+						controllerStub.instance,ctx);
+			} catch (IllegalAccessException e) {
+				realException=e;
+			} catch (IllegalArgumentException e) {
+				realException=e;
+			} catch (InvocationTargetException e) {
+				realException=e.getTargetException();
+			}finally{
+				if(logger.isDebugEnabled()){
+					logger.debug("call before method:{}#{} ret:{}",
+							controllerStub.id,
+							controllerStub.beforeMethod.getName(),
+							ret);
+				}
+			}
+			ctx.exception=realException;
+			return ret;
+		}
+		return true;
+	}
+	//
+	private static void callAfterMethod(ControllerStub controllerStub,Context ctx,Throwable e){
+		if(controllerStub.afterMethod!=null){
+			if(logger.isDebugEnabled()){
+				logger.debug("call after method:{}#{}",
+						controllerStub.id,
+						controllerStub.afterMethod.getName());
+			}
+			try {
+				controllerStub.afterMethod.invoke(controllerStub.instance,ctx,e);
+			} catch (InvocationTargetException ee) {
+				logger.catching(ee.getTargetException());
+			} catch (Exception e1) {
+				logger.catching(e1);
+			} 
+		}
+	}
+	//
 	static class WebDispatchCallback extends DispatcherCallbackAdapter{
+		ControllerStub controllerStub;
 		@Override
 		public void end(
 				Object instance,
@@ -128,6 +178,7 @@ public class Dispatcher {
 				Object ret, Throwable e) {
 			Context ctx=(Context) args[0];
 			ctx.exception=e;
+			callAfterMethod(controllerStub, ctx, e);
 		}
 	}
 	//--------------------------------------------------------------------------

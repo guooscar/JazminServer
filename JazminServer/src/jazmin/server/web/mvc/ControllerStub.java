@@ -17,6 +17,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ControllerStub implements Comparable<ControllerStub>{
 	Map<String,MethodStub>methodStubs;
 	MethodStub indexMethod;
+	Method beforeMethod;
+	Method afterMethod;
+	
 	Object instance;
 	String id;
 	
@@ -29,39 +32,81 @@ public class ControllerStub implements Comparable<ControllerStub>{
 		return methodStubs.get(id);
 	}
 	//
+	void addServiceMethod(Service srv,Method m){
+		if(!Modifier.isPublic(m.getModifiers())){
+			throw new IllegalArgumentException("service method:"
+					+m.getName()+" must be public");
+		}
+		//
+		if(m.getParameterTypes().length!=1||
+				!m.getParameterTypes()[0].equals(Context.class)){
+			throw new IllegalArgumentException("parameter must be Context.");		
+		}
+		if(srv.id()==null){
+			throw new IllegalArgumentException("service id can not be null.");	
+		}
+		MethodStub ms=new MethodStub();
+		ms.controllerId=id;
+		ms.id=srv.id();
+		ms.queryCount=srv.queryCount();
+		ms.method=srv.method().toString();
+		ms.invokeMethod=m;
+		if(methodStubs.containsKey(srv.id())){
+			throw new IllegalArgumentException("service :"+srv.id()+" already exists");
+		}
+		methodStubs.put(srv.id(),ms);
+		//
+		if(srv.index()){
+			indexMethod=ms;
+		}
+	}
+	//
+	void addBeforeServiceMethod(BeforeService srv,Method m){
+		if(!Modifier.isPublic(m.getModifiers())){
+			throw new IllegalArgumentException("brfore service method:"
+					+m.getName()+" must be public");
+		}
+		//
+		if(m.getParameterTypes().length!=1||
+				!m.getParameterTypes()[0].equals(Context.class)){
+			throw new IllegalArgumentException("parameter must be Context.");		
+		}
+		if(!m.getReturnType().equals(Boolean.class)&&
+				!m.getReturnType().equals(boolean.class)){
+			throw new IllegalArgumentException("return type must be boolean");		
+		}
+		beforeMethod=m;
+	}
+	//
+	void addAfterServiceMethod(AfterService srv,Method m){
+		if(!Modifier.isPublic(m.getModifiers())){
+			throw new IllegalArgumentException("after service method:"
+					+m.getName()+" must be public");
+		}
+		//
+		if(m.getParameterTypes().length!=2||
+				!(m.getParameterTypes()[0].equals(Context.class)&&
+						m.getParameterTypes()[1].equals(Throwable.class))){
+			throw new IllegalArgumentException("parameter must be (Context,Throwable)");		
+		}
+		afterMethod=m;
+	}
+	//
 	void setInstance(Object instance){
 		this.instance=instance;
 		//
-		for(Method m:instance.getClass().getDeclaredMethods()){
+		for(Method m:instance.getClass().getMethods()){
 			Service srv=m.getDeclaredAnnotation(Service.class);
-			if(srv==null){
-				continue;
+			if(srv!=null){
+				addServiceMethod(srv, m);
 			}
-			if(!Modifier.isPublic(m.getModifiers())){
-				throw new IllegalArgumentException("service method:"
-						+m.getName()+" must be public");
+			BeforeService beforeSrv=m.getDeclaredAnnotation(BeforeService.class);
+			if(beforeSrv!=null){
+				addBeforeServiceMethod(beforeSrv, m);
 			}
-			//
-			if(m.getParameterTypes().length<1||
-					!m.getParameterTypes()[0].equals(Context.class)){
-				throw new IllegalArgumentException("parameter must be Context.");		
-			}
-			if(srv.id()==null){
-				throw new IllegalArgumentException("service id can not be null.");	
-			}
-			MethodStub ms=new MethodStub();
-			ms.controllerId=id;
-			ms.id=srv.id();
-			ms.queryCount=srv.queryCount();
-			ms.method=srv.method().toString();
-			ms.invokeMethod=m;
-			if(methodStubs.containsKey(srv.id())){
-				throw new IllegalArgumentException("service :"+srv.id()+" already exists");
-			}
-			methodStubs.put(srv.id(),ms);
-			//
-			if(srv.index()){
-				indexMethod=ms;
+			AfterService afterService=m.getDeclaredAnnotation(AfterService.class);
+			if(afterService!=null){
+				addAfterServiceMethod(afterService, m);
 			}
 		}
 	}
@@ -76,6 +121,8 @@ public class ControllerStub implements Comparable<ControllerStub>{
 	//
 	@Override
 	public String toString() {
-		return id;
+		String before=beforeMethod==null?"null":beforeMethod.getName();
+		String after=afterMethod==null?"null":afterMethod.getName();
+		return "["+id+"] before:"+before+"/"+"after:"+after;
 	}
 }

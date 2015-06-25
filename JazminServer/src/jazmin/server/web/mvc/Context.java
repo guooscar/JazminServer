@@ -46,33 +46,80 @@ public class Context {
 		return response;
 	}
 	//
-	public Boolean  getBoolean(String key){
+	private String getRequired(String key,boolean required){
 		String ss=request.queryParams(key);
-		return ss==null?null:Boolean.valueOf(ss);
-	}
-	public String  getString(String key){	
-		String ss=request.queryParams(key);
+		if(required&&ss==null){
+			throw new IllegalArgumentException("key:"+key+" required");
+		}
 		return ss;
 	}
-	public Long  getLong(String key){
-		String ss=request.queryParams(key);
+	//
+	public Boolean getBoolean(String key,boolean required){
+		String ss=getRequired(key, required);
+		return ss==null?null:Boolean.valueOf(ss);
+	}
+	//
+	public Boolean  getBoolean(String key){
+		return getBoolean(key, false);
+	}
+	//
+	public String getString(String key,boolean required){	
+		String ss=getRequired(key, required);
+		return ss;
+	}
+	//
+	public String getString(String key){	
+		return getString(key,false);
+	}
+	//
+	public Long  getLong(String key,boolean required){
+		String ss=getRequired(key, required);
 		return ss==null?null:Long.valueOf(ss);
 	}
-	public Integer  getInteger(String key){
-		String ss=request.queryParams(key);
+	//
+	public Long  getLong(String key){
+		return getLong(key,false);
+	}
+	//
+	public Integer  getInteger(String key,boolean required){
+		String ss=getRequired(key, required);
 		return ss==null?null:Integer.valueOf(ss);
 	}
-	public Short  getShort(String key){
-		String ss=request.queryParams(key);
+	//
+	public Integer  getInteger(String key){
+		return getInteger(key,false);
+	}
+	//
+	public Short  getShort(String key,boolean required){
+		String ss=getRequired(key, required);
 		return ss==null?null:Short.valueOf(ss);
 	}
-	public Float  getFloat(String key){
-		String ss=request.queryParams(key);
+	//
+	public Short  getShort(String key){
+		return getShort(key,false);
+	}
+	//
+	//
+	public Float  getFloat(String key,boolean required){
+		String ss=getRequired(key, required);
 		return ss==null?null:Float.valueOf(ss);
 	}
-	public Double  getDouble(String key){
-		String ss=request.queryParams(key);
+	//
+	public Float  getFloat(String key){
+		return getFloat(key,false);
+	}
+	//
+	public Double  getDouble(String key,boolean required){
+		String ss=getRequired(key, required);
 		return ss==null?null:Double.valueOf(ss);
+	}
+	//
+	public Double  getDouble(String key){
+		return getDouble(key,false);
+	}
+	//
+	public void clearException(){
+		exception=null;
 	}
 	//
 	@Override
