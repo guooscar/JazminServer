@@ -118,7 +118,7 @@ public class RpcServer extends Server{
 				continue;
 			}
 			//
-			String methodName=implClass.getSimpleName()+"."+m.getName();
+			String methodName=instanceName+"."+m.getName();
 			if(methodMap.containsKey(methodName)){
 				throw new IllegalArgumentException("method:"+methodName
 						+" already exists.");
