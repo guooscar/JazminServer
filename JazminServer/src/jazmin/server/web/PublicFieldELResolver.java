@@ -4,15 +4,15 @@ import java.beans.FeatureDescriptor;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 
+import javax.el.BeanELResolver;
 import javax.el.ELContext;
-import javax.el.ELResolver;
 import javax.el.PropertyNotFoundException;
 /**
  * 
  * @author yama
  * 24 Jan, 2015
  */
-public class PublicFieldELResolver extends ELResolver {
+public class PublicFieldELResolver extends BeanELResolver {
 	@Override
 	public Class<?> getCommonPropertyType(ELContext context, Object base) {
 		return null;
@@ -40,11 +40,14 @@ public class PublicFieldELResolver extends ELResolver {
 			Object value = field.get(base);
 			context.setPropertyResolved(true);
 			return value;
-		} catch (Exception e) {
+		} catch (NoSuchFieldException e) {
+			return super.getValue(context,base, property);
+		}catch (Exception e) {
 			throw new PropertyNotFoundException(e);
 		}
 	}
-
+	
+	//
 	@Override
 	public boolean isReadOnly(ELContext context, Object base, Object property) {
 		return false;
@@ -61,7 +64,9 @@ public class PublicFieldELResolver extends ELResolver {
 			field.setAccessible(true);
 			field.set(base, value);
 			context.setPropertyResolved(true);
-		} catch (Exception e) {
+		} catch (NoSuchFieldException e) {
+			 super.setValue(context,base, property,value);
+		}catch (Exception e) {
 			throw new PropertyNotFoundException(e);
 		}
 	}
