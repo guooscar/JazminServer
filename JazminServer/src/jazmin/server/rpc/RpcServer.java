@@ -91,7 +91,15 @@ public class RpcServer extends Server{
 	 * @param instance the remote service instance
 	 */
 	public void registerService(Object instance){
-		Class<?>interfaceClass=instance.getClass();
+		Class<?>implClass=instance.getClass();
+		Class<?>[]interfaces=instance.getClass().getInterfaces();
+		if(interfaces.length!=1){
+			throw new IllegalArgumentException(implClass+
+					" should have one remote interface");
+		}
+		//
+		Class<?>interfaceClass=interfaces[0];
+		//
 		String instanceName=interfaceClass.getSimpleName();
 		if(instanceMap.containsKey(instanceName)){
 			throw new IllegalArgumentException("instance:"+instanceName
@@ -101,7 +109,7 @@ public class RpcServer extends Server{
 		instanceMap.put(instanceName, instance);
 		//
 		//
-		for(Method m:interfaceClass.getDeclaredMethods()){
+		for(Method m:implClass.getDeclaredMethods()){
 			//Transaction annotation add on impl class so we should use implClass
 			if(!Modifier.isPublic(m.getModifiers())){
 				continue;
@@ -110,7 +118,7 @@ public class RpcServer extends Server{
 				continue;
 			}
 			//
-			String methodName=interfaceClass.getSimpleName()+"."+m.getName();
+			String methodName=implClass.getSimpleName()+"."+m.getName();
 			if(methodMap.containsKey(methodName)){
 				throw new IllegalArgumentException("method:"+methodName
 						+" already exists.");
