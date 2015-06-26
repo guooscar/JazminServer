@@ -30,7 +30,6 @@ import jazmin.server.console.ConsoleServer;
 import jazmin.server.rpc.RpcClient;
 import jazmin.server.rpc.RpcMessage;
 import jazmin.server.rpc.RpcSession;
-import jazmin.server.rpc.RemoteService;
 
 /**
  * use JazminRPCDriver to connect to JazminRPCServer 
@@ -345,10 +344,6 @@ public class JazminRpcDriver extends Driver{
 	 * @return the proxy object
 	 */
 	public <T> T create(Class<T>clazz,String clusterName){
-		if(!RemoteService.class.isAssignableFrom(clazz)){
-			throw new IllegalArgumentException(clazz+" must be subclass of "+
-					RemoteService.class);
-		}
 		return create0(clazz, clusterName, syncProxyMap,syncHandlerMap,false);
 	}
 	//

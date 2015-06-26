@@ -4,13 +4,12 @@
 package jazmin.example.rpc;
 
 import jazmin.driver.rpc.AsyncCallback;
-import jazmin.server.rpc.RemoteService;
 
 /**
  * @author yama
  *
  */
-public interface DemoRpcService extends RemoteService{
+public interface DemoRpcService{
 	String echo(String input);
 	//
 	//--------------------------------------------------------------------------

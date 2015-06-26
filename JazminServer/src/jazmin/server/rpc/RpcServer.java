@@ -13,6 +13,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -89,14 +90,8 @@ public class RpcServer extends Server{
 	 * remote service
 	 * @param instance the remote service instance
 	 */
-	public void registerService(RemoteService instance){
-		Class<?>interfaceClass=null;
-		for(Class<?>cc:instance.getClass().getInterfaces()){
-			if(RemoteService.class.isAssignableFrom(cc)){
-				//interface is subclass of RemoteService
-				interfaceClass=cc;
-			}
-		}
+	public void registerService(Object instance){
+		Class<?>interfaceClass=instance.getClass();
 		String instanceName=interfaceClass.getSimpleName();
 		if(instanceMap.containsKey(instanceName)){
 			throw new IllegalArgumentException("instance:"+instanceName
@@ -108,6 +103,12 @@ public class RpcServer extends Server{
 		//
 		for(Method m:interfaceClass.getDeclaredMethods()){
 			//Transaction annotation add on impl class so we should use implClass
+			if(!Modifier.isPublic(m.getModifiers())){
+				continue;
+			}
+			if(Modifier.isStatic(m.getModifiers())){
+				continue;
+			}
 			//
 			String methodName=interfaceClass.getSimpleName()+"."+m.getName();
 			if(methodMap.containsKey(methodName)){
