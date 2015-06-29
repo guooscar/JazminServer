@@ -15,7 +15,7 @@ public class JdbcConnectionDriver extends ConnectionDriver{
 	private String user;
 	private String password;
 	private String url;
-	private String driver;
+	private String driverClass;
 	//
 	public JdbcConnectionDriver() {
 	}
@@ -39,18 +39,18 @@ public class JdbcConnectionDriver extends ConnectionDriver{
 	/**
 	
 	 * @return the driver */
-	public String getDriver() {
-		return driver;
+	public String getDriverClass() {
+		return driverClass;
 	}
 
 	/**
 	 * @param driver the driver to set
 	 */
-	public void setDriver(String driver) {
+	public void setDriverClass(String driver) {
 		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
-		this.driver = driver;
+		this.driverClass = driver;
 	}
 	/**
 	
@@ -98,10 +98,10 @@ public class JdbcConnectionDriver extends ConnectionDriver{
 	@Override
 	public void init()throws Exception {
 		super.init();
-		if(driver==null){
-			throw new IllegalArgumentException("driver can not be null.");
+		if(driverClass==null){
+			throw new IllegalArgumentException("driverClass can not be null.");
 		}
-		Class.forName(driver);	
+		Class.forName(driverClass);	
 	}
 	//
 	@Override
@@ -109,7 +109,7 @@ public class JdbcConnectionDriver extends ConnectionDriver{
 		return InfoBuilder.create().format("%-30s:%-30s\n")
 				.print("Url",getUrl())
 				.print("User",getUser())
-				.print("Driver",getDriver())
+				.print("Driver",getDriverClass())
 				.toString();
 	}
 	//
