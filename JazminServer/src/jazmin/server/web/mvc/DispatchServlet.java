@@ -12,15 +12,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
+
 /**
  * @author yama
  * 29 Dec, 2014
  */
+@SuppressWarnings("serial")
 public class DispatchServlet extends HttpServlet{
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+	private static Logger logger=LoggerFactory.get(DispatchServlet.class);
 	//
 	public static Dispatcher dispatcher=new Dispatcher();
 	//
@@ -35,20 +36,28 @@ public class DispatchServlet extends HttpServlet{
 		Context ctx=dispatcher.invokeService(request, response);
 		//
 		if(ctx.errorCode!=0){
-			//404
+			if(logger.isDebugEnabled()){
+				logger.debug("send error code {}",ctx.errorCode);
+			}
 			hsp.sendError(ctx.errorCode);
 			return;
 		}
 		if(ctx.exception!=null){
-			hsp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			return;
+			if(logger.isDebugEnabled()){
+				logger.catching(ctx.exception);
+			}
+			throw new ServletException(ctx.exception);
 		}
 		//
 		if(ctx.view==null){
+			logger.warn("can not find view class");
 			hsp.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;	
 		}else{
 			try {
+				if(logger.isDebugEnabled()){
+					logger.debug("render view {}",ctx.view.getClass());
+				}
 				ctx.view.render(ctx);
 			} catch (Exception e) {
 				throw new ServletException(e);

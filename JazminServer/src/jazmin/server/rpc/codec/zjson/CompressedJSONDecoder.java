@@ -7,6 +7,8 @@ import io.netty.handler.codec.CorruptedFrameException;
 
 import java.util.List;
 
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
 import jazmin.misc.io.NetworkTrafficStat;
 import jazmin.server.rpc.RpcMessage;
 import jazmin.util.IOUtil;
@@ -19,6 +21,7 @@ import com.alibaba.fastjson.JSON;
  */
 public class CompressedJSONDecoder extends ByteToMessageDecoder {
 	private static final int MAX_MESSAGE_LENGTH = 1024 * 1024*10;
+	private static Logger logger=LoggerFactory.get(CompressedJSONDecoder.class);
 	//
 	NetworkTrafficStat networkTrafficStat;
 	public CompressedJSONDecoder(NetworkTrafficStat networkTrafficStat) {
@@ -39,6 +42,8 @@ public class CompressedJSONDecoder extends ByteToMessageDecoder {
 		int dataLength = in.readInt();
 		if (dataLength > MAX_MESSAGE_LENGTH) {
 			in.resetReaderIndex();
+			logger.fatal("message too long" + dataLength
+					+ "/" + MAX_MESSAGE_LENGTH);
 			throw new CorruptedFrameException("message too long" + dataLength
 					+ "/" + MAX_MESSAGE_LENGTH);
 		}
