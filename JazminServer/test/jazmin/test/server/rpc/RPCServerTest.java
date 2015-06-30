@@ -15,7 +15,7 @@ import jazmin.server.rpc.RpcServer;
 public class RPCServerTest {
 	//
 	public static void main(String[] args) throws Exception{
-		LoggerFactory.setLevel("WARN");
+		LoggerFactory.setLevel("ALL");
 		RpcServer rpcServer=new RpcServer();
 		rpcServer.setCredential("123");
 		Jazmin.addServer(rpcServer);

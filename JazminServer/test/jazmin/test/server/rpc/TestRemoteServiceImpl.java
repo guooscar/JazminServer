@@ -20,8 +20,8 @@ public class TestRemoteServiceImpl implements TestRemoteService{
 	}
 	//
 	@Override
-	public String methodA() {
-		return "12212121";
+	public String methodA(String input) {
+		return input;
 	}
 	//
 	@Override

@@ -9,6 +9,6 @@ package jazmin.test.server.rpc;
  * 25 Dec, 2014
  */
 public interface TestRemoteService {
-	String methodA();
+	String methodA(String input);
 	void timeoutMethod();
 }

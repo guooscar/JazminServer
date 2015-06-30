@@ -3,7 +3,7 @@ package jazmin.server.rpc.codec.zjson;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import io.netty.handler.codec.CorruptedFrameException;
+import io.netty.handler.codec.DecoderException;
 
 import java.util.List;
 
@@ -42,9 +42,9 @@ public class CompressedJSONDecoder extends ByteToMessageDecoder {
 		int dataLength = in.readInt();
 		if (dataLength > MAX_MESSAGE_LENGTH) {
 			in.resetReaderIndex();
-			logger.fatal("message too long" + dataLength
+			logger.error("message too long" + dataLength
 					+ "/" + MAX_MESSAGE_LENGTH);
-			throw new CorruptedFrameException("message too long" + dataLength
+			throw new DecoderException("message too long " + dataLength
 					+ "/" + MAX_MESSAGE_LENGTH);
 		}
 		if (in.readableBytes() < dataLength) {

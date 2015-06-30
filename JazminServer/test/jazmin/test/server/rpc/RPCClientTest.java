@@ -18,6 +18,10 @@ public class RPCClientTest {
 		driver.addRemoteServer("1","1", "localhost", 6001);
 		Jazmin.addDriver(driver);
 		Jazmin.start();
-		driver.create(TestRemoteService.class,"1").timeoutMethod();
+		StringBuilder sb=new StringBuilder();
+		for(int i=0;i<1024*1024*10;i++){
+			sb.append(i);
+		}
+		driver.create(TestRemoteService.class,"1").methodA(sb.toString());
 	}
 }

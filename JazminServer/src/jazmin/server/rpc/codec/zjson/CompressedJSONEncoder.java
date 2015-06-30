@@ -3,7 +3,7 @@ package jazmin.server.rpc.codec.zjson;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.CorruptedFrameException;
+import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.MessageToByteEncoder;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -37,9 +37,9 @@ public class CompressedJSONEncoder extends MessageToByteEncoder<RpcMessage> {
 		payloadBytes=IOUtil.compress(payloadBytes);
 		int dataLength=payloadBytes.length;
 		if(dataLength>MAX_MESSAGE_LENGTH){
-			logger.fatal("message too long" + dataLength
+			logger.error("message too long " + dataLength
 					+ "/" + MAX_MESSAGE_LENGTH);
-			throw new CorruptedFrameException("message too long." + dataLength
+			throw new EncoderException("message too long." + dataLength
 					+ "/" + MAX_MESSAGE_LENGTH);
 		}
 		out.writeInt(dataLength);
