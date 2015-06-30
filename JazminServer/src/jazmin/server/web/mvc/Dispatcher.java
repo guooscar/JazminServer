@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import jazmin.core.Jazmin;
 import jazmin.core.thread.DispatcherCallbackAdapter;
@@ -24,10 +25,17 @@ import jazmin.log.LoggerFactory;
 public class Dispatcher {
 	private static Logger logger=LoggerFactory.get(Dispatcher.class);
 	//
+	public static class SessionObject{
+		public boolean invokeSyncSession;
+		public String syncInvokingMethod;
+	}
+	//
 	private Map<String,ControllerStub>controllerMap;
 	private ControllerStub indexController;
+	private Map<String,SessionObject>sessionObjectMap;
 	public Dispatcher() {
 		controllerMap=new ConcurrentHashMap<String, ControllerStub>();
+		sessionObjectMap=new ConcurrentHashMap<>();
 	}
 	/**
 	 * 
@@ -89,6 +97,8 @@ public class Dispatcher {
 			logger.warn("can not find service:{}",request.queryURI());
 			return ctx;		
 		}
+		
+		//
 		if(methodStub.queryCount>0){
 			if(querys.size()<methodStub.queryCount){
 				logger.warn("query count mismatch:{} {}",request.queryURI(),methodStub.queryCount);		
@@ -112,6 +122,31 @@ public class Dispatcher {
 			return ctx;
 		}
 		//
+		//sync on session
+		if(methodStub.syncOnSession){
+			if(request.session(false)!=null){
+				HttpSession session=request.session();
+				SessionObject so=sessionObjectMap.get(session.getId());
+				if(so==null){
+					so=new SessionObject();
+					so.invokeSyncSession=true;
+					so.syncInvokingMethod=methodStub.toString();
+					sessionObjectMap.put(session.getId(),so);
+				}else{
+					if(so.invokeSyncSession){
+						ctx.errorCode=HttpServletResponse.SC_NOT_ACCEPTABLE;
+						logger.warn("invoke sync method:{} uri:{}",
+								so.syncInvokingMethod,
+								request.queryURI());
+						return ctx;
+					}else{
+						so.invokeSyncSession=true;
+						so.syncInvokingMethod=methodStub.toString();
+					}
+				}
+			}	
+		}
+		//
 		WebDispatchCallback callback=new WebDispatchCallback();
 		callback.controllerStub=controllerStub;
 		Jazmin.dispatcher.invokeInCaller("", 
@@ -119,9 +154,9 @@ public class Dispatcher {
 				methodStub.invokeMethod,
 				callback,
 				ctx);
-		//
 		return ctx;
 	}
+	
 	//
 	private static boolean callBeforeMethod(ControllerStub controllerStub,Context ctx){
 		if(controllerStub.beforeMethod!=null){
@@ -151,7 +186,15 @@ public class Dispatcher {
 		return true;
 	}
 	//
-	private static void callAfterMethod(ControllerStub controllerStub,Context ctx,Throwable e){
+	public void resetSessionObject(HttpSession session){
+		if(session!=null){
+			sessionObjectMap.remove(session.getId());
+		}
+	}
+	//
+	private  void callAfterMethod(ControllerStub controllerStub,Context ctx,Throwable e){
+		resetSessionObject(ctx.request.session(false));
+		//
 		if(controllerStub.afterMethod!=null){
 			if(logger.isDebugEnabled()){
 				logger.debug("call after method:{}#{}",
@@ -168,7 +211,7 @@ public class Dispatcher {
 		}
 	}
 	//
-	static class WebDispatchCallback extends DispatcherCallbackAdapter{
+	class WebDispatchCallback extends DispatcherCallbackAdapter{
 		ControllerStub controllerStub;
 		@Override
 		public void end(

@@ -51,6 +51,7 @@ public class ControllerStub implements Comparable<ControllerStub>{
 		ms.queryCount=srv.queryCount();
 		ms.method=srv.method().toString();
 		ms.invokeMethod=m;
+		ms.syncOnSession=srv.syncOnSession();
 		if(methodStubs.containsKey(srv.id())){
 			throw new IllegalArgumentException("service :"+srv.id()+" already exists");
 		}

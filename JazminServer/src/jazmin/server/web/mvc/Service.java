@@ -25,4 +25,5 @@ public @interface Service{
 	HttpMethod method() default HttpMethod.GET;
 	boolean index() default false;
 	int queryCount() default -1;
+	boolean syncOnSession() default false;
 }

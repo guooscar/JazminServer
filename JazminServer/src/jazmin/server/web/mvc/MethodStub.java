@@ -15,6 +15,7 @@ public class MethodStub implements Comparable<MethodStub>{
 	int queryCount;
 	public String method;
 	public Method invokeMethod;
+	public boolean syncOnSession;
 	//
 	@Override
 	public int compareTo(MethodStub o) {
@@ -25,6 +26,6 @@ public class MethodStub implements Comparable<MethodStub>{
 	public String toString() {
 		return "["+controllerId+"/"+id+":"+method+"]-"+
 				invokeMethod.getDeclaringClass().getSimpleName()+
-				"."+invokeMethod.getName();
+				"."+invokeMethod.getName()+" syncOnSession:"+syncOnSession;
 	}
 }

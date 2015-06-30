@@ -24,6 +24,7 @@ public class DispatchServlet extends HttpServlet{
 	private static Logger logger=LoggerFactory.get(DispatchServlet.class);
 	//
 	public static Dispatcher dispatcher=new Dispatcher();
+
 	//
 	@Override
 	public void service(ServletRequest req, ServletResponse res)
