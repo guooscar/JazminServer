@@ -1,4 +1,6 @@
 #!/bin/sh
+INSTANCE_ID="$2"
+wget http://deploy.copezc.com:7001/srv/deploy/boot/$INSTANCE_ID -O $INSTANCE_ID
 cd `dirname $0`/..
 
 ROOT_PATH="/home/appadmin/haproxy"
@@ -7,30 +9,31 @@ ARGV="$1"
 
 start(){
     echo "start haproxy service"
-    haproxy -f $ROOT_PATH/haproxy.cfg
+    /usr/sbin/haproxy -f $ROOT_PATH/$INSTANCE_ID
 }
 
 stop(){
-    killall haproxy
-    echo "stop haproxy service"
+   killall haproxy
+   echo "stop haproxy service"
 }
 
 case $ARGV in
-    start)
-        start
-        ERROR=$?
-        ;;
-    stop)
-        stop
-        ERROR=$?
-        ;;
-    restart)
-        stop
-        start
-        ERROR=$?
-        ;;
-    *)
-        echo "hactl.sh [start|restart|stop]"
+start)
+ 	start
+	ERROR=$?
+   	;;
+stop)
+    stop
+    ERROR=$?
+    ;;
+restart)
+    stop
+   	start
+    ERROR=$?
+     ;;
+*)
+     echo "hactl [start|restart|stop]"
 esac
 
 exit $ERROR
+                                                                                                                                                                     

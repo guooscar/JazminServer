@@ -3,6 +3,8 @@
  */
 package jazmin.deploy.view.main;
 
+import jazmin.deploy.DeploySystemUI;
+
 import org.vaadin.aceeditor.AceEditor;
 import org.vaadin.aceeditor.AceMode;
 import org.vaadin.aceeditor.AceTheme;
@@ -41,7 +43,7 @@ public class CodeEditorWindow extends Window{
         setWidth("800px");
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);
-        setResizable(false);
+        setResizable(true);
         setClosable(true);
         setHeight(90.0f, Unit.PERCENTAGE);
         VerticalLayout content = new VerticalLayout();
@@ -101,6 +103,7 @@ public class CodeEditorWindow extends Window{
 			setCaption(title);
 			saveBtn.setEnabled(false);
 		}
+		DeploySystemUI.showNotificationInfo("通知","保存完成");
 	}
 	//
 	public String getValue(){
