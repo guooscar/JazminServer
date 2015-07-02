@@ -49,7 +49,7 @@ public class InstanceInfoView extends DeployBaseView{
 		searchTxt.setValue("1=1 order by priority");
 	}
 	//
-	protected void initBaseUI1(){
+	protected void initBaseUI(){
 		setSizeFull();
 		//
 		HorizontalLayout optLayout = new HorizontalLayout();
