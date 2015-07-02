@@ -14,6 +14,7 @@ import jazmin.deploy.domain.Application;
 import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.ui.BeanTable;
 import jazmin.deploy.view.instance.InputWindow;
+import jazmin.deploy.view.main.CodeEditorCallback;
 import jazmin.deploy.view.main.CodeEditorWindow;
 import jazmin.deploy.view.main.DeployBaseView;
 
@@ -54,8 +55,22 @@ public class ApplicationInfoView extends DeployBaseView{
 					"Can not found app template file");
 			return;
 		}
-		CodeEditorWindow cew=new CodeEditorWindow((value)->{
-			DeployManager.saveTemplate(appId,value);
+		//
+		CodeEditorWindow cew=new CodeEditorWindow(new CodeEditorCallback() {
+			@Override
+			public String reload() {
+				String result=DeployManager.getTemplate(appId);
+				if(result==null){
+					DeploySystemUI.showNotificationInfo("Info",
+							"Can not found app template file");
+				}
+				return result;
+			}
+			//
+			@Override
+			public void onSave(String value) {
+				DeployManager.saveTemplate(appId,value);
+			}
 		});
 		cew.setValue("Template-"+appId, result,AceMode.velocity);
 		//cew.setReadonly(true);
@@ -131,7 +146,7 @@ public class ApplicationInfoView extends DeployBaseView{
 	//
 	@Override
 	public void loadData(){
-		String search=searchTxt.getValue();
+		String search=getSearchValue();
     	if(search==null){
     		return;
     	}

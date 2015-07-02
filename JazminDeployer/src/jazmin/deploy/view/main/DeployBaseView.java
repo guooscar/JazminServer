@@ -17,6 +17,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
+
 /**
  * @author yama
  * 6 Jan, 2015
@@ -24,18 +25,18 @@ import com.vaadin.ui.themes.ValoTheme;
 @SuppressWarnings("serial")
 public abstract class DeployBaseView extends VerticalLayout{
 	protected TextField searchTxt;
-	private HorizontalLayout tray;
-	private Label titleLabel; 
+	protected HorizontalLayout tray;
+	protected Label titleLabel; 
 	//
 	public DeployBaseView() {
 		super();
-		initUI();
+		initBaseUI();
 	}
 	//
 	public abstract void loadData();
 	public abstract BeanTable<?> createTable();
 	//
-	private void initUI(){
+	protected void initBaseUI(){
 		setSizeFull();
 		//
 		HorizontalLayout optLayout = new HorizontalLayout();
@@ -97,5 +98,9 @@ public abstract class DeployBaseView extends VerticalLayout{
 		tray.setComponentAlignment(btn, Alignment.MIDDLE_LEFT);
 		btn.addClickListener(cl);
 		
+	}
+	//
+	public String getSearchValue(){
+		return (String) searchTxt.getValue();
 	}
 }

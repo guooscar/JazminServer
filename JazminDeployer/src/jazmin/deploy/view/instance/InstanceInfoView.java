@@ -8,19 +8,28 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.vaadin.aceeditor.AceMode;
-
 import jazmin.core.Jazmin;
 import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.Instance;
 import jazmin.deploy.ui.BeanTable;
 import jazmin.deploy.view.main.ActionReportWindow;
+import jazmin.deploy.view.main.CodeEditorCallback;
 import jazmin.deploy.view.main.CodeEditorWindow;
-import jazmin.deploy.view.main.CodeEditorWindow.CodeEditorCallback;
 import jazmin.deploy.view.main.DeployBaseView;
 
+import org.vaadin.aceeditor.AceMode;
+
+import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.event.ShortcutListener;
+import com.vaadin.server.FontAwesome;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -31,16 +40,72 @@ import com.vaadin.ui.themes.ValoTheme;
 @SuppressWarnings("serial")
 public class InstanceInfoView extends DeployBaseView{
 	BeanTable<Instance>table;
-	List<Instance>instances;
+	CheckBox optOnSelectCheckBox;
+	List<Instance>instanceList;
 	//
 	public InstanceInfoView() {
 		super();
 		initUI();
 		searchTxt.setValue("1=1 order by priority");
 	}
+	//
+	protected void initBaseUI1(){
+		setSizeFull();
+		//
+		HorizontalLayout optLayout = new HorizontalLayout();
+		optLayout.setSpacing(true);
+		optLayout.addStyleName(ValoTheme.WINDOW_TOP_TOOLBAR);
+		optLayout.setWidth(100.0f, Unit.PERCENTAGE);
+		searchTxt = new TextField("Filter", "");
+		searchTxt.setIcon(FontAwesome.SEARCH);
+		searchTxt.setWidth(100.0f, Unit.PERCENTAGE);
+		searchTxt.addStyleName(ValoTheme.TEXTFIELD_TINY);
+		searchTxt.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
+		searchTxt.addShortcutListener(new ShortcutListener("Search",KeyCode.ENTER,null) {
+			@Override
+			public void handleAction(Object sender, Object target) {
+				loadData();
+			}
+		});
+		//
+		optLayout.addComponent(searchTxt);
+		optLayout.setExpandRatio(searchTxt,1.0f);
+		 //
+        optOnSelectCheckBox=new CheckBox("Only Selected");
+        optLayout.addComponent(optOnSelectCheckBox);
+        optLayout.setComponentAlignment(optOnSelectCheckBox, Alignment.BOTTOM_RIGHT);
+		//
+        Button ok = new Button("Query");
+        ok.addStyleName(ValoTheme.BUTTON_PRIMARY);
+        ok.addStyleName(ValoTheme.BUTTON_SMALL);
+        optLayout.addComponent(ok);
+        ok.addClickListener(e->loadData());
+        optLayout.setComponentAlignment(ok, Alignment.BOTTOM_RIGHT);
+       
+        //
+        addComponent(optLayout);
+        
+        BeanTable<?> table = createTable();
+		addComponent(table);
+		table.setSizeFull();
+        setExpandRatio(table, 1);
+        tray = new HorizontalLayout();
+		tray.setWidth(100.0f, Unit.PERCENTAGE);
+		tray.addStyleName(ValoTheme.WINDOW_BOTTOM_TOOLBAR);
+		tray.setSpacing(true);
+		tray.setMargin(true);
+		//
+		Label emptyLabel=new Label("");
+		tray.addComponent(emptyLabel);
+		tray.setComponentAlignment(emptyLabel, Alignment.MIDDLE_RIGHT);
+		tray.setExpandRatio(emptyLabel,1.0f);
+		//
+		addComponent(tray);
+	}
+	//
 	@Override
 	public BeanTable<?> createTable() {
-		instances=new ArrayList<Instance>();
+		instanceList=new ArrayList<Instance>();
 		table= new BeanTable<Instance>(null, Instance.class,
 				"machine","user","password","application","properties");
 		table.setCellStyleGenerator(new Table.CellStyleGenerator() {
@@ -58,22 +123,23 @@ public class InstanceInfoView extends DeployBaseView{
 				}
 			}
 		});
+		table.setMultiSelect(true);
 		return table;
 	}
 	//
 	private void initUI(){
-		addOptButton("View Detail",null, (e)->viewDetail());
-		addOptButton("View BootFile",null, (e)->viewBootFile());
-		addOptButton("View TailLog",null, (e)->viewTailLog());
-		addOptButton("View Report",null, (e)->viewActionReport());
-		addOptButton("Test Instances",null, (e)->testInstance());
+		addOptButton("Detail",null, (e)->viewDetail());
+		addOptButton("BootFile",null, (e)->viewBootFile());
+		addOptButton("TailLog",null, (e)->viewTailLog());
+		addOptButton("Report",null, (e)->viewActionReport());
+		addOptButton("Test",null, (e)->testInstance());
 		//
-		addOptButton("Set Version",ValoTheme.BUTTON_PRIMARY, (e)->setPackageVersion());
+		addOptButton("SetVer",ValoTheme.BUTTON_PRIMARY, (e)->setPackageVersion());
 		//
-		addOptButton("Create Instances",ValoTheme.BUTTON_DANGER, (e)->createInstance());
-		addOptButton("Start Instances",ValoTheme.BUTTON_DANGER, (e)->startInstance());
-		addOptButton("Stop Instances",ValoTheme.BUTTON_DANGER, (e)->stopInstance());
-		addOptButton("Restart Instances",ValoTheme.BUTTON_DANGER, (e)->restartInstance());
+		addOptButton("Create",ValoTheme.BUTTON_DANGER, (e)->createInstance());
+		addOptButton("Start",ValoTheme.BUTTON_DANGER, (e)->startInstance());
+		addOptButton("Stop",ValoTheme.BUTTON_DANGER, (e)->stopInstance());
+		addOptButton("Restart",ValoTheme.BUTTON_DANGER, (e)->restartInstance());
 	}
 	//
 	private void viewDetail(){
@@ -100,7 +166,17 @@ public class InstanceInfoView extends DeployBaseView{
 						"Can not found instance boot file");
 				return;
 			}
-			CodeEditorWindow cew=new CodeEditorWindow(null);
+			CodeEditorWindow cew=new CodeEditorWindow(new CodeEditorCallback() {
+				@Override
+				public String reload() {
+					String result=DeployManager.renderTemplate(instance.id);
+					return result;
+				}
+				@Override
+				public void onSave(String value) {
+					
+				}
+			});
 			cew.setValue("BootFile-"+instance.id, result,AceMode.javascript);
 			cew.setReadonly(true);
 			UI.getCurrent().addWindow(cew);
@@ -129,20 +205,28 @@ public class InstanceInfoView extends DeployBaseView{
 	//
 	@Override
 	public void loadData(){
-		String search=searchTxt.getValue();
+		String search=getSearchValue();
     	if(search==null){
     		return;
     	}
     	try {
-			instances=DeployManager.getInstances(search);
-			if(instances.isEmpty()){
+			instanceList=DeployManager.getInstances(search);
+			if(instanceList.isEmpty()){
 				DeploySystemUI.showNotificationInfo("Result","No mactch result found.");		
 			}
-		 	table.setData(instances);
+		 	table.setData(instanceList);
     	} catch (Throwable e1) {
     		DeploySystemUI.showNotificationInfo("Error",e1.getMessage());
 		}
-	}	
+	}
+	//
+	public List<Instance>getOptInstances(){
+		if(optOnSelectCheckBox.getValue()){
+			return table.getSelectValues();
+		}else{
+			return instanceList;
+		}
+	}
 	//
 	private void testInstance(){
 		OptProgressWindow optWindow=new OptProgressWindow(window->{
@@ -151,18 +235,18 @@ public class InstanceInfoView extends DeployBaseView{
 			});
 		});
 		optWindow.setCaption("Confirm");
-		optWindow.setInfo("Confirm test total "+instances.size()+" instance(s) state?");
+		optWindow.setInfo("Confirm test total "+getOptInstances().size()+" instance(s) state?");
 		UI.getCurrent().addWindow(optWindow);
 	}
 	//
 	//
 	private void testInstance0(OptProgressWindow window){
 		AtomicInteger counter=new AtomicInteger();
-		instances.forEach(instance->{
+		getOptInstances().forEach(instance->{
 			window.getUI().access(()->{
 				window.setInfo("test "+instance.id+" "+
 						counter.incrementAndGet()+
-						"/"+instances.size()+"...");	
+						"/"+getOptInstances().size()+"...");	
 			});
 			DeployManager.testInstance(instance);
 			window.getUI().access(()->{
@@ -177,10 +261,15 @@ public class InstanceInfoView extends DeployBaseView{
 	//
 	//
 	private void createInstance(){
+		//createInstacne1(value);	
 		final CodeEditorWindow cew=new CodeEditorWindow(new CodeEditorCallback() {
 			@Override
+			public String reload() {
+				return "";
+			}
+			@Override
 			public void onSave(String value) {
-				createInstacne1(value);	
+				createInstacne1(value);
 			}
 		});
 		cew.setValue("Instance Boot File", "", AceMode.javascript);
@@ -195,17 +284,17 @@ public class InstanceInfoView extends DeployBaseView{
 			});
 		});
 		optWindow.setCaption("Confirm");
-		optWindow.setInfo("Confirm create total "+instances.size()+" instance(s)?");
+		optWindow.setInfo("Confirm create total "+getOptInstances().size()+" instance(s)?");
 		UI.getCurrent().addWindow(optWindow);
 	}
 	//
 	private void createInstance0(OptProgressWindow window,String jsFile){
 		AtomicInteger counter=new AtomicInteger();
-		instances.forEach(instance->{
+		getOptInstances().forEach(instance->{
 			window.getUI().access(()->{
 				window.setInfo("create "+instance.id+" "+
 						counter.incrementAndGet()+
-						"/"+instances.size()+"...");	
+						"/"+getOptInstances().size()+"...");	
 			});
 			DeployManager.createInstance(instance,jsFile);
 		});
@@ -223,7 +312,7 @@ public class InstanceInfoView extends DeployBaseView{
 			});
 		});
 		optWindow.setCaption("Confirm");
-		optWindow.setInfo("Confirm start total "+instances.size()+" instance(s)?");
+		optWindow.setInfo("Confirm start total "+getOptInstances().size()+" instance(s)?");
 		UI.getCurrent().addWindow(optWindow);
 	}
 	//
@@ -231,11 +320,11 @@ public class InstanceInfoView extends DeployBaseView{
 	private void startInstance0(OptProgressWindow window){
 		AtomicInteger counter=new AtomicInteger();
 		AtomicInteger waitCounter=new AtomicInteger();
-		instances.forEach(instance->{
+		getOptInstances().forEach(instance->{
 			window.getUI().access(()->{
 				window.setInfo("start "+instance.id+" "+
 						counter.incrementAndGet()+
-						"/"+instances.size()+"...");	
+						"/"+getOptInstances().size()+"...");	
 			});
 			waitCounter.set(0);
 			DeployManager.startInstance(instance);
@@ -273,17 +362,17 @@ public class InstanceInfoView extends DeployBaseView{
 			});
 		});
 		optWindow.setCaption("Confirm");
-		optWindow.setInfo("Confirm stop total "+instances.size()+" instance(s)?");
+		optWindow.setInfo("Confirm stop total "+getOptInstances().size()+" instance(s)?");
 		UI.getCurrent().addWindow(optWindow);
 	}
 	//
 	private void stopInstance0(OptProgressWindow window,boolean stopWindow){
 		AtomicInteger counter=new AtomicInteger();
-		instances.forEach(instance->{
+		getOptInstances().forEach(instance->{
 			window.getUI().access(()->{
 				window.setInfo("stop "+instance.id+" "+
 						counter.incrementAndGet()+
-						"/"+instances.size()+"...");	
+						"/"+getOptInstances().size()+"...");	
 			});
 			DeployManager.stopInstance(instance);
 		});
@@ -304,7 +393,7 @@ public class InstanceInfoView extends DeployBaseView{
 			});
 		});
 		optWindow.setCaption("Confirm");
-		optWindow.setInfo("Confirm restart total "+instances.size()+" instance(s)?");
+		optWindow.setInfo("Confirm restart total "+getOptInstances().size()+" instance(s)?");
 		UI.getCurrent().addWindow(optWindow);
 	}
 	//
@@ -312,7 +401,7 @@ public class InstanceInfoView extends DeployBaseView{
 		InputWindow sw=new InputWindow(window->{
 			String version=window.getInputValue();
 			try{
-				DeployManager.setPackageVersion(instances, version);
+				DeployManager.setPackageVersion(getOptInstances(), version);
 				DeployManager.saveInstanceConfig();
 			}catch(Exception e){
 				DeploySystemUI.showNotificationInfo("Error",e.getMessage());
@@ -322,7 +411,7 @@ public class InstanceInfoView extends DeployBaseView{
 			loadData();
 		});
 		sw.setCaption("Change instance package version");
-		sw.setInfo("Change "+instances.size()+" instance(s) package version");
+		sw.setInfo("Change "+getOptInstances().size()+" instance(s) package version");
 		UI.getCurrent().addWindow(sw);
 	}
 }

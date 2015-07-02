@@ -93,15 +93,30 @@ public class BeanTable<T> extends Table{
 			}
 		}
 	}
-	//
 	@SuppressWarnings("unchecked")
-	public T getSelectValue(){
-		Object itemId=getValue();
-		if(itemId==null){
-			return null;
+	public List<T> getSelectValues(){
+		List<T>result=new ArrayList<T>();
+		if(isMultiSelect()){
+			Set<Object> itemIds=(Set<Object>) getValue();
+			for(Object o:itemIds){
+				Item item= getItem(o);	
+				T obj=(T)item.getItemProperty("$object").getValue();
+				result.add(obj);
+			}
+		}else{
+			Object itemId= getValue();
+			if(itemId!=null){
+				Item item= getItem(itemId);	
+				T obj=(T)item.getItemProperty("$object").getValue();
+				result.add(obj);
+			}
 		}
-		Item item= getItem(itemId);
-		return (T)item.getItemProperty("$object").getValue();
+		return result;
+	}
+	//
+	public T getSelectValue(){
+		List<T> result=getSelectValues();
+		return result.isEmpty()?null:result.get(0);
 	}
 	/**
 	 * @return the cellRender

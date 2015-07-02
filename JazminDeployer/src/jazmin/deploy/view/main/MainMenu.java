@@ -98,9 +98,18 @@ public final class MainMenu extends CustomComponent {
     }
     //
     private void showConfig(String file){
-    	CodeEditorWindow cew=new CodeEditorWindow((v)->{
-    		DeployManager.saveConfigFile(file,v);
-    	});
+    	CodeEditorCallback callback=new CodeEditorCallback() {
+			@Override
+			public String reload() {
+				return null;
+			}
+			
+			@Override
+			public void onSave(String value) {
+				
+			}
+		};
+    	CodeEditorWindow cew=new CodeEditorWindow(callback);
 		cew.setValue(file,DeployManager.getConfigFile(file),AceMode.json);
 		UI.getCurrent().addWindow(cew);
 		cew.focus();

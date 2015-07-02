@@ -52,7 +52,7 @@ public class RepoInfoView extends DeployBaseView{
 	//
 	@Override
 	public void loadData(){
-		String search=searchTxt.getValue();
+		String search=getSearchValue();
     	if(search==null){
     		return;
     	}

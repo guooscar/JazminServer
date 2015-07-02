@@ -26,13 +26,11 @@ import com.vaadin.ui.themes.ValoTheme;
  */
 @SuppressWarnings("serial")
 public class CodeEditorWindow extends Window{
-	public static interface CodeEditorCallback{
-		void onSave(String value);
-	}
 	//
 	CodeEditorCallback callback;
 	AceEditor editor;
 	Button saveBtn;
+	Button reloadBtn;
 	boolean isSaved;
 	String title;
 	//
@@ -66,9 +64,14 @@ public class CodeEditorWindow extends Window{
         saveBtn = new Button("Save");
         saveBtn.addStyleName(ValoTheme.BUTTON_PRIMARY);
         saveBtn.addClickListener(e->onSave());
-        saveBtn.focus();
         footer.addComponent(saveBtn);
         footer.setComponentAlignment(saveBtn, Alignment.TOP_RIGHT);
+        //
+        reloadBtn=new Button("Reload");
+        reloadBtn.addClickListener(e->onReload());
+        footer.addComponent(reloadBtn);
+        footer.setComponentAlignment(reloadBtn, Alignment.TOP_LEFT);
+        //
         content.addComponent(footer);
         //
         editor.addTextChangeListener(new TextChangeListener() {
@@ -82,9 +85,12 @@ public class CodeEditorWindow extends Window{
         //
         isSaved=true;
 	}
+	
+	AceMode editorMode;
 	//
 	public void setValue(String title,String value,AceMode mode){
 		this.title=title;
+		this.editorMode=mode;
 		editor.setMode(mode);
 		editor.setValue(value);
 		setCaption(title);
@@ -96,6 +102,14 @@ public class CodeEditorWindow extends Window{
 		super.close();
 	}
 	//
+	private void onReload(){
+		if(callback!=null){
+			String v=callback.reload();
+			setValue(title,v,editorMode);
+		}
+		DeploySystemUI.showNotificationInfo("Info","Reload Completed");
+	}
+	//
 	private void onSave(){
 		if(callback!=null){
 			callback.onSave(editor.getValue());
@@ -103,7 +117,7 @@ public class CodeEditorWindow extends Window{
 			setCaption(title);
 			saveBtn.setEnabled(false);
 		}
-		DeploySystemUI.showNotificationInfo("通知","保存完成");
+		DeploySystemUI.showNotificationInfo("Info","Save Completed");
 	}
 	//
 	public String getValue(){
@@ -113,6 +127,10 @@ public class CodeEditorWindow extends Window{
 	public void setReadonly(boolean f){
 		editor.setReadOnly(f);
 		saveBtn.setVisible(!f);
-	}	
+	}
+	//
+	public void setReloadable(boolean f){
+		reloadBtn.setVisible(!f);
+	}
 }
 
