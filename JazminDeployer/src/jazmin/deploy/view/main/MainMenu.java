@@ -106,7 +106,7 @@ public final class MainMenu extends CustomComponent {
 			
 			@Override
 			public void onSave(String value) {
-				
+				DeployManager.saveConfigFile(file,value);
 			}
 		};
     	CodeEditorWindow cew=new CodeEditorWindow(callback);
