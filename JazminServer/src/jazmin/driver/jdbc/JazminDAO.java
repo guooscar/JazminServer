@@ -136,14 +136,18 @@ public class JazminDAO {
 				value=rs.getBigDecimal(fieldName);
 			}else if(fieldType.equals(byte[].class)){
 				Blob bb=rs.getBlob(fieldName);
-				ByteArrayOutputStream bos=new ByteArrayOutputStream();
-				IOUtil.copy(bb.getBinaryStream(), bos);
-				value=bos.toByteArray();
+				if(bb!=null){
+					ByteArrayOutputStream bos=new ByteArrayOutputStream();
+					IOUtil.copy(bb.getBinaryStream(), bos);
+					value=bos.toByteArray();			
+				}
 			}else{
 				throw new IllegalArgumentException("bad field type:"+fieldName+"/"+fieldType);
 			}
 			f.setAccessible(true);
-			f.set(o, value);
+			if(value!=null){
+				f.set(o, value);			
+			}
 		}
 	}
 	//

@@ -35,5 +35,6 @@
 	<classpathentry kind="lib" path="lib/async-http-client-1.9.24.jar"/>
 	<classpathentry kind="lib" path="lib/netty-3.10.3.Final.jar"/>
 	<classpathentry kind="lib" path="lib/mongo-java-driver-3.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.36-bin.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
