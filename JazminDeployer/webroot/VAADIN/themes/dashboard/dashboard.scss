@@ -35,6 +35,12 @@ $valo-menu-background-color: #414B56;
 	    background: green;
 	    color: black;
 	}
+	.margin-20{
+		margin: 20px;
+	}
+	.padding-20{
+		padding: 20px;
+	}
 @mixin dashboard {
   @include valo;
   @include dashboard-common;

@@ -29,7 +29,7 @@
 	}
 
 .v-vaadin-version:after {
-	content: "7.4.6";
+	content: "7.5.0";
 }
 
 .v-generated-body {
@@ -1218,7 +1218,7 @@ body .runo.v-app .v-app-loading {
 	white-space: nowrap;
 }
 
-.runo .v-align-middle > .v-widget, .runo .v-align-bottom > .v-widget {
+.runo .v-align-middle > .v-widget, .runo .v-align-right > .v-widget, .runo .v-align-center > .v-widget, .runo .v-align-bottom > .v-widget {
 	display: inline-block;
 }
 
@@ -1838,6 +1838,24 @@ body .runo.v-app .v-app-loading {
 	z-index: 1;
 }
 
+.runo .v-escalator-spacer {
+	position: absolute;
+	display: block;
+	background-color: #fff;
+}
+
+.runo .v-escalator-spacer  > td {
+	width: 100%;
+	height: 100%;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.v-ie8 .runo .v-escalator-spacer, .v-ie9 .runo .v-escalator-spacer {
+	margin-top: 0;
+}
+
 .runo .v-formlayout.v-has-width > table {
 	width: 100%;
 }
@@ -2018,6 +2036,24 @@ body .runo.v-app .v-app-loading {
 	z-index: 1;
 }
 
+.runo .v-grid-spacer {
+	position: absolute;
+	display: block;
+	background-color: #fff;
+}
+
+.runo .v-grid-spacer  > td {
+	width: 100%;
+	height: 100%;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.v-ie8 .runo .v-grid-spacer, .v-ie9 .runo .v-grid-spacer {
+	margin-top: 0;
+}
+
 .runo .v-grid {
 	outline: none;
 }
@@ -2036,6 +2072,97 @@ body .runo.v-app .v-app-loading {
 
 .runo .v-grid-tablewrapper {
 	border: 1px solid #b6bbbc;
+}
+
+.runo .v-grid .header-drag-table {
+	border-spacing: 0;
+	position: relative;
+	table-layout: fixed;
+	width: inherit;
+}
+
+.runo .v-grid .header-drag-table .v-grid-header {
+	position: absolute;
+}
+
+.runo .v-grid .header-drag-table .v-grid-header  > .v-grid-cell {
+	border: 1px solid #b6bbbc;
+	margin-top: -10px;
+	opacity: 0.9;
+	filter: alpha(opacity=90);
+	z-index: 30000;
+}
+
+.runo .v-grid .header-drag-table .v-grid-header  > .v-grid-drop-marker {
+	background-color: #57a7ed;
+	position: absolute;
+	width: 3px;
+}
+
+.runo .v-grid-sidebar.v-contextmenu {
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+	border-radius: 0;
+	position: absolute;
+	top: 0;
+	right: 0;
+	background-color: #e7e9ea;
+	border: 1px solid #b6bbbc;
+	padding: 0;
+	z-index: 5;
+}
+
+.runo .v-grid-sidebar.v-contextmenu .v-grid-sidebar-button {
+	background: transparent;
+	border: none;
+	color: inherit;
+	cursor: pointer;
+	outline: none;
+	padding: 0 4px;
+	text-align: right;
+}
+
+.runo .v-grid-sidebar.v-contextmenu .v-grid-sidebar-button::-moz-focus-inner {
+	border: 0;
+}
+
+.runo .v-grid-sidebar.v-contextmenu .v-grid-sidebar-button:after {
+	content: "\f0c9";
+	display: block;
+	font-family: FontAwesome, sans-serif;
+	font-size: 15px;
+}
+
+.runo .v-grid-sidebar.v-contextmenu.closed {
+	border-radius: 0;
+}
+
+.runo .v-grid-sidebar.v-contextmenu.open .v-grid-sidebar-button {
+	width: 100%;
+}
+
+.runo .v-grid-sidebar.v-contextmenu.open .v-grid-sidebar-button:after {
+	content: "\00d7";
+	font-size: 16px;
+	line-height: 1;
+}
+
+.v-ie .runo .v-grid-sidebar.v-contextmenu.open .v-grid-sidebar-button {
+	vertical-align: middle;
+}
+
+.v-ie8 .runo .v-grid-sidebar.v-contextmenu.open .v-grid-sidebar-button:after {
+	display: inline;
+}
+
+.runo .v-grid-sidebar.v-contextmenu .v-grid-sidebar-content {
+	border-top: 1px solid #b6bbbc;
+	padding: 4px 0;
+}
+
+.runo .v-grid-sidebar.v-contextmenu .v-grid-sidebar-content .gwt-MenuBar .gwt-MenuItem .column-hiding-toggle {
+	text-shadow: none;
 }
 
 .runo .v-grid-cell {
@@ -2218,6 +2345,14 @@ body .runo.v-app .v-app-loading {
 	max-height: 100%;
 }
 
+.v-ie8 .runo .v-grid-editor-cells  > div .v-datefield-button {
+	margin-left: -30px;
+}
+
+.v-ie8 .runo .v-grid-editor-cells  > div .v-filterselect-button {
+	margin-left: -27px;
+}
+
 .runo .v-grid-editor-cells  > div .v-select, .runo .v-grid-editor-cells  > div .v-select-select {
 	min-width: 100%;
 	max-width: 100%;
@@ -2280,6 +2415,45 @@ body .runo.v-app .v-app-loading {
 
 .runo .v-grid-editor-save {
 	margin-right: 4px;
+}
+
+.runo .v-grid-spacer {
+	padding-left: 1px;
+}
+
+.runo .v-grid-spacer > td {
+	display: block;
+	padding: 0;
+	background-color: #fff;
+	border-top: none;
+	border-bottom: 1px solid #d4d7d9;
+}
+
+.runo .v-grid-spacer.stripe > td {
+	background-color: #eff0f1;
+	border-top: none;
+	border-bottom: 1px solid #e6e6e6;
+}
+
+.runo .v-grid-spacer-deco-container {
+	border-top: 1px solid transparent;
+	position: relative;
+	top: 0;
+	z-index: 5;
+}
+
+.runo .v-grid-spacer-deco {
+	top: 0;
+	left: 0;
+	width: 2px;
+	background-color: #57a7ed;
+	position: absolute;
+	height: 100%;
+	pointer-events: none;
+}
+
+.ie8 .runo .v-grid-spacer-deco:before, .ie9 .runo .v-grid-spacer-deco:before, .ie10 .runo .v-grid-spacer-deco:before {
+	content: url(data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==);
 }
 
 .runo .v-grid-cell > .v-progressbar {
@@ -2424,7 +2598,8 @@ body .runo.v-app .v-app-loading {
 }
 
 .runo .v-menubar-menuitem-disabled, .runo .v-menubar span.v-menubar-menuitem-disabled:hover, .runo .v-menubar span.v-menubar-menuitem-disabled:focus, .runo .v-menubar span.v-menubar-menuitem-disabled:active {
-	color: #999;
+	opacity: 0.5;
+	filter: alpha(opacity=50);
 }
 
 .runo .v-menubar-more-menuitem {
@@ -2476,7 +2651,7 @@ body .runo.v-app .v-app-loading {
 	filter: alpha(opacity=90);
 }
 
-.runo .v-Notification h1, .runo .v-Notification p, .runo .v-Notification-error h1, .runo .v-Notification-error p, .runo .v-Notification-warning h1, .runo .v-Notification-warning p {
+.runo .v-Notification-caption, .runo .v-Notification-description {
 	display: inline;
 	margin: 0 0.5em 0 0;
 }
@@ -2489,11 +2664,7 @@ body .runo.v-app .v-app-loading {
 	background: red;
 }
 
-.runo .v-Notification-tray h1 {
-	display: block;
-}
-
-.runo .v-Notification-tray p {
+.runo .v-Notification-tray .v-Notification-caption, .runo .v-Notification-tray .v-Notification-description {
 	display: block;
 }
 
@@ -2501,7 +2672,7 @@ body .runo.v-app .v-app-loading {
 	background-color: red;
 }
 
-.runo .v-Notification-system h1 {
+.runo .v-Notification-system .v-Notification-caption {
 	display: block;
 	margin: 0;
 }
@@ -4802,6 +4973,18 @@ body .runo.v-app .v-app-loading {
 	border-color: #b3d7f7;
 }
 
+.runo .v-grid-sidebar.v-contextmenu.open .v-grid-sidebar-button:after {
+	font-size: 22px;
+}
+
+.runo .v-grid-sidebar.v-contextmenu .v-grid-sidebar-content {
+	background-color: transparent;
+}
+
+.runo .v-grid-sidebar.v-contextmenu .v-grid-sidebar-content .gwt-MenuBar {
+	border: none;
+}
+
 .runo .v-grid th.sort-asc, .runo .v-grid th.sort-desc {
 	padding-right: 35px;
 }
@@ -4973,7 +5156,7 @@ body .runo.v-app .v-app-loading {
 	margin: 10px;
 }
 
-.runo .v-Notification h1, .runo .v-Notification p, .runo .v-Notification-error h1, .runo .v-Notification-error p, .runo .v-Notification-warning h1, .runo .v-Notification-warning p {
+.runo .v-Notification-caption, .runo .v-Notification-description, .runo .v-Notification-system .v-Notification-caption, .runo .v-Notification-system .v-Notification-description {
 	display: inline;
 	font-weight: normal;
 	line-height: normal;
@@ -5000,7 +5183,7 @@ body .runo.v-app .v-app-loading {
 	max-width: 17em;
 }
 
-.runo .v-Notification-tray h1 {
+.runo .v-Notification-tray .v-Notification-caption {
 	display: block;
 	font-weight: bold;
 	font-size: 11.7px;
@@ -5013,7 +5196,7 @@ body .runo.v-app .v-app-loading {
 	border-radius: 2px;
 }
 
-.runo .v-Notification-tray p {
+.runo .v-Notification-tray .v-Notification-description {
 	display: block;
 	font-size: 10.4px;
 	line-height: 1.2;
