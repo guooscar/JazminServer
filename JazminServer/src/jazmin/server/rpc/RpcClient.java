@@ -274,7 +274,7 @@ public class RpcClient {
 					if((currentTime-lock.startTime)>timeout){
 						lockMap.remove(lock.id);
 						throw new RpcException(
-								"rpc request:"+lock.id+" timeout/");
+								"rpc request:"+lock.id+" timeout,serviceId:"+serviceId);
 					}
 				}
 			} catch (InterruptedException e) {

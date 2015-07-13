@@ -42,8 +42,10 @@ public class CompressedJSONDecoder extends ByteToMessageDecoder {
 		int dataLength = in.readInt();
 		if (dataLength > MAX_MESSAGE_LENGTH) {
 			in.resetReaderIndex();
-			logger.error("message too long" + dataLength
-					+ "/" + MAX_MESSAGE_LENGTH);
+			logger.error("message too long {}/{} from:",
+					dataLength,
+					MAX_MESSAGE_LENGTH,
+					ctx.channel());
 			throw new DecoderException("message too long " + dataLength
 					+ "/" + MAX_MESSAGE_LENGTH);
 		}

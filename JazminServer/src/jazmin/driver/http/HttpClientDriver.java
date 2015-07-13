@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.net.ssl.SSLContext;
+
 import jazmin.core.Driver;
 import jazmin.core.Jazmin;
 import jazmin.misc.InfoBuilder;
@@ -146,6 +148,28 @@ public class HttpClientDriver extends Driver{
 	}
 
 
+	/**
+	 * @param sslContext
+	 * @return
+	 * @see com.ning.http.client.AsyncHttpClientConfig.Builder#setSSLContext(javax.net.ssl.SSLContext)
+	 */
+	public Builder setSSLContext(SSLContext sslContext) {
+		if(isInited()){
+			throw new IllegalArgumentException("set before inited");
+		}
+		return clientConfigBuilder.setSSLContext(sslContext);
+	}
+	/**
+	 * @param sslSessionTimeout
+	 * @return
+	 * @see com.ning.http.client.AsyncHttpClientConfig.Builder#setSslSessionTimeout(java.lang.Integer)
+	 */
+	public Builder setSslSessionTimeout(Integer sslSessionTimeout) {
+		if(isInited()){
+			throw new IllegalArgumentException("set before inited");
+		}
+		return clientConfigBuilder.setSslSessionTimeout(sslSessionTimeout);
+	}
 	/**
 	 */
 	public void setFollowRedirect(boolean followRedirect) {

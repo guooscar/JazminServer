@@ -37,8 +37,10 @@ public class CompressedJSONEncoder extends MessageToByteEncoder<RpcMessage> {
 		payloadBytes=IOUtil.compress(payloadBytes);
 		int dataLength=payloadBytes.length;
 		if(dataLength>MAX_MESSAGE_LENGTH){
-			logger.error("message too long " + dataLength
-					+ "/" + MAX_MESSAGE_LENGTH);
+			logger.error("message too long {}/{},serviceId:{} ",
+					dataLength,
+					MAX_MESSAGE_LENGTH,
+					msg.payloads[0]);
 			throw new EncoderException("message too long." + dataLength
 					+ "/" + MAX_MESSAGE_LENGTH);
 		}
