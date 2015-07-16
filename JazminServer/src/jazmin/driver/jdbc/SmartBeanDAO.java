@@ -37,12 +37,27 @@ public class SmartBeanDAO<T> extends JazminDAO {
 		return update(bean,false,qt,excludeProperties);
 	}
 	//
+	private void checkExcludeProperties(String []excludeProperties,Class<?>type){
+		for(String p:excludeProperties){
+			try {
+				if(type.getField(p)==null){	
+					return;
+				}
+			} catch (Exception e) {
+				throw new IllegalArgumentException("can not find property:"+
+						p+" in type:"+type.getName());
+			} 
+		}
+	}
+	//
 	protected int update(T bean,
 			boolean excludeNull,
 			QueryTerms qt,
 			String... excludeProperties){
+		
 		StringBuilder sql=new StringBuilder();
 		Class<?>type=getTypeClass();
+		checkExcludeProperties(excludeProperties,type);
 		String tableName="t"+convertFieldName(type.getSimpleName());
 		sql.append("update ").append(tableName).append(" ");
 		Set<String> excludesNames = new TreeSet<String>();
@@ -95,6 +110,7 @@ public class SmartBeanDAO<T> extends JazminDAO {
 	private String querySql(QueryTerms qt,String... excludeProperties){
 		StringBuilder sql=new StringBuilder();
 		Class<?>type=getTypeClass();
+		checkExcludeProperties(excludeProperties,type);
 		String tableName="t"+convertFieldName(type.getSimpleName());
 		sql.append("select ");
 		if(excludeProperties==null||excludeProperties.length==0){
@@ -177,6 +193,7 @@ public class SmartBeanDAO<T> extends JazminDAO {
 	protected int insert(T o,boolean withGenerateKey,String... excludeProperties){
 		StringBuilder sql=new StringBuilder();
 		Class<?>type=getTypeClass();
+		checkExcludeProperties(excludeProperties,type);
 		String tableName="t"+convertFieldName(type.getSimpleName());
 		sql.append("insert into ").append(tableName).append("(");
 		Set<String> excludesNames = new TreeSet<String>();
@@ -239,6 +256,7 @@ public class SmartBeanDAO<T> extends JazminDAO {
 			excludesNames.add(e);
 		}
 		Class<?> type = o.getClass();
+		checkExcludeProperties(excludeProperties,type);
 		for (Field f : type.getFields()) {
 			if (excludesNames.contains(f.getName())) {
 				continue;
