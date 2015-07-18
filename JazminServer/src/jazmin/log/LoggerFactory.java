@@ -38,6 +38,9 @@ public class LoggerFactory {
 	}
 	//
 	public static void disableConsoleLog(){
+		if(!isConsoleLogEnabled){
+			return;
+		}
 		isConsoleLogEnabled=false;
 		configFactory.getConfiguration().disableConsoleOutput();
 	}
