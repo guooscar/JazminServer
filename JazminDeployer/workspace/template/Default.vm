@@ -2,7 +2,7 @@
 $instance.application.type=="jazmin-rpc"||
 $instance.application.type=="jazmin-web")
 //logger
-#set($logLevel	=	$properties.getOrDefault("jazmin.log.level","INFO"))
+#set($logLevel	=	$properties.getOrDefault("jazmin.log.level","DEBUG"))
 #set($logFile 	=	$properties.getOrDefault("jazmin.log.file","'./log/'+jazmin.getServerName()+'.log'"))
 
 jazmin.setLogLevel("$logLevel");
@@ -30,6 +30,7 @@ jazmin.addServer(rpcServer);
 //web server 
 webServer=new WebServer();
 webServer.setPort($instance.port);
+jazmin.setEnv("resource.host","$properties.getOrDefault("resource","")");
 jazmin.addServer(webServer);
 #end
 //------------------------------------------------------------------------------
@@ -56,7 +57,7 @@ jazmin.addDriver(rpcDriver);
 var db=new C3p0ConnectionDriver();
 db.setUser('$dependsInstance.user');
 db.setPassword('$dependsInstance.password');
-db.setUrl("jdbc:mysql://$dependsInstance.machine.privateHost:$dependsInstance.port/$dependsInstance.id?useUnicode=true&characterEncoding=utf8");
+db.setUrl("jdbc:mysql://$dependsInstance.machine.privateHost:$dependsInstance.port/$dependsInstance.id?useUnicode=true&characterEncoding=UTF-8");
 db.setDriverClass("com.mysql.jdbc.Driver");
 jazmin.addDriver(db);
 #end
@@ -75,13 +76,13 @@ jazmin.addServer(consoleServer);
 
 #if($instance.application.type=="jazmin-web")
 var targetApp="./instance/$instance.id/$instance.appId"+".war"
-jazmin.copyFile("http://10.251.47.215:7001/srv/deploy/pkg/"+jazmin.getServerName(),targetApp)
+jazmin.copyFile("http://deploy_server/srv/deploy/pkg/"+jazmin.getServerName(),targetApp)
 webServer.addWar("/",targetApp);
 #end
 
 #if($instance.application.type!="jazmin-web")
 var targetApp="./instance/$instance.id/$instance.appId"+".jaz"
-jazmin.copyFile("http://10.251.47.215:7001/srv/deploy/pkg/"+jazmin.getServerName(),targetApp)
+jazmin.copyFile("http://deploy_server/srv/deploy/pkg/"+jazmin.getServerName(),targetApp)
 jazmin.loadApplication(targetApp);
 #end
 //endofjazmin
@@ -145,6 +146,7 @@ balance roundrobin
 cookie  JSESSIONID prefix
 stats   hide-version
 option  httpclose
+rspadd Access-Control-Allow-Origin:\ *
 #foreach($dependsInstance in $instances)
 #if ($dependsInstance.appId == $app.id)
 server $dependsInstance.id $dependsInstance.machine.privateHost:$dependsInstance.port
