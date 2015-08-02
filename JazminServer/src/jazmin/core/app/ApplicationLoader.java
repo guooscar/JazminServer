@@ -61,6 +61,16 @@ public class ApplicationLoader {
 				} 
 			}
 		}
+		//if no appclass found return first one
+		for(Class<?>clz:getApplicationClasses()){
+			if(clz.isAssignableFrom(Application.class)){
+				try {
+					return (Application) clz.newInstance();
+				} catch (Exception e) {
+					logger.error(e.getMessage(),e);
+				}  
+			}
+		}
 		logger.warn("no application class found");
 		return null;
 	}
