@@ -1,5 +1,0 @@
-#foreach($i in $instances)
-#if ($i.application.type == 'memcached')
-$i.id 64M $i.port
-#end
-#end
