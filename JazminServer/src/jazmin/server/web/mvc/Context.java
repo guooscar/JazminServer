@@ -58,6 +58,10 @@ public class Context {
 		String ss=getRequired(key, required);
 		return ss==null?null:Boolean.valueOf(ss);
 	}
+	public Boolean getBooleanOrDefault(String key,Boolean dv){
+		Boolean ss=getBoolean(key);
+		return ss==null?dv:ss;
+	}
 	//
 	public Boolean  getBoolean(String key){
 		return getBoolean(key, false);
@@ -66,6 +70,11 @@ public class Context {
 	public String getString(String key,boolean required){	
 		String ss=getRequired(key, required);
 		return ss;
+	}
+	//
+	public String getStringOrDefault(String key,String dv){	
+		String s= getString(key,false);
+		return s==null?dv:s;
 	}
 	//
 	public String getString(String key){	
@@ -77,6 +86,11 @@ public class Context {
 		return ss==null?null:Long.valueOf(ss);
 	}
 	//
+	public Long  getLongOrDefault(String key,Long dv){
+		Long v= getLong(key,false);
+		return v==null?dv:v;
+	}
+	//
 	public Long  getLong(String key){
 		return getLong(key,false);
 	}
@@ -84,6 +98,11 @@ public class Context {
 	public Integer  getInteger(String key,boolean required){
 		String ss=getRequired(key, required);
 		return ss==null?null:Integer.valueOf(ss);
+	}
+	//
+	public Integer  getIntegerOrDefault(String key,Integer dv){
+		Integer v= getInteger(key,false);
+		return v==null?dv:v;
 	}
 	//
 	public Integer  getInteger(String key){
@@ -99,6 +118,10 @@ public class Context {
 		return getShort(key,false);
 	}
 	//
+	public Short  getShortOrDefault(String key,Short dv){
+		Short v= getShort(key,false);
+		return v==null?dv:v;
+	}
 	//
 	public Float  getFloat(String key,boolean required){
 		String ss=getRequired(key, required);
@@ -108,10 +131,19 @@ public class Context {
 	public Float  getFloat(String key){
 		return getFloat(key,false);
 	}
+	public Float  getFloatOrDefault(String key,Float dv){
+		Float v =getFloat(key,false);
+		return v==null?dv:v;
+	}
 	//
 	public Double  getDouble(String key,boolean required){
 		String ss=getRequired(key, required);
 		return ss==null?null:Double.valueOf(ss);
+	}
+	//
+	public Double  getDoubleOrDefault(String key,Double dv){
+		Double v= getDouble(key,false);
+		return v==null?dv:v;
 	}
 	//
 	public Double  getDouble(String key){
