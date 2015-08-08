@@ -83,7 +83,7 @@ public class SmartBeanDAO<T> extends JazminDAO {
 			} catch (Exception e) {
 				throw new ConnectionException(e);
 			}
-			sql.append(" ").append(fieldName).append("=?,");
+			sql.append(" `").append(fieldName).append("`=?,");
 		}
 		sql.deleteCharAt(sql.length()-1);
 		sql.append(" where 1=1");
@@ -128,7 +128,7 @@ public class SmartBeanDAO<T> extends JazminDAO {
 				if (Modifier.isStatic(f.getModifiers())) {
 					continue;
 				}
-				sql.append(fieldName).append(",");
+				sql.append("`").append(fieldName).append("`").append(",");
 			}
 			sql.deleteCharAt(sql.length()-1);
 		}
@@ -155,7 +155,7 @@ public class SmartBeanDAO<T> extends JazminDAO {
 	//
 	private void getWhereStatement(StringBuilder sql,Where w){
 		sql.append(" and ");
-		sql.append(w.key).append(" ");
+		sql.append("`").append(w.key).append("` ");
 		sql.append(w.operator).append(" ");
 		if(w.operator.trim().equalsIgnoreCase("like")){
 			sql.append(" concat('%',?,'%') ");
@@ -214,7 +214,7 @@ public class SmartBeanDAO<T> extends JazminDAO {
 			} catch (Exception e) {
 				throw new ConnectionException(e);
 			}
-			sql.append(fieldName).append(",");
+			sql.append("`").append(fieldName).append("`,");
 		}
 		sql.deleteCharAt(sql.length()-1);
 		sql.append(")");
