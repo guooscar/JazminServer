@@ -12,13 +12,21 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class RedirectView implements View{
 	String url;
+	String title;
 	public RedirectView(String url) {
 		this.url=url;
+	}
+	//
+	public void setTitle(String title){
+		this.title=title;
 	}
 	//
 	@Override
 	public void render(Context ctx) throws Exception {
 		HttpServletResponse response=ctx.response.raw();
+		if(title!=null){
+			response.setHeader("title",title);
+		}
 		response.sendRedirect(url);
 	}
 }
