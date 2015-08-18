@@ -60,6 +60,7 @@ public class CodeEditorWindow extends Window{
         HorizontalLayout footer = new HorizontalLayout();
         footer.addStyleName(ValoTheme.WINDOW_BOTTOM_TOOLBAR);
         footer.setWidth(100.0f, Unit.PERCENTAGE);
+        footer.setSpacing(true);
 
         saveBtn = new Button("Save");
         saveBtn.addStyleName(ValoTheme.BUTTON_PRIMARY);

@@ -945,7 +945,7 @@
  */
 
 .v-vaadin-version:after {
-	content: "7.5.0";
+	content: "7.5.3";
 }
 
 .v-widget {
@@ -1521,24 +1521,6 @@ div.v-layout.v-horizontal.v-widget {
 		transform: scale(0);
 	}
 	}
-
-.v-table-cell-content-red {
-	background: red;
-	color: black;
-}
-
-.v-table-cell-content-green {
-	background: green;
-	color: black;
-}
-
-.margin-20 {
-	margin: 20px;
-}
-
-.padding-20 {
-	padding: 20px;
-}
 
 .dashboard {
 	@media screen and (max-width: 480px) {
@@ -7470,9 +7452,9 @@ div.v-layout.v-horizontal.v-widget {
 	background-image: radial-gradient(  circle at 50% 50%, #222, #0e0e0e);
 	opacity: 0.72;
 	filter: alpha(opacity=72) ;
-	-webkit-animation: valo-animate-in-fade 400ms 100ms;
-	-moz-animation: valo-animate-in-fade 400ms 100ms;
-	animation: valo-animate-in-fade 400ms 100ms;
+	-webkit-animation: valo-animate-in-fade 400ms 100ms backwards;
+	-moz-animation: valo-animate-in-fade 400ms 100ms backwards;
+	animation: valo-animate-in-fade 400ms 100ms backwards;
 }
 
 .v-op12 .dashboard .v-window-modalitycurtain {
@@ -8545,9 +8527,9 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .dashboard .v-tabsheet-tabsheetpanel > .v-scrollable > .v-widget {
-	-webkit-animation: valo-animate-in-fade 300ms;
-	-moz-animation: valo-animate-in-fade 300ms;
-	animation: valo-animate-in-fade 300ms;
+	-webkit-animation: valo-animate-in-fade 300ms backwards;
+	-moz-animation: valo-animate-in-fade 300ms backwards;
+	animation: valo-animate-in-fade 300ms backwards;
 }
 
 .dashboard .v-tabsheet-deco {
@@ -9877,7 +9859,7 @@ div.v-layout.v-horizontal.v-widget {
 	letter-spacing: 0;
 }
 
-.dashboard .v-Notification-description {
+.dashboard .v-Notification-description, .dashboard .v-Notification-details {
 	margin: 0;
 	display: inline-block;
 	vertical-align: middle;
@@ -9887,7 +9869,7 @@ div.v-layout.v-horizontal.v-widget {
 	overflow: auto;
 }
 
-.dashboard .v-Notification-caption ~ .v-Notification-description {
+.dashboard .v-Notification-caption ~ .v-Notification-description, .dashboard .v-Notification-caption ~ .v-Notification-details {
 	margin-left: 24px;
 }
 
@@ -9910,7 +9892,7 @@ div.v-layout.v-horizontal.v-widget {
 	line-height: 22px;
 }
 
-.dashboard .v-Notification-system .v-Notification-description {
+.dashboard .v-Notification-system .v-Notification-description, .dashboard .v-Notification-system .v-Notification-details {
 	max-width: 50em;
 }
 
@@ -9951,7 +9933,7 @@ div.v-layout.v-horizontal.v-widget {
 	vertical-align: middle;
 }
 
-.dashboard .v-Notification-system .v-Notification-description {
+.dashboard .v-Notification-system .v-Notification-description, .dashboard .v-Notification-system .v-Notification-details {
 	color: #e6e6e6;
 }
 
@@ -10007,7 +9989,7 @@ div.v-layout.v-horizontal.v-widget {
 	vertical-align: middle;
 }
 
-.dashboard .v-Notification.dark .v-Notification-description {
+.dashboard .v-Notification.dark .v-Notification-description, .dashboard .v-Notification.dark .v-Notification-details {
 	color: #e6e6e6;
 }
 
@@ -10022,7 +10004,7 @@ div.v-layout.v-horizontal.v-widget {
 	padding: 12px 15px;
 }
 
-.dashboard .v-Notification.bar .v-Notification-description {
+.dashboard .v-Notification.bar .v-Notification-description, .dashboard .v-Notification.bar .v-Notification-details {
 	max-width: 50em;
 }
 
@@ -10762,6 +10744,10 @@ div.v-layout.v-horizontal.v-widget {
 .dashboard .valo-menu .badgewrapper {
 	position: relative;
 	padding: 0 !important;
+}
+
+.dashboard .valo-menu .v-ddwrapper {
+	display: block;
 }
 
 .dashboard .valo-menu-item {

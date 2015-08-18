@@ -7,20 +7,24 @@ import jazmin.deploy.view.main.MainView;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
+import com.vaadin.annotations.Widgetset;
 import com.vaadin.server.Page;
+import com.vaadin.server.Responsive;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.shared.Position;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
+import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * 
  * @author yama
  * 28 Dec, 2014
  */
-@Title("JazminDeployer")
 @Theme("dashboard")
+@Widgetset("jazmin.deploy.AppWidgetSet")
+@Title("JazminDeployer")
 @Push
 public class DeploySystemUI extends UI {
     /**
@@ -30,6 +34,8 @@ public class DeploySystemUI extends UI {
 
 	@Override
     protected void init(VaadinRequest request) {
+		Responsive.makeResponsive(this);
+        addStyleName(ValoTheme.UI_WITH_MENU);
 		if(getUser()==null){
 			showLoginView();	
 		}else{

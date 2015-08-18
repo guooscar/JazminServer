@@ -46,7 +46,7 @@ public class InstanceInfoView extends DeployBaseView{
 	public InstanceInfoView() {
 		super();
 		initUI();
-		searchTxt.setValue("1=1 order by priority");
+		searchTxt.setValue("1=1 order by priority desc");
 	}
 	//
 	protected void initBaseUI(){

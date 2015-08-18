@@ -5,12 +5,17 @@
 }
 
 @mixin dashboard-common {
+
   .valo-menu {
     border-right: none;
 
     .badgewrapper {
       position: relative;
       padding: 0 !important;
+    }
+
+    .v-ddwrapper {
+      display: block;
     }
   }
 
