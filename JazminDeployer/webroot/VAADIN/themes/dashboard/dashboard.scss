@@ -24,23 +24,7 @@ $view-padding: round($v-unit-size / 1.5) !default;
 
 // Slight adjustment to menu background-color
 $valo-menu-background-color: #414B56;
-/* Style specifically for the "white" cells. */
-	.v-table-cell-content-red {
-	    background: red;
-	    color: black;
-	}
-	
-	/* Style specifically for the "black" cells. */
-	.v-table-cell-content-green {
-	    background: green;
-	    color: black;
-	}
-	.margin-20{
-		margin: 20px;
-	}
-	.padding-20{
-		padding: 20px;
-	}
+
 @mixin dashboard {
   @include valo;
   @include dashboard-common;
