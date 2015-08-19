@@ -643,9 +643,8 @@ public class MessageServer extends Server{
 							ResponseMessage.SC_SYSTEM_EXCEPTION, 
 							e.getMessage());			
 				}	
-			}else{
-				context.close();		
 			}
+			context.close();	
 		}	
 	}
 	//message
