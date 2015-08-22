@@ -134,7 +134,7 @@ public class IMMessageServerCommand extends ConsoleCommand {
     //
     private void showChannels(String args){
     	TablePrinter tp=TablePrinter.create(out)
-    			.length(10,20,10)
+    			.length(50,20,10)
     			.headers("ID","AUTOREMOVESESSION","CREATETIME");
 		List<IMChannel> channels=messageServer.getChannels();
 		for(IMChannel s:channels){

@@ -82,8 +82,11 @@ public class Channel {
 	 *remove all session from channel.
 	 */
 	public List<Session>removeAllSessions(){
-		List<Session>allSessions=new ArrayList<>(sessions.values());
-		allSessions.forEach(s->s.leaveChannel(this));
+		List<Session>allSessions=new ArrayList<>();
+		sessions.forEach((a,s)->{
+			s.leaveChannel(this);
+			allSessions.add(s);
+		});
 		sessions.clear();
 		return allSessions;
 	}
@@ -121,7 +124,7 @@ public class Channel {
 	 *broadcast message to all sessions in this channel.
 	 */
 	public void broadcast(String serviceId,Object payload){
-		sessions.values().forEach(s->{
+		sessions.forEach((a,s)->{
 				s.push(serviceId, payload);
 		});
 	}
@@ -129,7 +132,7 @@ public class Channel {
 	 *broadcast message to all sessions in this channel expect session in blockPrincipalSet.
 	 */
 	public void broadcast(String serviceId,Object payload,Set<String>blockPrincipalSet){
-		sessions.values().forEach(s->{
+		sessions.forEach((a,s)->{
 			if(!blockPrincipalSet.contains(s.principal)){
 				s.push(serviceId, payload);
 			}

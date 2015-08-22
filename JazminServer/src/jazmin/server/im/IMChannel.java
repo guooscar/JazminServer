@@ -66,8 +66,11 @@ public class IMChannel {
 	 *remove all session from channel.
 	 */
 	public List<IMSession>removeAllSessions(){
-		List<IMSession>allSessions=new ArrayList<>(sessions.values());
-		allSessions.forEach(s->s.leaveChannel(this));
+		List<IMSession>allSessions=new ArrayList<>();
+		sessions.forEach((a,s)->{
+			s.leaveChannel(this);
+			allSessions.add(s);
+		});
 		sessions.clear();
 		return allSessions;
 	}
@@ -105,18 +108,18 @@ public class IMChannel {
 	 *broadcast message to all sessions in this channel.
 	 */
 	public void broadcast(byte bb[]){
-		sessions.values().forEach(s->{
+		sessions.forEach((a,s)->{
 			s.push(bb);
-		});
+	});
 	}
 	/**
 	 *broadcast message to all sessions in this channel expect session in blockPrincipalSet.
 	 */
 	public void broadcast(byte bb[],Set<String>blockPrincipalSet){
-		sessions.values().forEach(s->{
+		sessions.forEach((a,s)->{
 			if(!blockPrincipalSet.contains(s.principal)){
 				s.push(bb);
-			}		
+			}
 		});
 	}
 	/** 

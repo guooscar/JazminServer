@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -53,7 +54,7 @@ public class Session {
 		rateLimiter=new RateLimiter();
 		processSyncServiceState=new AtomicBoolean();
 		processSyncService(false);
-		channels=new TreeSet<String>();
+		channels=Collections.synchronizedSet(new TreeSet<String>());
 		createTime=new Date();
 		connectionType="tcp";
 	}

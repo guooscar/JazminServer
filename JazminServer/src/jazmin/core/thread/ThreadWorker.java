@@ -28,6 +28,7 @@ public class ThreadWorker implements Runnable {
 	private Object ret = null;
 	private Throwable exception = null;
 	private long startTime;
+	private boolean traceLog;
 	//
 	public ThreadWorker(
 			Dispatcher dispatcher,
@@ -54,6 +55,7 @@ public class ThreadWorker implements Runnable {
 		this.method = method;
 		this.callback = callback;
 		startTime = System.currentTimeMillis();
+		traceLog=(method.getAnnotation(NoTraceLog.class)==null);
 	}
 	//
 	@Override
@@ -62,11 +64,13 @@ public class ThreadWorker implements Runnable {
 		Thread.currentThread().setName(oldName+"-"+traceId);
 		long runStartTime=System.currentTimeMillis();;
 		String methodName=method.getDeclaringClass().getSimpleName() + "."+ method.getName();
-		if (logger.isInfoEnabled()) {
-			logger.info(">invoke:-{}",methodName);
-		}
-		if (logger.isDebugEnabled()) {
-			logger.debug(DumpUtil.dumpInvokeArgs(">invoke:" + methodName, args));
+		if(traceLog){
+			if (logger.isInfoEnabled()) {
+				logger.info(">invoke:-{}",methodName);
+			}
+			if (logger.isDebugEnabled()) {
+				logger.debug(DumpUtil.dumpInvokeArgs(">invoke:" + methodName, args));
+			}
 		}
 		try {
 			if(globalDispatcherCallbacks!=null){
@@ -102,12 +106,14 @@ public class ThreadWorker implements Runnable {
 					logger.error("<invoke:" + methodName, exception);		
 				}
 			}
-			if (logger.isInfoEnabled()) {
-				logger.info("<invoke:{} time:{}-{}", methodName,
-						runTime,fullTime);
-			}
-			if (logger.isDebugEnabled()) {
-				logger.debug(DumpUtil.dumpInvokeObject("<invoke:" + methodName,ret));
+			if(traceLog){
+				if (logger.isInfoEnabled()) {
+					logger.info("<invoke:{} time:{}-{}", methodName,
+							runTime,fullTime);
+				}
+				if (logger.isDebugEnabled()) {
+					logger.debug(DumpUtil.dumpInvokeObject("<invoke:" + methodName,ret));
+				}	
 			}
 			if(globalDispatcherCallbacks!=null){
 				for(DispatcherCallback c:globalDispatcherCallbacks){
