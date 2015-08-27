@@ -8,9 +8,10 @@
                                 host: 'localhost',
                                 port:22,
                                 password:'77585211' ,
-                                 cmd:"top"
+                               cmd:"tmux new -A -s webssh bash"
                             });
          ws.send("2" + loginData);
+         //run tmux new -A -s webssh in your shell
     }
    
     var openWs = function() {
