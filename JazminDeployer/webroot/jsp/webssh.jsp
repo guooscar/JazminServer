@@ -18,7 +18,8 @@
                                 user: '${sshUser}',
                                 host: '${sshHost}',
                                 port: ${sshPort},
-                                password:'${sshPassword}' 
+                                password:'${sshPassword}',
+                                cmd:'${sshCmd}' 
                             });
          ws.send("2" + loginData);
     }

@@ -7,10 +7,12 @@
                                 user: 'yama',
                                 host: 'localhost',
                                 port:22,
-                                password:'77585211' 
+                                password:'77585211' ,
+                                 cmd:"top"
                             });
          ws.send("2" + loginData);
     }
+   
     var openWs = function() {
         var ws = new WebSocket(url, protocols);
 

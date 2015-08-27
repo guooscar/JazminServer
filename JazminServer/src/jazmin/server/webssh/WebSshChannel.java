@@ -14,7 +14,7 @@ import java.util.Date;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.misc.SshUtil;
+import jazmin.util.SshUtil;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -47,6 +47,7 @@ public class WebSshChannel {
 	public String sshHost;
 	public String sshUser;
 	public int sshPort;
+	public String sshCmd;
 	//
 	public WebSshChannel() {
 		createTime=new Date();
@@ -57,17 +58,22 @@ public class WebSshChannel {
 	private static final char RECEIVE_LOGIN='2';
 	//
 	//
-	private void startProcess(String host,String user,int port,String pwd){
+	private void startShell(String host,String user,int port,String pwd,String cmd){
 		try {
 			this.sshHost=host;
 			this.sshUser=user;
 			this.sshPort=port;
+			this.sshCmd=cmd;
+			logger.info("connection to {}@{}:{}",user,host,port);
 			shell=SshUtil.shell(host,port,user,pwd,sshConnectTimeout);
-			shell.setPty(true);
-			shell.connect(sshConnectTimeout);
 			shellInputStream=shell.getInputStream();
 			shellOutputStream=shell.getOutputStream();
 			startInputReader();
+			//
+			if(cmd!=null){
+				shellOutputStream.write((cmd+"\r\n").getBytes());
+				shellOutputStream.flush();
+			}
 		} catch (Exception e) {
 			logger.catching(e);
 			channel.close();
@@ -75,7 +81,6 @@ public class WebSshChannel {
 	}
 	//
 	private void startInputReader(){
-		
 		Thread inputReaderThread=new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -94,13 +99,13 @@ public class WebSshChannel {
 				logger.info("ssh connection :"+shell+" stopped");
 				channel.close();
 			}
-		},"ProcesserInputReader-"+sshUser+"@"+sshHost+":"+sshPort);
+		},"ProcesserInputReader-"+sshUser+"@"+sshHost+":"+sshPort+"/"+sshCmd);
 		inputReaderThread.start();
 	}
 	//
 	public void receiveMessage(String msg){
 		char command=msg.charAt(0);
-		if(command==RECEIVE_KEY){
+		if(command==RECEIVE_KEY&&sshCmd==null){
 			for(int i=1;i<msg.length();i++){
 				String s=msg.charAt(i)+"";
 				try {
@@ -116,20 +121,23 @@ public class WebSshChannel {
 		if(command==RECEIVE_WINDOWRESIZE){
 			String t=msg.substring(1);
 			String ss[]=t.split(",");
-			shell.setPtySize(Integer.valueOf(ss[0]),Integer.valueOf(ss[1]),0,0);
+			if(shell instanceof com.jcraft.jsch.ChannelShell){
+				shell.setPtySize(Integer.valueOf(ss[0]),Integer.valueOf(ss[1]),0,0);	
+			}
 			return;
 		}
 		//
 		if(command==RECEIVE_LOGIN){
 			String t=msg.substring(1);
 			JSONObject loginData=JSON.parseObject(t);
-			startProcess(
+			startShell(
 					loginData.getString("host"), 
 					loginData.getString("user"),
 					loginData.getIntValue("port"),
-					loginData.getString("password"));
+					loginData.getString("password"),
+					loginData.getString("cmd"));
 			return;
-		}		
+		}	
 	}
 	//
 	private void sendMessage(String msg){

@@ -90,20 +90,27 @@ public class DeployController {
 		}
 	}
 	//--------------------------------------------------------------------------
-	@Service(id="log")
-	public void getTailLog(Context c){
+	@Service(id="instance_taillog",queryCount=3)
+	public void instanceTailLog(Context c){
 		if(!checkMachine(c,"")){
 			return;
 		}
 		List<String>querys=c.request().querys();
-		if(querys.size()<3){
+		String instanceId=querys.get(2);
+		Instance instance=DeployManager.getInstance(instanceId);
+		if(instance==null){
+			c.view(new ErrorView(404));
 			return;
 		}
-		String instanceName=querys.get(2);
-		String result=DeployManager.getTailLog(instanceName);
-		if(result!=null){
-			c.view(new PlainTextView(result));
-		}
+		Machine machine=instance.machine;
+		c.put("sshHost",machine.publicHost);
+		c.put("sshUser",machine.sshUser);
+		c.put("sshPort",machine.sshPort);
+		c.put("sshPassword",machine.sshPassword);
+		c.put("sshCmd","tail -f "+
+				instance.machine.jazminHome+"log/"+
+				instance.id+".log");
+		c.view(new ResourceView("/jsp/webssh.jsp"));
 	}
 	//
 	@Service(id="instance_webssh",queryCount=3)

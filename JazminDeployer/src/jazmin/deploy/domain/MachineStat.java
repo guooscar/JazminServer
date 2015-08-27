@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jazmin.misc.SshUtil;
 import jazmin.util.DumpUtil;
+import jazmin.util.SshUtil;
 
 /**
  * @author yama

@@ -30,10 +30,10 @@ import java.util.regex.Pattern;
 import jazmin.core.Jazmin;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.misc.SshUtil;
 import jazmin.util.BeanUtil;
 import jazmin.util.FileUtil;
 import jazmin.util.JSONUtil;
+import jazmin.util.SshUtil;
 import jazmin.util.JSONUtil.JSONPropertyFilter;
 
 import org.apache.velocity.VelocityContext;

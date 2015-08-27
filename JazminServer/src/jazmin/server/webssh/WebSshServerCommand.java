@@ -40,14 +40,15 @@ public class WebSshServerCommand extends ConsoleCommand {
 	//
 	private void showChannels(String args){
 		TablePrinter tp=TablePrinter.create(out)
-				.length(15,20,15,40,10,15,10)
+				.length(15,20,15,40,10,15,10,10)
 				.headers("ID",
 						"REMOTEADDRESS",
 		    			"REMOTEPORT",
 		    			"SSHINFO",
 		    			"SENTCNT",
 		    			"RECECNT",
-		    			"CREATETIME");
+		    			"CREATETIME",
+		    			"CMD");
     	List<WebSshChannel>channels=server.getChannels();
     	for(WebSshChannel s:channels){
     		tp.print(
@@ -57,7 +58,8 @@ public class WebSshServerCommand extends ConsoleCommand {
         			s.sshUser+"@"+s.sshHost+":"+s.sshPort,
         			s.messageSentCount,
         			s.messageReceivedCount,
-        			formatDate(s.createTime));
+        			formatDate(s.createTime),
+        			s.sshCmd);
     	}
     }
 }

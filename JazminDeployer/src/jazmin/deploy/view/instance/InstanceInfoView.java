@@ -129,9 +129,9 @@ public class InstanceInfoView extends DeployBaseView{
 	//
 	private void initUI(){
 		addOptButton("Console",ValoTheme.BUTTON_PRIMARY, (e)->viewConsole());
+		addOptButton("TailLog",null, (e)->viewTailLog());
 		addOptButton("Detail",null, (e)->viewDetail());
 		addOptButton("BootFile",null, (e)->viewBootFile());
-		addOptButton("TailLog",null, (e)->viewTailLog());
 		addOptButton("Report",null, (e)->viewActionReport());
 		addOptButton("Test",null, (e)->testInstance());
 		//
@@ -202,7 +202,7 @@ public class InstanceInfoView extends DeployBaseView{
 			DeploySystemUI.showNotificationInfo("Info",
 					"Please choose which instance to view.");
 		}else{
-			TailLogWindow bfw=new TailLogWindow(instance);
+			InstanceTailLogWindow bfw=new InstanceTailLogWindow(instance);
 			UI.getCurrent().addWindow(bfw);
 			bfw.focus();
 		}
