@@ -12,6 +12,7 @@ import jazmin.core.LifecycleAdapter;
 import jazmin.deploy.domain.DeployManager;
 import jazmin.server.console.ConsoleServer;
 import jazmin.server.web.WebServer;
+import jazmin.server.webssh.WebSshServer;
 
 import org.apache.velocity.app.Velocity;
 
@@ -64,6 +65,7 @@ public class DeployStartServlet extends VaadinServlet{
 		Jazmin.environment.put("deploy.hostname","10.44.218.119");
 		ws.addResource("/","release/JazminDeployer");
 		Jazmin.addServer(ws);
+		Jazmin.addServer(new WebSshServer());
 		Jazmin.addServer(new ConsoleServer());
 		Jazmin.start();
 	}

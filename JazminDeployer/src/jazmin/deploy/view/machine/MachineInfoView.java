@@ -65,6 +65,7 @@ public class MachineInfoView extends DeployBaseView{
 		addOptButton("View Detail",null, (e)->viewDetail());
 		addOptButton("View Stat",null, (e)->viewStat());
 		addOptButton("Test Machine",null, (e)->checkMachine());
+		addOptButton("SSH Login",null, (e)->sshLogin());
 		addOptButton("Run Command",ValoTheme.BUTTON_DANGER, (e)->runCmd());
 	}
 	//
@@ -88,6 +89,17 @@ public class MachineInfoView extends DeployBaseView{
 					"Please choose which machine to view.");
 		}else{
 			MachineStatWindow bfw=new MachineStatWindow(machine);
+			UI.getCurrent().addWindow(bfw);
+			bfw.focus();
+		}
+	}
+	private void sshLogin(){
+		Machine machine=table.getSelectValue();
+		if(machine==null){
+			DeploySystemUI.showNotificationInfo("Info",
+					"Please choose which machine to login.");
+		}else{
+			WebSshWindow bfw=new WebSshWindow(machine);
 			UI.getCurrent().addWindow(bfw);
 			bfw.focus();
 		}

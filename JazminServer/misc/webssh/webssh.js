@@ -1,19 +1,34 @@
 (function() {
     var url ='ws://127.0.0.1:9001/ws';
     var protocols = ["webssh"];
+    var login=function(ws){
+        var loginData=JSON.stringify(
+                            {
+                                user: 'yama',
+                                host: 'localhost',
+                                port:22,
+                                password:'77585211' 
+                            });
+         ws.send("2" + loginData);
+    }
     var openWs = function() {
         var ws = new WebSocket(url, protocols);
 
         var term;
 
         ws.onopen = function(event) {
+        	//
+        	var elem=document.getElementById('infolabel');
+        	elem.parentNode.removeChild(elem);
+            //
+            login(ws);
+        	//
         	hterm.defaultStorage = new lib.Storage.Local();
             hterm.defaultStorage.clear();
 
             term = new hterm.Terminal();
             term.io.showOverlay("Connection Opened", null);
             term.getPrefs().set("send-encoding", "raw");
-
             term.onTerminalReady = function() {
                 var io = term.io.push();
 
@@ -34,21 +49,7 @@
         };
 
         ws.onmessage = function(event) {
-        	data = event.data.slice(1);
-            switch(event.data[0]) {
-            case '0':
-                term.io.writeUTF16(data);
-                break;
-            case '1':
-                term.setWindowTitle(data);
-                break;
-            case '2':
-                preferences = JSON.parse(data);
-                Object.keys(preferences).forEach(function(key) {
-                    term.getPrefs().set(key, preferences[key]);
-                });
-                break;
-            }
+        	 term.io.writeUTF16(event.data);
         }
 
         ws.onclose = function(event) {

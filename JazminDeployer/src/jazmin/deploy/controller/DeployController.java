@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.Instance;
+import jazmin.deploy.domain.Machine;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.web.mvc.Context;
@@ -103,6 +104,21 @@ public class DeployController {
 		if(result!=null){
 			c.view(new PlainTextView(result));
 		}
+	}
+	@Service(id="webssh",queryCount=3)
+	public void webssh(Context c){
+		if(!checkMachine(c,"")){
+			return;
+		}
+		List<String>querys=c.request().querys();
+		String machineId=querys.get(2);
+		Machine machine=DeployManager.getMachine(machineId);
+		if(machine==null){
+			c.view(new ErrorView(404));
+			return;
+		}
+		c.put("machine",machine);
+		c.view(new ResourceView("/jsp/webssh.jsp"));
 	}
 	//
 	@Service(id="sysgraph")

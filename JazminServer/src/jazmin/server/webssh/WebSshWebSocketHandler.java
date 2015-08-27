@@ -104,7 +104,6 @@ public class WebSshWebSocketHandler extends SimpleChannelInboundHandler<Object> 
 		}
 		// Send the uppercase string back.
 		String content = ((TextWebSocketFrame) frame).text();
-		logger.debug("receive message {}",content);
 		c.receiveMessage(content);
 	}
 	//
@@ -130,17 +129,19 @@ public class WebSshWebSocketHandler extends SimpleChannelInboundHandler<Object> 
 		logger.error("exception on channal:" + ctx.channel(), cause);
 		ctx.close();
 	}
-
 	//
-	private static String getWebSocketLocation(FullHttpRequest req) {
+	private  String getWebSocketLocation(FullHttpRequest req) {
 		String location = req.headers().get("Host") + WEBSOCKET_PATH;
-		return "ws://" + location;
+		return (server.isEnableWss()?"wss":"ws")+"://" + location;
 	}
 
 	//
 	@Override
     public void channelInactive(ChannelHandlerContext ctx) 
     		throws Exception {
+		WebSshChannel c=ctx.channel().attr(WebSshChannel.SESSION_KEY).get();
+		server.removeChannel(c.id);
+		c.closeChannel();
 		if(logger.isDebugEnabled()){
 			logger.debug("channelInactive:"+ctx.channel());	
 		}
@@ -151,17 +152,15 @@ public class WebSshWebSocketHandler extends SimpleChannelInboundHandler<Object> 
 			throws Exception {
 		WebSshChannel channel=new WebSshChannel();
 		channel.channel=ctx.channel();
+		channel.sshConnectTimeout=server.getDefaultSshConnectTimeout();
 		channel.id=ctx.channel().id().asShortText();
 		InetSocketAddress sa=(InetSocketAddress) ctx.channel().localAddress();
-		channel.localAddress=sa.getAddress().getHostAddress();
-		channel.localPort=sa.getPort();
 		//
 		sa=(InetSocketAddress) ctx.channel().remoteAddress();
 		channel.remoteAddress=sa.getAddress().getHostAddress();
 		channel.remotePort=sa.getPort();
 		server.addChannel(channel);
 		ctx.channel().attr(WebSshChannel.SESSION_KEY).set(channel);
-		channel.startProcess();
 		if(logger.isDebugEnabled()){
 			logger.debug("channelActive:"+ctx.channel());	
 		}

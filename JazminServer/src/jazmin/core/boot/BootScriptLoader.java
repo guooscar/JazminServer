@@ -106,6 +106,7 @@ public class BootScriptLoader {
 				"importPackage(Packages.jazmin.server.ftp);"+
 				"importPackage(Packages.jazmin.server.relay);"+
 				"importPackage(Packages.jazmin.server.proxy);"+
+				"importPackage(Packages.jazmin.server.webssh);"+
 				"importPackage(Packages.jazmin.server.web);\n";
 		String script=IOUtil.getContent(inputStream);
 		engine.eval(importScript+script, ssc); 

@@ -1,0 +1,145 @@
+/**
+ * 
+ */
+package jazmin.misc;
+
+import java.io.InputStream;
+import java.util.Properties;
+import java.util.function.BiConsumer;
+
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.ChannelShell;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.UIKeyboardInteractive;
+import com.jcraft.jsch.UserInfo;
+
+/**
+ * @author yama 7 Jan, 2015
+ */
+public class SshUtil {
+	public static abstract class MyUserInfo implements UserInfo,
+			UIKeyboardInteractive {
+		public String getPassword() {
+			return null;
+		}
+
+		public boolean promptYesNo(String str) {
+			return false;
+		}
+
+		public String getPassphrase() {
+			return null;
+		}
+
+		public boolean promptPassphrase(String message) {
+			return false;
+		}
+
+		public boolean promptPassword(String message) {
+			return false;
+		}
+
+		public void showMessage(String message) {
+		}
+
+		public String[] promptKeyboardInteractive(String destination,
+				String name, String instruction, String[] prompt, boolean[] echo) {
+			return null;
+		}
+	}
+	//--------------------------------------------------------------------------
+	public static ChannelShell  shell(
+			String host, 
+			int port, 
+			String user, 
+			String pwd) throws Exception {
+		return shell(host, port, user, pwd,10000);
+	}
+	//
+	public static ChannelShell  shell(
+			String host, 
+			int port, 
+			String user, 
+			String pwd,
+			int connectTimeout) throws Exception {
+		JSch jsch = new JSch();
+		Session session=jsch.getSession(user, host, 22);
+		Properties config = new java.util.Properties(); 
+		config.put("StrictHostKeyChecking", "no");
+		session.setConfig(config);
+	    session.setPassword(pwd);
+	    UserInfo ui = new MyUserInfo(){
+	        public boolean promptYesNo(String message){
+	        	return true;
+	        }
+	      };
+	    session.setUserInfo(ui);
+		session.connect(connectTimeout);
+		ChannelShell channel = (ChannelShell) session.openChannel("shell");
+		return channel;
+	}
+	//
+	//
+	public static int execute(
+			String host, 
+			int port, 
+			String user, 
+			String pwd,
+			String cmd,
+			BiConsumer<String,String>callback) throws Exception {
+		JSch jsch = new JSch();
+		Session session = jsch.getSession(user, host, port);
+		session.setPassword(pwd);
+		Properties config = new java.util.Properties(); 
+		config.put("StrictHostKeyChecking", "no");
+		session.setConfig(config);
+		session.connect();
+		ChannelExec channel = (ChannelExec) session.openChannel("exec");
+		channel.setCommand(cmd);
+		channel.setInputStream(null);
+		InputStream in = channel.getInputStream();
+		InputStream err = channel.getErrStream();
+		channel.connect();
+		int exitCode=0;
+		String outResult="";
+		String errResult="";
+		while (true) {
+			outResult=getResult(in);
+			errResult=getResult(err);
+			if (channel.isClosed()) {
+				if (in.available() > 0)
+					continue;
+				exitCode=channel.getExitStatus();
+				break;
+			}
+			try {
+				Thread.sleep(100);
+			} catch (Exception ee) {}
+		}
+		channel.disconnect();
+		session.disconnect();
+		callback.accept(outResult,errResult);
+		return exitCode;
+	}
+	//
+	private static String getResult(InputStream in)throws Exception{
+		byte[] tmp = new byte[1024];
+		StringBuilder resultOut=new StringBuilder();
+		while (in.available() > 0) {
+			int i = in.read(tmp, 0, 1024);
+			if (i < 0)
+				break;
+			resultOut.append(new String(tmp, 0, i));
+		}
+		return resultOut.toString();
+	}
+	//
+	public static void main(String[] args) throws Exception {
+		execute("192.168.0.11", 22, "appadmin", "appadmin", 
+				"ls",(out,err)->{
+			System.out.println("out:"+out+"/");
+			System.err.println("err:"+err+"/");
+		});
+	}
+}

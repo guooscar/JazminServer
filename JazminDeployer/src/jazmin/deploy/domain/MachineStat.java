@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jazmin.misc.SshUtil;
 import jazmin.util.DumpUtil;
 
 /**
@@ -92,7 +93,7 @@ public class MachineStat {
 	}
 	//
 	private void getLoad()throws Exception{
-		SSHUtil.execute(host, port, user, pwd, 
+		SshUtil.execute(host, port, user, pwd, 
 				"/bin/cat /proc/loadavg",(out,err)->{
 			String ss[]=out.split("\\s+");
 			if(ss.length==5){
@@ -104,7 +105,7 @@ public class MachineStat {
 	}
 	//
 	private void getUpTime()throws Exception{
-		SSHUtil.execute(host, port, user, pwd, 
+		SshUtil.execute(host, port, user, pwd, 
 				"/bin/cat /proc/uptime",(out,err)->{
 			String ss[]=out.split("\\s+");
 			if(ss.length==2){
@@ -114,7 +115,7 @@ public class MachineStat {
 	}
 	//
 	private void getUlimit()throws Exception{
-		SSHUtil.execute(host, port, user, pwd, 
+		SshUtil.execute(host, port, user, pwd, 
 				"/bin/cat /etc/security/limits.conf",(out,err)->{
 			BufferedReader br=new BufferedReader(new StringReader(out));
 			String line=null;
@@ -135,14 +136,14 @@ public class MachineStat {
 	}
 	//
 	private void getHostName()throws Exception{
-		SSHUtil.execute(host, port, user, pwd, 
+		SshUtil.execute(host, port, user, pwd, 
 				"/bin/cat /etc/hosts",(out,err)->{
 			hostName=out;
 		});
 	}
 	//
 	private void getMemory()throws Exception{
-		SSHUtil.execute(host, port, user, pwd, 
+		SshUtil.execute(host, port, user, pwd, 
 				"/bin/cat /proc/meminfo",(out,err)->{
 			BufferedReader br=new BufferedReader(new StringReader(out));
 			String line=null;
@@ -174,7 +175,7 @@ public class MachineStat {
 		});
 	}
 	private void getFS()throws Exception{
-		SSHUtil.execute(host, port, user, pwd, 
+		SshUtil.execute(host, port, user, pwd, 
 				"/bin/df -B1",(out,err)->{
 			BufferedReader br=new BufferedReader(new StringReader(out));
 			String line=null;
@@ -196,7 +197,7 @@ public class MachineStat {
 	}
 	//
 	private void getInterfaces()throws Exception{
-		SSHUtil.execute(host, port, user, pwd, 
+		SshUtil.execute(host, port, user, pwd, 
 				"/sbin/ip -o addr",(out,err)->{
 			BufferedReader br=new BufferedReader(new StringReader(out));
 			String line=null;
@@ -218,7 +219,7 @@ public class MachineStat {
 	}
 	//
 	private void getInterfaceInfo()throws Exception{
-		SSHUtil.execute(host, port, user, pwd, 
+		SshUtil.execute(host, port, user, pwd, 
 				"/bin/cat /proc/net/dev",(out,err)->{
 			BufferedReader br=new BufferedReader(new StringReader(out));
 			String line=null;

@@ -82,7 +82,7 @@ public class SipServer extends Server{
 	private String publicAddress;
 	private int publicPort;
 	private int sessionTimeout;
-	//
+	private SslContext sslContext;
 	private int webSocketPort;
 	private int swebSocketPort;
 	static final int MIN_SESSION_TIMEOUT=60;
@@ -103,6 +103,7 @@ public class SipServer extends Server{
     private  LongAdder sessionIdLongAdder;
     private  Map<SipURI, SipLocationBinding> locationStore;
     private  Map<String, SipChannel>channels;
+  
     //
     private ScheduledExecutorService scheduledExecutorService;
     //
@@ -114,10 +115,9 @@ public class SipServer extends Server{
         this.tlsPort=-1;
         this.webSocketPort=-1;
         this.swebSocketPort=-1;
-        
-        privateKeyFile="cert/jazmin_private_key_pkcs8.pem";
-        certificateFile="cert/jazmin_cert.pem";
-        privateKeyPhrase="jazmin";
+    	certificateFile="";
+		privateKeyFile="";
+		privateKeyPhrase="";
         //
         handlerMethod=Dispatcher.getMethod(
         		SipServer.class,"handleMessage",
@@ -133,7 +133,35 @@ public class SipServer extends Server{
 				new ThreadPoolExecutor.AbortPolicy());
     }
    
-    //
+    /**
+	 * @return the certificateFile
+	 */
+	public String getCertificateFile() {
+		return certificateFile;
+	}
+
+	/**
+	 * @param certificateFile the certificateFile to set
+	 */
+	public void setCertificateFile(String certificateFile) {
+		this.certificateFile = certificateFile;
+	}
+
+	/**
+	 * @return the privateKeyFile
+	 */
+	public String getPrivateKeyFile() {
+		return privateKeyFile;
+	}
+
+	/**
+	 * @param privateKeyFile the privateKeyFile to set
+	 */
+	public void setPrivateKeyFile(String privateKeyFile) {
+		this.privateKeyFile = privateKeyFile;
+	}
+
+	//
     private void startNetty() throws Exception {
     	final InetSocketAddress socketAddress = new InetSocketAddress(this.address, this.port);
     	final InetSocketAddress tlsSocketAddress = new InetSocketAddress(this.address, this.tlsPort);
@@ -169,17 +197,19 @@ public class SipServer extends Server{
     }
     //
     private SslContext createSslContext()throws Exception{
-		SslContext sslContext = null;
+		if(sslContext!=null){
+			return sslContext;
+		}
 		File certiFile = new File(certificateFile);
 		File keyFile = new File(privateKeyFile);
 		if (certiFile.exists() && keyFile.exists()) {
+			sslContext = SslContext.newServerContext(new File(certificateFile),
+					new File(privateKeyFile), privateKeyPhrase);
+		} else {
 			SelfSignedCertificate ssc = new SelfSignedCertificate();
 			sslContext = SslContext.newServerContext(ssc.certificate(),
 					ssc.privateKey());
 			logger.warn("using SelfSignedCertificate.only for debug mode");
-		} else {
-			sslContext = SslContext.newServerContext(new File(certificateFile),
-					new File(privateKeyFile), privateKeyPhrase);
 		}
 		return sslContext;
     }
@@ -722,6 +752,8 @@ public class SipServer extends Server{
 		.format("%-30s:%-30s\n")
 		.print("hostAddress",getHostAddress())
 		.print("port",getPort())
+		.print("privateKeyFile",getPrivateKeyFile())
+		.print("certificateFile",getCertificateFile())
 		.print("tlsPort",getTlsPort())
 		.print("webSocketPort",getWebSocketPort())
 		.print("swebSocketPort",getSWebSocketPort())

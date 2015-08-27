@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 import jazmin.core.Jazmin;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
+import jazmin.misc.SshUtil;
 import jazmin.util.BeanUtil;
 import jazmin.util.FileUtil;
 import jazmin.util.JSONUtil;
@@ -298,6 +299,9 @@ public class DeployManager {
 	public static List<Machine>getMachines(){
 		return new ArrayList<Machine>(machineMap.values());
 	}
+	public static Machine getMachine(String id){
+		return machineMap.get(id);
+	}
 	//
 	public static List<Instance>getInstances(){
 		return new ArrayList<Instance>(instanceMap.values());
@@ -502,7 +506,7 @@ public class DeployManager {
 		sb.append("machine:"+m.id+"@"+m.privateHost+"\n");
 		sb.append("cmd    :"+cmd+"\n");
 		try{
-			SSHUtil.execute(
+			SshUtil.execute(
 					m.privateHost,
 					m.sshPort,
 					m.sshUser,
@@ -543,7 +547,7 @@ public class DeployManager {
 		sb.append("cmd     :"+cmd+"\n");
 		try{
 			Machine m=instance.machine;
-			SSHUtil.execute(
+			SshUtil.execute(
 					m.privateHost,
 					m.sshPort,
 					m.sshUser,
