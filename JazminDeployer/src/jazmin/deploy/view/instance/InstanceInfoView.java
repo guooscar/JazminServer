@@ -128,7 +128,7 @@ public class InstanceInfoView extends DeployBaseView{
 	}
 	//
 	private void initUI(){
-		addOptButton("Console",null, (e)->viewConsole());
+		addOptButton("Console",ValoTheme.BUTTON_PRIMARY, (e)->viewConsole());
 		addOptButton("Detail",null, (e)->viewDetail());
 		addOptButton("BootFile",null, (e)->viewBootFile());
 		addOptButton("TailLog",null, (e)->viewTailLog());

@@ -106,7 +106,7 @@ public class DeployController {
 		}
 	}
 	//
-	@Service(id="instacne_webssh",queryCount=3)
+	@Service(id="instance_webssh",queryCount=3)
 	public void instanceWebssh(Context c){
 		if(!checkMachine(c,"")){
 			return;
