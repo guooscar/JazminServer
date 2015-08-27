@@ -25,7 +25,7 @@ public class SshUtil {
 		}
 
 		public boolean promptYesNo(String str) {
-			return false;
+			return true;
 		}
 
 		public String getPassphrase() {
@@ -64,7 +64,7 @@ public class SshUtil {
 			String pwd,
 			int connectTimeout) throws Exception {
 		JSch jsch = new JSch();
-		Session session=jsch.getSession(user, host, 22);
+		Session session=jsch.getSession(user, host, port);
 		Properties config = new java.util.Properties(); 
 		config.put("StrictHostKeyChecking", "no");
 		session.setConfig(config);
@@ -136,10 +136,6 @@ public class SshUtil {
 	}
 	//
 	public static void main(String[] args) throws Exception {
-		execute("192.168.0.11", 22, "appadmin", "appadmin", 
-				"ls",(out,err)->{
-			System.out.println("out:"+out+"/");
-			System.err.println("err:"+err+"/");
-		});
+		shell("localhost",2222, "appadmin","");
 	}
 }

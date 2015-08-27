@@ -64,6 +64,7 @@ public class ConsoleServer extends Server{
 		sshServer.setPort(port);
 		String jchPath=Jazmin.getServerPath()+"/"+"jch.ser";
 		sshServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(jchPath));
+		
 		sshServer.setPasswordAuthenticator(new PasswordAuthenticator() {
             public boolean authenticate(String u, String p, ServerSession session) {
             	String loginUser=u;

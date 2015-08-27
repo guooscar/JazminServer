@@ -122,7 +122,7 @@ public class DeployController {
 		c.put("sshHost",machine.publicHost);
 		c.put("sshUser",machine.sshUser);
 		c.put("sshPort",instance.port+10000);
-		c.put("sshPassword","");
+		c.put("sshPassword",instance.id);
 		c.view(new ResourceView("/jsp/webssh.jsp"));
 	}
 	//

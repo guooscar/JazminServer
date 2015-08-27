@@ -62,10 +62,10 @@ public class MachineInfoView extends DeployBaseView{
 	}
 	//
 	private void initUI(){
-		addOptButton("View Detail",ValoTheme.BUTTON_PRIMARY, (e)->viewDetail());
+		addOptButton("View Detail",null, (e)->viewDetail());
 		addOptButton("View Stat",null, (e)->viewStat());
 		addOptButton("Test Machine",null, (e)->checkMachine());
-		addOptButton("SSH Login",null, (e)->sshLogin());
+		addOptButton("SSH Login",ValoTheme.BUTTON_PRIMARY, (e)->sshLogin());
 		addOptButton("Run Command",ValoTheme.BUTTON_DANGER, (e)->runCmd());
 	}
 	//
