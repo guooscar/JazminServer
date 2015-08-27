@@ -17,9 +17,9 @@ import com.vaadin.ui.Window;
  * 6 Jan, 2015
  */
 @SuppressWarnings("serial")
-public class WebSshWindow extends Window{
+public class MachineWebSshWindow extends Window{
 	//
-	public WebSshWindow(Machine machine) {
+	public MachineWebSshWindow(Machine machine) {
         Responsive.makeResponsive(this);
         setCaption(machine.id);
         setWidth(90.0f, Unit.PERCENTAGE);

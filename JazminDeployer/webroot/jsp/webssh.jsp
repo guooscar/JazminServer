@@ -15,10 +15,10 @@
     var login=function(ws){
         var loginData=JSON.stringify(
                             {
-                                user: '${machine.sshUser}',
-                                host: '${machine.publicHost}',
-                                port: ${machine.sshPort},
-                                password:'${machine.sshPassword}' 
+                                user: '${sshUser}',
+                                host: '${sshHost}',
+                                port: ${sshPort},
+                                password:'${sshPassword}' 
                             });
          ws.send("2" + loginData);
     }

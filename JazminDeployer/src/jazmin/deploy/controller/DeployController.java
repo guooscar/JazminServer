@@ -105,6 +105,27 @@ public class DeployController {
 			c.view(new PlainTextView(result));
 		}
 	}
+	//
+	@Service(id="instacne_webssh",queryCount=3)
+	public void instanceWebssh(Context c){
+		if(!checkMachine(c,"")){
+			return;
+		}
+		List<String>querys=c.request().querys();
+		String instanceId=querys.get(2);
+		Instance instance=DeployManager.getInstance(instanceId);
+		if(instance==null){
+			c.view(new ErrorView(404));
+			return;
+		}
+		Machine machine=instance.machine;
+		c.put("sshHost",machine.publicHost);
+		c.put("sshUser",machine.sshUser);
+		c.put("sshPort",instance.port+10000);
+		c.put("sshPassword","");
+		c.view(new ResourceView("/jsp/webssh.jsp"));
+	}
+	//
 	@Service(id="webssh",queryCount=3)
 	public void webssh(Context c){
 		if(!checkMachine(c,"")){
@@ -117,7 +138,10 @@ public class DeployController {
 			c.view(new ErrorView(404));
 			return;
 		}
-		c.put("machine",machine);
+		c.put("sshHost",machine.publicHost);
+		c.put("sshUser",machine.sshUser);
+		c.put("sshPort",machine.sshPort);
+		c.put("sshPassword",machine.sshPassword);
 		c.view(new ResourceView("/jsp/webssh.jsp"));
 	}
 	//

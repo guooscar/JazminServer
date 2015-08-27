@@ -99,7 +99,7 @@ public class MachineInfoView extends DeployBaseView{
 			DeploySystemUI.showNotificationInfo("Info",
 					"Please choose which machine to login.");
 		}else{
-			WebSshWindow bfw=new WebSshWindow(machine);
+			MachineWebSshWindow bfw=new MachineWebSshWindow(machine);
 			UI.getCurrent().addWindow(bfw);
 			bfw.focus();
 		}
