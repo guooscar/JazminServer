@@ -54,7 +54,9 @@ JazminServer is a Java based application/message/rpc/sip/rtmp/udp relay server.
   * TCP relay
   * WebRTC(DTLS-SRTP) to RTP relay
   * Used for NAT through
- 
+* WebSshServer
+  * WebSocket Ssh turnel
+  * htrm.js
 # Demo
 Start a rpc server and register remote service
 <pre>
@@ -124,6 +126,9 @@ JazminServer帮助开发者实现了众多的底层功能，基于JazminServer�
   * TCP relay TCP包中转
   * WebRTC(DTLS-SRTP) to RTP relay WebRTC(DTLS-SRTP)包转换成RTP包，用于WebRTC客户端和传统sip软电话互联
   * Used for NAT through 可以帮助客户端穿透NAT    
+* WebSshServer
+  * 使用WebSocket作为传输中继
+  * 前端使用hterm.js
 <p>
 <img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image002.jpg?raw=true'/>
 <div alian="center">架构图</div>
