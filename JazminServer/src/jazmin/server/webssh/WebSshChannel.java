@@ -48,6 +48,7 @@ public class WebSshChannel {
 	public String sshUser;
 	public int sshPort;
 	public String sshCmd;
+	private boolean enableInput;
 	//
 	public WebSshChannel() {
 		createTime=new Date();
@@ -70,7 +71,9 @@ public class WebSshChannel {
 			shellOutputStream=shell.getOutputStream();
 			startInputReader();
 			//
-			if(cmd!=null){
+			enableInput=true;
+			if(cmd!=null&&!cmd.trim().isEmpty()){
+				enableInput=false;
 				shellOutputStream.write((cmd+"\r\n").getBytes());
 				shellOutputStream.flush();
 			}
@@ -105,7 +108,7 @@ public class WebSshChannel {
 	//
 	public void receiveMessage(String msg){
 		char command=msg.charAt(0);
-		if(command==RECEIVE_KEY&&sshCmd==null){
+		if(command==RECEIVE_KEY&&enableInput){
 			for(int i=1;i<msg.length();i++){
 				String s=msg.charAt(i)+"";
 				try {
