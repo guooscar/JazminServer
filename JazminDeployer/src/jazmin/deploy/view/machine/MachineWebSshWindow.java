@@ -21,7 +21,7 @@ public class MachineWebSshWindow extends Window{
 	//
 	public MachineWebSshWindow(Machine machine) {
         Responsive.makeResponsive(this);
-        setCaption(machine.id);
+        setCaption(machine.sshUser+"@"+machine.id);
         setWidth(90.0f, Unit.PERCENTAGE);
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);

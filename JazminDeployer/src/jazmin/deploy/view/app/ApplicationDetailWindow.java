@@ -24,7 +24,7 @@ public class ApplicationDetailWindow extends Window{
 	//
 	public ApplicationDetailWindow(Application app) {
         Responsive.makeResponsive(this);
-        setCaption(app.id);
+        setCaption(app.id+" information");
         setWidth("600px");
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);

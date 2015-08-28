@@ -24,7 +24,7 @@ public class MachineDetailWindow extends Window{
 	//
 	public MachineDetailWindow(Machine machine) {
         Responsive.makeResponsive(this);
-        setCaption(machine.id);
+        setCaption(machine.id+" information");
         setWidth("600px");
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);
@@ -35,7 +35,7 @@ public class MachineDetailWindow extends Window{
         content.setSizeFull();
         setContent(content);
         StaticBeanForm<Machine>beanForm=new StaticBeanForm<Machine>(
-        		 machine, 1,"sshPassword");
+        		 machine, 1,"sshPassword","rootSshPassword");
         beanForm.setSizeFull();
         content.addComponent(beanForm);
         content.setExpandRatio(beanForm, 1f);

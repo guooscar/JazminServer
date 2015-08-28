@@ -25,7 +25,7 @@ public class DeployGraphWindow extends Window{
 	//
 	public DeployGraphWindow(String type,String systemId,String clusterName) {
         Responsive.makeResponsive(this);
-        setCaption(systemId+" graph");
+        setCaption(systemId+" deploy graph");
         setWidth(90.0f, Unit.PERCENTAGE);
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);

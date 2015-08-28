@@ -40,6 +40,7 @@ public class MachineInfoView extends DeployBaseView{
 		machines=new ArrayList<Machine>();
 		table= new BeanTable<Machine>(null, Machine.class,
 				"sshPassword",
+				"rootSshPassword",
 				"jazminHome",
 				"memcachedHome",
 				"haproxyHome");
@@ -64,6 +65,7 @@ public class MachineInfoView extends DeployBaseView{
 	private void initUI(){
 		addOptButton("View Detail",null, (e)->viewDetail());
 		addOptButton("View Stat",null, (e)->viewStat());
+		addOptButton("View Instances",null, (e)->viewInstances());
 		addOptButton("Test Machine",null, (e)->checkMachine());
 		addOptButton("SSH Login",ValoTheme.BUTTON_PRIMARY, (e)->sshLogin());
 		addOptButton("Iptables",ValoTheme.BUTTON_DANGER, (e)->viewIptables());
@@ -94,6 +96,19 @@ public class MachineInfoView extends DeployBaseView{
 			bfw.focus();
 		}
 	}
+	//
+	private void viewInstances(){
+		Machine machine=table.getSelectValue();
+		if(machine==null){
+			DeploySystemUI.showNotificationInfo("Info",
+					"Please choose which machine to view.");
+		}else{
+			MachineInstanceWindow bfw=new MachineInstanceWindow(machine);
+			UI.getCurrent().addWindow(bfw);
+			bfw.focus();
+		}
+	}
+	//
 	private void sshLogin(){
 		Machine machine=table.getSelectValue();
 		if(machine==null){

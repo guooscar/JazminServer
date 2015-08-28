@@ -58,7 +58,7 @@ public class InstanceMySQLWindow extends Window{
 		currentHeaders=new ArrayList<String>();
 		this.instance=instance;
         Responsive.makeResponsive(this);
-        setCaption(instance.id);
+        setCaption(instance.id+" mysql console");
         setWidth(90.0f, Unit.PERCENTAGE);
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);

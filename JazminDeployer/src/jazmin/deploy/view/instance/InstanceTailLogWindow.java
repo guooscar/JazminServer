@@ -21,7 +21,7 @@ public class InstanceTailLogWindow extends Window{
 	//
 	public InstanceTailLogWindow(Instance instance) {
         Responsive.makeResponsive(this);
-        setCaption(instance.id);
+        setCaption(instance.id+" tail log");
         setWidth(90.0f, Unit.PERCENTAGE);
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);

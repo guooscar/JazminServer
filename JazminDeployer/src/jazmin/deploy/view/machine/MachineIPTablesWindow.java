@@ -35,14 +35,12 @@ public class MachineIPTablesWindow extends Window{
 		this.machine=machine;
         Responsive.makeResponsive(this);
         setCaption(machine.id+" iptables");
-        setWidth(90.0f, Unit.PERCENTAGE);
+        setWidth("600px");
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);
         setResizable(true);
         setClosable(true);
         setHeight(90.0f, Unit.PERCENTAGE);
-        //
-     
         //
         optLayout = new HorizontalLayout();
 		optLayout.setSpacing(true);

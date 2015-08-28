@@ -24,7 +24,7 @@ public class InstanceDetailWindow extends Window{
 	//
 	public InstanceDetailWindow(Instance instance) {
         Responsive.makeResponsive(this);
-        setCaption(instance.id);
+        setCaption(instance.id+" information");
         setWidth("600px");
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);

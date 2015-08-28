@@ -21,7 +21,7 @@ public class InstanceHaproxyStatWindow extends Window{
 	//
 	public InstanceHaproxyStatWindow(Instance instance) {
         Responsive.makeResponsive(this);
-        setCaption(instance.id);
+        setCaption(instance.id+" haproxy stat");
         setWidth(90.0f, Unit.PERCENTAGE);
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);
