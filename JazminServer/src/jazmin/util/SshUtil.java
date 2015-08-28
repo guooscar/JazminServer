@@ -213,7 +213,7 @@ public class SshUtil {
 		checkAck(in);
 		//
 		FileInputStream fis = new FileInputStream(lFile);
-		byte[] buf = new byte[1024];
+		byte[] buf = new byte[1024*500];
 		long sendLen=0;
 		while (true) {
 			int len = fis.read(buf, 0, buf.length);
