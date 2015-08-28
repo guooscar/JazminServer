@@ -169,6 +169,13 @@ public class InstanceInfoView extends DeployBaseView{
 				return;
 			}
 			//
+			if(instance.application.type.equals(Application.TYPE_MEMCACHED)){
+				InstanceMemcachedWindow window=new InstanceMemcachedWindow(instance);
+				UI.getCurrent().addWindow(window);
+				window.focus();
+				return;
+			}
+			//
 			if(instance.application.type.startsWith("jazmin")){
 				InstanceWebSshWindow bfw=new InstanceWebSshWindow(instance);
 				UI.getCurrent().addWindow(bfw);

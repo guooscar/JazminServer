@@ -78,6 +78,6 @@
 		"cluster":"dev",
 		"id":"MainDataMemcached",
 		"machineId":"dev",
-		"port":4400
+		"port":11211
 	}
 ]
