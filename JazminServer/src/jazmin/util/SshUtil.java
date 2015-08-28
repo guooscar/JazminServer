@@ -3,11 +3,16 @@
  */
 package jazmin.util;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Properties;
 import java.util.function.BiConsumer;
 
-import com.jcraft.jsch.Channel;
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
+
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelShell;
 import com.jcraft.jsch.JSch;
@@ -19,6 +24,8 @@ import com.jcraft.jsch.UserInfo;
  * @author yama 7 Jan, 2015
  */
 public class SshUtil {
+	private static Logger logger=LoggerFactory.get(SshUtil.class);
+	//
 	public static  class MyUserInfo implements UserInfo,
 			UIKeyboardInteractive {
 		public String getPassword() {
@@ -66,6 +73,9 @@ public class SshUtil {
 			int connectTimeout) throws Exception {
 		JSch jsch = new JSch();
 		Session session=jsch.getSession(user, host, port);
+		if(logger.isDebugEnabled()){
+			logger.debug("create shell {}@{}:{}",user,host,port);
+		}
 		Properties config = new java.util.Properties(); 
 		config.put("StrictHostKeyChecking", "no");
 		session.setConfig(config);
@@ -87,6 +97,9 @@ public class SshUtil {
 			int timeout) throws Exception {
 		JSch jsch = new JSch();
 		Session session = jsch.getSession(user, host, port);
+		if(logger.isDebugEnabled()){
+			logger.debug("exec {}@{}:{} {}",user,host,port,cmd);
+		}
 		session.setPassword(pwd);
 		Properties config = new java.util.Properties(); 
 		config.put("StrictHostKeyChecking", "no");
@@ -107,20 +120,24 @@ public class SshUtil {
 			String user, 
 			String pwd,
 			String cmd,
+			int connectTimeout,
 			BiConsumer<String,String>callback) throws Exception {
 		JSch jsch = new JSch();
 		Session session = jsch.getSession(user, host, port);
+		if(logger.isDebugEnabled()){
+			logger.debug("exec {}@{}:{} {}",user,host,port,cmd);
+		}
 		session.setPassword(pwd);
 		Properties config = new java.util.Properties(); 
 		config.put("StrictHostKeyChecking", "no");
 		session.setConfig(config);
-		session.connect();
+		session.connect(connectTimeout);
 		ChannelExec channel = (ChannelExec) session.openChannel("exec");
 		channel.setCommand(cmd);
 		channel.setInputStream(null);
 		InputStream in = channel.getInputStream();
 		InputStream err = channel.getErrStream();
-		channel.connect();
+		channel.connect(connectTimeout);
 		int exitCode=0;
 		String outResult="";
 		String errResult="";
@@ -155,23 +172,95 @@ public class SshUtil {
 		return resultOut.toString();
 	}
 	//
-	public static void main(String[] args) throws Exception {
-		//shell("localhost",2222, "appadmin","");
-		/*execute("localhost",22, "yama","77585211","top",new BiConsumer<String, String>() {
-			@Override
-			public void accept(String t, String u) {
-				System.err.println(t);
-			}
-		});*/
-		Channel c=execute("localhost",22, "yama","77585211","top",1000);
-		InputStream in=c.getInputStream();
-		byte[] tmp = new byte[1024];
-		while (true) {
-			int i = in.read(tmp, 0, 1024);
-			if (i < 0)
-				break;
-			System.err.println(new String(tmp, 0, i));
+	//
+	public static void scp(
+			String host, 
+			int port, 
+			String user, 
+			String pwd,
+			String localFile,
+			String remoteFile,
+			int connectTimeout,
+			BiConsumer<Long,Long>callback) throws Exception {
+		JSch jsch = new JSch();
+		Session session = jsch.getSession(user, host, port);
+		if(logger.isDebugEnabled()){
+			logger.debug("scp {}@{}:{} {} -> {}",user,host,port,localFile,remoteFile);
 		}
-		
+		session.setPassword(pwd);
+		Properties config = new java.util.Properties(); 
+		config.put("StrictHostKeyChecking", "no");
+		session.setConfig(config);
+		session.connect(connectTimeout);
+		ChannelExec channel = (ChannelExec) session.openChannel("exec");
+		channel.setCommand("scp -t "+remoteFile);
+		channel.setInputStream(null);
+		InputStream in = channel.getInputStream();
+		OutputStream out = channel.getOutputStream();
+		channel.connect(connectTimeout);
+		checkAck(in);
+		File lFile = new File(localFile);
+		long filesize=lFile.length();
+		String   command="C0644 "+filesize+" ";
+		if (localFile.lastIndexOf('/') > 0) {
+			command += localFile.substring(localFile.lastIndexOf('/') + 1);
+		} else {
+			command += localFile;
+		}
+		command += "\n";
+		out.write(command.getBytes());
+		out.flush();
+		checkAck(in);
+		//
+		FileInputStream fis = new FileInputStream(lFile);
+		byte[] buf = new byte[1024];
+		long sendLen=0;
+		while (true) {
+			int len = fis.read(buf, 0, buf.length);
+			sendLen+=len;
+			callback.accept(filesize,sendLen);
+			if (len <= 0)
+				break;
+			out.write(buf, 0, len); // out.flush();
+		}
+		fis.close();
+		fis = null;
+		// send '\0'
+		buf[0] = 0;
+		out.write(buf, 0, 1);
+		out.flush();
+		checkAck(in);
+		out.close();
+		channel.disconnect();
+		session.disconnect();
+		//
+	} 
+	//
+	static void checkAck(InputStream in) throws Exception {
+		int b = in.read();
+		if (b == 0) {
+			return;
+		}
+		if (b == -1) {
+			 throw new Exception("read -1");
+		}
+		if (b == 1 || b == 2) {
+			StringBuffer sb = new StringBuffer();
+			int c;
+			do {
+				c = in.read();
+				sb.append((char) c);
+			} while (c != '\n');
+			if (b == 1||b==2) { // error
+				throw new Exception(sb.toString());
+			}
+		}
+	}
+	//
+	public static void main(String[] args) throws Exception {
+		scp("localhost", 22, "yama", "77585211", "/Users/yama/Downloads/aaa2.zip", "/tmp/", 1000,
+				(total,current)->{
+			System.err.println(total+"/"+current);
+		});
 	}
 }

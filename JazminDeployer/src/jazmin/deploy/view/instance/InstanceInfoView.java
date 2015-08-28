@@ -18,6 +18,7 @@ import jazmin.deploy.view.main.ActionReportWindow;
 import jazmin.deploy.view.main.CodeEditorCallback;
 import jazmin.deploy.view.main.CodeEditorWindow;
 import jazmin.deploy.view.main.DeployBaseView;
+import jazmin.deploy.view.main.TaskProgressWindow;
 
 import org.vaadin.aceeditor.AceMode;
 
@@ -276,28 +277,33 @@ public class InstanceInfoView extends DeployBaseView{
 	}
 	//
 	private void testInstance(){
-		OptProgressWindow optWindow=new OptProgressWindow(window->{
+		TaskProgressWindow optWindow=new TaskProgressWindow(window->{
 			Jazmin.execute(()->{
 				testInstance0(window);
 			});
 		});
 		optWindow.setCaption("Confirm");
+		for(Instance i:getOptInstances()){
+			optWindow.addTask(i.id,"");
+		}
 		optWindow.setInfo("Confirm test total "+getOptInstances().size()+" instance(s) state?");
 		UI.getCurrent().addWindow(optWindow);
 	}
 	//
 	//
-	private void testInstance0(OptProgressWindow window){
+	private void testInstance0(TaskProgressWindow window){
 		AtomicInteger counter=new AtomicInteger();
 		getOptInstances().forEach(instance->{
 			window.getUI().access(()->{
 				window.setInfo("test "+instance.id+" "+
 						counter.incrementAndGet()+
 						"/"+getOptInstances().size()+"...");	
+				window.updateTask(instance.id, "testing...");
 			});
 			DeployManager.testInstance(instance);
 			window.getUI().access(()->{
-				window.setInfo("test "+instance.id+" result:"+instance.isAlive);	
+				window.setInfo("test "+instance.id+" result:"+instance.isAlive);
+				window.updateTask(instance.id, "alive:"+instance.isAlive);
 			});
 		});
 		window.getUI().access(()->{
@@ -324,27 +330,44 @@ public class InstanceInfoView extends DeployBaseView{
 	}
 	//
 	private void createInstacne1(String jsFile){
-		OptProgressWindow optWindow=new OptProgressWindow(window->{
+		TaskProgressWindow optWindow=new TaskProgressWindow(window->{
 			Jazmin.execute(()->{
 				DeployManager.resetActionReport();
 				createInstance0(window,jsFile);
 			});
 		});
 		optWindow.setCaption("Confirm");
+		for(Instance i:getOptInstances()){
+			optWindow.addTask(i.id,"");
+		}
+		
 		optWindow.setInfo("Confirm create total "+getOptInstances().size()+" instance(s)?");
 		UI.getCurrent().addWindow(optWindow);
 	}
 	//
-	private void createInstance0(OptProgressWindow window,String jsFile){
+	private void createInstance0(TaskProgressWindow window,String jsFile){
 		AtomicInteger counter=new AtomicInteger();
-		getOptInstances().forEach(instance->{
+		for(Instance instance:getOptInstances()){
+			if(window.isCancel()){
+				break;
+			}
 			window.getUI().access(()->{
 				window.setInfo("create "+instance.id+" "+
 						counter.incrementAndGet()+
-						"/"+getOptInstances().size()+"...");	
+						"/"+getOptInstances().size()+"...");
+				window.updateTask(instance.id, "creating...");
 			});
-			DeployManager.createInstance(instance,jsFile);
-		});
+			final StringBuilder result=new StringBuilder("done");
+			try {
+				DeployManager.createInstance(instance,jsFile);
+			} catch (Exception e) {
+				result.append(":"+e.getMessage());
+			}
+			window.getUI().access(()->{
+				window.updateTask(instance.id, result.toString());
+			});
+			
+		};
 		window.getUI().access(()->{
 			window.close();
 			DeploySystemUI.showNotificationInfo("Info", "create complete");
@@ -352,48 +375,70 @@ public class InstanceInfoView extends DeployBaseView{
 	}
 	//
 	private void startInstance(){
-		OptProgressWindow optWindow=new OptProgressWindow(window->{
+		TaskProgressWindow optWindow=new TaskProgressWindow(window->{
 			Jazmin.execute(()->{
 				DeployManager.resetActionReport();
 				startInstance0(window);
 			});
 		});
+		for(Instance i:getOptInstances()){
+			optWindow.addTask(i.id,"");
+		}
+		
 		optWindow.setCaption("Confirm");
 		optWindow.setInfo("Confirm start total "+getOptInstances().size()+" instance(s)?");
 		UI.getCurrent().addWindow(optWindow);
 	}
 	//
 	//
-	private void startInstance0(OptProgressWindow window){
+	private void startInstance0(TaskProgressWindow window){
 		AtomicInteger counter=new AtomicInteger();
 		AtomicInteger waitCounter=new AtomicInteger();
-		getOptInstances().forEach(instance->{
+		for(Instance instance:getOptInstances()){
+			if(window.isCancel()){
+				break;
+			}
 			window.getUI().access(()->{
 				window.setInfo("start "+instance.id+" "+
 						counter.incrementAndGet()+
 						"/"+getOptInstances().size()+"...");	
+				window.updateTask(instance.id,"starting...");
 			});
 			waitCounter.set(0);
-			DeployManager.startInstance(instance);
-			while(waitCounter.get()<30){
+			final StringBuilder result=new StringBuilder("done");
+			boolean error=false;
+			try {
+				DeployManager.startInstance(instance);
+			} catch (Exception e1) {
+				error=true;
+				result.append(":"+e1.getMessage());
+			}
+			if(error){
+				window.getUI().access(()->{
+					window.updateTask(instance.id, result.toString());
+				});
+			}
+			while(waitCounter.get()<30&&!error){
 				try {
 					TimeUnit.SECONDS.sleep(1);
 				} catch (Exception e) {}
-				window.getUI().access(()->window.setInfo(
-						"wait "+instance.id+" "+
-								waitCounter.incrementAndGet()+" seconds"));
+				window.getUI().access(()->{
+					window.setInfo("wait "+instance.id+" "+
+								waitCounter.incrementAndGet()+" seconds");
+					window.updateTask(instance.id, waitCounter.intValue()+" seconds");
+				});
 				DeployManager.testInstance(instance);
 				if(instance.isAlive){
 					break;
 				}
 			}
 			//wait for 15 seconds still not response maybe error happened
-			if(!instance.isAlive){
+			if(!instance.isAlive&&!error){
 				window.getUI().access(()->DeploySystemUI.showNotificationInfo(
 						"Error",instance.id+" not response after 30 seconds"));
-			
+				window.updateTask(instance.id,"not response");
 			}
-		});
+		}
 		window.getUI().access(()->{
 			window.close();
 			DeploySystemUI.showNotificationInfo("Info", "start complete");
@@ -402,27 +447,42 @@ public class InstanceInfoView extends DeployBaseView{
 	//
 	//
 	private void stopInstance(){
-		OptProgressWindow optWindow=new OptProgressWindow(window->{
+		TaskProgressWindow optWindow=new TaskProgressWindow(window->{
 			Jazmin.execute(()->{
 				DeployManager.resetActionReport();
 				stopInstance0(window,true);
 			});
 		});
+		for(Instance i:getOptInstances()){
+			optWindow.addTask(i.id,"");
+		}
 		optWindow.setCaption("Confirm");
 		optWindow.setInfo("Confirm stop total "+getOptInstances().size()+" instance(s)?");
 		UI.getCurrent().addWindow(optWindow);
 	}
 	//
-	private void stopInstance0(OptProgressWindow window,boolean stopWindow){
+	private void stopInstance0(TaskProgressWindow window,boolean stopWindow){
 		AtomicInteger counter=new AtomicInteger();
-		getOptInstances().forEach(instance->{
+		for(Instance instance: getOptInstances()){
+			if(window.isCancel()){
+				break;
+			}
 			window.getUI().access(()->{
 				window.setInfo("stop "+instance.id+" "+
 						counter.incrementAndGet()+
-						"/"+getOptInstances().size()+"...");	
+						"/"+getOptInstances().size()+"...");
+				window.updateTask(instance.id,"stopping...");
 			});
-			DeployManager.stopInstance(instance);
-		});
+			final StringBuilder result=new StringBuilder("done");
+			try {
+				DeployManager.stopInstance(instance);
+			} catch (Exception e) {
+				result.append(":"+e.getMessage());
+			}
+			window.getUI().access(()->{
+				window.updateTask(instance.id, result.toString());
+			});
+		}
 		window.getUI().access(()->{
 			if(stopWindow){
 				window.close();
@@ -432,13 +492,16 @@ public class InstanceInfoView extends DeployBaseView{
 	}
 	//
 	private void restartInstance(){
-		OptProgressWindow optWindow=new OptProgressWindow(window->{
+		TaskProgressWindow optWindow=new TaskProgressWindow(window->{
 			Jazmin.execute(()->{
 				DeployManager.resetActionReport();
 				stopInstance0(window,false);
 				startInstance0(window);
 			});
 		});
+		for(Instance i:getOptInstances()){
+			optWindow.addTask(i.id,"");
+		}
 		optWindow.setCaption("Confirm");
 		optWindow.setInfo("Confirm restart total "+getOptInstances().size()+" instance(s)?");
 		UI.getCurrent().addWindow(optWindow);

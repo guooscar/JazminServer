@@ -512,6 +512,7 @@ public class DeployManager {
 					m.sshUser,
 					m.sshPassword,
 					cmd,
+					m.getSshTimeout(),
 					(out,err)->{
 						sb.append("-------------------------------------------------------\n");
 						sb.append(out+"\n");
@@ -520,6 +521,7 @@ public class DeployManager {
 						}
 					});
 		}catch(Exception e){
+			e.printStackTrace();
 			sb.append(e.getMessage()+"\n");
 		}
 		return sb.toString();
@@ -540,7 +542,8 @@ public class DeployManager {
 					instance.port));
 	}
 	//
-	private static String exec(Instance instance,String cmd){
+	private static String exec(Instance instance,String cmd)
+	throws Exception{
 		StringBuilder sb=new StringBuilder();
 		sb.append("-------------------------------------------------------\n");
 		sb.append("instance:"+instance.id+"\n");
@@ -553,6 +556,7 @@ public class DeployManager {
 					m.sshUser,
 					m.sshPassword,
 					cmd,
+					m.getSshTimeout(),
 					(out,err)->{
 						sb.append("-------------------------------------------------------\n");
 						sb.append(out+"\n");
@@ -561,12 +565,14 @@ public class DeployManager {
 						}
 					});
 		}catch(Exception e){
+			e.printStackTrace();
 			sb.append(e.getMessage()+"\n");
+			throw e;
 		}
 		return sb.toString();
 	}
 	//
-	public static void createInstance(Instance instance,String jsFile){
+	public static void createInstance(Instance instance,String jsFile)throws Exception{
 		if(instance.application.type.startsWith("jazmin")){
 			String instanceDir=instance.machine.jazminHome+"/instance/"+instance.id;
 			appendActionReport(exec(instance,
@@ -579,7 +585,7 @@ public class DeployManager {
 		}
 	}
 	//
-	public static void startInstance(Instance instance){
+	public static void startInstance(Instance instance) throws Exception{
 		if(instance.application.type.startsWith("jazmin")){
 			appendActionReport(exec(instance,instance.machine.jazminHome
 				+"/jazmin startbg "+instance.id));
@@ -594,7 +600,7 @@ public class DeployManager {
 		}
 	}
 	//
-	public static void stopInstance(Instance instance){
+	public static void stopInstance(Instance instance) throws Exception{
 		if(instance.application.type.startsWith("jazmin")){
 			appendActionReport(exec(instance,instance.machine.jazminHome
 					+"/jazmin stop "+instance.id));
@@ -608,7 +614,7 @@ public class DeployManager {
 				+"/hactl stop "+instance.id));
 		}
 	}
-	public static String getTailLog(Instance instance) {
+	public static String getTailLog(Instance instance) throws Exception {
 		if(instance.application.type.startsWith("jazmin")){
 			return exec(instance,
 							"tail -n 100 "+
@@ -618,7 +624,7 @@ public class DeployManager {
 		return "not support instance type :"+instance.application.type;
 	}
 	//
-	public static String getTailLog(String instanceName){
+	public static String getTailLog(String instanceName) throws Exception{
 		Instance instance=instanceMap.get(instanceName);
 		if(instance==null){
 			return null;

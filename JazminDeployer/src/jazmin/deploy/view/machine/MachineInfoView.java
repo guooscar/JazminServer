@@ -13,9 +13,11 @@ import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.Machine;
 import jazmin.deploy.ui.BeanTable;
 import jazmin.deploy.view.instance.InputWindow;
-import jazmin.deploy.view.instance.OptProgressWindow;
 import jazmin.deploy.view.main.ActionReportWindow;
 import jazmin.deploy.view.main.DeployBaseView;
+import jazmin.deploy.view.main.TaskProgressWindow;
+import jazmin.util.DumpUtil;
+import jazmin.util.SshUtil;
 
 import com.vaadin.ui.Table;
 import com.vaadin.ui.UI;
@@ -67,6 +69,7 @@ public class MachineInfoView extends DeployBaseView{
 		addOptButton("View Stat",null, (e)->viewStat());
 		addOptButton("View Instances",null, (e)->viewInstances());
 		addOptButton("Test Machine",null, (e)->checkMachine());
+		addOptButton("Copy Files",ValoTheme.BUTTON_PRIMARY, (e)->copyFiles());
 		addOptButton("SSH Login",ValoTheme.BUTTON_PRIMARY, (e)->sshLogin());
 		addOptButton("Iptables",ValoTheme.BUTTON_DANGER, (e)->viewIptables());
 		addOptButton("Run Command",ValoTheme.BUTTON_DANGER, (e)->runCmd());
@@ -121,6 +124,69 @@ public class MachineInfoView extends DeployBaseView{
 		}
 	}
 	//
+	private void copyFiles(){
+		MachineCopyWindow bfw=new MachineCopyWindow(this::copyFiles);
+		UI.getCurrent().addWindow(bfw);
+		bfw.focus();
+	}
+	//
+	private void copyFiles(String from,String to){
+		TaskProgressWindow optWindow=new TaskProgressWindow(window->{
+			Jazmin.execute(()->{
+				copyFiles0(window,from,to);
+			});
+		});
+		optWindow.setCaption("Confirm");
+		for(Machine m:machines){
+			optWindow.addTask(m.id,"");
+		}
+		optWindow.setInfo("Confirm copy local file:"+from
+				+" to "+machines.size()+" machine(s)?");
+		UI.getCurrent().addWindow(optWindow);
+	}
+	//
+	private void copyFiles0(TaskProgressWindow window,String from,String to){
+		AtomicInteger counter=new AtomicInteger();
+		for(Machine machine:machines){
+			if(window.isCancel()){
+				break;
+			}
+			window.getUI().access(()->{
+				window.setInfo("copy "+machine.id+" "+
+						counter.incrementAndGet()+
+						"/"+machines.size()+"...");	
+				window.updateTask(machine.id, "copy...");
+			});
+			StringBuilder result=new StringBuilder("done");
+			try {
+				SshUtil.scp(machine.privateHost,
+						machine.sshPort, 
+						machine.sshUser,
+						machine.sshPassword,
+						from, to, machine.sshTimeout,(total,curr)->{
+							window.getUI().access(()->{
+								float a=total;
+								float b=curr;
+								window.updateTask(machine.id, String.format("%.2f",b/a*100)+"%");
+								window.setInfo(from+" -> "+machine.id+" "+
+								DumpUtil.byteCountToString(curr)+"/"
+								+DumpUtil.byteCountToString(total));
+							});
+						});
+			} catch (Exception e) {
+				result.append(":"+e.getMessage());
+			}
+			window.getUI().access(()->{
+				window.setInfo("copy to "+machine.id+" done");	
+				window.updateTask(machine.id, result.toString());
+			});
+		}
+		window.getUI().access(()->{
+			window.close();
+			loadData();
+		});
+	}
+	//
 	private void viewIptables(){
 		Machine machine=table.getSelectValue();
 		if(machine==null){
@@ -134,29 +200,37 @@ public class MachineInfoView extends DeployBaseView{
 	}
 	//
 	private void checkMachine(){
-		OptProgressWindow optWindow=new OptProgressWindow(window->{
+		TaskProgressWindow optWindow=new TaskProgressWindow(window->{
 			Jazmin.execute(()->{
 				checkMachine0(window);
 			});
 		});
 		optWindow.setCaption("Confirm");
+		for(Machine m:machines){
+			optWindow.addTask(m.id,"");
+		}
 		optWindow.setInfo("Confirm test total "+machines.size()+" machine(s) state?");
 		UI.getCurrent().addWindow(optWindow);
 	}
 	//
-	private void checkMachine0(OptProgressWindow window){
+	private void checkMachine0(TaskProgressWindow window){
 		AtomicInteger counter=new AtomicInteger();
-		machines.forEach(machine->{
+		for(Machine machine:machines){
+			if(window.isCancel()){
+				break;
+			}
 			window.getUI().access(()->{
 				window.setInfo("test "+machine.id+" "+
 						counter.incrementAndGet()+
 						"/"+machines.size()+"...");	
+				window.updateTask(machine.id, "testing...");
 			});
 			DeployManager.testMachine(machine);
 			window.getUI().access(()->{
 				window.setInfo("test "+machine.id+" result:"+machine.isAlive);	
+				window.updateTask(machine.id, "alive:"+machine.isAlive);
 			});
-		});
+		}
 		window.getUI().access(()->{
 			window.close();
 			loadData();

@@ -14,6 +14,7 @@ public class Machine extends BaseDomain{
 	public String sshUser;
 	public String sshPassword;
 	public String rootSshPassword;
+	public int sshTimeout;
 	public int sshPort;
 	public String jazminHome;
 	public String memcachedHome;
@@ -21,6 +22,13 @@ public class Machine extends BaseDomain{
 	//
 	public Machine() {
 		super();
+	}
+	//
+	public int getSshTimeout(){
+		if(sshTimeout<=0){
+			return 5000;
+		}
+		return sshTimeout;
 	}
 	/**
 	 * @return the isAlive

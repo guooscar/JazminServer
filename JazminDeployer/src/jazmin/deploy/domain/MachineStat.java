@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jazmin.util.DumpUtil;
 import jazmin.util.SshUtil;
 
 /**
@@ -69,18 +68,20 @@ public class MachineStat {
 	private int port;
 	private String user;
 	private String pwd;
+	private int timeout;
 	//
 	public MachineStat() {
 		fsinfos=new ArrayList<MachineStat.FSInfo>();
 		netInfInfos=new HashMap<>();
 	}
 	//
-	public void getMachineInfo(String host,int port,String user,String pwd)
+	public void getMachineInfo(String host,int port,String user,String pwd,int timeout)
 	throws Exception{
 		this.host=host;
 		this.port=port;
 		this.user=user;
 		this.pwd=pwd;
+		this.timeout=timeout;
 		//
 		getUpTime();
 		getLoad();
@@ -94,7 +95,7 @@ public class MachineStat {
 	//
 	private void getLoad()throws Exception{
 		SshUtil.execute(host, port, user, pwd, 
-				"/bin/cat /proc/loadavg",(out,err)->{
+				"/bin/cat /proc/loadavg",timeout,(out,err)->{
 			String ss[]=out.split("\\s+");
 			if(ss.length==5){
 				load1=ss[0];
@@ -106,7 +107,7 @@ public class MachineStat {
 	//
 	private void getUpTime()throws Exception{
 		SshUtil.execute(host, port, user, pwd, 
-				"/bin/cat /proc/uptime",(out,err)->{
+				"/bin/cat /proc/uptime",timeout,(out,err)->{
 			String ss[]=out.split("\\s+");
 			if(ss.length==2){
 				upTime=Double.valueOf(ss[0]).longValue();
@@ -116,7 +117,7 @@ public class MachineStat {
 	//
 	private void getUlimit()throws Exception{
 		SshUtil.execute(host, port, user, pwd, 
-				"/bin/cat /etc/security/limits.conf",(out,err)->{
+				"/bin/cat /etc/security/limits.conf",timeout,(out,err)->{
 			BufferedReader br=new BufferedReader(new StringReader(out));
 			String line=null;
 			try {
@@ -137,14 +138,14 @@ public class MachineStat {
 	//
 	private void getHostName()throws Exception{
 		SshUtil.execute(host, port, user, pwd, 
-				"/bin/cat /etc/hosts",(out,err)->{
+				"/bin/cat /etc/hosts",timeout,(out,err)->{
 			hostName=out;
 		});
 	}
 	//
 	private void getMemory()throws Exception{
 		SshUtil.execute(host, port, user, pwd, 
-				"/bin/cat /proc/meminfo",(out,err)->{
+				"/bin/cat /proc/meminfo",timeout,(out,err)->{
 			BufferedReader br=new BufferedReader(new StringReader(out));
 			String line=null;
 			try {
@@ -176,7 +177,7 @@ public class MachineStat {
 	}
 	private void getFS()throws Exception{
 		SshUtil.execute(host, port, user, pwd, 
-				"/bin/df -B1",(out,err)->{
+				"/bin/df -B1",timeout,(out,err)->{
 			BufferedReader br=new BufferedReader(new StringReader(out));
 			String line=null;
 			try {
@@ -198,7 +199,7 @@ public class MachineStat {
 	//
 	private void getInterfaces()throws Exception{
 		SshUtil.execute(host, port, user, pwd, 
-				"/sbin/ip -o addr",(out,err)->{
+				"/sbin/ip -o addr",timeout,(out,err)->{
 			BufferedReader br=new BufferedReader(new StringReader(out));
 			String line=null;
 			try {
@@ -220,7 +221,7 @@ public class MachineStat {
 	//
 	private void getInterfaceInfo()throws Exception{
 		SshUtil.execute(host, port, user, pwd, 
-				"/bin/cat /proc/net/dev",(out,err)->{
+				"/bin/cat /proc/net/dev",timeout,(out,err)->{
 			BufferedReader br=new BufferedReader(new StringReader(out));
 			String line=null;
 			try {
@@ -246,12 +247,5 @@ public class MachineStat {
 				e.printStackTrace();
 			}
 		});
-	}
-	//
-	public static void main(String[] args)throws Exception{
-		MachineStat ms=new MachineStat();
-		ms.getMachineInfo("10.44.218.35",22,"appadmin","appadmin");
-		//
-		System.out.println(DumpUtil.dump(ms));
 	}
 }

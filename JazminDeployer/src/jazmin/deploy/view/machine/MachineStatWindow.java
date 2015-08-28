@@ -104,10 +104,12 @@ public class MachineStatWindow extends Window implements CellRender{
 	}
 	//
 	private void loadData0()throws Exception{
-		machineStat.getMachineInfo(machine.publicHost
-				,machine.sshPort,
+		machineStat.getMachineInfo(
+				machine.publicHost,
+				machine.sshPort,
 				machine.sshUser,
-				machine.sshPassword);
+				machine.sshPassword,
+				machine.getSshTimeout());
 		getUI().access(()->{
 			setCaption(machine.id);
 			beanForm.setBean(machineStat);

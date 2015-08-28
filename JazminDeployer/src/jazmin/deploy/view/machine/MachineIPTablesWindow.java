@@ -91,7 +91,7 @@ public class MachineIPTablesWindow extends Window{
 					machine.sshPort,
 					"root", 
 					machine.rootSshPassword, 
-					"cat /etc/sysconfig/iptables", (s,e)->{
+					"cat /etc/sysconfig/iptables", machine.getSshTimeout(),(s,e)->{
 						editor.setValue(s);
 					});
 		} catch (Exception e) {
@@ -108,7 +108,7 @@ public class MachineIPTablesWindow extends Window{
 					machine.sshPort,
 					"root", 
 					machine.rootSshPassword, 
-					"echo '"+config+"'>/etc/sysconfig/iptables", (s,e)->{
+					"echo '"+config+"'>/etc/sysconfig/iptables", machine.getSshTimeout(),(s,e)->{
 						
 					});
 			DeploySystemUI.showNotificationInfo("INFO","iptables rule save completed");
@@ -141,7 +141,7 @@ public class MachineIPTablesWindow extends Window{
 					machine.sshPort,
 					"root", 
 					machine.rootSshPassword, 
-					cmd, (s,e)->{
+					cmd, machine.getSshTimeout(),(s,e)->{
 						if(showResult){
 							editor.setValue(s);
 						}
