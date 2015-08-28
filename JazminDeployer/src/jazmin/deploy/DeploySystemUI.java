@@ -69,6 +69,7 @@ public class DeploySystemUI extends UI {
 		Notification n=new Notification(caption, description);
 		n.setPosition(Position.TOP_CENTER);
 		n.setHtmlContentAllowed(true);
+		n.setDelayMsec(3000);
 		n.setStyleName("dark");
 		n.show(Page.getCurrent());
 	}

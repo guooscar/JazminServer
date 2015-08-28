@@ -8,7 +8,10 @@ package jazmin.deploy.domain;
  * 6 Jan, 2015
  */
 public class Instance extends BaseDomain{
-	
+	//
+	public static final String P_JAZMIN_LOG_LEVEL="jazmin.log.level";
+	public static final String P_JAZMIN_LOG_FILE="jazmin.log.file";
+	public static final String P_HAPROXY_DOMAIN="haproxy.domain";
 	//
 	public String cluster;
 	public String appId;

@@ -13,7 +13,7 @@
 	},
 	{
 		"system":"wlw",
-		"type":"jazmin-msg",
+		"type":"haproxy",
 		"id":"CdagSystem",
 		"depends":["MainDataSystem"]
 	},

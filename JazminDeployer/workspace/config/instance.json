@@ -17,7 +17,10 @@
 		"packageVersion":"1.0.0",
 		"password":"",
 		"port":5001,
-		"user":""
+		"user":"",
+		"properties":{
+		    "haproxy.domain":"www.copezc.com"
+		}
 	},
 
 	{
@@ -63,10 +66,10 @@
 	{
 		"appId":"MainDataSystemDB",
 		"cluster":"dev",
-		"id":"MainDataSystemDB",
+		"id":"db_fundingbiz_dev",
 		"machineId":"dev",
 		"packageVersion":"1.0.0",
-		"password":"inovance321",
+		"password":"kp123456",
 		"port":3306,
 		"user":"root"
 	},

@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import jazmin.core.Jazmin;
 import jazmin.deploy.DeploySystemUI;
+import jazmin.deploy.domain.Application;
 import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.Instance;
 import jazmin.deploy.ui.BeanTable;
@@ -148,9 +149,36 @@ public class InstanceInfoView extends DeployBaseView{
 			DeploySystemUI.showNotificationInfo("Info",
 					"Please choose which instance to view.");
 		}else{
-			InstanceWebSshWindow bfw=new InstanceWebSshWindow(instance);
-			UI.getCurrent().addWindow(bfw);
-			bfw.focus();
+			if(instance.application==null){
+				DeploySystemUI.showNotificationInfo("Info",
+						"Can not find application on instance:"+instance.id);
+				return;
+			}
+			//
+			if(instance.application.type.equals(Application.TYPE_HAPROXY)){
+				InstanceHaproxyStatWindow window=new InstanceHaproxyStatWindow(instance);
+				UI.getCurrent().addWindow(window);
+				window.focus();
+				return;
+			}
+			//
+			if(instance.application.type.equals(Application.TYPE_MYSQL)){
+				InstanceMySQLWindow window=new InstanceMySQLWindow(instance);
+				UI.getCurrent().addWindow(window);
+				window.focus();
+				return;
+			}
+			//
+			if(instance.application.type.startsWith("jazmin")){
+				InstanceWebSshWindow bfw=new InstanceWebSshWindow(instance);
+				UI.getCurrent().addWindow(bfw);
+				bfw.focus();
+				return;
+			}
+			//
+			DeploySystemUI.showNotificationInfo("Info",
+					"Not support application type:"+instance.application.type);
+			
 		}
 	}
 	//

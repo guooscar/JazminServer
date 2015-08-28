@@ -20,11 +20,27 @@ import jazmin.core.app.AutoWired;
  * 27 Dec, 2014
  */
 public class JazminDAO {
+	private int limitMaxRows=-1;
 	@AutoWired
 	protected ConnectionDriver connectionDriver;
 	//
 	public JazminDAO() {	
 	}
+	
+	/**
+	 * @return the limitMaxRow
+	 */
+	public int getLimitMaxRows() {
+		return limitMaxRows;
+	}
+
+	/**
+	 * @param limitMaxRow the limitMaxRow to set
+	 */
+	public void setLimitMaxRows(int limitMaxRow) {
+		this.limitMaxRows = limitMaxRow;
+	}
+
 	//
 	/**
 	 * @return the connectionDriver
@@ -48,6 +64,9 @@ public class JazminDAO {
 		ResultSet rs = null;
 		try {
 			ps = conn.prepareStatement(sql);
+			if(limitMaxRows>0){
+				ps.setMaxRows(limitMaxRows);		
+			}
 			JDBCUtil.set(conn, ps, parameters);
 			rs = ps.executeQuery();
 			if (rs.next()) {
@@ -73,6 +92,9 @@ public class JazminDAO {
 		ResultSet rs = null;
 		try {
 			ps = conn.prepareStatement(sql);
+			if(limitMaxRows>0){
+				ps.setMaxRows(limitMaxRows);		
+			}
 			JDBCUtil.set(conn, ps, parameters);
 			rs = ps.executeQuery();
 			List<T> result = new ArrayList<T>();
