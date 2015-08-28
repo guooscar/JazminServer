@@ -35,8 +35,12 @@ public class InstanceHaproxyStatWindow extends Window{
         if(domain==null){
         	domain=instance.machine.publicHost;
         }
+        String statUrl=instance.properties.get(Instance.P_HAPROXY_STATURL);
+        if(statUrl==null){
+        	statUrl="haproxy";
+        }
         BrowserFrame frame=new BrowserFrame(null,
-        		new ExternalResource("http://"+domain+"/haproxy"));  
+        		new ExternalResource("http://"+domain+"/"+statUrl));  
         frame.setSizeFull();
         content.addComponent(frame);
         content.setExpandRatio(frame, 1f); 

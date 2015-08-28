@@ -1,8 +1,8 @@
 [
 	{
 		"id":"dev",
-		"privateHost":"192.168.0.11",
-		"publicHost":"192.168.0.11",
+		"privateHost":"192.168.0.12",
+		"publicHost":"192.168.0.12",
 		"sshUser":"appadmin",
 		"sshPassword":"appadmin",
 		"sshPort":22,
