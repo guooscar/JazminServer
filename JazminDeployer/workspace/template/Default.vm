@@ -2,7 +2,7 @@
 $instance.application.type=="jazmin-rpc"||
 $instance.application.type=="jazmin-web")
 //logger
-#set($logLevel	=	$properties.getOrDefault("jazmin.log.level","DEBUG"))
+#set($logLevel	=	$properties.getOrDefault("jazmin.log.level","INFO"))
 #set($logFile 	=	$properties.getOrDefault("jazmin.log.file","'./log/'+jazmin.getServerName()+'.log'"))
 
 jazmin.setLogLevel("$logLevel");
@@ -76,32 +76,32 @@ jazmin.addServer(consoleServer);
 
 #if($instance.application.type=="jazmin-web")
 var targetApp="./instance/$instance.id/$instance.appId"+".war"
-jazmin.copyFile("http://deploy_server/srv/deploy/pkg/"+jazmin.getServerName(),targetApp)
+jazmin.copyFile("http://10.251.47.215:7001/srv/deploy/pkg/"+jazmin.getServerName(),targetApp)
 webServer.addWar("/",targetApp);
 #end
 
 #if($instance.application.type!="jazmin-web")
 var targetApp="./instance/$instance.id/$instance.appId"+".jaz"
-jazmin.copyFile("http://deploy_server/srv/deploy/pkg/"+jazmin.getServerName(),targetApp)
+jazmin.copyFile("http://10.251.47.215:7001/srv/deploy/pkg/"+jazmin.getServerName(),targetApp)
 jazmin.loadApplication(targetApp);
 #end
 //endofjazmin
 #end
 #if($instance.application.type=="haproxy")
 global
-log 127.0.0.1 local0 info #[err warning info debug] //日志位置
+log 127.0.0.1 local0 info 
 maxconn 4096
-daemon #设置成后台运行
-nbproc 1 #进程数量
+daemon 
+nbproc 1 
 pidfile /home/appadmin/haproxy/haproxy.pid
 
 defaults
 log     global
-mode    http #默认模式
-option  httplog #http日志格式
+mode    http 
+option  httplog 
 option  dontlognull
-retries 3  #三次失败后认为服务器不可用
-option  redispatch  #如果cookie写入了serverId而客户端不会刷新cookie，当serverId对应的服务器挂掉后，强制定向到其他健康的服务器  器
+retries 3  
+option  redispatch  
 timeout http-request    10s
 timeout queue           1m
 timeout connect         10s
@@ -110,10 +110,14 @@ timeout server          1m
 timeout http-keep-alive 10s
 timeout check           10s
 maxconn                 3000
+#set($stat_url	=	$properties.getOrDefault("haproxy.staturl","haproxy"))
+stats   uri  /$stat_url
+stats   hide-version
 
 frontend web_in
 mode http
 maxconn 5000
+redirect prefix http://www.copezc.com code 301 if { hdr(host) -i copezc.com }
 bind :$instance.port
 #foreach($i in $instance.application.depends)
 #set ($app = $applicationMap.get($i))
@@ -141,10 +145,8 @@ use_backend server_$app.id if is_www$app.id
 #if($app.type=="jazmin-web")
 backend server_$app.id
 mode http #http 模式
-stats   uri  /haproxy
 balance roundrobin
 cookie  JSESSIONID prefix
-stats   hide-version
 option  httpclose
 rspadd Access-Control-Allow-Origin:\ *
 #foreach($dependsInstance in $instances)
