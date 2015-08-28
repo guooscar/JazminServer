@@ -13,6 +13,7 @@ public class Machine extends BaseDomain{
 	public String publicHost;
 	public String sshUser;
 	public String sshPassword;
+	public String rootSshPassword;
 	public int sshPort;
 	public String jazminHome;
 	public String memcachedHome;

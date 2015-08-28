@@ -9,6 +9,7 @@ import org.vaadin.aceeditor.AceEditor;
 import org.vaadin.aceeditor.AceMode;
 import org.vaadin.aceeditor.AceTheme;
 
+import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.event.ShortcutAction.KeyCode;
@@ -65,7 +66,9 @@ public class CodeEditorWindow extends Window{
         saveBtn = new Button("Save");
         saveBtn.addStyleName(ValoTheme.BUTTON_PRIMARY);
         saveBtn.addClickListener(e->onSave());
+        saveBtn.setClickShortcut(KeyCode.S,ShortcutAction.ModifierKey.META);
         footer.addComponent(saveBtn);
+        
         footer.setComponentAlignment(saveBtn, Alignment.TOP_RIGHT);
         //
         reloadBtn=new Button("Reload");
