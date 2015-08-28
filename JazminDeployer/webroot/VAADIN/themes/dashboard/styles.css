@@ -18,6 +18,22 @@
  *
  * @group util
  */
+.v-table-cell-content-red {
+	    background: red;
+	    color: black;
+	}
+	
+	/* Style specifically for the "black" cells. */
+	.v-table-cell-content-green {
+	    background: green;
+	    color: black;
+	}
+	.margin-20{
+		margin: 20px;
+	}
+	.padding-20{
+		padding: 20px;
+	}
 
 @-webkit-keyframes valo-animate-in-fade {
 		0% {
