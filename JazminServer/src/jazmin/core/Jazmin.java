@@ -200,6 +200,23 @@ public class Jazmin {
 			appClassloader=application.getClass().getClassLoader();
 		}
 	}
+	//
+	/**
+	 * load application 
+	 * @param app the application 
+	 * @see Application
+	 */
+	public static void loadAndStartApplication(Application app){
+		loadApplication(app);
+		try {
+			app.init();
+			app.start();
+			logger.info(app.info());
+		} catch (Exception e) {
+			logger.catching(e);
+			System.exit(1);
+		}
+	}
 	/**
 	 * return application package name
 	 * @return application package name
