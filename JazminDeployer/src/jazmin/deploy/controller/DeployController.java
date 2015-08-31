@@ -183,14 +183,6 @@ public class DeployController {
 		c.view(new ResourceView("/jsp/graph.jsp"));
 	}
 	//
-	@Service(id="report")
-	public void getActionReport(Context c){
-		if(!checkMachine(c,"")){
-			return;
-		}
-		c.view(new PlainTextView(DeployManager.actionReport()));
-	}
-	//
 	@Service(id="download")
 	public void downloadPackage(Context c){
 		if(!checkMachine(c,"")){

@@ -83,6 +83,11 @@ public final class MainMenu extends CustomComponent {
         settingsItem.addItem("Reload Config", (selectedItem)->{
         	DeployManager.reload();
         	DeploySystemUI.showNotificationInfo("Info","Config reload complete.");
+        	if(!DeployManager.getErrorMessage().isEmpty()){
+              	ErrorMessageWindow bfw=new ErrorMessageWindow();
+      			UI.getCurrent().addWindow(bfw);
+      			bfw.focus();
+            }
         });
         //
         settingsItem.addItem("Machine Config", (selectedItem)->showConfig("machine.json"));

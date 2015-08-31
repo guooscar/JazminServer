@@ -93,6 +93,13 @@ public class BeanTable<T> extends Table{
 			}
 		}
 	}
+	//
+	@SuppressWarnings("unchecked")
+	public T getItemValue(Item item){
+		T obj=(T)item.getItemProperty("$object").getValue();
+		return obj;
+	}
+	//
 	@SuppressWarnings("unchecked")
 	public List<T> getSelectValues(){
 		List<T>result=new ArrayList<T>();

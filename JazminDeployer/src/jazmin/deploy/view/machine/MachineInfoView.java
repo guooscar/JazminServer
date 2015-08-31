@@ -12,8 +12,6 @@ import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.Machine;
 import jazmin.deploy.ui.BeanTable;
-import jazmin.deploy.view.instance.InputWindow;
-import jazmin.deploy.view.main.ActionReportWindow;
 import jazmin.deploy.view.main.DeployBaseView;
 import jazmin.deploy.view.main.TaskProgressWindow;
 import jazmin.util.DumpUtil;
@@ -68,10 +66,12 @@ public class MachineInfoView extends DeployBaseView{
 		addOptButton("View Detail",null, (e)->viewDetail());
 		addOptButton("View Stat",null, (e)->viewStat());
 		addOptButton("View Instances",null, (e)->viewInstances());
+		addOptButton("View Scripts",null, (e)->showScripts());
 		addOptButton("Test Machine",null, (e)->checkMachine());
 		addOptButton("Copy Files",ValoTheme.BUTTON_PRIMARY, (e)->copyFiles());
 		addOptButton("SSH Login",ValoTheme.BUTTON_PRIMARY, (e)->sshLogin());
 		addOptButton("Iptables",ValoTheme.BUTTON_DANGER, (e)->viewIptables());
+		
 		addOptButton("Run Command",ValoTheme.BUTTON_DANGER, (e)->runCmd());
 	}
 	//
@@ -87,6 +87,12 @@ public class MachineInfoView extends DeployBaseView{
 		}
 	}
 	//
+	//
+	private void showScripts() {
+		MachineScriptWindow bfw = new MachineScriptWindow();
+		UI.getCurrent().addWindow(bfw);
+		bfw.focus();
+	}
 	//
 	private void viewStat(){
 		Machine machine=table.getSelectValue();
@@ -238,34 +244,13 @@ public class MachineInfoView extends DeployBaseView{
 	}
 	//
 	private void runCmd(){
-		InputWindow optWindow=new InputWindow(window->{
-			Jazmin.execute(()->{
-				runCmd0(window);
-			});
-		});
-		optWindow.setCaption("Run command");
-		optWindow.setInfo("Confirm run command on total "+machines.size()+" machine(s)?");
-		UI.getCurrent().addWindow(optWindow);
-	}
-	//
-	private void runCmd0(InputWindow window){
-		AtomicInteger counter=new AtomicInteger();
-		DeployManager.resetActionReport();
-		machines.forEach(machine->{
-			window.getUI().access(()->{
-				window.setInfo("run on "+machine.id+" "+
-						counter.incrementAndGet()+
-						"/"+machines.size()+"...");	
-			});
-			String cmd=window.getInputValue();
-			DeployManager.appendActionReport(DeployManager.runOnMachine(machine,cmd));
-		});
-		window.getUI().access(()->{
-			ActionReportWindow rpw=new ActionReportWindow();
-			window.getUI().addWindow(rpw);
-			DeploySystemUI.showNotificationInfo("Info", "run command complete");
-			window.close();
-		});
+		if(machines.isEmpty()){
+			DeploySystemUI.showNotificationInfo("INFO","Choose machine first.");	
+			return;
+		}
+		MachineRunCmdWindow bfw=new MachineRunCmdWindow(machines);
+		UI.getCurrent().addWindow(bfw);
+		bfw.focus();
 	}
 	//
 	@Override
@@ -277,7 +262,7 @@ public class MachineInfoView extends DeployBaseView{
     	try {
     		machines=DeployManager.getMachines(search);
 			if(machines.isEmpty()){
-				DeploySystemUI.showNotificationInfo("Result","No mactch result found.");		
+				DeploySystemUI.showNotificationInfo("Result","No match result found.");		
 			}
 			table.setData(machines);
     	} catch (Throwable e1) {

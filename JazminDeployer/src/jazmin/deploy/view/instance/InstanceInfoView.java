@@ -14,7 +14,6 @@ import jazmin.deploy.domain.Application;
 import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.Instance;
 import jazmin.deploy.ui.BeanTable;
-import jazmin.deploy.view.main.ActionReportWindow;
 import jazmin.deploy.view.main.CodeEditorCallback;
 import jazmin.deploy.view.main.CodeEditorWindow;
 import jazmin.deploy.view.main.DeployBaseView;
@@ -134,7 +133,6 @@ public class InstanceInfoView extends DeployBaseView{
 		addOptButton("TailLog",null, (e)->viewTailLog());
 		addOptButton("Detail",null, (e)->viewDetail());
 		addOptButton("BootFile",null, (e)->viewBootFile());
-		addOptButton("Report",null, (e)->viewActionReport());
 		addOptButton("Test",null, (e)->testInstance());
 		//
 		addOptButton("SetVer",ValoTheme.BUTTON_PRIMARY, (e)->setPackageVersion());
@@ -243,13 +241,7 @@ public class InstanceInfoView extends DeployBaseView{
 			bfw.focus();
 		}
 	}
-	//
-	//
-	private void viewActionReport(){
-		ActionReportWindow bfw=new ActionReportWindow();
-		UI.getCurrent().addWindow(bfw);
-		bfw.focus();
-	}
+	
 	//
 	@Override
 	public void loadData(){
@@ -314,26 +306,13 @@ public class InstanceInfoView extends DeployBaseView{
 	//
 	//
 	private void createInstance(){
-		//createInstacne1(value);	
-		final CodeEditorWindow cew=new CodeEditorWindow(new CodeEditorCallback() {
-			@Override
-			public String reload() {
-				return "";
-			}
-			@Override
-			public void onSave(String value) {
-				createInstacne1(value);
-			}
-		});
-		cew.setValue("Instance Boot File", "", AceMode.javascript);
-		UI.getCurrent().addWindow(cew);
+		createInstacne1();
 	}
 	//
-	private void createInstacne1(String jsFile){
+	private void createInstacne1(){
 		TaskProgressWindow optWindow=new TaskProgressWindow(window->{
 			Jazmin.execute(()->{
-				DeployManager.resetActionReport();
-				createInstance0(window,jsFile);
+				createInstance0(window);
 			});
 		});
 		optWindow.setCaption("Confirm");
@@ -345,7 +324,7 @@ public class InstanceInfoView extends DeployBaseView{
 		UI.getCurrent().addWindow(optWindow);
 	}
 	//
-	private void createInstance0(TaskProgressWindow window,String jsFile){
+	private void createInstance0(TaskProgressWindow window){
 		AtomicInteger counter=new AtomicInteger();
 		for(Instance instance:getOptInstances()){
 			if(window.isCancel()){
@@ -359,7 +338,7 @@ public class InstanceInfoView extends DeployBaseView{
 			});
 			final StringBuilder result=new StringBuilder("done");
 			try {
-				DeployManager.createInstance(instance,jsFile);
+				result.append(":"+DeployManager.createInstance(instance));
 			} catch (Exception e) {
 				result.append(":"+e.getMessage());
 			}
@@ -377,7 +356,6 @@ public class InstanceInfoView extends DeployBaseView{
 	private void startInstance(){
 		TaskProgressWindow optWindow=new TaskProgressWindow(window->{
 			Jazmin.execute(()->{
-				DeployManager.resetActionReport();
 				startInstance0(window);
 			});
 		});
@@ -408,7 +386,7 @@ public class InstanceInfoView extends DeployBaseView{
 			final StringBuilder result=new StringBuilder("done");
 			boolean error=false;
 			try {
-				DeployManager.startInstance(instance);
+				result.append(":"+DeployManager.startInstance(instance));
 			} catch (Exception e1) {
 				error=true;
 				result.append(":"+e1.getMessage());
@@ -449,7 +427,6 @@ public class InstanceInfoView extends DeployBaseView{
 	private void stopInstance(){
 		TaskProgressWindow optWindow=new TaskProgressWindow(window->{
 			Jazmin.execute(()->{
-				DeployManager.resetActionReport();
 				stopInstance0(window,true);
 			});
 		});
@@ -475,7 +452,7 @@ public class InstanceInfoView extends DeployBaseView{
 			});
 			final StringBuilder result=new StringBuilder("done");
 			try {
-				DeployManager.stopInstance(instance);
+				result.append(":"+DeployManager.stopInstance(instance));
 			} catch (Exception e) {
 				result.append(":"+e.getMessage());
 			}
@@ -494,7 +471,6 @@ public class InstanceInfoView extends DeployBaseView{
 	private void restartInstance(){
 		TaskProgressWindow optWindow=new TaskProgressWindow(window->{
 			Jazmin.execute(()->{
-				DeployManager.resetActionReport();
 				stopInstance0(window,false);
 				startInstance0(window);
 			});

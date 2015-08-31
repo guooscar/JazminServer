@@ -2,6 +2,7 @@ package jazmin.deploy.view.main;
 
 import java.io.File;
 
+import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.view.app.ApplicationInfoView;
 import jazmin.deploy.view.instance.InstanceInfoView;
 import jazmin.deploy.view.machine.MachineInfoView;
@@ -15,6 +16,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 /**
  * 
@@ -47,6 +49,12 @@ public class MainView extends HorizontalLayout {
         //
         addComponent(content);
         setExpandRatio(content, 1.0f);
+        //
+        if(!DeployManager.getErrorMessage().isEmpty()){
+        	ErrorMessageWindow bfw=new ErrorMessageWindow();
+			UI.getCurrent().addWindow(bfw);
+			bfw.focus();
+        }
     }
     //
     public void setView(Component view){

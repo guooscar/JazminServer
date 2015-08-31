@@ -141,6 +141,7 @@ public class SshUtil {
 		int exitCode=0;
 		String outResult="";
 		String errResult="";
+		long totalExecuteTime=0;
 		while (true) {
 			outResult=getResult(in);
 			errResult=getResult(err);
@@ -153,6 +154,11 @@ public class SshUtil {
 			try {
 				Thread.sleep(100);
 			} catch (Exception ee) {}
+			totalExecuteTime+=100;
+			//
+			if(totalExecuteTime>=10000){
+				break;
+			}
 		}
 		channel.disconnect();
 		session.disconnect();
@@ -258,9 +264,6 @@ public class SshUtil {
 	}
 	//
 	public static void main(String[] args) throws Exception {
-		scp("localhost", 22, "yama", "77585211", "/Users/yama/Downloads/aaa2.zip", "/tmp/", 1000,
-				(total,current)->{
-			System.err.println(total+"/"+current);
-		});
+		
 	}
 }

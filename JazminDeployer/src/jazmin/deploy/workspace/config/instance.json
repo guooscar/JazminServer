@@ -6,7 +6,7 @@
 		"machineId":"demo",
 		"packageVersion":"1.0.0",
 		"password":"",
-		"port":81,
+		"port":80,
 		"user":"",
 		"properties":{
 		    "haproxy.domain":"www.demo.com"
@@ -20,7 +20,10 @@
 		"packageVersion":"1.0.0",
 		"password":"",
 		"port":5001,
-		"user":""
+		"user":"",
+		"properties":{
+			"www":"false"
+		}
 	},
 
 	{
@@ -51,6 +54,9 @@
 		"packageVersion":"1.0.0",
 		"password":"",
 		"port":5004,
-		"user":""
+		"user":"",
+		"properties":{
+			"memcached.size","64m"
+		}
 	}
 ]

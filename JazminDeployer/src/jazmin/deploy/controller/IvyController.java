@@ -6,7 +6,7 @@ package jazmin.deploy.controller;
 import java.util.List;
 
 import jazmin.core.Jazmin;
-import jazmin.server.web.WebServer;
+import jazmin.deploy.domain.DeployManager;
 import jazmin.server.web.mvc.Context;
 import jazmin.server.web.mvc.Controller;
 import jazmin.server.web.mvc.FileView;
@@ -25,9 +25,8 @@ public class IvyController {
 	 */
 	@Service(id="config")
 	public void getIvyConfig(Context c){
-		String host = Jazmin.environment.getString("deploy.hostname","localhost");
-		WebServer server=Jazmin.getServer(WebServer.class);
-		int port = server.getPort();
+		String host = DeployManager.deployHostname;
+		int port = DeployManager.deployHostport;
 		StringBuilder result=new StringBuilder();
 		result.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>"+
 		"<ivysettings>"+ 

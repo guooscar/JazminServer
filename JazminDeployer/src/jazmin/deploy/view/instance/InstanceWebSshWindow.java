@@ -23,11 +23,12 @@ public class InstanceWebSshWindow extends Window{
         Responsive.makeResponsive(this);
         setCaption(instance.id+" jazmin console");
         setWidth(90.0f, Unit.PERCENTAGE);
+        setHeight(90.0f, Unit.PERCENTAGE);
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);
         setResizable(true);
         setClosable(true);
-        setHeight(90.0f, Unit.PERCENTAGE);
+      
         VerticalLayout content = new VerticalLayout();
         content.setSizeFull();
         setContent(content);

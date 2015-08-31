@@ -14,6 +14,8 @@ public class Instance extends BaseDomain{
 	public static final String P_HAPROXY_DOMAIN="haproxy.domain";
 	public static final String P_HAPROXY_STATURL="haproxy.staturl";
 	//
+	public static final String P_MEMCACHED_SIZE="memcached.size";
+	//
 	public String cluster;
 	public String appId;
 	public Application application;

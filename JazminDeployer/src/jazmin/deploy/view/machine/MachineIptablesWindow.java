@@ -122,6 +122,7 @@ public class MachineIptablesWindow extends Window{
 	private void saveConfig(){
 		try{
 			String config=editor.getValue();
+			config=config.replaceAll("'","\\'").replaceAll("\"","\\\\\"");
 			SshUtil.execute(machine.privateHost,
 					machine.sshPort,
 					"root", 

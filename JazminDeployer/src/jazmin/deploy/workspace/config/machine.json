@@ -10,17 +10,5 @@
 		"jazminHome":"/home/appadmin/jazmin_server/",
 		"memcachedHome":"/home/appadmin/memcached/",
 		"haproxyHome":"/home/appadmin/haproxy/"		
-	},
-		{
-		"id":"demo1",
-		"privateHost":"192.168.0.12",
-		"publicHost":"192.168.0.12",
-		"rootSshPassword":"kp123456kp",
-		"sshUser":"appadmin",
-		"sshPassword":"appadmin",
-		"sshPort":22,
-		"jazminHome":"/home/appadmin/jazmin_server/",
-		"memcachedHome":"/home/appadmin/memcached/",
-		"haproxyHome":"/home/appadmin/haproxy/"		
 	}
 ]
