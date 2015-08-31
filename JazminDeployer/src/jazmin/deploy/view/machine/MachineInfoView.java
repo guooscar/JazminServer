@@ -193,7 +193,7 @@ public class MachineInfoView extends DeployBaseView{
 			DeploySystemUI.showNotificationInfo("Info",
 					"Please choose which machine to view.");
 		}else{
-			MachineIPTablesWindow bfw=new MachineIPTablesWindow(machine);
+			MachineIptablesWindow bfw=new MachineIptablesWindow(machine);
 			UI.getCurrent().addWindow(bfw);
 			bfw.focus();
 		}
