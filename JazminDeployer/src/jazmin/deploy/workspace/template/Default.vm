@@ -6,9 +6,11 @@ $instance.application.type=="jazmin-web")
 //logger
 #set($logLevel	=	$properties.getOrDefault("jazmin.log.level","INFO"))
 #set($logFile 	=	$properties.getOrDefault("jazmin.log.file","'./log/'+jazmin.getServerName()+'.log'"))
+#set($performanceLogFile 	=	$properties.getOrDefault("jazmin.log.file","'./log/performance-'+jazmin.getServerName()+'.log'"))
 
 jazmin.setLogLevel("$logLevel");
 jazmin.setLogFile($logFile,true);
+jazmin.dispatcher.setPerformanceLogFile($performanceLogFile);
 //------------------------------------------------------------------------------
 var httpClientDriver=new HttpClientDriver();
 Jazmin.addDriver(httpClientDriver);
