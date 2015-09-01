@@ -540,7 +540,7 @@ public class DeployManager {
 					m.sshPort,
 					root?"root":m.sshUser,
 					root?m.rootSshPassword:m.sshPassword,
-					"",
+					cmd,
 					m.getSshTimeout(),
 					(out,err)->{
 						sb.append(out+"\n");
