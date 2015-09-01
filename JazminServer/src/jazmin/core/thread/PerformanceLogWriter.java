@@ -115,9 +115,9 @@ public class PerformanceLogWriter {
 					"QueueSize="+dispatcher.getQueue().size(),
 					totalFullTime/totalInvokeCount,
 					totalRunTime/totalInvokeCount,
-					"TotalRejectedCount="+dispatcher.getTotalRejectedCount(),
-					"TotalInvokeCount="+dispatcher.getTotalInvokeCount(),
-					"TotalSubmitCount="+dispatcher.getTotalSubmitCount()));
+					"RejectedCount="+dispatcher.getTotalRejectedCount(),
+					"InvokeCount="+dispatcher.getTotalInvokeCount(),
+					"SubmitCount="+dispatcher.getTotalSubmitCount()));
 			fileWriter.flush();
 		}
 	}
