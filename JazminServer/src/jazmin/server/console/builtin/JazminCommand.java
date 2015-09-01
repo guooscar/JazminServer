@@ -179,6 +179,7 @@ public class JazminCommand extends ConsoleCommand {
     	fp.print("activeCount",Jazmin.dispatcher.getActiveCount());
 		fp.print("completedTaskCount",Jazmin.dispatcher.getCompletedTaskCount());
 		fp.print("taskCount",Jazmin.dispatcher.getTaskCount());	
+		fp.print("rejectedCount",Jazmin.dispatcher.getTotalRejectedCount());	
 		double totalFull=Jazmin.dispatcher.getTotalFullTime();
 		double totalRun=Jazmin.dispatcher.getTotalRunTime();
 		long totalInvokeCount=Jazmin.dispatcher.getTotalInvokeCount();

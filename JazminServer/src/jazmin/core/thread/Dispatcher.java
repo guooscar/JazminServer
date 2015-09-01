@@ -63,6 +63,7 @@ public class Dispatcher extends Lifecycle implements Executor{
 	private LongAdder totalSubmitCount;
 	private LongAdder totalRunTime;
 	private LongAdder totalFullTime;
+	private LongAdder totalRejectedCount;
 	private AtomicLong maxFullTime;
 	private AtomicLong maxRunTime;
 	
@@ -79,6 +80,7 @@ public class Dispatcher extends Lifecycle implements Executor{
 		totalFullTime=new LongAdder();
 		maxFullTime=new AtomicLong();
 		maxRunTime=new AtomicLong();
+		totalRejectedCount=new LongAdder();
 		poolExecutor=new ThreadPoolExecutor(
 				DEFAULT_CORE_POOL_SIZE, DEFAULT_MAX_POOL_SIZE,
 				60,
@@ -178,18 +180,21 @@ public class Dispatcher extends Lifecycle implements Executor{
 			totalRunTime.reset();
 		}
 	}
-	
+	//
+	public long getTotalRejectedCount(){
+		return totalRejectedCount.longValue();
+	}
 	/**
 	 * @return the maxFullTime
 	 */
-	public AtomicLong getMaxFullTime() {
-		return maxFullTime;
+	public long getMaxFullTime() {
+		return maxFullTime.longValue();
 	}
 	/**
 	 * @return the maxRunTime
 	 */
-	public AtomicLong getMaxRunTime() {
-		return maxRunTime;
+	public long getMaxRunTime() {
+		return maxRunTime.longValue();
 	}
 	/**
 	 * @return the totalRunTime
@@ -259,6 +264,7 @@ public class Dispatcher extends Lifecycle implements Executor{
 					traceId,
 					instance, method, args,callback));
 		}catch(RejectedExecutionException e){
+			totalRejectedCount.increment();
 			logger.error("task rejected {}-{}.{},queueSize:{}",
 					traceId,
 					instance.getClass().getSimpleName(),

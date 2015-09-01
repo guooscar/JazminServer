@@ -109,12 +109,13 @@ public class PerformanceLogWriter {
 			fileWriter.write(String.format("%-10s %-15s %-15s "
 					+ "AvgFullTime=%.2f "
 					+ "AvgRunTime=%.2f "
-					+ "%-20s %-20s\n",
+					+ "%-20s %-20s %-20s\n",
 					dateFormat.format(new Date()),
 					"PoolSize="+dispatcher.getPoolSize(),
 					"QueueSize="+dispatcher.getQueue().size(),
 					totalFullTime/totalInvokeCount,
 					totalRunTime/totalInvokeCount,
+					"TotalRejectedCount="+dispatcher.getTotalRejectedCount(),
 					"TotalInvokeCount="+dispatcher.getTotalInvokeCount(),
 					"TotalSubmitCount="+dispatcher.getTotalSubmitCount()));
 			fileWriter.flush();
