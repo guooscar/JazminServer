@@ -3,7 +3,7 @@
  */
 package jazmin.test.core.aop;
 
-import jazmin.core.thread.Dispatcher;
+import jazmin.core.Jazmin;
 
 /**
  * @author yama
@@ -15,10 +15,8 @@ public class TestDispatcher {
 	 * @param args
 	 */
 	public static void main(String[] args)throws Exception {
-		Dispatcher d=new Dispatcher();
-		TestService ts=new TestService();
-		//
-		d.invokeInPool("",ts,TestService.class.getMethod("methodB"));
+		//Jazmin.dispatcher.setPerformanceLogFile("/Users/yama/Desktop/test.log");
+		Jazmin.start();
 	}
 
 }

@@ -5,6 +5,8 @@ package jazmin.test.server.rpc;
 
 import jazmin.core.Jazmin;
 import jazmin.driver.rpc.JazminRpcDriver;
+import jazmin.log.LoggerFactory;
+import jazmin.util.RandomUtil;
 
 
 /**
@@ -14,14 +16,25 @@ import jazmin.driver.rpc.JazminRpcDriver;
 public class RPCClientTest {
 	//
 	public static void main(String[] args) throws Exception{
+		LoggerFactory.setLevel("INFO");
 		JazminRpcDriver driver=new JazminRpcDriver();
 		driver.addRemoteServer("1","1", "localhost", 6001);
 		Jazmin.addDriver(driver);
 		Jazmin.start();
-		StringBuilder sb=new StringBuilder();
-		for(int i=0;i<1024*1024*10;i++){
-			sb.append(i);
+		TestRemoteServiceAsync service=driver.createAsync(TestRemoteServiceAsync.class,"1");
+		for(int j=0;j<100;j++){
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					for(int i=0;i<100000;i++){
+						new Thread(()->{
+							service.timeoutMethod(RandomUtil.randomInt(1000),null);
+						}).start();
+					}
+					
+				}
+			}).start();
 		}
-		driver.create(TestRemoteService.class,"1").methodA(sb.toString());
+		
 	}
 }

@@ -12,7 +12,6 @@ import jazmin.core.app.AutoWiredObject;
 import jazmin.core.app.AutoWiredObject.AutoWiredField;
 import jazmin.core.job.JazminJob;
 import jazmin.core.task.JazminTask;
-import jazmin.core.thread.DispatcherCallback;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.io.InvokeStat;
@@ -175,27 +174,19 @@ public class JazminCommand extends ConsoleCommand {
     //
     //
     private void showThreadPoolInfo(String args){
+    	out.println(Jazmin.dispatcher.info());
     	FormPrinter fp=FormPrinter.create(out,35);
-    	fp.print("corePoolSize",Jazmin.dispatcher.getCorePoolSize());
-    	fp.print("maxPoolSize",Jazmin.dispatcher.getMaximumPoolSize());
-    	fp.print("keepAliveTime",Jazmin.dispatcher.getKeepAliveTime(TimeUnit.SECONDS)+" seconds");
-    	fp.print("largestPoolSize",Jazmin.dispatcher.getLargestPoolSize());
-    	fp.print("allowsCoreThreadTimeOut",Jazmin.dispatcher.allowsCoreThreadTimeOut());
-    	fp.print("rejectedExecutionHandler",Jazmin.dispatcher.getRejectedExecutionHandler());
-		
-		int index=1;
-		for(DispatcherCallback c: Jazmin.dispatcher.getGlobalDispatcherCallbacks()){
-			fp.print("dispatcherCallback-"+(index++),c);
-		}
-		//
-		fp.print("activeCount",Jazmin.dispatcher.getActiveCount());
+    	fp.print("activeCount",Jazmin.dispatcher.getActiveCount());
 		fp.print("completedTaskCount",Jazmin.dispatcher.getCompletedTaskCount());
 		fp.print("taskCount",Jazmin.dispatcher.getTaskCount());	
 		double totalFull=Jazmin.dispatcher.getTotalFullTime();
 		double totalRun=Jazmin.dispatcher.getTotalRunTime();
-		double totalCount=Jazmin.dispatcher.getTotalInvokeCount();
+		long totalInvokeCount=Jazmin.dispatcher.getTotalInvokeCount();
+		double totalCount=totalInvokeCount==0?1:totalInvokeCount;
 		fp.print("avgFullTime",String.format("%.2f", totalFull/totalCount));	
 		fp.print("avgRunTime",String.format("%.2f", totalRun/totalCount));	
+		fp.print("maxFullTime",Jazmin.dispatcher.getMaxFullTime());	
+		fp.print("maxRunTime",Jazmin.dispatcher.getMaxRunTime());	
 		
     }
     //

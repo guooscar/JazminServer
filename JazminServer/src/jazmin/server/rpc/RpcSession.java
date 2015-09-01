@@ -214,8 +214,10 @@ public class RpcSession {
 	 * write message to other side
 	 */
 	void write(RpcMessage message){
-		channel.writeAndFlush(message);
-		sentPackageCount.increment();
+		if(channel!=null){
+			channel.writeAndFlush(message);
+			sentPackageCount.increment();			
+		}
 	}
 	//
 	@Override

@@ -11,5 +11,5 @@ import jazmin.driver.rpc.AsyncCallback;
  */
 public interface TestRemoteServiceAsync{
 	void methodA(AsyncCallback<String>callback);
-	void timeoutMethod(AsyncCallback<Void>callback);
+	void timeoutMethod(long timeout,AsyncCallback<Void>callback);
 }

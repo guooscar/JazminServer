@@ -6,8 +6,8 @@ import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.console.ConsoleServer;
 import jazmin.server.rpc.RpcServer;
+import jazmin.test.server.rpc.TestRemoteService.TestRemoteServiceImpl;
 import jazmin.test.server.rpc.TestRemoteServiceAsync;
-import jazmin.test.server.rpc.TestRemoteServiceImpl;
 
 /**
  * 

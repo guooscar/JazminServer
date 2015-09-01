@@ -12,11 +12,14 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
 
+import jazmin.core.Jazmin;
 import jazmin.core.JazminThreadFactory;
 import jazmin.core.Lifecycle;
 import jazmin.driver.rpc.ProxyInvocationHandler;
@@ -47,11 +50,12 @@ public class Dispatcher extends Lifecycle implements Executor{
 	public static final Object EMPTY_ARGS[]=new Object[]{};
 	public static final DispatcherCallback EMPTY_CALLBACK=new DispatcherCallbackAdapter(){};
 	//
-	private static final int DEFAULT_CORE_POOL_SIZE=16;
+	private static final int DEFAULT_CORE_POOL_SIZE=32;
 	private static final int DEFAULT_MAX_POOL_SIZE=64;
 	//
 	private ThreadPoolExecutor poolExecutor;
 	private LinkedBlockingQueue<Runnable> requestQueue;
+	private String performanceLogFile;
 	//
 	List<DispatcherCallback>globalCallbacks;
 	private Map<String,InvokeStat>methodStats;
@@ -59,29 +63,45 @@ public class Dispatcher extends Lifecycle implements Executor{
 	private LongAdder totalSubmitCount;
 	private LongAdder totalRunTime;
 	private LongAdder totalFullTime;
+	private AtomicLong maxFullTime;
+	private AtomicLong maxRunTime;
+	
 	/**
 	 * 
 	 */
 	public Dispatcher() {
-		requestQueue=new LinkedBlockingQueue<Runnable>(10240);
+		requestQueue=new LinkedBlockingQueue<Runnable>(20480);
 		globalCallbacks=new ArrayList<DispatcherCallback>();
 		methodStats=new ConcurrentHashMap<String, InvokeStat>();
 		totalInvokeCount=new LongAdder();
 		totalSubmitCount=new LongAdder();
 		totalRunTime=new LongAdder();
 		totalFullTime=new LongAdder();
+		maxFullTime=new AtomicLong();
+		maxRunTime=new AtomicLong();
 		poolExecutor=new ThreadPoolExecutor(
 				DEFAULT_CORE_POOL_SIZE, DEFAULT_MAX_POOL_SIZE,
 				60,
 				TimeUnit.SECONDS, 
 				requestQueue, new JazminThreadFactory("WorkerThread"));
+
 		poolExecutor.setRejectedExecutionHandler(
-				new ThreadPoolExecutor.CallerRunsPolicy());
+				new ThreadPoolExecutor.AbortPolicy());
 	}
 	//--------------------------------------------------------------------------
 	@Override
 	public void init() throws Exception {
-	
+		if(performanceLogFile!=null){
+			new PerformanceLogWriter(performanceLogFile, this).start();
+		}
+	}
+	//
+	public String getPerformanceLogFile() {
+		return performanceLogFile;
+	}
+	//
+	public void setPerformanceLogFile(String performanceLogFile) {
+		this.performanceLogFile = performanceLogFile;
 	}
 	/**
 	 * 
@@ -100,7 +120,11 @@ public class Dispatcher extends Lifecycle implements Executor{
 		ib.print("maxPoolSize:",getMaximumPoolSize());
 		ib.print("rejectedExecutionHandler:",getRejectedExecutionHandler());
 		ib.print("availableProcessors:",Runtime.getRuntime().availableProcessors());
-		ib.section("global callbacks");
+		ib.print("performanceLogFile:",getPerformanceLogFile());
+		ib.print("keepAliveTime",getKeepAliveTime(TimeUnit.SECONDS)+" seconds");
+		ib.print("largestPoolSize",Jazmin.dispatcher.getLargestPoolSize());
+		ib.print("allowsCoreThreadTimeOut",allowsCoreThreadTimeOut());
+    	ib.section("global callbacks");
 		globalCallbacks.forEach(ib::println);
 		return ib.toString();
 	}
@@ -137,6 +161,12 @@ public class Dispatcher extends Lifecycle implements Executor{
 		totalInvokeCount.increment();
 		totalFullTime.add(fullTime);
 		totalRunTime.add(runTime);
+		if(maxFullTime.intValue()<fullTime){
+			maxFullTime.set(fullTime);
+		}
+		if(maxRunTime.intValue()<runTime){
+			maxRunTime.set(runTime);
+		}
 		//
 		if(totalInvokeCount.longValue()<0){
 			totalInvokeCount.reset();
@@ -149,6 +179,18 @@ public class Dispatcher extends Lifecycle implements Executor{
 		}
 	}
 	
+	/**
+	 * @return the maxFullTime
+	 */
+	public AtomicLong getMaxFullTime() {
+		return maxFullTime;
+	}
+	/**
+	 * @return the maxRunTime
+	 */
+	public AtomicLong getMaxRunTime() {
+		return maxRunTime;
+	}
 	/**
 	 * @return the totalRunTime
 	 */
@@ -211,10 +253,20 @@ public class Dispatcher extends Lifecycle implements Executor{
 			DispatcherCallback callback,
 			Object ...args){
 		totalSubmitCount.increment();
-		poolExecutor.execute(new ThreadWorker(
-				this,
-				traceId,
-				instance, method, args,callback));
+		try{
+			poolExecutor.execute(new ThreadWorker(
+					this,
+					traceId,
+					instance, method, args,callback));
+		}catch(RejectedExecutionException e){
+			logger.error("task rejected {}-{}.{},queueSize:{}",
+					traceId,
+					instance.getClass().getSimpleName(),
+					method.getName(),
+					getQueue().size());
+		}catch (Exception e) {
+			logger.catching(e);
+		}
 	}
 	/**
 	 * 
@@ -328,6 +380,9 @@ public class Dispatcher extends Lifecycle implements Executor{
 		return totalSubmitCount.longValue();
 	}
 	
+	public void setRejectedExecutionHandler(RejectedExecutionHandler handler) {
+		poolExecutor.setRejectedExecutionHandler(handler);
+	}
 	/**
 	 * @return
 	 * @see java.util.concurrent.ThreadPoolExecutor#getRejectedExecutionHandler()

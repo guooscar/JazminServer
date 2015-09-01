@@ -410,12 +410,17 @@ public class InstanceInfoView extends DeployBaseView{
 					break;
 				}
 			}
-			//wait for 15 seconds still not response maybe error happened
-			if(!instance.isAlive&&!error){
-				window.getUI().access(()->DeploySystemUI.showNotificationInfo(
-						"Error",instance.id+" not response after 30 seconds"));
-				window.updateTask(instance.id,"not response");
+			if(!error){
+				//wait for 15 seconds still not response maybe error happened
+				if(!instance.isAlive){
+					window.getUI().access(()->DeploySystemUI.showNotificationInfo(
+							"Error",instance.id+" not response after 30 seconds"));
+					window.updateTask(instance.id,"not response");
+				}else{
+					window.getUI().access(()->window.updateTask(instance.id,"done"));
+				}	
 			}
+			
 		}
 		window.getUI().access(()->{
 			window.close();

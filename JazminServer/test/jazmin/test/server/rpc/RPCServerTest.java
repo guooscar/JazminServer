@@ -7,6 +7,7 @@ import jazmin.core.Jazmin;
 import jazmin.log.LoggerFactory;
 import jazmin.server.console.ConsoleServer;
 import jazmin.server.rpc.RpcServer;
+import jazmin.test.server.rpc.TestRemoteService.TestRemoteServiceImpl;
 
 /**
  * @author yama
@@ -15,9 +16,10 @@ import jazmin.server.rpc.RpcServer;
 public class RPCServerTest {
 	//
 	public static void main(String[] args) throws Exception{
-		LoggerFactory.setLevel("ALL");
+		LoggerFactory.setLevel("INFO");
 		RpcServer rpcServer=new RpcServer();
-		rpcServer.setCredential("123");
+		//rpcServer.setCredential("123");
+		Jazmin.dispatcher.setPerformanceLogFile("/tmp/test.log");
 		Jazmin.addServer(rpcServer);
 		Jazmin.addServer(new ConsoleServer());
 		Jazmin.start();
