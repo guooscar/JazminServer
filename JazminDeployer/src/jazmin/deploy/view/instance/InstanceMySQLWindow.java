@@ -174,7 +174,7 @@ public class InstanceMySQLWindow extends Window{
 					+"?useUnicode=true&characterEncoding=UTF-8";
 			String user=instance.getUser();
 			String pwd=instance.getPassword();
-			if(sql.startsWith("select")||sql.startsWith("show")){
+			if(sql.startsWith("select")||sql.startsWith("show")||sql.startsWith("desc")){
 				JdbcUtil.executeQuery(jdbcUrl,user,pwd,sql,this::setupData);		
 			}else if(sql.startsWith("update")||sql.startsWith("delete")){
 				int r=JdbcUtil.executeUpdate(jdbcUrl,user,pwd,sql);		
