@@ -80,6 +80,7 @@ public class LoginView extends VerticalLayout {
 						"username or password wrong.please try again.");
 			}
 		});
+		username.focus();
 		return fields;
 	}
 

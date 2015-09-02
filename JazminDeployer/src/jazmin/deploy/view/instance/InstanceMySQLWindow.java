@@ -60,11 +60,12 @@ public class InstanceMySQLWindow extends Window{
         Responsive.makeResponsive(this);
         setCaption(instance.id+" mysql console");
         setWidth(90.0f, Unit.PERCENTAGE);
+        setHeight(90.0f, Unit.PERCENTAGE);
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);
         setResizable(true);
         setClosable(true);
-        setHeight(90.0f, Unit.PERCENTAGE);
+       
         //
     	HorizontalLayout optLayout = new HorizontalLayout();
 		optLayout.setSpacing(true);
@@ -75,6 +76,12 @@ public class InstanceMySQLWindow extends Window{
 	    optLayout.addComponent(runBtn);
 	    runBtn.addClickListener(e->loadData());
 	    runBtn.setClickShortcut(KeyCode.R,ShortcutAction.ModifierKey.ALT);
+	    //
+		Button infoBtn = new Button("Info");
+		infoBtn.addStyleName(ValoTheme.BUTTON_SMALL);
+	    optLayout.addComponent(infoBtn);
+	    infoBtn.addClickListener(e->loadInfo());
+	
 	    //
 	    label=new Label();
 	    label.setWidth("100%");
@@ -156,7 +163,7 @@ public class InstanceMySQLWindow extends Window{
 				sql=editor.getValue().substring(Math.min(v1,v2), Math.max(v1,v2));
 			}
 		}
-		if(sql.isEmpty()){
+		if(sql==null||sql.isEmpty()){
 			return;
 		}
 		label.setValue("running...");
@@ -256,5 +263,10 @@ public class InstanceMySQLWindow extends Window{
 			DeploySystemUI.showNotificationInfo("ERROR",e.getMessage());
 		}
 	}
-	
+	//
+	private void loadInfo(){
+		InstanceMySQLTableInfoWindow w=new InstanceMySQLTableInfoWindow(instance);
+		getUI().addWindow(w);
+		w.focus();
+	}
 }

@@ -3,11 +3,14 @@
  */
 package jazmin.deploy.domain;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author yama
  * 6 Jan, 2015
  */
-public class Instance extends BaseDomain{
+public class Instance{
 	//
 	public static final String P_JAZMIN_LOG_LEVEL="jazmin.log.level";
 	public static final String P_JAZMIN_LOG_FILE="jazmin.log.file";
@@ -16,6 +19,7 @@ public class Instance extends BaseDomain{
 	//
 	public static final String P_MEMCACHED_SIZE="memcached.size";
 	//
+	public String id;
 	public String cluster;
 	public String appId;
 	public Application application;
@@ -27,9 +31,35 @@ public class Instance extends BaseDomain{
 	public boolean isAlive;
 	public int priority;
 	public String packageVersion;
+	public Map<String,String>properties;
 	//
 	public Instance() {
 		super();
+		properties=new HashMap<String, String>();
+	}
+	/**
+	 * @return the id
+	 */
+	public String getId() {
+		return id;
+	}
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
+	/**
+	 * @return the properties
+	 */
+	public Map<String, String> getProperties() {
+		return properties;
+	}
+	/**
+	 * @param properties the properties to set
+	 */
+	public void setProperties(Map<String, String> properties) {
+		this.properties = properties;
 	}
 	/**
 	 * @return the cluster

@@ -3,11 +3,15 @@
  */
 package jazmin.deploy.domain;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author yama
  * 6 Jan, 2015
  */
-public class Machine extends BaseDomain{
+public class Machine{
+	public String id;
 	public boolean isAlive;
 	public String privateHost;
 	public String publicHost;
@@ -19,9 +23,11 @@ public class Machine extends BaseDomain{
 	public String jazminHome;
 	public String memcachedHome;
 	public String haproxyHome;
+	public Map<String,String>properties;
 	//
 	public Machine() {
 		super();
+		properties=new HashMap<String, String>();
 	}
 	//
 	public int getSshTimeout(){

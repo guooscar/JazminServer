@@ -12,7 +12,33 @@ import java.util.Map;
  * @author yama
  *
  */
-public class Application extends BaseDomain{
+public class Application{
+	
+	/**
+	 * @return the id
+	 */
+	public String getId() {
+		return id;
+	}
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
+	/**
+	 * @return the properties
+	 */
+	public Map<String, String> getProperties() {
+		return properties;
+	}
+	/**
+	 * @param properties the properties to set
+	 */
+	public void setProperties(Map<String, String> properties) {
+		this.properties = properties;
+	}
+	
 	static Map<String,String>typeLayerMap=new HashMap<String, String>();
 	
 	//
@@ -67,15 +93,17 @@ public class Application extends BaseDomain{
 		typeLayerMap.put(TYPE_API,LAYER_OTHER);
 	}
 	//
+	public String id;
 	public String system;
 	public List<String>depends;
 	public String type;
 	public int priority;
+	public Map<String,String>properties;
 	//
 	public Application() {
-		super();	
 		type="";
 		depends=new LinkedList<String>();
+		properties=new HashMap<String, String>();
 	}
 	/**
 	 * @return the system
