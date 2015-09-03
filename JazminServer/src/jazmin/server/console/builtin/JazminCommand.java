@@ -222,7 +222,7 @@ public class JazminCommand extends ConsoleCommand {
     //
     private void showThreadPoolLog(String args){
     	TablePrinter tp=TablePrinter.create(out).
-    			length(15,10,10,10,10,10,10,10).
+    			length(15,15,15,15,15,15,15,15).
     			headers("TIME",
     					"POOLSIZE",
     					"QUEUESIZE",

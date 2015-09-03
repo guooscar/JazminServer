@@ -96,9 +96,7 @@ public class Dispatcher extends Lifecycle implements Executor{
 	//--------------------------------------------------------------------------
 	@Override
 	public void init() throws Exception {
-		if(performanceLogFile!=null){
-			new PerformanceLogWriter(performanceLogFile, this).start();
-		}
+		new PerformanceLogWriter(performanceLogFile, this).start();
 	}
 	//
 	public String getPerformanceLogFile() {
