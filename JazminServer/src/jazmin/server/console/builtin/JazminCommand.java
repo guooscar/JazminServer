@@ -1,4 +1,5 @@
 package jazmin.server.console.builtin;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -12,6 +13,7 @@ import jazmin.core.app.AutoWiredObject;
 import jazmin.core.app.AutoWiredObject.AutoWiredField;
 import jazmin.core.job.JazminJob;
 import jazmin.core.task.JazminTask;
+import jazmin.core.thread.PerformanceLog;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.io.InvokeStat;
@@ -44,6 +46,8 @@ public class JazminCommand extends ConsoleCommand {
 
     	addOption("pool_info",false,"show thread pool info",this::showThreadPoolInfo);  	
     	addOption("pool_stat",false,"show method stats",this::showThreadPoolStats);  	
+    	addOption("pool_log_chart",false,"show thread pool log",this::showThreadPoolLogChart); 
+    	addOption("pool_log",false,"show thread pool log",this::showThreadPoolLog); 
     	addOption("pool_db",false,"show thread pool dashboard",this::showThreadPoolDashboard); 
     	addOption("pool_mchart",true,"show thread pool method invoke chart",this::showThreadPoolMethodChart); 
     	addOption("pool_reset",false,"reset method stats",this::resetThreadPoolStats); 
@@ -214,6 +218,51 @@ public class JazminCommand extends ConsoleCommand {
 					stat.maxRunTime,
 					stat.avgRunTime());
 		};
+    }
+    //
+    private void showThreadPoolLog(String args){
+    	TablePrinter tp=TablePrinter.create(out).
+    			length(15,10,10,10,10,10,10,10).
+    			headers("TIME",
+    					"POOLSIZE",
+    					"QUEUESIZE",
+    					"AVGFULLTIME",
+    					"AVGRUNTIME",
+    					"REJECTED",
+    					"INVOKE",
+    					"SUBMIT");
+    	SimpleDateFormat sdf=new SimpleDateFormat("MM:dd HH:mm");
+    	for(PerformanceLog log:Jazmin.dispatcher.getPerformanceLogs()){
+        	tp.print(sdf.format(log.date),
+        			log.poolSize,
+        			log.queueSize,
+        			log.avgFullTime,
+        			log.avgRunTime,
+        			log.rejectedCount,
+        			log.invokeCount,
+        			log.submitCount);
+		};
+    }
+    //
+    private void showThreadPoolLogChart(String args){
+    	AsciiChart chartRunTime=new AsciiChart(200,80);
+    	AsciiChart chartFullTime=new AsciiChart(200,80);
+    	AsciiChart chartQueueSize=new AsciiChart(200,80);
+    	AsciiChart chartPoolSize=new AsciiChart(200,80);
+    	for(PerformanceLog log:Jazmin.dispatcher.getPerformanceLogs()){
+    		chartRunTime.addValue((int)(log.avgRunTime));	
+    		chartFullTime.addValue((int)(log.avgFullTime));
+    		chartQueueSize.addValue(log.queueSize);
+    		chartPoolSize.addValue(log.poolSize);
+    	}
+    	out.println("AvgRunTime");
+		out.println(chartRunTime.draw());
+		out.println("AvgFullTime");
+		out.println(chartFullTime.draw());
+		out.println("QueueSize");
+		out.println(chartQueueSize.draw());
+		out.println("PoolSize");
+		out.println(chartPoolSize.draw());
     }
     //
     private void  showThreadPoolMethodChart(String args)throws Exception{

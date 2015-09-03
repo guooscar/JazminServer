@@ -31,9 +31,6 @@ public class PerformanceLogWriter {
 	}
 	//
 	public void start(){
-		if(logFilePath==null){
-			return;
-		}
 		new LogWriter().start();
 		logger.info("write performance log:{}",logFilePath);
 	}
@@ -65,6 +62,9 @@ public class PerformanceLogWriter {
 		}
 		//
 		private void createLogFile() throws IOException{
+			if(logFilePath==null){
+				return;
+			}
 			logFile = new File(logFilePath);
 			if (!logFile.exists()) {
 				if (!logFile.createNewFile()) {
@@ -81,6 +81,10 @@ public class PerformanceLogWriter {
 				TimeUnit.MINUTES.sleep(1);
 			} catch (InterruptedException e) {
 				logger.catching(e);
+			}
+			PerformanceLog log=dispatcher.addPerformanceLog();
+			if(logFilePath==null){
+				return;
 			}
 			//
 			if(logger.isDebugEnabled()){
@@ -100,24 +104,18 @@ public class PerformanceLogWriter {
 				createLogFile();
 			}
 			//
-			double totalFullTime=dispatcher.getTotalFullTime();
-			double totalRunTime=dispatcher.getTotalRunTime();
-			double totalInvokeCount=dispatcher.getTotalInvokeCount();
-			if(totalInvokeCount<1){
-				totalInvokeCount=1;
-			}
 			fileWriter.write(String.format("%-10s %-15s %-15s "
 					+ "AvgFullTime=%.2f "
 					+ "AvgRunTime=%.2f "
 					+ "%-20s %-20s %-20s\n",
-					dateFormat.format(new Date()),
-					"PoolSize="+dispatcher.getPoolSize(),
-					"QueueSize="+dispatcher.getQueue().size(),
-					totalFullTime/totalInvokeCount,
-					totalRunTime/totalInvokeCount,
-					"RejectedCount="+dispatcher.getTotalRejectedCount(),
-					"InvokeCount="+dispatcher.getTotalInvokeCount(),
-					"SubmitCount="+dispatcher.getTotalSubmitCount()));
+					dateFormat.format(log.date),
+					"PoolSize="+log.poolSize,
+					"QueueSize="+log.queueSize,
+					log.avgFullTime,
+					log.avgRunTime,
+					"RejectedCount="+log.rejectedCount,
+					"InvokeCount="+log.invokeCount,
+					"SubmitCount="+log.submitCount));
 			fileWriter.flush();
 		}
 	}

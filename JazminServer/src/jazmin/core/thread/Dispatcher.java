@@ -6,6 +6,8 @@ package jazmin.core.thread;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -66,7 +68,7 @@ public class Dispatcher extends Lifecycle implements Executor{
 	private LongAdder totalRejectedCount;
 	private AtomicLong maxFullTime;
 	private AtomicLong maxRunTime;
-	
+	private LinkedList<PerformanceLog>performanceLogs;
 	/**
 	 * 
 	 */
@@ -89,6 +91,7 @@ public class Dispatcher extends Lifecycle implements Executor{
 
 		poolExecutor.setRejectedExecutionHandler(
 				new ThreadPoolExecutor.AbortPolicy());
+		performanceLogs=new LinkedList<PerformanceLog>();
 	}
 	//--------------------------------------------------------------------------
 	@Override
@@ -105,6 +108,39 @@ public class Dispatcher extends Lifecycle implements Executor{
 	public void setPerformanceLogFile(String performanceLogFile) {
 		this.performanceLogFile = performanceLogFile;
 	}
+	//
+	public PerformanceLog addPerformanceLog(){
+		double totalFullTime=getTotalFullTime();
+		double totalRunTime=getTotalRunTime();
+		double totalInvokeCount=getTotalInvokeCount();
+		if(totalInvokeCount<1){
+			totalInvokeCount=1;
+		}
+		PerformanceLog log=new PerformanceLog();
+		log.date=new Date();
+		log.poolSize=getPoolSize();
+		log.queueSize=getQueue().size();
+		log.avgFullTime=totalFullTime/totalInvokeCount;
+		log.avgRunTime=totalRunTime/totalInvokeCount;
+		log.rejectedCount=getTotalRejectedCount();
+		log.invokeCount=getTotalInvokeCount();
+		log.submitCount=getTotalSubmitCount();
+		synchronized (performanceLogs) {
+			performanceLogs.add(log);
+			if(performanceLogs.size()>60*24){
+				//only record one day
+				performanceLogs.removeFirst();
+			}
+		}	
+		return log;
+	}
+	//
+	public List<PerformanceLog>getPerformanceLogs(){
+		synchronized (performanceLogs) {
+			return new ArrayList<PerformanceLog>(performanceLogs);
+		}
+	}
+	//
 	/**
 	 * 
 	 */
