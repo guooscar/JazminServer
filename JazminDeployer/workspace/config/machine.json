@@ -1,11 +1,11 @@
 [
 	{
 		"id":"demo",
-		"privateHost":"192.168.0.12",
-		"publicHost":"192.168.0.12",
-		"rootSshPassword":"kp123456kp",
-		"sshUser":"appadmin",
-		"sshPassword":"appadmin",
+		"privateHost":"localhost",
+		"publicHost":"localhost",
+		"rootSshPassword":"77585211",
+		"sshUser":"yama",
+		"sshPassword":"77585211",
 		"sshPort":22,
 		"jazminHome":"/home/appadmin/jazmin_server/",
 		"memcachedHome":"/home/appadmin/memcached/",
