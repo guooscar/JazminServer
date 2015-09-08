@@ -21,7 +21,7 @@ public class JSONRequestParser {
 		try{
 			jsonObj=JSON.parseObject(json.trim());
 		}catch(Exception e){
-			logger.warn("bad message{}",e.getMessage());
+			logger.warn("bad message {}",e.getMessage());
 			msg.isBadRequest=true;
 			return msg;
 		}
@@ -59,7 +59,7 @@ public class JSONRequestParser {
 		try{
 			jsonObj=JSON.parseObject(json.trim());
 		}catch(Exception e){
-			logger.warn("bad message{}",e.getMessage());
+			logger.warn("bad message {}",e.getMessage());
 			msg.isBadRequest=true;
 			return msg;
 		}

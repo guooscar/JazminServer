@@ -105,11 +105,6 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 		}
 		// Send the uppercase string back.
 		String request = ((TextWebSocketFrame) frame).text();
-		if(!request.endsWith("\n")){
-			logger.error("message should end with \\n");
-			ctx.close();
-			return;
-		}
 		RequestMessage message=decodeMessage(request.trim());
 		Session session = ctx.channel().attr(SESSION_KEY).get();
 		messageServer.receiveMessage(session, message);
