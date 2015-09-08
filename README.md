@@ -129,6 +129,7 @@ JazminServer帮助开发者实现了众多的底层功能，基于JazminServer�
 * WebSshServer
   * 使用WebSocket作为传输中继
   * 前端使用hterm.js
+
 <p>
 <img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image002.jpg?raw=true'/>
 <div alian="center">架构图</div>
@@ -152,5 +153,13 @@ JazminServer帮助开发者实现了众多的底层功能，基于JazminServer�
 <p>
 <img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image007.gif?raw=true'/>
 <div alian="center">自动部署系统</div>
+</p>
+<p>
+<img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/JazminDeployer_db_console.png?raw=true'/>
+<div alian="center">Sql控制台</div>
+</p>
+<p>
+<img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/JazminDeployer_sshlogin.png?raw=true'/>
+<div alian="center">WebSSH登陆</div>
 </p>
 
