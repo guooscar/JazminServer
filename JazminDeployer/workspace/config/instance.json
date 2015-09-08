@@ -36,12 +36,12 @@
 	{
 		"appId":"DemoDB",
 		"cluster":"demo",
-		"id":"demo_db_1",
+		"id":"db_fundingbiz_dev",
 		"machineId":"demo",
 		"packageVersion":"1.0.0",
-		"password":"demo",
-		"port":5003,
-		"user":"demo"
+		"password":"kp123456",
+		"port":3306,
+		"user":"root"
 	},
 	{
 		"appId":"DemoMemcached",
