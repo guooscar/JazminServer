@@ -380,7 +380,7 @@ public class DeployManager {
 		for(Application a:applicationMap.values()){
 			for(String depend:a.depends){
 				if(!applicationMap.containsKey(depend)){
-					logErrorMessage("can not find depend application "+depend+"for "+a.id);
+					logErrorMessage("can not find depend application "+depend+" for "+a.id);
 				}
 				//
 				if(depend.equals(a)){
