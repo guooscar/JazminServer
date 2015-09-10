@@ -36,6 +36,9 @@ public class FileView implements View{
 		ServletOutputStream outStream = response.getOutputStream();
         // sets response content type
 		if(mimetype==null){
+			mimetype = MimeMaps.getMimeTypeByFile(file);
+		}
+		if(mimetype==null){
 			mimetype = "application/octet-stream";
 		}
         response.setContentType(mimetype);
@@ -48,5 +51,5 @@ public class FileView implements View{
         IOUtil.copy(fis,outStream);
         IOUtil.closeQuietly(fis);
         IOUtil.closeQuietly(outStream);
-	}
+    }
 }

@@ -11,13 +11,22 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class ErrorView implements View{
 	private int code;
+	private String message;
 	public ErrorView(int code) {
 		this.code=code;
+	}
+	public ErrorView(int code,String message) {
+		this.code=code;
+		this.message=message;
 	}
 	//
 	@Override
 	public void render(Context ctx) throws Exception {
 		HttpServletResponse response=ctx.response.raw();
-		response.sendError(code);
+		if(message==null){
+			response.sendError(code);
+		}else{
+			response.sendError(code, message);
+		}
 	}
 }
