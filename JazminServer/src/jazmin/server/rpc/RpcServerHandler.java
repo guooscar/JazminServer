@@ -1,13 +1,15 @@
 
 package jazmin.server.rpc;
 
-import java.io.IOException;
-
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.DecoderException;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AttributeKey;
+
+import java.io.IOException;
+
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 
@@ -74,7 +76,7 @@ public class RpcServerHandler extends ChannelHandlerAdapter{
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) 
     		throws Exception {
-    	if(cause instanceof IOException){
+    	if((cause instanceof IOException)||(cause instanceof DecoderException)){
     		logger.warn("exception on channal:"+ctx.channel()+","+cause.getMessage());
     	}else{
     		logger.error("exception on channal:"+ctx.channel(),cause);	
