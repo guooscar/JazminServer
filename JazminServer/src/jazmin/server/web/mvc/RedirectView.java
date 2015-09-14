@@ -16,6 +16,10 @@ public class RedirectView implements View{
 	public RedirectView(String url) {
 		this.url=url;
 	}
+	public RedirectView(String url,String title) {
+		this.url=url;
+		this.title=title;
+	}
 	//
 	public void setTitle(String title){
 		this.title=title;

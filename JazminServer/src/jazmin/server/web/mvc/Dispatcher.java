@@ -48,7 +48,7 @@ public class Dispatcher {
 			throw new IllegalArgumentException("can not find Controller annotation");
 		}
 		if(controllerMap.containsKey(cc.id())){
-			throw new IllegalArgumentException("controller :"+cc.id()+" already exists");
+			throw new IllegalStateException("controller :"+cc.id()+" already exists");
 		}
 		//
 		if(logger.isDebugEnabled()){
@@ -57,6 +57,10 @@ public class Dispatcher {
 		ControllerStub cs=new ControllerStub(cc.id());
 		cs.setInstance(obj);
 		if(cc.index()){
+			if(indexController!=null){
+				throw new IllegalStateException(
+						"index controller already set to :"+indexController);
+			}
 			indexController=cs;
 		}
 		controllerMap.put(cc.id(),cs);

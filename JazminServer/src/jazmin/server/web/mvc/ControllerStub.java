@@ -58,6 +58,10 @@ public class ControllerStub implements Comparable<ControllerStub>{
 		methodStubs.put(srv.id(),ms);
 		//
 		if(srv.index()){
+			if(indexMethod!=null){
+				throw new IllegalStateException("index method already set to : "
+						+indexMethod +" for instance : "+instance);
+			}
 			indexMethod=ms;
 		}
 	}

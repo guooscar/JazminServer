@@ -56,7 +56,7 @@
 		"port":5004,
 		"user":"",
 		"properties":{
-			"memcached.size","64m"
+			"memcached.size":"64m"
 		}
 	}
 ]
