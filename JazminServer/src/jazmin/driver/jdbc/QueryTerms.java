@@ -56,9 +56,9 @@ public class QueryTerms {
 		return this;
 	}
 	//
-	public QueryTerms limit(int start,int end){
+	public QueryTerms limit(int start,int limit){
 		this.limitStart=start;
-		this.limitEnd=end;
+		this.limitEnd=limit;
 		return this;
 	}
 	//
