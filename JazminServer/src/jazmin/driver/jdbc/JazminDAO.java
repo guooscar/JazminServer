@@ -67,7 +67,7 @@ public class JazminDAO {
 			if(limitMaxRows>0){
 				ps.setMaxRows(limitMaxRows);		
 			}
-			JDBCUtil.set(conn, ps, parameters);
+			ConnectionUtil.set(ps, parameters);
 			rs = ps.executeQuery();
 			if (rs.next()) {
 				return rowHandler.handleRow(rs);
@@ -77,9 +77,9 @@ public class JazminDAO {
 		} catch (Exception e) {
 			throw new ConnectionException(e);
 		} finally {
-			JDBCUtil.closeResultSet(rs);
-			JDBCUtil.closeStatement(ps);
-			JDBCUtil.closeConnection(conn);
+			ConnectionUtil.closeResultSet(rs);
+			ConnectionUtil.closeStatement(ps);
+			ConnectionUtil.closeConnection(conn);
 		}
 	}
 	//
@@ -95,7 +95,7 @@ public class JazminDAO {
 			if(limitMaxRows>0){
 				ps.setMaxRows(limitMaxRows);		
 			}
-			JDBCUtil.set(conn, ps, parameters);
+			ConnectionUtil.set(ps, parameters);
 			rs = ps.executeQuery();
 			List<T> result = new ArrayList<T>();
 			while (rs.next()) {
@@ -105,9 +105,9 @@ public class JazminDAO {
 		} catch (Exception e) {
 			throw new ConnectionException(e);
 		} finally {
-			JDBCUtil.closeResultSet(rs);
-			JDBCUtil.closeStatement(ps);
-			JDBCUtil.closeConnection(conn);
+			ConnectionUtil.closeResultSet(rs);
+			ConnectionUtil.closeStatement(ps);
+			ConnectionUtil.closeConnection(conn);
 		}
 	}
 	
@@ -159,13 +159,13 @@ public class JazminDAO {
 		PreparedStatement ps = null;
 		try {
 			ps = conn.prepareStatement(sql);
-			JDBCUtil.set(conn, ps, parameters);
+			ConnectionUtil.set( ps, parameters);
 			return ps.execute();
 		} catch (Exception e) {
 			throw new ConnectionException(e);
 		} finally {
-			JDBCUtil.closeStatement(ps);
-			JDBCUtil.closeConnection(conn);
+			ConnectionUtil.closeStatement(ps);
+			ConnectionUtil.closeConnection(conn);
 		}
 	}
 	//
@@ -182,7 +182,7 @@ public class JazminDAO {
 		ResultSet rs = null;
 		try {
 			ps = conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
-			JDBCUtil.set(conn, ps, parameters);
+			ConnectionUtil.set( ps, parameters);
 			ps.execute();
 			rs=ps.getGeneratedKeys();
 			if(rs.next()){
@@ -193,9 +193,9 @@ public class JazminDAO {
 		} catch (Exception e) {
 			throw new ConnectionException(e);
 		} finally {
-			JDBCUtil.closeResultSet(rs);
-			JDBCUtil.closeStatement(ps);
-			JDBCUtil.closeConnection(conn);
+			ConnectionUtil.closeResultSet(rs);
+			ConnectionUtil.closeStatement(ps);
+			ConnectionUtil.closeConnection(conn);
 		}
 	}
 	//
@@ -206,13 +206,13 @@ public class JazminDAO {
 		PreparedStatement ps = null;
 		try {
 			ps = conn.prepareStatement(sql);
-			JDBCUtil.set(conn, ps, parameters);
+			ConnectionUtil.set(ps, parameters);
 			return ps.executeUpdate();
 		} catch (Exception e) {
 			throw new ConnectionException(e);
 		} finally {
-			JDBCUtil.closeStatement(ps);
-			JDBCUtil.closeConnection(conn);
+			ConnectionUtil.closeStatement(ps);
+			ConnectionUtil.closeConnection(conn);
 		}
 	}
 	//
@@ -224,15 +224,15 @@ public class JazminDAO {
 		try {
 			ps = conn.prepareStatement(sql);
 			for(Object []parameters:parameterList){
-				JDBCUtil.set(conn, ps, parameters);
+				ConnectionUtil.set(ps, parameters);
 				ps.addBatch();
 			}
 			return ps.executeBatch();
 		} catch (Exception e) {
 			throw new ConnectionException(e);
 		} finally {
-			JDBCUtil.closeStatement(ps);
-			JDBCUtil.closeConnection(conn);
+			ConnectionUtil.closeStatement(ps);
+			ConnectionUtil.closeConnection(conn);
 		}
 	}
 }

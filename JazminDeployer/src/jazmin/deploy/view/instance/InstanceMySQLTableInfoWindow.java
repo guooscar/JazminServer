@@ -7,12 +7,13 @@ import java.util.List;
 
 import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.Instance;
-import jazmin.deploy.domain.JdbcUtil;
-import jazmin.deploy.domain.JdbcUtil.ColumnInfo;
-import jazmin.deploy.domain.JdbcUtil.IndexInfo;
-import jazmin.deploy.domain.JdbcUtil.PrimaryKeyInfo;
-import jazmin.deploy.domain.JdbcUtil.TableInfo;
 import jazmin.deploy.ui.BeanTable;
+import jazmin.util.JdbcUtil;
+import jazmin.util.JdbcUtil.ColumnInfo;
+import jazmin.util.JdbcUtil.DatabaseInfo;
+import jazmin.util.JdbcUtil.IndexInfo;
+import jazmin.util.JdbcUtil.PrimaryKeyInfo;
+import jazmin.util.JdbcUtil.TableInfo;
 
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
@@ -86,6 +87,9 @@ public class InstanceMySQLTableInfoWindow extends Window{
 		String user=instance.getUser();
 		String pwd=instance.getPassword();
 		try {
+			DatabaseInfo dbInfo= JdbcUtil.getDatabaseInfo(jdbcUrl, user, pwd);
+			setCaption(instance.id+" ("+dbInfo.databaseProductName+"-"
+										+dbInfo.databaseProductVersion+")");
 			List<TableInfo>list=JdbcUtil.getTables(jdbcUrl, user, pwd);
 			tablesList.setData(list);
 		} catch (Exception e) {

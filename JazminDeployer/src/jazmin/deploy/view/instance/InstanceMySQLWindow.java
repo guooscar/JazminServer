@@ -12,7 +12,7 @@ import java.util.List;
 
 import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.Instance;
-import jazmin.deploy.domain.JdbcUtil;
+import jazmin.util.JdbcUtil;
 
 import org.vaadin.aceeditor.AceEditor;
 import org.vaadin.aceeditor.AceEditor.SelectionChangeEvent;

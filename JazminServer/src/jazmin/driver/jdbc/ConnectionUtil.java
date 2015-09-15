@@ -16,9 +16,9 @@ import jazmin.log.LoggerFactory;
  * @author yama
  * 8 Jan, 2015
  */
-public class JDBCUtil {
-	private static Logger logger=LoggerFactory.get(JDBCUtil.class);
-	private JDBCUtil(){}
+public class ConnectionUtil {
+	private static Logger logger=LoggerFactory.get(ConnectionUtil.class);
+	private ConnectionUtil(){}
 	/**
 	 * Close the given JDBC Connection and ignore any thrown exception. This is
 	 * useful for typical finally blocks in manual JDBC code.
@@ -87,7 +87,6 @@ public class JDBCUtil {
 	 *
 	 */
 	public static  void set(
-			Connection conn, 
 			PreparedStatement ps, 
 			Object... objs)
 			throws SQLException {

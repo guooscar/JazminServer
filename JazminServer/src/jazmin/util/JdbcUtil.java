@@ -6,15 +6,15 @@ package jazmin.util;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-import jazmin.util.DumpUtil;
+import jazmin.driver.jdbc.ConnectionUtil;
 
 /**
  * @author yama
@@ -22,7 +22,12 @@ import jazmin.util.DumpUtil;
  */
 public class JdbcUtil {
 	// JDBC driver name and database URL
-	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+	static  String driverName= "com.mysql.jdbc.Driver";
+	public static class DatabaseInfo{
+		public String driverName;
+		public String databaseProductName;
+		public String databaseProductVersion;
+	}
 	//
 	public static class TableInfo{
 		public String name;
@@ -51,12 +56,39 @@ public class JdbcUtil {
 		public String columnName;
 	}
 	//
+	public static void setDriverName(String d){
+		driverName=d;
+	}
+	public static DatabaseInfo getDatabaseInfo(	String dburl, 
+			String user, 
+			String pwd)throws Exception{
+		Class.forName(driverName);
+		Connection conn = null;
+		try {
+			conn = DriverManager.getConnection(dburl, user, pwd);
+			DatabaseMetaData metaData=conn.getMetaData();
+			DatabaseInfo info=new DatabaseInfo();
+			info.driverName=metaData.getDriverName();
+			info.databaseProductName=metaData.getDatabaseProductName();
+			info.databaseProductVersion=metaData.getDatabaseProductVersion();
+			conn.close();
+			return info;
+		} finally {
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+		}
+	}
+	//
 	public static List<ColumnInfo> getColumns(
 			String dburl, 
 			String user, 
 			String pwd,
 			String table) throws Exception{
-		Class.forName(JDBC_DRIVER);
+		Class.forName(driverName);
 		Connection conn = null;
 		try {
 			conn = DriverManager.getConnection(dburl, user, pwd);
@@ -92,7 +124,7 @@ public class JdbcUtil {
 			String user, 
 			String pwd,
 			String table) throws Exception{
-		Class.forName(JDBC_DRIVER);
+		Class.forName(driverName);
 		Connection conn = null;
 		try {
 			conn = DriverManager.getConnection(dburl, user, pwd);
@@ -122,7 +154,7 @@ public class JdbcUtil {
 			String user, 
 			String pwd,
 			String table) throws Exception{
-		Class.forName(JDBC_DRIVER);
+		Class.forName(driverName);
 		Connection conn = null;
 		try {
 			conn = DriverManager.getConnection(dburl, user, pwd);
@@ -167,7 +199,7 @@ public class JdbcUtil {
 			String dburl, 
 			String user, 
 			String pwd) throws Exception{
-		Class.forName(JDBC_DRIVER);
+		Class.forName(driverName);
 		Connection conn = null;
 		try {
 			conn = DriverManager.getConnection(dburl, user, pwd);
@@ -196,14 +228,16 @@ public class JdbcUtil {
 	public static boolean execute(String dburl, 
 			String user, 
 			String pwd,
-			String sql) throws Exception{
-		Class.forName(JDBC_DRIVER);
+			String sql,
+			Object ...args) throws Exception{
+		Class.forName(driverName);
 		Connection conn = null;
-		Statement stmt = null;
+		PreparedStatement stmt = null;
 		try {
 			conn = DriverManager.getConnection(dburl, user, pwd);
-			stmt = conn.createStatement();
-			boolean r=stmt.execute(sql);
+			stmt = conn.prepareStatement(sql);
+			ConnectionUtil.set(stmt, args);
+			boolean r=stmt.execute();
 			stmt.close();
 			conn.close();
 			return r;
@@ -226,14 +260,16 @@ public class JdbcUtil {
 	public static int executeUpdate(String dburl, 
 			String user, 
 			String pwd,
-			String sql) throws Exception{
-		Class.forName(JDBC_DRIVER);
+			String sql,
+			Object ...args) throws Exception{
+		Class.forName(driverName);
 		Connection conn = null;
-		Statement stmt = null;
+		PreparedStatement stmt = null;
 		try {
 			conn = DriverManager.getConnection(dburl, user, pwd);
-			stmt = conn.createStatement();
-			int r=stmt.executeUpdate(sql);
+			stmt = conn.prepareStatement(sql);
+			ConnectionUtil.set(stmt, args);
+			int r=stmt.executeUpdate();
 			stmt.close();
 			conn.close();
 			return r;
@@ -258,15 +294,17 @@ public class JdbcUtil {
 			String user, 
 			String pwd,
 			String sql,
-			BiConsumer<ResultSetMetaData,ResultSet>callback) throws Exception {
-		Class.forName(JDBC_DRIVER);
+			BiConsumer<ResultSetMetaData,ResultSet>callback,
+			Object ...args) throws Exception {
+		Class.forName(driverName);
 		Connection conn = null;
-		Statement stmt = null;
+		PreparedStatement stmt = null;
 		try {
 			conn = DriverManager.getConnection(dburl, user, pwd);
-			stmt = conn.createStatement();
+			stmt = conn.prepareStatement(sql);
+			ConnectionUtil.set(stmt, args);
 			stmt.setMaxRows(10000);
-			ResultSet rs = stmt.executeQuery(sql);
+			ResultSet rs = stmt.executeQuery();
 			ResultSetMetaData metaData=rs.getMetaData();
 			callback.accept(metaData, rs);
 			rs.close();
@@ -287,6 +325,7 @@ public class JdbcUtil {
 			}
 		}
 	}
+	
 	//
 	public static void main(String[] args)throws Exception{
 		String jdbcUrl="jdbc:mysql://192.168.0.12:3306/db_fundingbiz_dev?useUnicode=true&characterEncoding=UTF-8";
