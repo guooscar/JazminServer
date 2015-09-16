@@ -41,6 +41,7 @@
             term = new hterm.Terminal();
             term.io.showOverlay("Connection Opened", null);
             term.getPrefs().set("send-encoding", "raw");
+            term.getPrefs().set("font-size", "12");
             term.onTerminalReady = function() {
                 var io = term.io.push();
 
