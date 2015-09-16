@@ -165,7 +165,7 @@ public class MachineInfoView extends DeployBaseView{
 			});
 			StringBuilder result=new StringBuilder("done");
 			try {
-				SshUtil.scp(machine.privateHost,
+				SshUtil.scp(machine.publicHost,
 						machine.sshPort, 
 						machine.sshUser,
 						machine.sshPassword,

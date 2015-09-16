@@ -105,7 +105,7 @@ public class MachineIptablesWindow extends Window{
 	//
 	private void viewConfig(){
 		try{
-			SshUtil.execute(machine.privateHost,
+			SshUtil.execute(machine.publicHost,
 					machine.sshPort,
 					"root", 
 					machine.rootSshPassword, 
@@ -123,7 +123,7 @@ public class MachineIptablesWindow extends Window{
 		try{
 			String config=editor.getValue();
 			config=config.replaceAll("'","\\'").replaceAll("\"","\\\\\"");
-			SshUtil.execute(machine.privateHost,
+			SshUtil.execute(machine.publicHost,
 					machine.sshPort,
 					"root", 
 					machine.rootSshPassword, 
@@ -156,7 +156,7 @@ public class MachineIptablesWindow extends Window{
 	//
 	private void runCmd(String cmd,String info,boolean showResult){
 		try{
-			SshUtil.execute(machine.privateHost,
+			SshUtil.execute(machine.publicHost,
 					machine.sshPort,
 					"root", 
 					machine.rootSshPassword, 
