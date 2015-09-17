@@ -56,6 +56,7 @@ public class ConsoleServer extends Server{
 	Map<String,ConsoleCommand>commands=new HashMap<String, ConsoleCommand>();
 	LinkedList<String>commandHistory=new LinkedList<String>();
 	int maxCommandHistory;
+	SimplePasswordAuthenticator defaultAuthenticator;
 	//
 	private void startSshServer()throws Exception {
 		maxCommandHistory=500;
@@ -64,7 +65,9 @@ public class ConsoleServer extends Server{
 		sshServer.setPort(port);
 		String jchPath=Jazmin.getServerPath()+"/"+"jch.ser";
 		sshServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(jchPath));
-		
+		defaultAuthenticator=new SimplePasswordAuthenticator();
+		defaultAuthenticator.setUser("jazmin", "jazmin");
+		authenticator=defaultAuthenticator;
 		sshServer.setPasswordAuthenticator(new PasswordAuthenticator() {
             public boolean authenticate(String u, String p, ServerSession session) {
             	String loginUser=u;
@@ -209,6 +212,13 @@ public class ConsoleServer extends Server{
         	sessions.add(s);
     	});
 		return sessions;
+	}
+	
+	/**
+	 * @return the defaultAuthenticator
+	 */
+	public SimplePasswordAuthenticator getDefaultAuthenticator() {
+		return defaultAuthenticator;
 	}
 	/**
 	 * 

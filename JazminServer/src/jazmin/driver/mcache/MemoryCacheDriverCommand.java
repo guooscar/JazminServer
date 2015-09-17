@@ -24,7 +24,7 @@ public class MemoryCacheDriverCommand extends ConsoleCommand {
 	@Override
 	public void run() throws Exception{
 		 if(driver==null){
-			 err.println("can not find MemoryCacheDriver.");
+			 out.println("can not find MemoryCacheDriver.");
 			 return;
 		 }
 		 super.run();

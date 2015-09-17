@@ -38,7 +38,7 @@ public class MessageServerCommand extends ConsoleCommand {
 	@Override
 	public void run() throws Exception{
 		 if(messageServer==null){
-			 err.println("can not find MessageServer.");
+			 out.println("can not find MessageServer.");
 			 return;
 		 }
 		 super.run();
@@ -70,7 +70,7 @@ public class MessageServerCommand extends ConsoleCommand {
     private void showSessionInfo(String args){
     	Session session=messageServer.getSessionByPrincipal(args);
     	if(session==null){
-    		err.println("can not find session:"+args);
+    		out.println("can not find session:"+args);
     		return;
     	}
     	String format="%-20s: %-10s\n";
@@ -92,7 +92,7 @@ public class MessageServerCommand extends ConsoleCommand {
     private void kickSession(String args){
     	Session session=messageServer.getSessionByPrincipal(args);
     	if(session==null){
-    		err.println("can not find session:"+args);
+    		out.println("can not find session:"+args);
     		return;
     	}
     	session.kick("kick by jasmin console.");	
@@ -154,7 +154,7 @@ public class MessageServerCommand extends ConsoleCommand {
     private void showChannelInfo(String args){
     	Channel channel=messageServer.getChannel(args);
     	if(channel==null){
-    		err.println("can not find channel:"+args);
+    		out.println("can not find channel:"+args);
     		return;
     	}
     	String format="%-20s: %-10s\n";

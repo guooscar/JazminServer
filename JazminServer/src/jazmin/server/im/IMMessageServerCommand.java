@@ -39,7 +39,7 @@ public class IMMessageServerCommand extends ConsoleCommand {
 	@Override
 	public void run() throws Exception{
 		 if(messageServer==null){
-			 err.println("can not find MessageServer.");
+			 out.println("can not find MessageServer.");
 			 return;
 		 }
 		 super.run();
@@ -69,7 +69,7 @@ public class IMMessageServerCommand extends ConsoleCommand {
     private void showSessionInfo(String args){
     	IMSession session=messageServer.getSessionByPrincipal(args);
     	if(session==null){
-    		err.println("can not find session:"+args);
+    		out.println("can not find session:"+args);
     		return;
     	}
     	FormPrinter fp=FormPrinter.create(out,20);
@@ -90,7 +90,7 @@ public class IMMessageServerCommand extends ConsoleCommand {
     private void kickSession(String args){
     	IMSession session=messageServer.getSessionByPrincipal(args);
     	if(session==null){
-    		err.println("can not find session:"+args);
+    		out.println("can not find session:"+args);
     		return;
     	}
     	session.kick("kick by jasmin console.");	
@@ -147,7 +147,7 @@ public class IMMessageServerCommand extends ConsoleCommand {
     private void showChannelInfo(String args){
     	IMChannel channel=messageServer.getChannel(args);
     	if(channel==null){
-    		err.println("can not find channel:"+args);
+    		out.println("can not find channel:"+args);
     		return;
     	}
     	FormPrinter fp=FormPrinter.create(out,20);

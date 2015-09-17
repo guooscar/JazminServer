@@ -31,7 +31,7 @@ public class JazminRpcDriverCommand extends ConsoleCommand {
 	@Override
 	public void run() throws Exception{
 		 if(driver==null){
-			 err.println("can not find JazminRPCDriver.");
+			 out.println("can not find JazminRPCDriver.");
 			 return;
 		 }
 		 super.run();

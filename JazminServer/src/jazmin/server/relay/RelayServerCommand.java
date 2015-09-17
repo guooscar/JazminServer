@@ -30,7 +30,7 @@ public class RelayServerCommand extends ConsoleCommand {
 	@Override
 	public void run() throws Exception{
 		 if(server==null){
-			 err.println("can not find RtmpServer.");
+			 out.println("can not find RtmpServer.");
 			 
 			 return;
 		 }
@@ -94,7 +94,7 @@ public class RelayServerCommand extends ConsoleCommand {
     private void dumpChannel(String cid){
     	RelayChannel rc=server.getChannel(cid);
     	if(rc==null){
-    		err.println("can not found channel with id:"+cid);
+    		out.println("can not found channel with id:"+cid);
     		return;
     	}
     	//
@@ -105,7 +105,7 @@ public class RelayServerCommand extends ConsoleCommand {
     private void unDumpChannel(String cid){
     	RelayChannel rc=server.getChannel(cid);
     	if(rc==null){
-    		err.println("can not found channel with id:"+cid);
+    		out.println("can not found channel with id:"+cid);
     		return;
     	}
     	//

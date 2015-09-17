@@ -26,7 +26,7 @@ public class MemcachedDriverCommand extends ConsoleCommand {
 	@Override
 	public void run() throws Exception{
 		 if(driver==null){
-			 err.println("can not find MemcachedDriver.");
+			 out.println("can not find MemcachedDriver.");
 			 return;
 		 }
 		 super.run();

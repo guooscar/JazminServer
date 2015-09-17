@@ -35,7 +35,7 @@ public class RtmpServerCommand extends ConsoleCommand {
 	@Override
 	public void run() throws Exception{
 		 if(server==null){
-			 err.println("can not find RtmpServer.");
+			 out.println("can not find RtmpServer.");
 			 
 			 return;
 		 }

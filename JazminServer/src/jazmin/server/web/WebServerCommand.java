@@ -31,7 +31,7 @@ public class WebServerCommand extends ConsoleCommand {
 	@Override
 	public void run() throws Exception{
 		 if(webServer==null){
-			 err.println("can not find WebServer.");
+			 out.println("can not find WebServer.");
 			 return;
 		 }
 		 super.run();

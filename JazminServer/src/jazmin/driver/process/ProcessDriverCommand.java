@@ -24,7 +24,7 @@ public class ProcessDriverCommand extends ConsoleCommand {
 	@Override
 	public void run() throws Exception{
 		 if(driver==null){
-			 err.println("can not find ProcessDriver.");
+			 out.println("can not find ProcessDriver.");
 			 return;
 		 }
 		 super.run();
@@ -55,7 +55,7 @@ public class ProcessDriverCommand extends ConsoleCommand {
     private void showProcessInfo(String args){
     	ProcessInfo pi=driver.getProcess(args.trim());
     	if(pi==null){
-    		err.println("can not found process with id:"+args);
+    		out.println("can not found process with id:"+args);
     		return;
     	}
     	//

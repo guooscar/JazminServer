@@ -17,7 +17,7 @@ public class SimplePasswordAuthenticator implements Authenticator{
 		users=new ConcurrentHashMap<String, String>();
 	}
 	//
-	public void addUser(String u,String p){
+	public void setUser(String u,String p){
 		if(u==null||p==null){
 			throw new IllegalArgumentException("user or password can not be null.");
 		}

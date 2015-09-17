@@ -23,7 +23,7 @@ public class RedisDriverCommand extends ConsoleCommand {
 	@Override
 	public void run() throws Exception{
 		 if(driver==null){
-			 err.println("can not find RedisDriver.");
+			 out.println("can not find RedisDriver.");
 			 return;
 		 }
 		 super.run();
