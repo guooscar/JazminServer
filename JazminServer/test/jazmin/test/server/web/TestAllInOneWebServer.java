@@ -18,9 +18,9 @@ public class TestAllInOneWebServer {
 	public static void main(String[] args) {
 		WebServer ws=new WebServer();
 		ws.setHttpsPort(8443);
-		ws.setKeyStoreType("pkcs12");
-		ws.setKeyStoreFile("./cert/server.pkcs12");
-		ws.setKeyStorePassword("123456");
+		ws.setKeyStoreType("jks");
+		ws.setKeyStoreFile("itit.io.jks");
+		ws.setKeyStorePassword("urpassword");
 		ws.addApplication("/","/");
 		Jazmin.addServer(ws);
 		Jazmin.loadApplication(new TestWebApplication());

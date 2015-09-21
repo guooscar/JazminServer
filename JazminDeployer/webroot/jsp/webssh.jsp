@@ -10,7 +10,8 @@
     <script src="/js/hterm.js"></script>
     <script>
 (function() {
-    var url ='ws://'+window.location.hostname+':9001/ws';
+    var httpsEnabled = window.location.protocol == "https:";
+    var url = (httpsEnabled ? 'wss://' : 'ws://')+window.location.hostname+':9001/ws';
     var protocols = ["webssh"];
     var login=function(ws){
         var loginData=JSON.stringify(
