@@ -8,3 +8,5 @@ performance set threadpool max size/set c3p0 pool max size
 http upload curl  -F file=@./restartall.sh  http://10.44.218.119:8080/upload/
 
 openssl pkcs12 -inkey x509-server-key.pem -in x509-server.pem -export -out server.pkcs12  
+//pkcs1 to pkcs 8
+openssl pkcs8 -topk8 -inform PEM -outform PEM -in priv1.pem -out priv8.pem -nocrypt
