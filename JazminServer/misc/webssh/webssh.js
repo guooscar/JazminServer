@@ -1,5 +1,5 @@
 (function() {
-    var url ='ws://127.0.0.1:9001/ws';
+    var url ='wss://127.0.0.1:9002/ws';
     var protocols = ["webssh"];
     var login=function(ws){
         var loginData=JSON.stringify(

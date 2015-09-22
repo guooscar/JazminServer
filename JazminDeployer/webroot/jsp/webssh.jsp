@@ -11,7 +11,7 @@
     <script>
 (function() {
     var httpsEnabled = window.location.protocol == "https:";
-    var url = (httpsEnabled ? 'wss://' : 'ws://')+window.location.hostname+':9001/ws';
+    var url = (httpsEnabled ? 'wss://' : 'ws://')+window.location.hostname+':'+(httpsEnabled?9002:9001)+'/ws';
     var protocols = ["webssh"];
     var login=function(ws){
         var loginData=JSON.stringify(

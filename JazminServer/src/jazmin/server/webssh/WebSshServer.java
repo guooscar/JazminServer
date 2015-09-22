@@ -26,7 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
-import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
 import jazmin.misc.io.IOWorker;
 import jazmin.server.console.ConsoleServer;
@@ -39,8 +38,8 @@ import jazmin.server.console.ConsoleServer;
  */
 public class WebSshServer extends Server{
 	private int port;
+	private int wssPort;
 	private boolean enableWss;
-	private  ServerBootstrap webSocketServerBootstrap;
 	private  EventLoopGroup bossGroup;
 	private  EventLoopGroup workerGroup;
 	private  Map<String, WebSshChannel>channels;
@@ -54,6 +53,7 @@ public class WebSshServer extends Server{
 		channels=new ConcurrentHashMap<String, WebSshChannel>();
 		enableWss=false;
 		port=9001;
+		wssPort=9002;
 		certificateFile="";
 		privateKeyFile="";
 		privateKeyPhrase="";
@@ -68,8 +68,8 @@ public class WebSshServer extends Server{
 	}
 
 	/**
-	 * @param certificateFile the certificateFile to set
-	 */
+	 * @param certificateFile an X.509 certificate chain file in PEM format
+  	 */
 	public void setCertificateFile(String certificateFile) {
 		this.certificateFile = certificateFile;
 	}
@@ -82,7 +82,7 @@ public class WebSshServer extends Server{
 	}
 
 	/**
-	 * @param privateKeyFile the privateKeyFile to set
+	 * @param privateKeyFile a PKCS#8 private key file in PEM format
 	 */
 	public void setPrivateKeyFile(String privateKeyFile) {
 		this.privateKeyFile = privateKeyFile;
@@ -100,6 +100,20 @@ public class WebSshServer extends Server{
 	 */
 	public void setPort(int port) {
 		this.port = port;
+	}
+
+	/**
+	 * @return the wssPort
+	 */
+	public int getWssPort() {
+		return wssPort;
+	}
+
+	/**
+	 * @param wssPort the wssPort to set
+	 */
+	public void setWssPort(int wssPort) {
+		this.wssPort = wssPort;
 	}
 
 	/**
@@ -160,28 +174,23 @@ public class WebSshServer extends Server{
 		return new ArrayList<WebSshChannel>(channels.values());
 	}
 	//
-	private void createWSListeningPoint()throws Exception{
-		IOWorker ioWorker=new IOWorker("WebTtyServerWorker",
-    			Runtime.getRuntime().availableProcessors()*2+1);
-		bossGroup=new NioEventLoopGroup(1,ioWorker);
-    	workerGroup=new NioEventLoopGroup(0,ioWorker);
-        final ServerBootstrap b = new ServerBootstrap();
+	private void createWSListeningPoint(boolean wss)throws Exception{
+	    final ServerBootstrap b = new ServerBootstrap();
         b.group(this.bossGroup, this.workerGroup)
         .channel(NioServerSocketChannel.class)
         .childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
             public void initChannel(final SocketChannel ch) throws Exception {
                 final ChannelPipeline pipeline = ch.pipeline();
-                if(enableWss){
+                if(wss){
                 	SslContext sslContext=createSslContext();
                 	pipeline.addLast(sslContext.newHandler(ch.alloc()));	
                 }
-                ch.pipeline().addLast("idleStateHandler",new IdleStateHandler(3600,3600,0));
-    			ch.pipeline().addLast(new HttpServerCodec());
-    			ch.pipeline().addLast(new HttpObjectAggregator(65536));
-    			ch.pipeline().addLast(new WebSocketServerCompressionHandler());
-    			ch.pipeline().addLast(new WebSshWebSocketHandler(WebSshServer.this));
-                pipeline.addLast("handler", new WebSshWebSocketHandler(WebSshServer.this));
+                pipeline.addLast("idleStateHandler",new IdleStateHandler(3600,3600,0));
+                pipeline.addLast(new HttpServerCodec());
+                pipeline.addLast(new HttpObjectAggregator(65536));
+                pipeline.addLast(new WebSocketServerCompressionHandler());
+                pipeline.addLast(new WebSshWebSocketHandler(WebSshServer.this,wss));
             }
         })
         .option(ChannelOption.SO_BACKLOG, 128)
@@ -189,8 +198,11 @@ public class WebSshServer extends Server{
         .childOption(ChannelOption.SO_KEEPALIVE, true)
         .childOption(ChannelOption.TCP_NODELAY, true);
         //
-        webSocketServerBootstrap=b;
-        webSocketServerBootstrap.bind(port).sync();
+        if(wss){
+        	b.bind(wssPort).sync();    	
+        }else{
+            b.bind(port).sync();    	
+        }
     }
 	//--------------------------------------------------------------------------
 	@Override
@@ -203,7 +215,14 @@ public class WebSshServer extends Server{
 	//
 	@Override
 	public void start() throws Exception {
-		createWSListeningPoint();
+		IOWorker ioWorker=new IOWorker("WebSshServerWorker",
+    			Runtime.getRuntime().availableProcessors()*2+1);
+		bossGroup=new NioEventLoopGroup(1,ioWorker);
+    	workerGroup=new NioEventLoopGroup(0,ioWorker);
+		createWSListeningPoint(false);
+		if(enableWss){
+			createWSListeningPoint(true);	
+		}
 	}
 	@Override
 	public void stop() throws Exception {
@@ -221,19 +240,11 @@ public class WebSshServer extends Server{
 		ib.section("info")
 		.format("%-30s:%-30s\n")
 		.print("port",getPort())
+		.print("wssPort",getWssPort())
 		.print("defaultSshConnectTimeout",getDefaultSshConnectTimeout())
 		.print("enableWss",isEnableWss())
 		.print("privateKeyFile",getPrivateKeyFile())
 		.print("certificateFile",getCertificateFile());
 		return ib.toString();
-	}
-	//
-	public static void main(String[] args) {
-		LoggerFactory.setLevel("DEBUG");
-		WebSshServer server=new WebSshServer();
-		//server.setEnableWss(true);
-		Jazmin.addServer(server);
-		Jazmin.addServer(new ConsoleServer());
-		Jazmin.start();
 	}
 }

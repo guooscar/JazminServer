@@ -14,6 +14,7 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderUtil;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
@@ -39,8 +40,10 @@ public class WebSshWebSocketHandler extends SimpleChannelInboundHandler<Object> 
 	private WebSocketServerHandshaker handshaker;
 	private WebSshServer server;
 	private static final int MAX_WEBSOCKET_FRAME_SIZE=10240;
-	public WebSshWebSocketHandler(WebSshServer server) {
+	private boolean isWss;
+	public WebSshWebSocketHandler(WebSshServer server,boolean isWss) {
 		this.server=server;
+		this.isWss=isWss;
 	}
 
 	@Override
@@ -72,6 +75,12 @@ public class WebSshWebSocketHandler extends SimpleChannelInboundHandler<Object> 
 					FORBIDDEN));
 			return;
 		}
+		if ("/favicon.ico".equals(req.uri())) {
+            FullHttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, 
+            		HttpResponseStatus.NOT_FOUND);
+            sendHttpResponse(ctx, req, res);
+            return;
+        }
 		// Handshake
 		WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
 				getWebSocketLocation(req), "webssh", true,MAX_WEBSOCKET_FRAME_SIZE);
@@ -132,7 +141,7 @@ public class WebSshWebSocketHandler extends SimpleChannelInboundHandler<Object> 
 	//
 	private  String getWebSocketLocation(FullHttpRequest req) {
 		String location = req.headers().get("Host") + WEBSOCKET_PATH;
-		return (server.isEnableWss()?"wss":"ws")+"://" + location;
+		return (isWss?"wss":"ws")+"://" + location;
 	}
 
 	//
@@ -169,6 +178,8 @@ public class WebSshWebSocketHandler extends SimpleChannelInboundHandler<Object> 
 	@Override
 	public void userEventTriggered(ChannelHandlerContext ctx, Object evt)
 			throws Exception {
-		logger.debug("userEventTriggered:"+ctx.channel());	
+		if(logger.isDebugEnabled()){
+			logger.debug("userEventTriggered:"+ctx.channel()+"/"+evt);				
+		}
 	}
 }
