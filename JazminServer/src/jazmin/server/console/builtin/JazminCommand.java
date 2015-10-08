@@ -236,8 +236,8 @@ public class JazminCommand extends ConsoleCommand {
         	tp.print(sdf.format(log.date),
         			log.poolSize,
         			log.queueSize,
-        			log.avgFullTime,
-        			log.avgRunTime,
+        			String.format("%.2f", log.avgFullTime),
+        			String.format("%.2f", log.avgRunTime),
         			log.rejectedCount,
         			log.invokeCount,
         			log.submitCount);

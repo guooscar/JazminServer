@@ -30,7 +30,7 @@ public class C3p0DriverCommand extends ConsoleCommand {
 	@Override
 	public void run() throws Exception{
 		 if(connectionDriver==null){
-			 err.println("can not find C3P0ConnectionDriver.");
+			 out.println("can not find C3P0ConnectionDriver.");
 			 return;
 		 }
 		 super.run();

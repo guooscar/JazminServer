@@ -4,6 +4,7 @@
 package jazmin.deploy.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -126,10 +127,11 @@ public class DeployController {
 			return;
 		}
 		Machine machine=instance.machine;
+		Map<String,String>p=instance.properties;
 		c.put("sshHost",machine.publicHost);
-		c.put("sshUser",machine.sshUser);
+		c.put("sshUser",p.getOrDefault(Instance.P_JAZMIN_CONSOLE_USER, "jazmin"));
+		c.put("sshPassword",p.getOrDefault(Instance.P_JAZMIN_CONSOLE_PWD, "jazmin"));
 		c.put("sshPort",instance.port+10000);
-		c.put("sshPassword",instance.id);
 		c.view(new ResourceView("/jsp/webssh.jsp"));
 	}
 	//

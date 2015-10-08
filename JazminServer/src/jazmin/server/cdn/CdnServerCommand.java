@@ -28,8 +28,7 @@ public class CdnServerCommand extends ConsoleCommand {
 	@Override
 	public void run() throws Exception {
 		if (server == null) {
-			err.println("can not find SipServer.");
-
+			out.println("can not find SipServer.");
 			return;
 		}
 		super.run();

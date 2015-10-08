@@ -48,7 +48,7 @@ public class TaskProgressWindow extends Window{
 		tasks=new ArrayList<TaskProgressWindow.Task>();
 		taskMap=new HashMap<String, TaskProgressWindow.Task>();
         setCaption("Task");
-        setWidth("600px");
+        setWidth("800px");
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);
         setResizable(true);

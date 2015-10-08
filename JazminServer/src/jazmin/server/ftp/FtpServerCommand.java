@@ -26,7 +26,7 @@ public class FtpServerCommand extends ConsoleCommand {
 	@Override
 	public void run() throws Exception{
 		 if(ftpServer==null){
-			 err.println("can not find FTPServer.");
+			 out.println("can not find FTPServer.");
 			 
 			 return;
 		 }

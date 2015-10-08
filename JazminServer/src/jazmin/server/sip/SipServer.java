@@ -256,7 +256,6 @@ public class SipServer extends Server{
     			ch.pipeline().addLast(new HttpObjectAggregator(65536));
     			ch.pipeline().addLast(new WebSocketServerCompressionHandler());
     			ch.pipeline().addLast(new SipWebSocketHandler(SipServer.this));
-                pipeline.addLast("handler", handler);
             }
         })
         .option(ChannelOption.SO_BACKLOG, 128)

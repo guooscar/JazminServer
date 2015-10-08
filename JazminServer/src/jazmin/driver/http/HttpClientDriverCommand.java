@@ -27,7 +27,7 @@ public class HttpClientDriverCommand extends ConsoleCommand {
 	@Override
 	public void run() throws Exception{
 		 if(httpDriver==null){
-			 err.println("can not find HttpClientDriver.");
+			 out.println("can not find HttpClientDriver.");
 			 return;
 		 }
 		 super.run();

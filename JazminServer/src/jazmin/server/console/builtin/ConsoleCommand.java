@@ -45,7 +45,6 @@ public class ConsoleCommand{
 	}
 	//
     protected PrintWriter out;
-    protected PrintWriter err;
     protected InputStream stdin;
     protected InputStream inStream;
     protected OutputStream outStream;
@@ -171,7 +170,6 @@ public class ConsoleCommand{
 	    	this.outStream=out;
 	    	this.errStream=err;
 	    	this.out = new PrintWriter(outStream);
-	    	this.err = new PrintWriter(errStream);
 	    	this.environment = environment;
 	    	this.args = args;
         	GnuParser parser=new GnuParser();
@@ -179,10 +177,10 @@ public class ConsoleCommand{
 			consoleServer.addCommandHistory(line);
 			run();
 		} catch (IOException |UnrecognizedOptionException e2) {
-			this.err.println(e2.getMessage());
+			this.out.println(e2.getMessage());
 		}catch (Exception e) {
 			logger.catching(e);	
-			this.err.println(e.getMessage());
+			this.out.println(e.getMessage());
 		}finally{
 			try{
 				this.out.flush();
@@ -191,8 +189,8 @@ public class ConsoleCommand{
 				logger.catching(e);
 			}
 			try{
-				this.err.flush();
-				this.err.close();
+				this.out.flush();
+				this.out.close();
 			}catch(Exception e){
 				logger.catching(e);
 			}

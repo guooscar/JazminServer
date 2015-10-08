@@ -37,7 +37,7 @@ public class RpcServerCommand extends ConsoleCommand {
 	@Override
 	public void run() throws Exception{
 		 if(rpcServer==null){
-			 err.println("can not find RPCServer.");
+			 out.println("can not find RPCServer.");
 			 return;
 		 }
 		 super.run();

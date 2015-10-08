@@ -10,7 +10,8 @@
     <script src="/js/hterm.js"></script>
     <script>
 (function() {
-    var url ='ws://'+window.location.hostname+':9001/ws';
+    var httpsEnabled = window.location.protocol == "https:";
+    var url = (httpsEnabled ? 'wss://' : 'ws://')+window.location.hostname+':'+(httpsEnabled?9002:9001)+'/ws';
     var protocols = ["webssh"];
     var login=function(ws){
         var loginData=JSON.stringify(
@@ -41,6 +42,7 @@
             term = new hterm.Terminal();
             term.io.showOverlay("Connection Opened", null);
             term.getPrefs().set("send-encoding", "raw");
+            term.getPrefs().set("font-size", "12");
             term.onTerminalReady = function() {
                 var io = term.io.push();
 

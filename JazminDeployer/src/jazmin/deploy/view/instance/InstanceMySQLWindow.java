@@ -73,6 +73,7 @@ public class InstanceMySQLWindow extends Window{
 		optLayout.setWidth(100.0f, Unit.PERCENTAGE);
 		Button runBtn = new Button("Run(Alt-R)");
 		runBtn.addStyleName(ValoTheme.BUTTON_SMALL);
+		runBtn.addStyleName(ValoTheme.BUTTON_PRIMARY);
 	    optLayout.addComponent(runBtn);
 	    runBtn.addClickListener(e->loadData());
 	    runBtn.setClickShortcut(KeyCode.R,ShortcutAction.ModifierKey.ALT);
@@ -81,7 +82,11 @@ public class InstanceMySQLWindow extends Window{
 		infoBtn.addStyleName(ValoTheme.BUTTON_SMALL);
 	    optLayout.addComponent(infoBtn);
 	    infoBtn.addClickListener(e->loadInfo());
-	
+	    //
+	    Button dumpBtn = new Button("Dump");
+	    dumpBtn.addStyleName(ValoTheme.BUTTON_SMALL);
+	    optLayout.addComponent(dumpBtn);
+	    dumpBtn.addClickListener(e->dumpMysql());
 	    //
 	    label=new Label();
 	    label.setWidth("100%");
@@ -266,6 +271,12 @@ public class InstanceMySQLWindow extends Window{
 	//
 	private void loadInfo(){
 		InstanceMySQLTableInfoWindow w=new InstanceMySQLTableInfoWindow(instance);
+		getUI().addWindow(w);
+		w.focus();
+	}
+	//
+	private void dumpMysql(){
+		InstanceMySQLDumpWindow w=new InstanceMySQLDumpWindow(instance);
 		getUI().addWindow(w);
 		w.focus();
 	}
