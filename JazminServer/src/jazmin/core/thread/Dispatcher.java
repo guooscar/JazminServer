@@ -304,7 +304,7 @@ public class Dispatcher extends Lifecycle implements Executor{
 					instance.getClass().getSimpleName(),
 					method.getName(),
 					getQueue().size());
-		}catch (Exception e) {
+		}catch (Throwable e) {
 			logger.catching(e);
 		}
 	}
