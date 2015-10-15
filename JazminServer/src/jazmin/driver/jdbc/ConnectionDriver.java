@@ -5,11 +5,15 @@ package jazmin.driver.jdbc;
 
 import java.lang.reflect.Method;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 
 import jazmin.core.Driver;
 import jazmin.core.Jazmin;
@@ -77,6 +81,38 @@ public abstract class ConnectionDriver extends Driver{
 
 	//
 	public abstract Connection getWorkConnection()throws SQLException;
+	//
+	public void executeQuery(String sql,
+			BiConsumer<ResultSetMetaData,ResultSet>callback,
+			Object ...args) throws Exception {
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		try {
+			conn = getWorkConnection();
+			stmt = conn.prepareStatement(sql);
+			ConnectionUtil.set(stmt, args);
+			stmt.setMaxRows(10000);
+			ResultSet rs = stmt.executeQuery();
+			ResultSetMetaData metaData=rs.getMetaData();
+			callback.accept(metaData, rs);
+			rs.close();
+			stmt.close();
+			conn.close();
+		} finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+			} catch (SQLException se2) {
+				logger.catching(se2);
+			}
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+				logger.catching(se);
+			}
+		}
+	}
 	/**
 	 */
 	public Connection getConnection(){
