@@ -1,12 +1,15 @@
 package jazmin.deploy.view.main;
 
-import org.vaadin.aceeditor.AceMode;
+import java.util.ArrayList;
+import java.util.List;
 
 import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.User;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
+
+import org.vaadin.aceeditor.AceMode;
 
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
@@ -20,8 +23,8 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.MenuBar.MenuItem;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -40,6 +43,8 @@ public final class MainMenu extends CustomComponent {
     private MenuItem settingsItem;
     private MainView mainView;
     private CssLayout menuItemsLayout;
+    private List<ValoMenuItemButton>allMenus=new ArrayList<MainMenu.ValoMenuItemButton>();
+    
     //
     public MainMenu(MainView mainView) {
     	this.mainView=mainView;
@@ -175,6 +180,8 @@ public final class MainMenu extends CustomComponent {
             addClickListener(event->{
             	try{
             		Object viewObject=view.newInstance();
+            		selectMenu(this);
+                	
             		mainView.setView((Component)viewObject);
             	}catch(Exception e){
             		logger.catching(e);
@@ -190,6 +197,8 @@ public final class MainMenu extends CustomComponent {
             setCaption(name);
             addClickListener(event->{
             	try{
+            		selectMenu(this);
+                	
             		mainView.setView((Component)view);
             	}catch(Exception e){
             		logger.catching(e);
@@ -198,21 +207,28 @@ public final class MainMenu extends CustomComponent {
         }
     }
     //
+    private void selectMenu(ValoMenuItemButton btn){
+    	allMenus.forEach(m->{m.removeStyleName("selected");});
+    	btn.addStyleName("selected");
+    }
+    //
     public void addMenuItem(String name,Resource icon, Component view){
-    	Component menuItemComponent = new ValoMenuItemButton(name,icon,view);
+    	ValoMenuItemButton menuItemComponent = new ValoMenuItemButton(name,icon,view);
+    	allMenus.add(menuItemComponent);
     	Label reportsBadge = new Label();
         reportsBadge.setId(REPORTS_BADGE_ID);
-        menuItemComponent = buildBadgeWrapper(menuItemComponent,
+        Component t = buildBadgeWrapper(menuItemComponent,
                   reportsBadge);
-        menuItemsLayout.addComponent(menuItemComponent);
+        menuItemsLayout.addComponent(t);
     }
     //
     public void addMenuItem(String name,Resource icon,Class<? extends Component>viewClass){
-    	Component menuItemComponent = new ValoMenuItemButton(name,icon,viewClass);
+    	ValoMenuItemButton menuItemComponent = new ValoMenuItemButton(name,icon,viewClass);
+    	allMenus.add(menuItemComponent);
     	Label reportsBadge = new Label();
         reportsBadge.setId(REPORTS_BADGE_ID);
-        menuItemComponent = buildBadgeWrapper(menuItemComponent,
+        Component t  = buildBadgeWrapper(menuItemComponent,
                   reportsBadge);
-        menuItemsLayout.addComponent(menuItemComponent);
+        menuItemsLayout.addComponent(t);
     }
 }
