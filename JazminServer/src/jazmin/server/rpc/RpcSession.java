@@ -34,6 +34,9 @@ public class RpcSession {
 	private LongAdder sentPackageCount;
 	private LongAdder receivedPackageCount;
 	private LongAdder pushedPackageCount;
+	private LongAdder totalNetworkTime;
+	private long maxNetworkTime=0;
+	private long minNetworkTime=Long.MAX_VALUE;
 	String cluster;
 	boolean authed;
 	//
@@ -43,6 +46,7 @@ public class RpcSession {
 		sentPackageCount=new LongAdder();
 		receivedPackageCount=new LongAdder();
 		pushedPackageCount=new LongAdder();
+		totalNetworkTime=new LongAdder();
 		authed=false;
 	}
 	/**
@@ -169,7 +173,28 @@ public class RpcSession {
 		return sentPackageCount.longValue();
 	}
 	//
-	void receivePackage(){
+	public long getTotalNetworkTime(){
+		return totalNetworkTime.longValue();
+	}
+	//
+	public long getMinNetworkTime(){
+		return minNetworkTime;
+	}
+	//
+	public long getMaxNetworkTime(){
+		return maxNetworkTime;
+	}
+	//
+	void receivePackage(RpcMessage message){
+		message.reveicedTime=System.currentTimeMillis();
+		long networkTime=message.reveicedTime-message.sentTime;
+		totalNetworkTime.add(networkTime);
+		if(networkTime>maxNetworkTime){
+			maxNetworkTime=networkTime;
+		}
+		if(networkTime<minNetworkTime){
+			minNetworkTime=networkTime;
+		}
 		receivedPackageCount.increment();
 	}
 	void pushPackage(){
@@ -215,6 +240,7 @@ public class RpcSession {
 	 */
 	void write(RpcMessage message){
 		if(channel!=null){
+			message.sentTime=System.currentTimeMillis();
 			channel.writeAndFlush(message);
 			sentPackageCount.increment();			
 		}

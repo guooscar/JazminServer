@@ -32,6 +32,9 @@ public class RpcMessage implements Serializable{
 	public int id;
 	public int type;
 	public Object []payloads;
+
+	public long sentTime;
+	public long reveicedTime;
 	//
 	@Override
 	public String toString() {

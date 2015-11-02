@@ -48,7 +48,7 @@ public class RpcClientHandler extends ChannelHandlerAdapter{
     		throws Exception {
     	RpcMessage rpcMessage=(RpcMessage)msg;
     	RpcSession session=ctx.channel().attr(RpcClient.SESSION_KEY).get();
-    	session.receivePackage();
+    	session.receivePackage(rpcMessage);
     	rpcClient.messageRecieved(session,rpcMessage);
     }
     /**

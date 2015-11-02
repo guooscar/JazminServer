@@ -43,7 +43,7 @@ public class JazminRpcDriverCommand extends ConsoleCommand {
    
     //
     private void showSessions(String args){
-		String format="%-5s : %-20s %-20s %-10s %-15s %-10s %-10s %-10s %-10s %-10s %-10s\n";
+		String format="%-5s : %-20s %-20s %-10s %-15s %-10s %-10s %-10s %-10s %-10s %-15s %-10s\n";
 		int i=1;
 		List<RpcSession> sessions=driver.getSessions();
 		out.println("total "+sessions.size()+" sessions");
@@ -57,8 +57,14 @@ public class JazminRpcDriverCommand extends ConsoleCommand {
 				"SEND",
 				"RECEIVE",
 				"PUSH",
+				"NETWORK TIME",
 				"CREATETIME");	
 		for(RpcSession s:sessions){
+			long t=s.getTotalNetworkTime();
+			if(s.getReceivedPackageCount()!=0){
+				t=t/s.getReceivedPackageCount();
+			}
+			String network=s.getMinNetworkTime()+"/"+s.getMaxNetworkTime()+"/"+t;
 			out.format(format,
 					i++,
 					s.getPrincipal(),
@@ -70,6 +76,7 @@ public class JazminRpcDriverCommand extends ConsoleCommand {
 					s.getSentPackageCount(),
 					s.getReceivedPackageCount(),
 					s.getPushedPackageCount(),
+					network,
 					formatDate(s.getCreateTime()));
 		};
     }
