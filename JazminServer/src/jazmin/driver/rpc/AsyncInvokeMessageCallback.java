@@ -51,8 +51,9 @@ public class AsyncInvokeMessageCallback implements RpcMessageCallback {
 			}
 		}
 		int useTime = (int) (System.currentTimeMillis() - startTime);
+		int networkTime = (int) (msg.reveicedTime - msg.sentTime);
 		if (logger.isDebugEnabled()) {
-			logger.debug("<invoke:{} time {}", serviceId, useTime);
+			logger.debug("<invoke:{} time {}-{}", serviceId, useTime,networkTime);
 		}
 		if (callback != null) {
 			Jazmin.dispatcher.invokeInPool(
