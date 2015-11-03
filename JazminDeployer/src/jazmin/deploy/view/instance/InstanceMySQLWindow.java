@@ -83,10 +83,18 @@ public class InstanceMySQLWindow extends Window{
 	    optLayout.addComponent(infoBtn);
 	    infoBtn.addClickListener(e->loadInfo());
 	    //
+	    Button domainBtn = new Button("Domain");
+	    domainBtn.addStyleName(ValoTheme.BUTTON_SMALL);
+	    domainBtn.addStyleName(ValoTheme.BUTTON_PRIMARY);
+	    optLayout.addComponent(domainBtn);
+	    domainBtn.addClickListener(e->dumpDomainMysql());
+	    //
 	    Button dumpBtn = new Button("Dump");
 	    dumpBtn.addStyleName(ValoTheme.BUTTON_SMALL);
+	    dumpBtn.addStyleName(ValoTheme.BUTTON_DANGER);
 	    optLayout.addComponent(dumpBtn);
 	    dumpBtn.addClickListener(e->dumpMysql());
+	   
 	    //
 	    label=new Label();
 	    label.setWidth("100%");
@@ -277,6 +285,12 @@ public class InstanceMySQLWindow extends Window{
 	//
 	private void dumpMysql(){
 		InstanceMySQLDumpWindow w=new InstanceMySQLDumpWindow(instance);
+		getUI().addWindow(w);
+		w.focus();
+	}
+	//
+	private void dumpDomainMysql(){
+		InstanceMySQLTableDomainWindow w=new InstanceMySQLTableDomainWindow(instance);
 		getUI().addWindow(w);
 		w.focus();
 	}
