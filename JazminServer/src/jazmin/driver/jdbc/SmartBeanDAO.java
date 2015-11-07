@@ -153,6 +153,32 @@ public class SmartBeanDAO<T> extends JazminDAO {
 		return sql.toString();
 	}
 	//
+	private String queryCountSql(QueryTerms qt){
+		StringBuilder sql=new StringBuilder();
+		Class<?>type=getTypeClass();
+		String tableName="t"+convertFieldName(type.getSimpleName());
+		sql.append("select count(1) ");
+		sql.append(" from ").append(tableName);
+		sql.append(" where 1=1");
+		for(Where k:qt.wheres){
+			getWhereStatement(sql,k);
+		}
+		if(!qt.orderBys.isEmpty()){
+			sql.append(" order by ");
+			for(String k:qt.orderBys){
+				sql.append(k).append(",");
+			}
+			sql.deleteCharAt(sql.length()-1);
+		}
+		if(qt.limitEnd!=-1){
+			sql.append(" limit ").
+			append(qt.limitStart).
+			append(",").
+			append(qt.limitEnd);
+		}
+		return sql.toString();
+	}
+	//
 	private void getWhereStatement(StringBuilder sql,Where w){
 		sql.append(" and ");
 		sql.append("`").append(w.key).append("` ");
@@ -162,6 +188,9 @@ public class SmartBeanDAO<T> extends JazminDAO {
 		}else{
 			sql.append(" ? ");
 		}
+	}
+	protected int queryCount(QueryTerms qt){
+		return queryForInteger(queryCountSql(qt), qt.whereValues());
 	}
 	//
 	protected T query(QueryTerms qt,String... excludeProperties){
