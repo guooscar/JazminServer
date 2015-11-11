@@ -31,8 +31,9 @@ public class MachineWebSshWindow extends Window{
         VerticalLayout content = new VerticalLayout();
         content.setSizeFull();
         setContent(content);
+        content.setImmediate(false);
         BrowserFrame frame=new BrowserFrame(null,
-        		new ExternalResource("/srv/deploy/webssh/"+machine.id));  
+        		new ExternalResource("/srv/deploy/webssh/"+machine.id));
         frame.setSizeFull();
         content.addComponent(frame);
         content.setExpandRatio(frame, 1f); 

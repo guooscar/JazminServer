@@ -21,7 +21,7 @@ public class InstanceWebSshWindow extends Window{
 	//
 	public InstanceWebSshWindow(Instance instance) {
         Responsive.makeResponsive(this);
-        setCaption(instance.id+" jazmin console");
+        setCaption(instance.id);
         setWidth(90.0f, Unit.PERCENTAGE);
         setHeight(90.0f, Unit.PERCENTAGE);
         center();

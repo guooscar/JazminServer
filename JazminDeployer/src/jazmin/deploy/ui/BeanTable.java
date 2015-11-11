@@ -137,5 +137,11 @@ public class BeanTable<T> extends Table{
 	public void setCellRender(CellRender cellRender) {
 		this.cellRender = cellRender;
 	}
-	
+	//
+	@SuppressWarnings("unchecked")
+	public T getValueByItem(Item item){
+		T obj=(T)item.getItemProperty("$object").getValue();
+		return obj;
+	}
+	//
 }

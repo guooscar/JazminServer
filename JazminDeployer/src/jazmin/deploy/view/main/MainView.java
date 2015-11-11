@@ -4,6 +4,7 @@ import java.io.File;
 
 import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.view.app.ApplicationInfoView;
+import jazmin.deploy.view.console.ConsoleView;
 import jazmin.deploy.view.instance.InstanceInfoView;
 import jazmin.deploy.view.machine.MachineInfoView;
 import jazmin.deploy.view.pkg.PackageInfoView;
@@ -27,6 +28,7 @@ import com.vaadin.ui.VerticalLayout;
 public class MainView extends HorizontalLayout {
 	private VerticalLayout content ;
 	private MainMenu menuView;
+	private ConsoleView consoleView;
      
     public MainView() {
         setSizeFull();
@@ -68,6 +70,12 @@ public class MainView extends HorizontalLayout {
     	menuView.addMenuItem("Machines", FontAwesome.GEAR,new MachineInfoView());	
     	menuView.addMenuItem("Applications", FontAwesome.ANDROID,new ApplicationInfoView());	
     	menuView.addMenuItem("Packages", FontAwesome.ANCHOR,new PackageInfoView());	
-    	menuView.addMenuItem("Repos", FontAwesome.APPLE,new RepoInfoView());	
+    	menuView.addMenuItem("Repos", FontAwesome.APPLE,new RepoInfoView());
+    	consoleView=new ConsoleView();
+    	menuView.addMenuItem("Consoles", FontAwesome.CODE,consoleView);
+    }
+    //
+    public ConsoleView getConsoleView(){
+    	return consoleView;
     }
 }

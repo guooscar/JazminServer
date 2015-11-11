@@ -74,7 +74,7 @@ public class LoginView extends VerticalLayout {
 			User uu=DeployManager.validate(u, p);
 			if(uu!=null){
 				DeploySystemUI.setUser(uu);
-				DeploySystemUI.showMainView();		
+				DeploySystemUI.get().showMainView();		
 			}else{
 				DeploySystemUI.showNotificationInfo("Login failed", 
 						"username or password wrong.please try again.");

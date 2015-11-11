@@ -31,7 +31,9 @@ public class DeploySystemUI extends UI {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
+	//
+	private MainView mainView;
+	//
 	@Override
     protected void init(VaadinRequest request) {
 		Responsive.makeResponsive(this);
@@ -43,11 +45,12 @@ public class DeploySystemUI extends UI {
 		}
 	}
 	//
-	public static void showMainView(){
-		get().setContent(new MainView());
+	public  void showMainView(){
+		mainView=new MainView();
+		get().setContent(mainView);
 	}
 	//
-	public static void showLoginView(){
+	public  void showLoginView(){
 		get().setContent(new LoginView());
 	}
 	//
@@ -73,8 +76,15 @@ public class DeploySystemUI extends UI {
 		n.setStyleName("dark");
 		n.show(Page.getCurrent());
 	}
+	
+	/**
+	 * @return the mainView
+	 */
+	public MainView getMainView() {
+		return mainView;
+	}
 	//
-	private  static DeploySystemUI get(){
+	public static DeploySystemUI get(){
 		return (DeploySystemUI) getCurrent();
 	}
 }

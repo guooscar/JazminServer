@@ -58,7 +58,7 @@ public class InstanceMySQLWindow extends Window{
 		currentHeaders=new ArrayList<String>();
 		this.instance=instance;
         Responsive.makeResponsive(this);
-        setCaption(instance.id+" mysql console");
+        setCaption(instance.id);
         setWidth(90.0f, Unit.PERCENTAGE);
         setHeight(90.0f, Unit.PERCENTAGE);
         center();
@@ -279,19 +279,19 @@ public class InstanceMySQLWindow extends Window{
 	//
 	private void loadInfo(){
 		InstanceMySQLTableInfoWindow w=new InstanceMySQLTableInfoWindow(instance);
-		getUI().addWindow(w);
+		DeploySystemUI.getCurrent().addWindow(w);
 		w.focus();
 	}
 	//
 	private void dumpMysql(){
 		InstanceMySQLDumpWindow w=new InstanceMySQLDumpWindow(instance);
-		getUI().addWindow(w);
+		DeploySystemUI.getCurrent().addWindow(w);
 		w.focus();
 	}
 	//
 	private void dumpDomainMysql(){
 		InstanceMySQLTableDomainWindow w=new InstanceMySQLTableDomainWindow(instance);
-		getUI().addWindow(w);
+		DeploySystemUI.getCurrent().addWindow(w);
 		w.focus();
 	}
 }

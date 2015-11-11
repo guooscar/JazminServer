@@ -103,7 +103,7 @@ public final class MainMenu extends CustomComponent {
         settingsItem.addSeparator();
         settingsItem.addItem("Sign Out", (selectedItem)->{
         	DeploySystemUI.setUser(null);
-        	DeploySystemUI.showLoginView();
+        	DeploySystemUI.get().showLoginView();
         });
         return settings;
     }

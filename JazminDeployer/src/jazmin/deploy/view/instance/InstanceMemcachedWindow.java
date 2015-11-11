@@ -46,7 +46,7 @@ public class InstanceMemcachedWindow extends Window{
 	public InstanceMemcachedWindow(Instance instance){
 		this.instance=instance;
         Responsive.makeResponsive(this);
-        setCaption(instance.id+" memcached console");
+        setCaption(instance.id);
         setWidth(90.0f, Unit.PERCENTAGE);
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);
