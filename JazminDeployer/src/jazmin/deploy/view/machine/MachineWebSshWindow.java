@@ -36,6 +36,7 @@ public class MachineWebSshWindow extends Window{
         		new ExternalResource("/srv/deploy/webssh/"+machine.id));
         frame.setSizeFull();
         content.addComponent(frame);
-        content.setExpandRatio(frame, 1f); 
+        content.setExpandRatio(frame, 1f);
+        
     }
 }
