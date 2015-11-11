@@ -56,7 +56,7 @@ public class Context {
 	//
 	public Boolean getBoolean(String key,boolean required){
 		String ss=getRequired(key, required);
-		return ss==null?null:Boolean.valueOf(ss);
+		return ss==null||ss.trim().isEmpty()?null:Boolean.valueOf(ss);
 	}
 	public Boolean getBooleanOrDefault(String key,Boolean dv){
 		Boolean ss=getBoolean(key);
@@ -83,7 +83,7 @@ public class Context {
 	//
 	public Long  getLong(String key,boolean required){
 		String ss=getRequired(key, required);
-		return ss==null?null:Long.valueOf(ss);
+		return ss==null||ss.trim().isEmpty()?null:Long.valueOf(ss);
 	}
 	//
 	public Long  getLongOrDefault(String key,Long dv){
@@ -97,7 +97,7 @@ public class Context {
 	//
 	public Integer  getInteger(String key,boolean required){
 		String ss=getRequired(key, required);
-		return ss==null?null:Integer.valueOf(ss);
+		return ss==null||ss.trim().isEmpty()?null:Integer.valueOf(ss);
 	}
 	//
 	public Integer  getIntegerOrDefault(String key,Integer dv){
@@ -111,7 +111,7 @@ public class Context {
 	//
 	public Short  getShort(String key,boolean required){
 		String ss=getRequired(key, required);
-		return ss==null?null:Short.valueOf(ss);
+		return ss==null||ss.trim().isEmpty()?null:Short.valueOf(ss);
 	}
 	//
 	public Short  getShort(String key){
@@ -125,7 +125,7 @@ public class Context {
 	//
 	public Float  getFloat(String key,boolean required){
 		String ss=getRequired(key, required);
-		return ss==null?null:Float.valueOf(ss);
+		return ss==null||ss.trim().isEmpty()?null:Float.valueOf(ss);
 	}
 	//
 	public Float  getFloat(String key){
@@ -138,7 +138,7 @@ public class Context {
 	//
 	public Double  getDouble(String key,boolean required){
 		String ss=getRequired(key, required);
-		return ss==null?null:Double.valueOf(ss);
+		return ss==null||ss.trim().isEmpty()?null:Double.valueOf(ss);
 	}
 	//
 	public Double  getDoubleOrDefault(String key,Double dv){

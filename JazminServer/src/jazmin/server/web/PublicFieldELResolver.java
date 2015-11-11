@@ -35,7 +35,7 @@ public class PublicFieldELResolver extends BeanELResolver {
 			return null;
 		}
 		try {
-			Field field = base.getClass().getDeclaredField((String) property);
+			Field field = getDeclaredField(base, (String)property);
 			field.setAccessible(true);
 			Object value = field.get(base);
 			context.setPropertyResolved(true);
@@ -60,14 +60,36 @@ public class PublicFieldELResolver extends BeanELResolver {
 			return;
 		}
 		try {
-			Field field = base.getClass().getDeclaredField((String) property);
-			field.setAccessible(true);
-			field.set(base, value);
+			setFieldValue(base, (String) property, value);
 			context.setPropertyResolved(true);
 		} catch (NoSuchFieldException e) {
 			 super.setValue(context,base, property,value);
 		}catch (Exception e) {
 			throw new PropertyNotFoundException(e);
 		}
+	}
+	//
+	@SuppressWarnings("unused")
+	public static Field getDeclaredField(Object object,String fieldName) 
+			throws NoSuchFieldException, SecurityException{
+		Field field=null;
+		Class<?>clazz=object.getClass();
+		for(;clazz!=Object.class;clazz=clazz.getSuperclass()){
+			try{
+				field=clazz.getDeclaredField(fieldName);
+				return field;
+			}catch(NoSuchFieldException e){}
+		}
+		if(field==null){
+			throw new NoSuchFieldException(clazz+" field:"+fieldName);
+		}
+		return field;
+	}
+	//
+	public static void setFieldValue(Object object,String fieldName,Object value) 
+			throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException{
+		Field field=getDeclaredField(object, fieldName);
+		field.setAccessible(true);
+		field.set(object, value);
 	}
 }
