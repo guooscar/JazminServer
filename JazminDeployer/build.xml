@@ -106,6 +106,7 @@
 				<include name="**/*.json"/>
 				<include name="**/*.rule"/>
 				<include name="**/*.script"/>
+				<include name="**/*.html"/>
 				<include name="**/*.vm"/>
 			</fileset>
 		</copy>

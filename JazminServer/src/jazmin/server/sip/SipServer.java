@@ -164,18 +164,18 @@ public class SipServer extends Server{
 	//
     private void startNetty() throws Exception {
     	final InetSocketAddress socketAddress = new InetSocketAddress(this.address, this.port);
-    	final InetSocketAddress tlsSocketAddress = new InetSocketAddress(this.address, this.tlsPort);
-    	final InetSocketAddress wsSocketAddress = new InetSocketAddress(this.address, this.webSocketPort);
-    	final InetSocketAddress wssSocketAddress = new InetSocketAddress(this.address, this.swebSocketPort);
     	this.udpListeningPoint = this.bootstrap.bind(socketAddress).sync().channel();
         this.tcpServerBootstrap.bind(socketAddress).sync();
         if(tlsPort>0){
+        	final InetSocketAddress tlsSocketAddress = new InetSocketAddress(this.address, this.tlsPort);
         	this.tlsServerBootstrap.bind(tlsSocketAddress).sync();
         }
         if(webSocketPort>0){
+        	final InetSocketAddress wsSocketAddress = new InetSocketAddress(this.address, this.webSocketPort);
         	this.webSocketServerBootstrap.bind(wsSocketAddress).sync();
         }
         if(swebSocketPort>0){
+        	final InetSocketAddress wssSocketAddress = new InetSocketAddress(this.address, this.swebSocketPort);
         	this.swebSocketServerBootstrap.bind(wssSocketAddress).sync();
         }
     }

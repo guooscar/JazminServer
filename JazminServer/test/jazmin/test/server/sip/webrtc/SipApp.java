@@ -25,13 +25,14 @@ public class SipApp extends Application{
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception{
-		String ipAddress="192.168.3.102";
+		String ipAddress="192.168.0.26";
 		LoggerFactory.setLevel("DEBUG");
 		SipServer server=new SipServer();
 		server.setHostAddress(ipAddress);
 		server.setPublicAddress(ipAddress);
-		server.setMessageHandler(new WebRTCEchoMessageHandler());
-		//server.setMessageHandler(new WebRTCB2BUAMessageHandler());
+		server.setWebSocketPort(9999);
+		//server.setMessageHandler(new WebRTCEchoMessageHandler());
+		server.setMessageHandler(new WebRTCB2BUAMessageHandler());
 		Jazmin.addServer(server);
 		RelayServer relayServer=new RelayServer();
 		relayServer.addHostAddress(ipAddress);//interface 1
