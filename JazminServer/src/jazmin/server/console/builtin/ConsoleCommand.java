@@ -184,17 +184,9 @@ public class ConsoleCommand{
 		}finally{
 			try{
 				this.out.flush();
-				this.out.close();
 			}catch(Exception e){
 				logger.catching(e);
 			}
-			try{
-				this.out.flush();
-				this.out.close();
-			}catch(Exception e){
-				logger.catching(e);
-			}
-			
 		}
     }
     //

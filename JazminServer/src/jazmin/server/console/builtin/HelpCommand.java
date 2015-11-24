@@ -17,6 +17,9 @@ public class HelpCommand extends ConsoleCommand {
     public void run(){
     	out.println("command list:");
     	ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
+    	if(cs==null){
+    		return;
+    	}
     	cs.getCommands().forEach(cmd->{
     		if(cmd instanceof ConsoleCommand){
     			ConsoleCommand cc=(ConsoleCommand)cmd;

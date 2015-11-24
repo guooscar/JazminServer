@@ -19,7 +19,6 @@ import jazmin.server.console.builtin.ConsoleCommand;
 public class ReplThread implements Closeable {
 	private static Logger logger=LoggerFactory.get(ReplThread.class);
     private final InputStream stdin;
-    private final OutputStream stdout;
     private final OutputStream stderr;
     private final Thread thread;
 
@@ -32,7 +31,6 @@ public class ReplThread implements Closeable {
                     final Map<String, ConsoleCommand> commands,
                     final Runnable onExit) {
         this.stdin = stdin;
-        this.stdout = stdout;
         this.stderr = stderr;
 
         thread = new Thread(()->{
@@ -49,7 +47,7 @@ public class ReplThread implements Closeable {
             try {
                 onExit.run();
             } catch (Exception e) {
-                // ignore
+            	logger.catching(e);
             }
         }
         });
@@ -63,7 +61,6 @@ public class ReplThread implements Closeable {
 
     public void close() throws IOException {
         Repl.closeSilently(stdin);
-        Repl.closeSilently(stdout);
         Repl.closeSilently(stderr);
     }
 }
