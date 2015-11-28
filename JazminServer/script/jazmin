@@ -90,7 +90,7 @@ function setup(){
 	if [ -f "$INSTANCE_HOME/$INSTANCE_ENV" ]; then
 		source $INSTANCE_HOME/$INSTANCE_ENV
  	fi
-	JAVA_OPTS=$JAVA_MEM_OPTS" -Xloggc:$JAZMIN_HOME/log/gc-$INSTANCE_NAME.log -Dfile.encoding=UTF-8"
+	JAVA_OPTS=$JAVA_MEM_OPTS" -Xloggc:$JAZMIN_HOME/log/gc-$INSTANCE_NAME.log -Dfile.encoding=utf8"
 	GC_OPTS=" -XX:+UseG1GC -XX:+PrintGC -XX:+PrintGCDetails"
 	JAVA_OPTS=$JAVA_OPTS" "$GC_OPTS;
 	JAVA_OPTS=$JAVA_OPTS" "$SERVER_OPT;
