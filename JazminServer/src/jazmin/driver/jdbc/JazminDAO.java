@@ -133,6 +133,10 @@ public class JazminDAO {
 		return  queryForObject(sql,rs->rs.getInt(1), parameters);
 	}
 	//
+	protected final Long queryForLong(String sql,Object ...parameters){
+		return  queryForObject(sql,rs->rs.getLong(1), parameters);
+	}
+	//
 	protected final Short queryForShort(String sql,Object ...parameters){
 		return  queryForObject(sql,rs->rs.getShort(1), parameters);
 		
