@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
@@ -153,9 +154,7 @@ public class FileUtil {
 	 * @throws IOException
 	 */
 	public static String getContent(File file) throws IOException{
-		StringBuilder sb=new StringBuilder();
-		Files.lines(file.toPath()).forEach(line->{sb.append(line).append("\n");});
-		return sb.toString();
+		return new String(Files.readAllBytes(file.toPath()),StandardCharsets.UTF_8);
 	}
 	//
 	public static void saveContent(String content,File file) throws IOException{
