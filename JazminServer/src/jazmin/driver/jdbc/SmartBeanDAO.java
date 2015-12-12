@@ -24,7 +24,21 @@ import jazmin.util.IOUtil;
  *
  */
 public class SmartBeanDAO<T> extends JazminDAO {
+	private String tablePrefix="t";
 	
+	
+	/**
+	 * @return the tablePrefix
+	 */
+	public String getTablePrefix() {
+		return tablePrefix;
+	}
+	/**
+	 * @param tablePrefix the tablePrefix to set
+	 */
+	public void setTablePrefix(String tablePrefix) {
+		this.tablePrefix = tablePrefix;
+	}
 	protected Class<?>getTypeClass(){
 		ParameterizedType pt=(ParameterizedType) getClass().getGenericSuperclass();
 		Class<?>type=(Class<?>) pt.getActualTypeArguments()[0];
@@ -58,7 +72,7 @@ public class SmartBeanDAO<T> extends JazminDAO {
 		StringBuilder sql=new StringBuilder();
 		Class<?>type=getTypeClass();
 		checkExcludeProperties(excludeProperties,type);
-		String tableName="t"+convertFieldName(type.getSimpleName());
+		String tableName=tablePrefix+convertFieldName(type.getSimpleName());
 		sql.append("update ").append(tableName).append(" ");
 		Set<String> excludesNames = new TreeSet<String>();
 		for (String e : excludeProperties) {
@@ -98,7 +112,7 @@ public class SmartBeanDAO<T> extends JazminDAO {
 	protected int delete(QueryTerms qt){
 		StringBuilder sql=new StringBuilder();
 		Class<?>type=getTypeClass();
-		String tableName="t"+convertFieldName(type.getSimpleName());
+		String tableName=tablePrefix+convertFieldName(type.getSimpleName());
 		sql.append("delete from ").append(tableName);
 		sql.append(" where 1=1");
 		for(Where k:qt.wheres){
@@ -111,7 +125,7 @@ public class SmartBeanDAO<T> extends JazminDAO {
 		StringBuilder sql=new StringBuilder();
 		Class<?>type=getTypeClass();
 		checkExcludeProperties(excludeProperties,type);
-		String tableName="t"+convertFieldName(type.getSimpleName());
+		String tableName=tablePrefix+convertFieldName(type.getSimpleName());
 		sql.append("select ");
 		if(excludeProperties==null||excludeProperties.length==0){
 			sql.append(" * ");
@@ -156,7 +170,7 @@ public class SmartBeanDAO<T> extends JazminDAO {
 	private String queryCountSql(QueryTerms qt){
 		StringBuilder sql=new StringBuilder();
 		Class<?>type=getTypeClass();
-		String tableName="t"+convertFieldName(type.getSimpleName());
+		String tableName=tablePrefix+convertFieldName(type.getSimpleName());
 		sql.append("select count(1) ");
 		sql.append(" from ").append(tableName);
 		sql.append(" where 1=1");
@@ -223,7 +237,7 @@ public class SmartBeanDAO<T> extends JazminDAO {
 		StringBuilder sql=new StringBuilder();
 		Class<?>type=getTypeClass();
 		checkExcludeProperties(excludeProperties,type);
-		String tableName="t"+convertFieldName(type.getSimpleName());
+		String tableName=tablePrefix+convertFieldName(type.getSimpleName());
 		sql.append("insert into ").append(tableName).append("(");
 		Set<String> excludesNames = new TreeSet<String>();
 		for (String e : excludeProperties) {
