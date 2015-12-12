@@ -368,7 +368,7 @@ public class SmartBeanDAO<T> extends JazminDAO {
 		}
 	}
 	//
-	private static String convertFieldName(String name) {
+	protected  String convertFieldName(String name) {
 		StringBuffer result = new StringBuffer();
 		for (char c : name.toCharArray()) {
 			if (Character.isUpperCase(c)) {
