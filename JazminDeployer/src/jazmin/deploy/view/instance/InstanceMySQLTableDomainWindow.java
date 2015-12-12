@@ -191,6 +191,9 @@ public class InstanceMySQLTableDomainWindow extends Window{
 		typeMap.put("DOUBLE","Date");
 		typeMap.put("DATETIME","Date");
 		typeMap.put("TIMESTAMP","Date");
+		
+		typeMap.put("DECIMAL","double");
+		
 	}
 	
 	//
