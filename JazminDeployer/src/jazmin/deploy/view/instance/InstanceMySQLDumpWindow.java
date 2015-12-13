@@ -3,6 +3,9 @@
  */
 package jazmin.deploy.view.instance;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.Instance;
 import jazmin.deploy.domain.Machine;
@@ -44,6 +47,8 @@ public class InstanceMySQLDumpWindow extends Window{
         fromField.setWidth(100.0f, Unit.PERCENTAGE);
         fromField.addStyleName(ValoTheme.TEXTFIELD_TINY);
         fromField.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyyMMddHHmmss");
+        fromField.setValue("/home/appadmin/db_backup/"+sdf.format(new Date())+".sql");
         VerticalLayout inputLayout=new VerticalLayout(fromField);
         inputLayout.setSpacing(true);
         inputLayout.addStyleName(ValoTheme.WINDOW_TOP_TOOLBAR);
