@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import jazmin.driver.jdbc.QueryTerms.Where;
 import jazmin.util.IOUtil;
 
 /**
@@ -119,10 +118,7 @@ public class SmartBeanDAO<T> extends JazminDAO {
 		}
 		sql.deleteCharAt(sql.length()-1);
 		sql.append(" where 1=1");
-		for(Where k:qt.wheres){
-			getWhereStatement(sql,k);
-			fieldList.add(k.value);
-		}
+		sql.append(qt.whereStatement());
 		return executeUpdate(sql.toString(), 
 				fieldList.toArray(new Object[fieldList.size()]));
 	}
@@ -132,9 +128,7 @@ public class SmartBeanDAO<T> extends JazminDAO {
 		String tableName=getTableName();
 		sql.append("delete from ").append(tableName);
 		sql.append(" where 1=1");
-		for(Where k:qt.wheres){
-			getWhereStatement(sql,k);
-		}
+		sql.append(qt.whereStatement());
 		return executeUpdate(sql.toString(),qt.whereValues());
 	}
 	//
@@ -165,9 +159,7 @@ public class SmartBeanDAO<T> extends JazminDAO {
 		}
 		sql.append(" from ").append(tableName);
 		sql.append(" where 1=1");
-		for(Where k:qt.wheres){
-			getWhereStatement(sql,k);
-		}
+		sql.append(qt.whereStatement());
 		if(!qt.orderBys.isEmpty()){
 			sql.append(" order by ");
 			for(String k:qt.orderBys){
@@ -190,9 +182,7 @@ public class SmartBeanDAO<T> extends JazminDAO {
 		sql.append("select count(1) ");
 		sql.append(" from ").append(tableName);
 		sql.append(" where 1=1");
-		for(Where k:qt.wheres){
-			getWhereStatement(sql,k);
-		}
+		sql.append(qt.whereStatement());
 		if(!qt.orderBys.isEmpty()){
 			sql.append(" order by ");
 			for(String k:qt.orderBys){
@@ -208,17 +198,7 @@ public class SmartBeanDAO<T> extends JazminDAO {
 		}
 		return sql.toString();
 	}
-	//
-	private void getWhereStatement(StringBuilder sql,Where w){
-		sql.append(" and ");
-		sql.append("`").append(w.key).append("` ");
-		sql.append(w.operator).append(" ");
-		if(w.operator.trim().equalsIgnoreCase("like")){
-			sql.append(" concat('%',?,'%') ");
-		}else{
-			sql.append(" ? ");
-		}
-	}
+	
 	protected int queryCount(QueryTerms qt){
 		return queryForInteger(queryCountSql(qt), qt.whereValues());
 	}
