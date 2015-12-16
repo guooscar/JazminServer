@@ -119,7 +119,9 @@ public class SmartBeanDAO<T> extends JazminDAO {
 		sql.deleteCharAt(sql.length()-1);
 		sql.append(" where 1=1");
 		sql.append(qt.whereStatement());
-		fieldList.addAll(qt.whereValues());
+		for(Object o:qt.whereValues()){
+			fieldList.add(o);
+		}
 		return executeUpdate(sql.toString(), 
 				fieldList.toArray(new Object[fieldList.size()]));
 	}
