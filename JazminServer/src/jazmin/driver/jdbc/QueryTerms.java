@@ -76,7 +76,7 @@ public class QueryTerms {
 		return this;
 	}
 	//
-	Object [] whereValues(){
+	List<Object> whereValues(){
 		List<Object>ret=new LinkedList<Object>();
 		for(Where w:wheres){
 			if(w.key!=null){
@@ -85,7 +85,7 @@ public class QueryTerms {
 				ret.addAll(w.sqlValues);
 			}
 		}
-		return ret.toArray();
+		return ret;
 	}
 	//
 	public String whereStatement(){
