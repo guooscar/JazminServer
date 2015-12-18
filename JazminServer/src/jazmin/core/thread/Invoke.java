@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jazmin.core;
+package jazmin.core.thread;
 
 /**
  * @author yama
