@@ -63,7 +63,8 @@ public class MachineInstanceWindow extends Window{
 	//
 	private void loadData(){
 		try {
-			List<Instance>instanceList=DeployManager.getInstances("machineId='"+machine.id+"'");
+			List<Instance>instanceList=DeployManager.getInstances(
+					DeploySystemUI.getUser().id,"machineId='"+machine.id+"'");
 			List<MachineInstance>mis=new ArrayList<MachineInstanceWindow.MachineInstance>();
 			for(Instance ii:instanceList){
 				MachineInstance mi=new MachineInstance();

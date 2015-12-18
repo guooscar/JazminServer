@@ -250,7 +250,7 @@ public class InstanceInfoView extends DeployBaseView{
     		return;
     	}
     	try {
-			instanceList=DeployManager.getInstances(search);
+			instanceList=DeployManager.getInstances(DeploySystemUI.getUser().id,search);
 			if(instanceList.isEmpty()){
 				DeploySystemUI.showNotificationInfo("Result","No mactch result found.");		
 			}

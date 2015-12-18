@@ -151,7 +151,7 @@ public class ApplicationInfoView extends DeployBaseView{
     		return;
     	}
     	try {
-    		applications=DeployManager.getApplications(search);
+    		applications=DeployManager.getApplications(DeploySystemUI.getUser().id,search);
 			if(applications.isEmpty()){
 				DeploySystemUI.showNotificationInfo("Result","No mactch result found.");		
 			}

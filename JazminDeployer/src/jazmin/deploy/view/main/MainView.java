@@ -2,7 +2,9 @@ package jazmin.deploy.view.main;
 
 import java.io.File;
 
+import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.DeployManager;
+import jazmin.deploy.domain.User;
 import jazmin.deploy.view.app.ApplicationInfoView;
 import jazmin.deploy.view.console.ConsoleView;
 import jazmin.deploy.view.instance.InstanceInfoView;
@@ -68,11 +70,13 @@ public class MainView extends HorizontalLayout {
     	menuView.addMenuItem("Dashboard", FontAwesome.DASHBOARD,DashboardView.class);	
     	menuView.addMenuItem("Instances", FontAwesome.HOME,new InstanceInfoView());
     	menuView.addMenuItem("Machines", FontAwesome.GEAR,new MachineInfoView());	
-    	menuView.addMenuItem("Applications", FontAwesome.ANDROID,new ApplicationInfoView());	
-    	menuView.addMenuItem("Packages", FontAwesome.ANCHOR,new PackageInfoView());	
-    	menuView.addMenuItem("Repos", FontAwesome.APPLE,new RepoInfoView());
-    	consoleView=new ConsoleView();
-    	menuView.addMenuItem("Consoles", FontAwesome.CODE,consoleView);
+    	if(DeploySystemUI.getUser().id.equals(User.ADMIN)){
+    		menuView.addMenuItem("Applications", FontAwesome.ANDROID,new ApplicationInfoView());	
+        	menuView.addMenuItem("Packages", FontAwesome.ANCHOR,new PackageInfoView());	
+        	menuView.addMenuItem("Repos", FontAwesome.APPLE,new RepoInfoView());
+        	consoleView=new ConsoleView();
+    	}
+     	menuView.addMenuItem("Consoles", FontAwesome.CODE,consoleView);		
     }
     //
     public ConsoleView getConsoleView(){

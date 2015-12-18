@@ -231,6 +231,10 @@ public class DeployManager {
 		return null;
 	}
 	//
+	public static User getUser(String uid){
+		return userMap.get(uid);
+	}
+	//
 	public static List<PackageDownloadInfo>getPackageDownloadInfos(){
 		return downloadInfos;
 	}
@@ -247,12 +251,28 @@ public class DeployManager {
 		return new ArrayList<AppPackage>(packageMap.values());
 	}
 	//
-	public static List<Application>getApplications(String search){
+	public static List<Application>getApplications(String uid,String search){
 		if(search==null||search.trim().isEmpty()){
 			return new ArrayList<Application>();
 		}
-		String queryBegin="select * from "+Application.class.getName()+" where 1=1 and ";
-		return BeanUtil.query(getApplications(),queryBegin+search);
+		
+		String queryBegin="select * from "+Application.class.getName()+" where";
+		User user=getUser(uid);
+		String sql=queryBegin;
+		if(!uid.equals(User.ADMIN)){
+			StringBuilder cc=new StringBuilder();
+			for(String q:user.applicationSystems){
+				cc.append("'"+q+"',");
+			}
+			if(cc.length()>0){
+				cc.deleteCharAt(cc.length()-1);
+			}
+			sql+=" 1=1 and system in("+cc+") and ";
+		}else{
+			sql+=" 1=1 and ";
+		}
+		sql+=search;
+		return BeanUtil.query(getApplications(),sql);
 	}
 	//
 	public static List<Application>getApplications(){
@@ -304,24 +324,54 @@ public class DeployManager {
 		return items;
 	}
 	//
-	public static List<Instance>getInstances(String search)throws Exception{
+	public static List<Instance>getInstances(String uid,String search)throws Exception{
 		if(search==null||search.trim().isEmpty()){
 			return new ArrayList<Instance>();
 		}
-		String queryBegin="select * from "+Instance.class.getName()+" where 1=1 and ";
-		return BeanUtil.query(getInstances(),queryBegin+search);
+		String queryBegin="select * from "+Instance.class.getName()+" where";
+		User user=getUser(uid);
+		String sql=queryBegin;
+		if(!uid.equals(User.ADMIN)){
+			StringBuilder cc=new StringBuilder();
+			for(String q:user.instanceClusters){
+				cc.append("'"+q+"',");
+			}
+			if(cc.length()>0){
+				cc.deleteCharAt(cc.length()-1);
+			}
+			sql+=" 1=1 and cluster in("+cc+") and ";
+		}else{
+			sql+=" 1=1 and ";
+		}
+		sql+=search;
+		return BeanUtil.query(getInstances(),sql);
 	}
 	//
 	public static Instance getInstance(String id){
 		return instanceMap.get(id);
 	}
 	//
-	public static List<Machine>getMachines(String search){
+	public static List<Machine>getMachines(String uid,String search){
 		if(search==null||search.trim().isEmpty()){
 			return new ArrayList<Machine>();
 		}
-		String queryBegin="select * from "+Machine.class.getName()+" where 1=1 and ";
-		return BeanUtil.query(getMachines(),queryBegin+search);
+		String queryBegin="select * from "+Machine.class.getName()+" where";
+		User user=getUser(uid);
+		String sql=queryBegin;
+		if(!uid.equals(User.ADMIN)){
+			StringBuilder cc=new StringBuilder();
+			for(String q:user.machines){
+				cc.append("'"+q+"',");
+			}
+			if(cc.length()>0){
+				cc.deleteCharAt(cc.length()-1);
+			}
+			sql+=" 1=1 and id in("+cc+") and ";
+		}else{
+			sql+=" 1=1 and ";
+		}
+		sql+=search;
+		return BeanUtil.query(getMachines(),sql);
 	}
 	//
 	public static List<Machine>getMachines(){

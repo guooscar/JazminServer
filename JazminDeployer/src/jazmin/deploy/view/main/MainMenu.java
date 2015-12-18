@@ -85,22 +85,23 @@ public final class MainMenu extends CustomComponent {
         settings.addStyleName("user-menu");
         settingsItem = settings.addItem("", new ThemeResource("img/profile-pic-300px.jpg"), null);
         updateUserName();
-        settingsItem.addItem("Reload Config", (selectedItem)->{
-        	DeployManager.reload();
-        	DeploySystemUI.showNotificationInfo("Info","Config reload complete.");
-        	if(!DeployManager.getErrorMessage().isEmpty()){
-              	ErrorMessageWindow bfw=new ErrorMessageWindow();
-      			UI.getCurrent().addWindow(bfw);
-      			bfw.focus();
-            }
-        });
-        //
-        settingsItem.addItem("Machine Config", (selectedItem)->showConfig("machine.json"));
-        settingsItem.addItem("Application Config", (selectedItem)->showConfig("application.json"));
-        settingsItem.addItem("Instance Config", (selectedItem)->showConfig("instance.json"));
-        settingsItem.addItem("Iptables Config", (selectedItem)->showConfig("iptables.rule"));
-        //
-        settingsItem.addSeparator();
+        if(DeploySystemUI.getUser().id.equals(User.ADMIN)){
+        	settingsItem.addItem("Reload Config", (selectedItem)->{
+            	DeployManager.reload();
+            	DeploySystemUI.showNotificationInfo("Info","Config reload complete.");
+            	if(!DeployManager.getErrorMessage().isEmpty()){
+                  	ErrorMessageWindow bfw=new ErrorMessageWindow();
+          			UI.getCurrent().addWindow(bfw);
+          			bfw.focus();
+                }
+            });
+            //
+            settingsItem.addItem("Machine Config", (selectedItem)->showConfig("machine.json"));
+            settingsItem.addItem("Application Config", (selectedItem)->showConfig("application.json"));
+            settingsItem.addItem("Instance Config", (selectedItem)->showConfig("instance.json"));
+            settingsItem.addItem("Iptables Config", (selectedItem)->showConfig("iptables.rule"));	
+            settingsItem.addSeparator();
+        }
         settingsItem.addItem("Sign Out", (selectedItem)->{
         	DeploySystemUI.setUser(null);
         	DeploySystemUI.get().showLoginView();

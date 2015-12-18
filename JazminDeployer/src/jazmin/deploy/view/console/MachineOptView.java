@@ -64,7 +64,7 @@ public class MachineOptView extends DeployBaseView{
     		return;
     	}
     	try {
-    		machines=DeployManager.getMachines(search);
+    		machines=DeployManager.getMachines(DeploySystemUI.getUser().id,search);
 			if(machines.isEmpty()){
 				DeploySystemUI.showNotificationInfo("Result","No match result found.");		
 			}
