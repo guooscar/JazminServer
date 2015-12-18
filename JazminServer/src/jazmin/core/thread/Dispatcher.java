@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
 
+import jazmin.core.Invoke;
 import jazmin.core.Jazmin;
 import jazmin.core.JazminThreadFactory;
 import jazmin.core.Lifecycle;
@@ -69,6 +70,8 @@ public class Dispatcher extends Lifecycle implements Executor{
 	private AtomicLong maxFullTime;
 	private AtomicLong maxRunTime;
 	private LinkedList<PerformanceLog>performanceLogs;
+	//
+
 	/**
 	 * 
 	 */
@@ -308,6 +311,16 @@ public class Dispatcher extends Lifecycle implements Executor{
 			logger.catching(e);
 		}
 	}
+	//
+	public void invokeInPool(Invoke invoke){
+		try {
+			Method method=invoke.getClass().getMethod("doInvoke");
+			invokeInPool(invoke.getClass().getSimpleName(),invoke,method);
+		} catch (Exception e) {
+			logger.catching(e);
+		}
+	}
+	//
 	/**
 	 * 
 	 */

@@ -119,6 +119,7 @@ public class Jazmin {
 	private static Application application;
 	private static ClassLoader appClassloader;
 	//
+	//
 	static{
 		lifecycles=new ArrayList<>();
 		drivers=new ConcurrentHashMap<String, Driver>();
