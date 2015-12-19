@@ -79,6 +79,7 @@ public class ThreadWorker implements Runnable {
 				}
 			}
 			callback.before(methodName, method, args);
+			method.setAccessible(true);
 			ret = method.invoke(instance, args);
 			callback.after(instance, method,args);
 			//

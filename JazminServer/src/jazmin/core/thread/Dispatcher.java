@@ -284,6 +284,16 @@ public class Dispatcher extends Lifecycle implements Executor{
 		return tw;
 	}
 	//
+	public void invokeInCaller(Invoke invoke){
+		try {
+			Method method=invoke.getClass().getMethod("doInvoke");
+			invokeInCaller(invoke.getClass().getSimpleName(),invoke,method
+					,EMPTY_CALLBACK,EMPTY_ARGS);
+		} catch (Exception e) {
+			logger.catching(e);
+		}
+	}
+	//
 	/**
 	 * 
 	 */
