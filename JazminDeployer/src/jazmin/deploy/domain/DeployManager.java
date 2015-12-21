@@ -586,7 +586,7 @@ public class DeployManager {
 		StringBuilder sb=new StringBuilder();
 		try{
 			SshUtil.execute(
-					m.privateHost,
+					m.publicHost,
 					m.sshPort,
 					root?"root":m.sshUser,
 					root?m.rootSshPassword:m.sshPassword,
@@ -612,7 +612,7 @@ public class DeployManager {
 			shellFile=shellFile.replaceAll("'","\\'").replaceAll("\"","\\\\\"");
 			String uuid=UUID.randomUUID().toString().replaceAll("-","");
 			SshUtil.execute(
-					m.privateHost,
+					m.publicHost,
 					m.sshPort,
 					root?"root":m.sshUser,
 					root?m.rootSshPassword:m.sshPassword,
@@ -652,7 +652,7 @@ public class DeployManager {
 		try{
 			Machine m=instance.machine;
 			SshUtil.execute(
-					m.privateHost,
+					m.publicHost,
 					m.sshPort,
 					root?"root":m.sshUser,
 					root?m.rootSshPassword:m.sshPassword,
