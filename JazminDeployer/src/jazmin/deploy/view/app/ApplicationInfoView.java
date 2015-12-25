@@ -106,7 +106,9 @@ public class ApplicationInfoView extends DeployBaseView{
 	@Override
 	public BeanTable<?> createTable() {
 		applications=new ArrayList<Application>();
-		table= new BeanTable<Application>(null, Application.class);
+		table= new BeanTable<Application>(null, Application.class,
+				"scmUser","scmPassword","properties");
+		table.setMultiSelect(true);
 		return table;
 	}
 	//
