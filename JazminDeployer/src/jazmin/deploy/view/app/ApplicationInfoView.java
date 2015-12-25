@@ -5,10 +5,10 @@ package jazmin.deploy.view.app;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-import org.vaadin.aceeditor.AceMode;
-
+import jazmin.core.Jazmin;
 import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.Application;
 import jazmin.deploy.domain.DeployManager;
@@ -17,8 +17,21 @@ import jazmin.deploy.view.instance.InputWindow;
 import jazmin.deploy.view.main.CodeEditorCallback;
 import jazmin.deploy.view.main.CodeEditorWindow;
 import jazmin.deploy.view.main.DeployBaseView;
+import jazmin.deploy.view.main.TaskProgressWindow;
 
+import org.vaadin.aceeditor.AceMode;
+
+import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.event.ShortcutListener;
+import com.vaadin.server.FontAwesome;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
+import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * @author yama
@@ -28,12 +41,68 @@ import com.vaadin.ui.UI;
 public class ApplicationInfoView extends DeployBaseView{
 	BeanTable<Application>table;
 	private List<Application>applications;
+	CheckBox optOnSelectCheckBox;
 	//
 	public ApplicationInfoView() {
 		super();
 		initUI();
-		searchTxt.setValue("1=1");
+		searchTxt.setValue("1=1 order by priority desc;");
 	}
+	//
+	protected void initBaseUI(){
+		setSizeFull();
+		//
+		HorizontalLayout optLayout = new HorizontalLayout();
+		optLayout.setSpacing(true);
+		optLayout.addStyleName(ValoTheme.WINDOW_TOP_TOOLBAR);
+		optLayout.setWidth(100.0f, Unit.PERCENTAGE);
+		searchTxt = new TextField("Filter", "");
+		searchTxt.setIcon(FontAwesome.SEARCH);
+		searchTxt.setWidth(100.0f, Unit.PERCENTAGE);
+		searchTxt.addStyleName(ValoTheme.TEXTFIELD_TINY);
+		searchTxt.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
+		searchTxt.addShortcutListener(new ShortcutListener("Search",KeyCode.ENTER,null) {
+			@Override
+			public void handleAction(Object sender, Object target) {
+				loadData();
+			}
+		});
+		//
+		optLayout.addComponent(searchTxt);
+		optLayout.setExpandRatio(searchTxt,1.0f);
+		 //
+        optOnSelectCheckBox=new CheckBox("Only Selected");
+        optLayout.addComponent(optOnSelectCheckBox);
+        optLayout.setComponentAlignment(optOnSelectCheckBox, Alignment.BOTTOM_RIGHT);
+		//
+        Button ok = new Button("Query");
+        ok.addStyleName(ValoTheme.BUTTON_PRIMARY);
+        ok.addStyleName(ValoTheme.BUTTON_SMALL);
+        optLayout.addComponent(ok);
+        ok.addClickListener(e->loadData());
+        optLayout.setComponentAlignment(ok, Alignment.BOTTOM_RIGHT);
+       
+        //
+        addComponent(optLayout);
+        
+        BeanTable<?> table = createTable();
+		addComponent(table);
+		table.setSizeFull();
+        setExpandRatio(table, 1);
+        tray = new HorizontalLayout();
+		tray.setWidth(100.0f, Unit.PERCENTAGE);
+		tray.addStyleName(ValoTheme.WINDOW_BOTTOM_TOOLBAR);
+		tray.setSpacing(true);
+		tray.setMargin(true);
+		//
+		Label emptyLabel=new Label("");
+		tray.addComponent(emptyLabel);
+		tray.setComponentAlignment(emptyLabel, Alignment.MIDDLE_RIGHT);
+		tray.setExpandRatio(emptyLabel,1.0f);
+		//
+		addComponent(tray);
+	}
+	//
 	@Override
 	public BeanTable<?> createTable() {
 		applications=new ArrayList<Application>();
@@ -47,6 +116,8 @@ public class ApplicationInfoView extends DeployBaseView{
 		addOptButton("View Template",null, (e)->viewTemplate());
 		addOptButton("System Graph",null, (e)->viewSystemGraph());
 		addOptButton("Instance Graph",null, (e)->viewInstanceGraph());
+		//
+		addOptButton("Compile",ValoTheme.BUTTON_PRIMARY, (e)->compileApp());
 	}
 	private void viewTemplate0(String appId){
 		String result=DeployManager.getTemplate(appId);
@@ -144,6 +215,60 @@ public class ApplicationInfoView extends DeployBaseView{
 		}
 	}
 	//
+	public void compileApp(){
+		TaskProgressWindow optWindow=new TaskProgressWindow(window->{
+			Jazmin.execute(()->{
+				compileApp0(window);
+			});
+		});
+		optWindow.setCaption("Confirm");
+		for(Application i:getOptApps()){
+			optWindow.addTask(i.id,"");
+		}
+		
+		optWindow.setInfo("Confirm compile total "+getOptApps().size()+" app(s)?");
+		UI.getCurrent().addWindow(optWindow);
+	}
+	//
+	private void appendOutput(String s){
+		if(currentTaskWindow!=null){
+			getUI().access(()->{
+				currentTaskWindow.appendLog(s);
+			});
+		}
+	}
+	private TaskProgressWindow currentTaskWindow;
+	//
+	private void compileApp0(TaskProgressWindow window){
+		currentTaskWindow=window;
+		AtomicInteger counter=new AtomicInteger();
+		for(Application app:getOptApps()){
+			if(window.isCancel()){
+				break;
+			}
+			window.getUI().access(()->{
+				window.setInfo("compile "+app.id+" "+
+						counter.incrementAndGet()+
+						"/"+getOptApps().size()+"...");
+				window.updateTask(app.id, "compiling...");
+			});
+			final StringBuilder result=new StringBuilder("done");
+			try {
+				DeployManager.compileApp(app,
+						ApplicationInfoView.this::appendOutput);
+			} catch (Exception e) {
+				result.append(":"+e.getMessage());
+			}
+			window.getUI().access(()->{
+				window.updateTask(app.id, result.toString());
+			});
+			
+		};
+		window.getUI().access(()->{
+			DeploySystemUI.showNotificationInfo("Info", "compile complete");
+		});	
+	}
+	//
 	@Override
 	public void loadData(){
 		String search=getSearchValue();
@@ -160,4 +285,14 @@ public class ApplicationInfoView extends DeployBaseView{
     		DeploySystemUI.showNotificationInfo("Error",e1.getMessage());
 		}
 	}
+	//
+	public List<Application>getOptApps(){
+		if(optOnSelectCheckBox.getValue()){
+			return table.getSelectValues();
+		}else{
+			return applications;
+		}
+	}
+	//
+	
 }

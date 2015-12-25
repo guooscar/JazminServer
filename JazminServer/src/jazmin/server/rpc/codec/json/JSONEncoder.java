@@ -34,7 +34,9 @@ public class JSONEncoder extends MessageToByteEncoder<RpcMessage> {
 			ChannelHandlerContext ctx, 
 			RpcMessage msg,
 			ByteBuf out) throws Exception {
-		byte payloadBytes[]=JSON.toJSONBytes(msg,SerializerFeature.WriteClassName);
+		byte payloadBytes[]=JSON.toJSONBytes(msg,
+				SerializerFeature.WriteClassName,
+				SerializerFeature.DisableCircularReferenceDetect);
 		int dataLength=payloadBytes.length;
 		if(dataLength>MAX_MESSAGE_LENGTH){
 			logger.error("message too long " + dataLength

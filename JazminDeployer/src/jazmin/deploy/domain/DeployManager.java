@@ -23,6 +23,8 @@ import java.util.regex.Pattern;
 
 import jazmin.core.Jazmin;
 import jazmin.deploy.DeployStartServlet;
+import jazmin.deploy.domain.ant.AntManager;
+import jazmin.deploy.domain.svn.WorkingCopy;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.web.WebServer;
@@ -35,6 +37,7 @@ import jazmin.util.SshUtil;
 
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
+import org.tmatesoft.svn.core.SVNException;
 
 /**
  * @author yama
@@ -62,13 +65,22 @@ public class DeployManager {
 		graphVizRenderer=new GraphVizRenderer();
 	}
 	//
-	private static String workSpaceDir="";
+	public static String workSpaceDir="";
 	public static String deployHostname="";
+	public static String repoPath="";
+	public static String antPath="";
+	public static String antCommonLibPath="";
+	
+	
 	public static int deployHostport=80;
 	//
 	public static void setup() throws Exception {
 		workSpaceDir=Jazmin.environment.getString("deploy.workspace","./workspace/");
 		deployHostname=Jazmin.environment.getString("deploy.hostname","localhost");
+		repoPath=Jazmin.environment.getString("deploy.repo.dir","./repo");
+		antPath=Jazmin.environment.getString("deploy.ant","ant");
+		antCommonLibPath=Jazmin.environment.getString("deploy.ant.lib","./lib");
+		
 		WebServer ws=Jazmin.getServer(WebServer.class);
 		if(ws!=null){
 			deployHostport=ws.getPort();
@@ -836,7 +848,44 @@ public class DeployManager {
 		}
 	}
 	//
-	public static void main(String[] args) {
-		System.out.println("\"aaaa'bbbbb".replaceAll("'","\\\\'").replaceAll("\"","\\\\\""));
+	
+	public static void compileApp(Application app,OutputListener listener) {
+		if(app.scmUser==null){
+			return;
+		}
+		File localPath=new File(DeployManager.repoPath,app.id);
+		if(!localPath.exists()){
+			logger.info("create local path:{}",localPath.getAbsolutePath());
+			localPath.mkdirs();
+		}
+		WorkingCopy wc=new WorkingCopy(
+				app.scmUser, 
+				app.scmPassword,
+				app.scmPath, localPath.getAbsolutePath());
+		wc.setOutputListener(listener);
+		try {
+			wc.cleanup();
+			wc.checkout();
+			wc.update();
+		} catch (SVNException e) {
+			logger.catching(e);
+			listener.onOutput(e.getMessage());
+			return;
+		}
+		//
+		if(app.antTarget!=null){
+			AntManager antManager=new AntManager(DeployManager.antPath);
+			antManager.setOutputListener(listener);
+			antManager.setCommonLib(DeployManager.antCommonLibPath);
+			File buildFile=new File(localPath, "build.xml");
+			try {
+				antManager.antCall(app.antTarget,buildFile.getAbsolutePath());
+			} catch (Exception e) {
+				logger.catching(e);
+				listener.onOutput(e.getMessage());
+				return;
+			}
+		}
 	}
+	
 }

@@ -61,8 +61,14 @@ public class DeployStartServlet extends VaadinServlet{
 	//
 	public static void main(String[] args) throws Exception{
 		WebServer ws=new WebServer();
-		Jazmin.environment.put("deploy.workspace","./workspace/");
+		Jazmin.environment.put("deploy.workspace","/Users/yama/Documents/JazminDeployerBackup/workspace/");
 		Jazmin.environment.put("deploy.hostname","10.44.218.119");
+		Jazmin.environment.put("deploy.ant","/usr/local/bin/ant");
+		Jazmin.environment.put("deploy.repo.dir","/Users/yama/Desktop/svn_test");
+		Jazmin.environment.put("deploy.ant.lib","/Users/yama/git/JazminServer/JazminServer/release/JazminServer");
+		
+		
+		
 		ws.addResource("/","release/JazminDeployer");
 		Jazmin.addServer(ws);
 		Jazmin.addServer(new WebSshServer());

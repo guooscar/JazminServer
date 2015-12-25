@@ -33,7 +33,9 @@ public class CompressedJSONEncoder extends MessageToByteEncoder<RpcMessage> {
 			ChannelHandlerContext ctx, 
 			RpcMessage msg,
 			ByteBuf out) throws Exception {
-		byte payloadBytes[]=JSON.toJSONBytes(msg,SerializerFeature.WriteClassName);
+		byte payloadBytes[]=JSON.toJSONBytes(msg,
+				SerializerFeature.WriteClassName,
+				SerializerFeature.DisableCircularReferenceDetect);
 		payloadBytes=IOUtil.compress(payloadBytes);
 		int dataLength=payloadBytes.length;
 		if(dataLength>MAX_MESSAGE_LENGTH){

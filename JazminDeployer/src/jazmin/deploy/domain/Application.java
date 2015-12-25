@@ -98,6 +98,12 @@ public class Application{
 	public List<String>depends;
 	public String type;
 	public int priority;
+	public String scmUser;
+	public String scmPassword;
+	public String scmPath;
+	//
+	public String antTarget;
+	
 	public Map<String,String>properties;
 	//
 	public Application() {
