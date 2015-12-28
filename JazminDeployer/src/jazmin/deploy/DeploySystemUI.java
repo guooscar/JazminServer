@@ -37,7 +37,7 @@ public class DeploySystemUI extends UI {
 	@Override
     protected void init(VaadinRequest request) {
 		Responsive.makeResponsive(this);
-        addStyleName(ValoTheme.UI_WITH_MENU);
+		addStyleName(ValoTheme.UI_WITH_MENU);
 		if(getUser()==null){
 			showLoginView();	
 		}else{

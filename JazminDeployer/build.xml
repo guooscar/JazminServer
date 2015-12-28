@@ -61,6 +61,16 @@
 			<classpath refid="master-classpath" />
 		</javac>
 	</target>
+	
+	<target name="compile-scss">
+				<java classname="com.vaadin.sass.SassCompiler" failonerror="yes" fork="yes">
+					<classpath refid="master-classpath"/>
+					<jvmarg value="-Djava.awt.headless=true"/>
+					<arg value="${webroot.dir}/VAADIN/themes/dashboard/styles.scss"/>
+					<arg value="${webroot.dir}/VAADIN/themes/dashboard/styles.css"/>
+				</java>
+	</target>
+	
 	<target name="compile-theme">
 		<java classname="com.vaadin.sass.SassCompiler" failonerror="yes" fork="yes">
 			<classpath refid="master-classpath"/>
