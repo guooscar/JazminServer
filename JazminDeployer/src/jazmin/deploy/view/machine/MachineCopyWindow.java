@@ -40,13 +40,11 @@ public class MachineCopyWindow extends Window{
         fromField.setWidth("100%");
         fromField.setIcon(FontAwesome.ANCHOR);
         fromField.setWidth(100.0f, Unit.PERCENTAGE);
-        fromField.addStyleName(ValoTheme.TEXTFIELD_TINY);
         fromField.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
         toField=new TextField("Remote File");
         toField.setWidth("100%");
         toField.setIcon(FontAwesome.ADJUST);
         toField.setWidth(100.0f, Unit.PERCENTAGE);
-        toField.addStyleName(ValoTheme.TEXTFIELD_TINY);
         toField.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
         VerticalLayout inputLayout=new VerticalLayout(fromField,toField);
         inputLayout.setSpacing(true);
@@ -60,7 +58,6 @@ public class MachineCopyWindow extends Window{
 		optLayout.setWidth(100.0f, Unit.PERCENTAGE);
 		
 		Button getBtn = new Button("OK");
-		getBtn.addStyleName(ValoTheme.BUTTON_SMALL);
 	    optLayout.addComponent(getBtn);
 	    getBtn.addClickListener(e->{
 	    	String from=fromField.getValue();

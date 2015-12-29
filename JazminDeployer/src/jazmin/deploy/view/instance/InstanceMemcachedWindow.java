@@ -59,13 +59,11 @@ public class InstanceMemcachedWindow extends Window{
         keyField.setWidth("200px");
         keyField.setIcon(FontAwesome.ANCHOR);
         keyField.setWidth(100.0f, Unit.PERCENTAGE);
-        keyField.addStyleName(ValoTheme.TEXTFIELD_TINY);
         keyField.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
         valueField=new TextField("Value");
         valueField.setWidth("100%");
         valueField.setIcon(FontAwesome.ADJUST);
         valueField.setWidth(100.0f, Unit.PERCENTAGE);
-        valueField.addStyleName(ValoTheme.TEXTFIELD_TINY);
         valueField.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
         HorizontalLayout inputLayout=new HorizontalLayout(keyField,valueField);
         inputLayout.setSpacing(true);
@@ -80,27 +78,22 @@ public class InstanceMemcachedWindow extends Window{
 		optLayout.setWidth(100.0f, Unit.PERCENTAGE);
 		
 		Button getBtn = new Button("Get");
-		getBtn.addStyleName(ValoTheme.BUTTON_SMALL);
 	    optLayout.addComponent(getBtn);
 	    getBtn.addClickListener(e->loadData(OPT_GET));
 	    //
 	    Button addBtn = new Button("Add");
-	    addBtn.addStyleName(ValoTheme.BUTTON_SMALL);
 	    optLayout.addComponent(addBtn);
 	    addBtn.addClickListener(e->loadData(OPT_ADD));
 	    //
 	    Button deleteBtn = new Button("Delete");
-	    deleteBtn.addStyleName(ValoTheme.BUTTON_SMALL);
 	    optLayout.addComponent(deleteBtn);
 	    deleteBtn.addClickListener(e->loadData(OPT_DELETE));
 	    //
 	    Button replaceBtn = new Button("Replace");
-	    replaceBtn.addStyleName(ValoTheme.BUTTON_SMALL);
 	    optLayout.addComponent(replaceBtn);
 	    replaceBtn.addClickListener(e->loadData(OPT_REPLACE));
 	    //
 	    Button formatBtn = new Button("Format");
-	    formatBtn.addStyleName(ValoTheme.BUTTON_SMALL);
 	    formatBtn.addStyleName(ValoTheme.BUTTON_PRIMARY);
 	    optLayout.addComponent(formatBtn);
 	    optLayout.setComponentAlignment(formatBtn, Alignment.MIDDLE_RIGHT);

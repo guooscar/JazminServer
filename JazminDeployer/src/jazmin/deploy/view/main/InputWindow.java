@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jazmin.deploy.view.instance;
+package jazmin.deploy.view.main;
 
 import java.util.function.Consumer;
 
@@ -28,12 +28,12 @@ public class InputWindow extends Window{
 	//	
 	public InputWindow(Consumer<InputWindow>consumer) {
         Responsive.makeResponsive(this);
-        setWidth("600px");
+        setWidth(400,Unit.PIXELS);
+        setHeight(200,Unit.PIXELS);
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);
         setResizable(false);
         setClosable(false);
-        setHeight(60.0f, Unit.PERCENTAGE);
         VerticalLayout content = new VerticalLayout();
         content.setSizeFull();
         setContent(content);

@@ -3,6 +3,7 @@
  */
 package jazmin.core.thread;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -24,7 +25,6 @@ import java.util.concurrent.atomic.LongAdder;
 import jazmin.core.Jazmin;
 import jazmin.core.JazminThreadFactory;
 import jazmin.core.Lifecycle;
-import jazmin.driver.rpc.ProxyInvocationHandler;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
@@ -70,7 +70,6 @@ public class Dispatcher extends Lifecycle implements Executor{
 	private AtomicLong maxRunTime;
 	private LinkedList<PerformanceLog>performanceLogs;
 	//
-
 	/**
 	 * 
 	 */
@@ -100,6 +99,21 @@ public class Dispatcher extends Lifecycle implements Executor{
 	public void init() throws Exception {
 		new PerformanceLogWriter(performanceLogFile, this).start();
 	}
+	
+	//--------------------------------------------------------------------------
+	@SuppressWarnings("unchecked")
+	public <T> T create(Class<T>clazz,T object){
+		if(!clazz.isInterface()){
+			throw new IllegalArgumentException("target class must be interface.");
+		}
+		InvocationHandler handler=new DispatcherInvocationHandler(object,this);
+		Object proxyObject=Proxy.newProxyInstance(
+				clazz.getClassLoader(),
+				new Class<?>[]{clazz}, 
+				handler);
+		return (T) proxyObject;
+	}
+	//--------------------------------------------------------------------------
 	//
 	public String getPerformanceLogFile() {
 		return performanceLogFile;
@@ -165,21 +179,6 @@ public class Dispatcher extends Lifecycle implements Executor{
     	ib.section("global callbacks");
 		globalCallbacks.forEach(ib::println);
 		return ib.toString();
-	}
-	
-	//--------------------------------------------------------------------------
-	@SuppressWarnings("unchecked")	
-	public <T> T createProxy(Class<T>clazz,T obj){
-		if(!clazz.isInterface()){
-			throw new IllegalArgumentException("target class must be interface.");
-		}
-		//
-		ProxyInvocationHandler invocationHandler=new ProxyInvocationHandler(this,obj);
-		T proxyObject=(T) Proxy.newProxyInstance(
-				clazz.getClassLoader(),
-				new Class<?>[]{clazz}, 
-				invocationHandler);
-		return proxyObject;
 	}
 	//--------------------------------------------------------------------------
 	//

@@ -23,6 +23,7 @@ import com.vaadin.ui.themes.ValoTheme;
 @SuppressWarnings("serial")
 public class BeanTable<T> extends Table{
 	private CellRender cellRender;
+	private String firstColumn;
 	//
 	public BeanTable(String caption,Class<T>beanClass,String ...excludeProperity) {
 		super(caption);
@@ -32,11 +33,10 @@ public class BeanTable<T> extends Table{
 	public void createTable(Class<T>beanClass,String ...excludeProperity){
 		addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
         addStyleName(ValoTheme.TABLE_COMPACT);
-        addStyleName(ValoTheme.TABLE_SMALL);
         setSizeFull();
-     	setFooterVisible(false);
      	setImmediate(true);
      	setSelectable(true);
+     	setColumnCollapsingAllowed(true);
      	//
      	Set<String>excludeSet=new TreeSet<String>(Arrays.asList(excludeProperity));
 		Field ff[]=beanClass.getFields();
@@ -53,6 +53,9 @@ public class BeanTable<T> extends Table{
 		//
 		addContainerProperty("$object",beanClass, null);
 		setVisibleColumns(showColumns.toArray());
+		//
+		setFooterVisible(true);
+		firstColumn=showColumns.get(0);
 	}
 	//
 	public void setData(List<T>list){
@@ -92,6 +95,7 @@ public class BeanTable<T> extends Table{
 				}	
 			}
 		}
+		setColumnFooter(firstColumn,"Total:"+list.size());
 	}
 	//
 	@SuppressWarnings("unchecked")

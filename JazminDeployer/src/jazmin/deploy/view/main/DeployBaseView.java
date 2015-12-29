@@ -46,7 +46,6 @@ public abstract class DeployBaseView extends VerticalLayout{
 		searchTxt = new TextField("Filter", "");
 		searchTxt.setIcon(FontAwesome.SEARCH);
 		searchTxt.setWidth(100.0f, Unit.PERCENTAGE);
-		searchTxt.addStyleName(ValoTheme.TEXTFIELD_TINY);
 		searchTxt.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		searchTxt.addShortcutListener(new ShortcutListener("Search",KeyCode.ENTER,null) {
 			@Override
@@ -60,7 +59,6 @@ public abstract class DeployBaseView extends VerticalLayout{
 		//
         Button ok = new Button("Query");
         ok.addStyleName(ValoTheme.BUTTON_PRIMARY);
-        ok.addStyleName(ValoTheme.BUTTON_SMALL);
         optLayout.addComponent(ok);
         ok.addClickListener(e->loadData());
         optLayout.setComponentAlignment(ok, Alignment.BOTTOM_RIGHT);
@@ -90,7 +88,6 @@ public abstract class DeployBaseView extends VerticalLayout{
 	//
 	protected void addOptButton(String name,String style,ClickListener cl){
 		Button btn = new Button(name);
-		btn.addStyleName(ValoTheme.BUTTON_SMALL);
 		if(style!=null){
 			btn.addStyleName(style);
 		}

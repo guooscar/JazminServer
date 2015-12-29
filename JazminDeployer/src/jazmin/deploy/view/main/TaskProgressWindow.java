@@ -126,10 +126,16 @@ public class TaskProgressWindow extends Window{
         editor.setUseWorker(true);
         editor.setTheme(AceTheme.eclipse);
         editor.setMode(AceMode.sh);
+        editor.setFontSize("10px");
         editor.setSizeFull();
         //
         tabsheet.addTab(content, "Tasks");
         tabsheet.addTab(editor, "Log"); 
+	}
+	//
+	public void finish(){
+		ok.setEnabled(true);
+		cancel.setEnabled(true);
 	}
 	//
 	public void appendLog(String log){
@@ -144,6 +150,7 @@ public class TaskProgressWindow extends Window{
 	//
 	public void updateTask(String name,String progress){
 		taskMap.get(name).progress=progress;
+		appendLog(">>>"+name+"<<<"+progress+"\n");
 		reload();
 	}
 	//

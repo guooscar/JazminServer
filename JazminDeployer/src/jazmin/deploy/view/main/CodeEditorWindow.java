@@ -54,6 +54,7 @@ public class CodeEditorWindow extends Window{
         editor.setWorkerPath("/ace"); 
         editor.setUseWorker(true);
         editor.setTheme(AceTheme.eclipse);
+        editor.setFontSize("10px");
         editor.setSizeFull();
         content.addComponent(editor);
         content.setExpandRatio(editor, 1f);

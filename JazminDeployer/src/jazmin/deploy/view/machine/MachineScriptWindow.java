@@ -9,7 +9,7 @@ import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.Script;
 import jazmin.deploy.ui.BeanTable;
-import jazmin.deploy.view.instance.InputWindow;
+import jazmin.deploy.view.main.InputWindow;
 
 import org.vaadin.aceeditor.AceEditor;
 import org.vaadin.aceeditor.AceMode;

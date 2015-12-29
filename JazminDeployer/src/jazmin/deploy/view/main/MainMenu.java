@@ -138,7 +138,6 @@ public final class MainMenu extends CustomComponent {
         valoMenuToggleButton.setIcon(FontAwesome.LIST);
         valoMenuToggleButton.addStyleName("valo-menu-toggle");
         valoMenuToggleButton.addStyleName(ValoTheme.BUTTON_BORDERLESS);
-        valoMenuToggleButton.addStyleName(ValoTheme.BUTTON_SMALL);
         return valoMenuToggleButton;
     }
 

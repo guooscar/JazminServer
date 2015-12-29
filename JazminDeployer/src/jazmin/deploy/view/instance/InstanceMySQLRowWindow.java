@@ -37,7 +37,6 @@ public class InstanceMySQLRowWindow extends Window{
         Table table=new Table();
         table.addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
         table.addStyleName(ValoTheme.TABLE_COMPACT);
-        table.addStyleName(ValoTheme.TABLE_SMALL);
         table.setSizeFull();
         table.setFooterVisible(false);
         table.setImmediate(true);

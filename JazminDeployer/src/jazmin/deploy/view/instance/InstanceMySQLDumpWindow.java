@@ -45,7 +45,6 @@ public class InstanceMySQLDumpWindow extends Window{
         fromField.setWidth("100%");
         fromField.setIcon(FontAwesome.ANCHOR);
         fromField.setWidth(100.0f, Unit.PERCENTAGE);
-        fromField.addStyleName(ValoTheme.TEXTFIELD_TINY);
         fromField.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
         SimpleDateFormat sdf=new SimpleDateFormat("yyyyMMddHHmmss");
         fromField.setValue("/home/appadmin/db_backup/"+sdf.format(new Date())+".sql");
@@ -61,8 +60,7 @@ public class InstanceMySQLDumpWindow extends Window{
 		optLayout.setWidth(100.0f, Unit.PERCENTAGE);
 		
 		Button getBtn = new Button("OK");
-		getBtn.addStyleName(ValoTheme.BUTTON_SMALL);
-	    optLayout.addComponent(getBtn);
+		optLayout.addComponent(getBtn);
 	    getBtn.addClickListener(e->{
 	    	String from=fromField.getValue();
 	    	if(from==null||from.trim().isEmpty()){

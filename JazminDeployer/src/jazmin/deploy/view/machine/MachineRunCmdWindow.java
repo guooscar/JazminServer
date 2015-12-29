@@ -58,17 +58,14 @@ public class MachineRunCmdWindow extends Window{
         cmdField.setWidth("100%");
         cmdField.setIcon(FontAwesome.ANCHOR);
         cmdField.setWidth(100.0f, Unit.PERCENTAGE);
-        cmdField.addStyleName(ValoTheme.TEXTFIELD_TINY);
         cmdField.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
         scriptField=new TextField("Script");
         scriptField.setWidth("100%");
         scriptField.setIcon(FontAwesome.ADJUST);
         scriptField.setWidth(100.0f, Unit.PERCENTAGE);
-        scriptField.addStyleName(ValoTheme.TEXTFIELD_TINY);
         scriptField.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
         Button cmdBtn = new Button("Run");
         cmdBtn.addStyleName(ValoTheme.BUTTON_DANGER);
-        cmdBtn.addStyleName(ValoTheme.BUTTON_SMALL);
         cmdRootCheckBox=new CheckBox("Root");
         HorizontalLayout cmdLayout=new HorizontalLayout(cmdField,cmdRootCheckBox,cmdBtn);
         cmdLayout.setExpandRatio(cmdField,1);
@@ -82,7 +79,6 @@ public class MachineRunCmdWindow extends Window{
         Button scriptBtn = new Button("Run");
         scriptBtn.addStyleName(ValoTheme.BUTTON_DANGER);
         scriptBtn.addClickListener((e)->runScript());
-        scriptBtn.addStyleName(ValoTheme.BUTTON_SMALL);
         scriptRootCheckBox=new CheckBox("Root");
         HorizontalLayout scriptLayout=new HorizontalLayout(scriptField,scriptRootCheckBox,scriptBtn);
         scriptLayout.setExpandRatio(scriptField,1);

@@ -13,10 +13,10 @@ import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.Application;
 import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.ui.BeanTable;
-import jazmin.deploy.view.instance.InputWindow;
 import jazmin.deploy.view.main.CodeEditorCallback;
 import jazmin.deploy.view.main.CodeEditorWindow;
 import jazmin.deploy.view.main.DeployBaseView;
+import jazmin.deploy.view.main.InputWindow;
 import jazmin.deploy.view.main.TaskProgressWindow;
 
 import org.vaadin.aceeditor.AceMode;
@@ -59,7 +59,6 @@ public class ApplicationInfoView extends DeployBaseView{
 		searchTxt = new TextField("Filter", "");
 		searchTxt.setIcon(FontAwesome.SEARCH);
 		searchTxt.setWidth(100.0f, Unit.PERCENTAGE);
-		searchTxt.addStyleName(ValoTheme.TEXTFIELD_TINY);
 		searchTxt.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		searchTxt.addShortcutListener(new ShortcutListener("Search",KeyCode.ENTER,null) {
 			@Override
@@ -73,11 +72,11 @@ public class ApplicationInfoView extends DeployBaseView{
 		 //
         optOnSelectCheckBox=new CheckBox("Only Selected");
         optLayout.addComponent(optOnSelectCheckBox);
+        optOnSelectCheckBox.addStyleName(ValoTheme.COMBOBOX_LARGE);
         optLayout.setComponentAlignment(optOnSelectCheckBox, Alignment.BOTTOM_RIGHT);
 		//
         Button ok = new Button("Query");
         ok.addStyleName(ValoTheme.BUTTON_PRIMARY);
-        ok.addStyleName(ValoTheme.BUTTON_SMALL);
         optLayout.addComponent(ok);
         ok.addClickListener(e->loadData());
         optLayout.setComponentAlignment(ok, Alignment.BOTTOM_RIGHT);
@@ -267,6 +266,7 @@ public class ApplicationInfoView extends DeployBaseView{
 			
 		};
 		window.getUI().access(()->{
+			window.finish();
 			DeploySystemUI.showNotificationInfo("Info", "compile complete");
 		});	
 	}

@@ -17,7 +17,16 @@ import jazmin.deploy.view.main.TaskProgressWindow;
 import jazmin.util.DumpUtil;
 import jazmin.util.SshUtil;
 
+import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.event.ShortcutListener;
+import com.vaadin.server.FontAwesome;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -29,12 +38,68 @@ import com.vaadin.ui.themes.ValoTheme;
 public class MachineInfoView extends DeployBaseView{
 	BeanTable<Machine>table;
 	private List<Machine>machines;
+	CheckBox optOnSelectCheckBox;
+	
 	//
 	public MachineInfoView() {
 		super();
 		initUI();
 		searchTxt.setValue("1=1");
 	}
+	//
+	protected void initBaseUI(){
+		setSizeFull();
+		//
+		HorizontalLayout optLayout = new HorizontalLayout();
+		optLayout.setSpacing(true);
+		optLayout.addStyleName(ValoTheme.WINDOW_TOP_TOOLBAR);
+		optLayout.setWidth(100.0f, Unit.PERCENTAGE);
+		searchTxt = new TextField("Filter", "");
+		searchTxt.setIcon(FontAwesome.SEARCH);
+		searchTxt.setWidth(100.0f, Unit.PERCENTAGE);
+		searchTxt.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
+		searchTxt.addShortcutListener(new ShortcutListener("Search",KeyCode.ENTER,null) {
+			@Override
+			public void handleAction(Object sender, Object target) {
+				loadData();
+			}
+		});
+		//
+		optLayout.addComponent(searchTxt);
+		optLayout.setExpandRatio(searchTxt,1.0f);
+		 //
+        optOnSelectCheckBox=new CheckBox("Only Selected");
+        optLayout.addComponent(optOnSelectCheckBox);
+        optOnSelectCheckBox.addStyleName(ValoTheme.COMBOBOX_LARGE);
+        optLayout.setComponentAlignment(optOnSelectCheckBox, Alignment.BOTTOM_RIGHT);
+		//
+        Button ok = new Button("Query");
+        ok.addStyleName(ValoTheme.BUTTON_PRIMARY);
+        optLayout.addComponent(ok);
+        ok.addClickListener(e->loadData());
+        optLayout.setComponentAlignment(ok, Alignment.BOTTOM_RIGHT);
+       
+        //
+        addComponent(optLayout);
+        
+        BeanTable<?> table = createTable();
+		addComponent(table);
+		table.setSizeFull();
+        setExpandRatio(table, 1);
+        tray = new HorizontalLayout();
+		tray.setWidth(100.0f, Unit.PERCENTAGE);
+		tray.addStyleName(ValoTheme.WINDOW_BOTTOM_TOOLBAR);
+		tray.setSpacing(true);
+		tray.setMargin(true);
+		//
+		Label emptyLabel=new Label("");
+		tray.addComponent(emptyLabel);
+		tray.setComponentAlignment(emptyLabel, Alignment.MIDDLE_RIGHT);
+		tray.setExpandRatio(emptyLabel,1.0f);
+		//
+		addComponent(tray);
+	}
+	//
 	@Override
 	public BeanTable<?> createTable() {
 		machines=new ArrayList<Machine>();
@@ -44,6 +109,7 @@ public class MachineInfoView extends DeployBaseView{
 				"jazminHome",
 				"memcachedHome",
 				"haproxyHome");
+		table.setMultiSelect(true);
 		table.setCellStyleGenerator(new Table.CellStyleGenerator() {
 			@Override
 			public String getStyle(Table source, Object itemId, Object propertyId) {
@@ -143,24 +209,24 @@ public class MachineInfoView extends DeployBaseView{
 			});
 		});
 		optWindow.setCaption("Confirm");
-		for(Machine m:machines){
+		for(Machine m:getOptMachines()){
 			optWindow.addTask(m.id,"");
 		}
 		optWindow.setInfo("Confirm copy local file:"+from
-				+" to "+machines.size()+" machine(s)?");
+				+" to "+getOptMachines().size()+" machine(s)?");
 		UI.getCurrent().addWindow(optWindow);
 	}
 	//
 	private void copyFiles0(TaskProgressWindow window,String from,String to){
 		AtomicInteger counter=new AtomicInteger();
-		for(Machine machine:machines){
+		for(Machine machine:getOptMachines()){
 			if(window.isCancel()){
 				break;
 			}
 			window.getUI().access(()->{
 				window.setInfo("copy "+machine.id+" "+
 						counter.incrementAndGet()+
-						"/"+machines.size()+"...");	
+						"/"+getOptMachines().size()+"...");	
 				window.updateTask(machine.id, "copy...");
 			});
 			StringBuilder result=new StringBuilder("done");
@@ -212,23 +278,23 @@ public class MachineInfoView extends DeployBaseView{
 			});
 		});
 		optWindow.setCaption("Confirm");
-		for(Machine m:machines){
+		for(Machine m:getOptMachines()){
 			optWindow.addTask(m.id,"");
 		}
-		optWindow.setInfo("Confirm test total "+machines.size()+" machine(s) state?");
+		optWindow.setInfo("Confirm test total "+getOptMachines().size()+" machine(s) state?");
 		UI.getCurrent().addWindow(optWindow);
 	}
 	//
 	private void checkMachine0(TaskProgressWindow window){
 		AtomicInteger counter=new AtomicInteger();
-		for(Machine machine:machines){
+		for(Machine machine:getOptMachines()){
 			if(window.isCancel()){
 				break;
 			}
 			window.getUI().access(()->{
 				window.setInfo("test "+machine.id+" "+
 						counter.incrementAndGet()+
-						"/"+machines.size()+"...");	
+						"/"+getOptMachines().size()+"...");	
 				window.updateTask(machine.id, "testing...");
 			});
 			DeployManager.testMachine(machine);
@@ -267,6 +333,14 @@ public class MachineInfoView extends DeployBaseView{
 			table.setData(machines);
     	} catch (Throwable e1) {
     		DeploySystemUI.showNotificationInfo("Error",e1.getMessage());
+		}
+	}
+	//
+	public List<Machine>getOptMachines(){
+		if(optOnSelectCheckBox.getValue()){
+			return table.getSelectValues();
+		}else{
+			return machines;
 		}
 	}
 }

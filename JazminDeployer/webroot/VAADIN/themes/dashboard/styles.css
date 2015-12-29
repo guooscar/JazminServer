@@ -1368,23 +1368,32 @@ div.v-layout.v-horizontal.v-widget {
 	margin: 0;
 	padding: 0;
 	border: 0;
-	line-height: 1.55;
+	line-height: 1.4;
 }
 
 .v-table-resizer, .v-table-sort-indicator {
 	float: right;
 }
+.v-table-caption-container{
+	padding-top:8px;
+	font-weight: 200;
+	font-size:12px;
+}
 
 .v-table-caption-container-align-center {
 	text-align: center;
 }
-
+.v-table-footer{
+	height: 20px;
+}
 .v-table-caption-container-align-right {
 	text-align: right;
 }
 
-.v-table-header td, .v-table-footer td, .v-table-cell-content {
-	padding: 0;
+.v-table-header td, .v-table-footer td, .v-table-cell-content {	
+	padding:0;
+	padding-top:2px;
+	padding-bottom:2px;
 }
 
 .v-table-sort-indicator {
@@ -1584,7 +1593,7 @@ div.v-layout.v-horizontal.v-widget {
 	text-align: center;
 	left: 0;
 	right: 0;
-	content: "Migrate Reindeer Theme";
+	content: "";
 }
 
 .dashboard .v-loading-indicator {

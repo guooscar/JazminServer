@@ -52,7 +52,6 @@ public class ReplThread implements Closeable {
         }
         });
         thread.setName("ReplThread");
-        thread.setDaemon(true);
     }
 
     public void start() {
