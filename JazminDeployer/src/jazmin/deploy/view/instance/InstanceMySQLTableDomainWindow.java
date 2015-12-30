@@ -63,6 +63,7 @@ public class InstanceMySQLTableDomainWindow extends Window{
         editor.setUseWorker(true);
         editor.setTheme(AceTheme.eclipse);
         editor.setMode(AceMode.java);
+        editor.setFontSize("10px");
         editor.setSizeFull();
         content.addComponent(editor);
         content.setExpandRatio(editor, 1f);

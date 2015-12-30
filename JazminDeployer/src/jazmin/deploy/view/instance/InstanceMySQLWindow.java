@@ -106,6 +106,7 @@ public class InstanceMySQLWindow extends Window{
         editor.setUseWorker(true);
         editor.setTheme(AceTheme.eclipse);
         editor.setMode(AceMode.sql);
+        editor.setFontSize("10px");
         editor.setSizeFull();
         editor.addSelectionChangeListener(new SelectionChangeListener() {
 			@Override
