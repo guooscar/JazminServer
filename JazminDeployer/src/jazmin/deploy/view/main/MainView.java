@@ -70,9 +70,9 @@ public class MainView extends HorizontalLayout {
     	menuView.addMenuItem("Dashboard", FontAwesome.DASHBOARD,DashboardView.class);	
     	menuView.addMenuItem("Instances", FontAwesome.HOME,new InstanceInfoView());
     	menuView.addMenuItem("Machines", FontAwesome.GEAR,new MachineInfoView());	
-    	if(DeploySystemUI.getUser().id.equals(User.ADMIN)){
-    		menuView.addMenuItem("Applications", FontAwesome.ANDROID,new ApplicationInfoView());	
-        	menuView.addMenuItem("Packages", FontAwesome.ANCHOR,new PackageInfoView());	
+    	menuView.addMenuItem("Applications", FontAwesome.ANDROID,new ApplicationInfoView());	
+        if(DeploySystemUI.getUser().id.equals(User.ADMIN)){
+    		menuView.addMenuItem("Packages", FontAwesome.ANCHOR,new PackageInfoView());	
         	menuView.addMenuItem("Repos", FontAwesome.APPLE,new RepoInfoView());
         	consoleView=new ConsoleView();
     	}
