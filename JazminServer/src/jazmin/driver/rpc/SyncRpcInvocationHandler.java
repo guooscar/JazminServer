@@ -38,6 +38,9 @@ public class SyncRpcInvocationHandler extends RpcInvocationHandler {
 			logger.debug(">invoke {}",serviceId);
 		}
 		RpcMessage msg=client.invokeSync(session, serviceId, args);
+		if(msg==null){
+			return null;
+		}
 		int useTime= (int)(System.currentTimeMillis()-startTime);
 		int networkTime=(int)(msg.reveicedTime-msg.sentTime);
 		if(logger.isDebugEnabled()){

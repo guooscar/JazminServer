@@ -3,6 +3,8 @@
  */
 package jazmin.test.server.rpc;
 
+import java.util.IllegalFormatCodePointException;
+
 import jazmin.util.RandomUtil;
 
 
@@ -25,7 +27,7 @@ public interface TestRemoteService {
 			//
 			@Override
 			public String methodA(String input) {
-				return input;
+				throw new IllegalFormatCodePointException(1);
 			}
 			//
 			@Override

@@ -16,6 +16,20 @@ import jazmin.util.RandomUtil;
 public class RPCClientTest {
 	//
 	public static void main(String[] args) throws Exception{
+		//test1();
+		test2();
+	}
+	private static void test2(){
+		LoggerFactory.setLevel("INFO");
+		JazminRpcDriver driver=new JazminRpcDriver();
+		driver.addRemoteServer("1","1", "localhost", 6001);
+		Jazmin.addDriver(driver);
+		Jazmin.start();
+		TestRemoteService service=driver.create(TestRemoteService.class,"1");
+		service.methodA("1");
+	}
+	//
+	private static void test1(){
 		LoggerFactory.setLevel("INFO");
 		JazminRpcDriver driver=new JazminRpcDriver();
 		driver.addRemoteServer("1","1", "localhost", 6001);
@@ -35,6 +49,5 @@ public class RPCClientTest {
 				}
 			}).start();
 		}
-		
 	}
 }
