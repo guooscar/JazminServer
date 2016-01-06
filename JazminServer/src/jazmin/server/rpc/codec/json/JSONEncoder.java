@@ -9,6 +9,7 @@ import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.io.NetworkTrafficStat;
 import jazmin.server.rpc.RpcMessage;
+import jazmin.server.rpc.codec.CodecUtil;
 import jazmin.server.rpc.codec.fst.FSTEncoder;
 
 import com.alibaba.fastjson.JSON;
@@ -34,6 +35,17 @@ public class JSONEncoder extends MessageToByteEncoder<RpcMessage> {
 			ChannelHandlerContext ctx, 
 			RpcMessage msg,
 			ByteBuf out) throws Exception {
+		try{
+			writeMessage(ctx, msg, out);
+		}catch(Exception e){
+			writeMessage(ctx, 
+					CodecUtil.createExceptionMessage(msg.id, e.getMessage()), out);
+		}
+	}
+	//
+	private void writeMessage(ChannelHandlerContext ctx, 
+			RpcMessage msg,
+			ByteBuf out){
 		byte payloadBytes[]=JSON.toJSONBytes(msg,
 				SerializerFeature.WriteClassName,
 				SerializerFeature.DisableCircularReferenceDetect);

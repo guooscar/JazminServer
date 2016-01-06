@@ -9,6 +9,7 @@ import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.io.NetworkTrafficStat;
 import jazmin.server.rpc.RpcMessage;
+import jazmin.server.rpc.codec.CodecUtil;
 
 import org.nustaq.serialization.FSTConfiguration;
 /**
@@ -27,9 +28,19 @@ public class FSTEncoder extends MessageToByteEncoder<RpcMessage> {
 	public FSTEncoder(NetworkTrafficStat networkTrafficStat) {
 		this.networkTrafficStat=networkTrafficStat;
 	}
-	//
-	@Override
 	protected void encode(
+			ChannelHandlerContext ctx, 
+			RpcMessage msg,
+			ByteBuf out) throws Exception {
+		try{
+			writeMessage(ctx, msg, out);
+		}catch(Exception e){
+			writeMessage(ctx, 
+					CodecUtil.createExceptionMessage(msg.id, e.getMessage()), out);
+		}
+	}
+	//
+	private void writeMessage(
 			ChannelHandlerContext ctx, 
 			RpcMessage msg,
 			ByteBuf out) throws Exception {
