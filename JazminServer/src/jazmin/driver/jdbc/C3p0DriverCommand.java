@@ -22,6 +22,7 @@ public class C3p0DriverCommand extends ConsoleCommand {
     	addOption("stat",false,"show sql stat.",this::showStats);
     	addOption("max_poolsize",true,"set max pool size.",this::setMaxPoolSize);
     	addOption("f",false,"show full sql",null);
+    	addOption("monitor",false,"show monitor information.",this::showMonitorInfo);
     	
     	//
     	connectionDriver=Jazmin.getDriver(C3p0ConnectionDriver.class);
@@ -76,6 +77,16 @@ public class C3p0DriverCommand extends ConsoleCommand {
     //
     private void showDriverInfo(String args)throws Exception{
     	out.println(connectionDriver.info());
+    }
+    //
+    private void showMonitorInfo(String args)throws Exception{
+    	String format="%-10s : %-10s\n";
+		out.format(format,"NumConnections",connectionDriver.getNumConnections());
+    	out.format(format,"NumIdleConnections",connectionDriver.getNumIdleConnections());
+    	out.format(format,"ThreadPoolNumActiveThreads",connectionDriver.getThreadPoolNumActiveThreads());
+    	out.format(format,"ThreadPoolNumIdleThreads",connectionDriver.getThreadPoolNumIdleThreads());
+    	out.format(format,"ThreadPoolNumTasksPending",connectionDriver.getThreadPoolNumTasksPending());
+    	out.format(format,"ThreadPoolSize",connectionDriver.getThreadPoolSize());    	
     }
     
 }
