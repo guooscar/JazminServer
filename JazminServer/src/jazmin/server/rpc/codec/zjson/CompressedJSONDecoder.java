@@ -14,6 +14,7 @@ import jazmin.server.rpc.RpcMessage;
 import jazmin.util.IOUtil;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.Feature;
 
 /**
  * @author yama
@@ -60,7 +61,7 @@ public class CompressedJSONDecoder extends ByteToMessageDecoder {
 		decoded=IOUtil.decompress(decoded);
 		//
 		RpcMessage msg;
-		msg=JSON.parseObject(decoded,RpcMessage.class);
+		msg=JSON.parseObject(decoded,RpcMessage.class,Feature.DisableSpecialKeyDetect);
 		out.add(msg);
 	}
 }
