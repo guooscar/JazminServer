@@ -36,6 +36,6 @@
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.36-bin.jar"/>
 	<classpathentry kind="lib" path="lib/jsch-0.1.53.jar"/>
 	<classpathentry kind="lib" path="lib/fst-2.43-onejar.jar"/>
-	<classpathentry kind="lib" path="lib/fastjson-1.2.7.jar"/>
+	<classpathentry kind="lib" path="lib/fastjson-1.2.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

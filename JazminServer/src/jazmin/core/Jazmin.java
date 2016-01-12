@@ -33,6 +33,9 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.serializer.SerializeConfig;
+
 import jazmin.core.app.Application;
 import jazmin.core.app.ApplicationLoader;
 import jazmin.core.boot.BootScriptLoader;
@@ -127,6 +130,8 @@ public class Jazmin {
 		serverName="default";
 		startTime=new Date();
 		appClassloader=Thread.currentThread().getContextClassLoader();
+		SerializeConfig.getGlobalInstance().setAsmEnable(false);
+		ParserConfig.getGlobalInstance().setAsmEnable(false);
 	}
 	/**
 	 * get server start time

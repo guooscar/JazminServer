@@ -13,7 +13,6 @@ import jazmin.misc.io.NetworkTrafficStat;
 import jazmin.server.rpc.RpcMessage;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.parser.Feature;
 
 /**
  * @author yama
@@ -57,7 +56,7 @@ public class JSONDecoder extends ByteToMessageDecoder {
 		in.readBytes(decoded);
 		//
 		RpcMessage msg;
-		msg=JSON.parseObject(decoded,RpcMessage.class,Feature.DisableSpecialKeyDetect);
+		msg=JSON.parseObject(decoded,RpcMessage.class);
 		out.add(msg);
 	}
 }
