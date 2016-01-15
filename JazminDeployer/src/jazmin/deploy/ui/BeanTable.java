@@ -32,8 +32,8 @@ public class BeanTable<T> extends Table{
 	//
 	public void createTable(Class<T>beanClass,String ...excludeProperity){
 		addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
-        addStyleName(ValoTheme.TABLE_COMPACT);
-        setSizeFull();
+		addStyleName(ValoTheme.TABLE_SMALL);
+	    setSizeFull();
      	setImmediate(true);
      	setSelectable(true);
      	setColumnCollapsingAllowed(true);

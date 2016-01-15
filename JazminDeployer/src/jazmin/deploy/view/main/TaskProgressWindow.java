@@ -91,6 +91,7 @@ public class TaskProgressWindow extends Window{
         footer.setExpandRatio(empty, 1);
         //
         ok = new Button("OK");
+        ok.addStyleName(ValoTheme.BUTTON_SMALL);
         ok.addStyleName(ValoTheme.BUTTON_PRIMARY); 
         ok.addClickListener(e->{
          	ok.setEnabled(false);
@@ -100,6 +101,7 @@ public class TaskProgressWindow extends Window{
         footer.addComponent(ok);
         footer.setComponentAlignment(ok, Alignment.TOP_RIGHT);
         cancel = new Button("Cancel");
+        cancel.addStyleName(ValoTheme.BUTTON_SMALL);
         cancel.addClickListener(e->{
         	if(ok.isEnabled()){
         		close();

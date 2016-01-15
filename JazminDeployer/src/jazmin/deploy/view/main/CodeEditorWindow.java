@@ -65,6 +65,7 @@ public class CodeEditorWindow extends Window{
         footer.setSpacing(true);
 
         saveBtn = new Button("Save");
+        saveBtn.addStyleName(ValoTheme.BUTTON_SMALL);
         saveBtn.addStyleName(ValoTheme.BUTTON_PRIMARY);
         saveBtn.addClickListener(e->onSave());
         saveBtn.setClickShortcut(KeyCode.S,ShortcutAction.ModifierKey.META);
@@ -73,6 +74,7 @@ public class CodeEditorWindow extends Window{
         footer.setComponentAlignment(saveBtn, Alignment.TOP_RIGHT);
         //
         reloadBtn=new Button("Reload");
+        reloadBtn.addStyleName(ValoTheme.BUTTON_SMALL);
         reloadBtn.addClickListener(e->onReload());
         footer.addComponent(reloadBtn);
         footer.setComponentAlignment(reloadBtn, Alignment.TOP_LEFT);

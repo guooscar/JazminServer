@@ -1,15 +1,3 @@
-$v-app-loading-text: "";
-$v-font-size: 10px;
-$v-unit-size: 24px;
-$v-unit-size--small: 20px;
-$v-unit-size--tiny: 18px;
-$v-layout-margin-top: 18px;
-$v-layout-margin-right: 18px;
-$v-layout-margin-bottom: 18px;
-$v-layout-margin-left: 18px;
-$v-layout-spacing-vertical: 7px;
-$v-layout-spacing-horizontal: 6px;
-
 @import "../valo/valo";
 @import "common";
 @import "views/login";
@@ -19,23 +7,23 @@ $v-layout-spacing-horizontal: 6px;
 @import "views/transactions";
 @import "views/reports";
 
+// Optimize the CSS output
+$v-included-components: remove($v-included-components, accordion);
+$v-included-components: remove($v-included-components, colorpicker);
+$v-included-components: remove($v-included-components, grid);
+$v-included-components: remove($v-included-components, popupview);
+$v-included-components: remove($v-included-components, progressbar);
+$v-included-components: remove($v-included-components, slider);
+$v-included-components: remove($v-included-components, splitpanel);
+$v-included-components: remove($v-included-components, tree);
+$v-included-components: remove($v-included-components, treetable);
+$v-included-components: remove($v-included-components, twincolselect);
 
 // Main layout padding
 $view-padding: round($v-unit-size / 1.5) !default;
 
 // Slight adjustment to menu background-color
 $valo-menu-background-color: #414B56;
-
-@mixin dashboard {
-  @include valo;
-  @include dashboard-common;
-  @include dashboard-login-view;
-  @include dashboard-dashboard-view;
-  @include dashboard-schedule-view;
-  @include dashboard-sales-view;
-  @include dashboard-transactions-view;
-  @include dashboard-reports-view;
-}
 /* Style specifically for the "white" cells. */
 	.v-table-cell-content-red {
 	    background: red;
@@ -53,37 +41,13 @@ $valo-menu-background-color: #414B56;
 	.padding-20{
 		padding: 20px;
 	}
-	
-.v-table-header table, .v-table-footer table, .v-table-table {
-	border-spacing: 0;
-	border-collapse: separate;
-	margin: 0;
-	padding: 0;
-	border: 0;
-	line-height: 1.4;
-}
-
-.v-table-resizer, .v-table-sort-indicator {
-	float: right;
-}
-.v-table-caption-container{
-	padding-top:8px;
-	font-weight: 200;
-	font-size:12px;
-}
-
-.v-table-caption-container-align-center {
-	text-align: center;
-}
-.v-table-footer{
-	height: 20px;
-}
-.v-table-caption-container-align-right {
-	text-align: right;
-}
-
-.v-table-header td, .v-table-footer td, .v-table-cell-content {	
-	padding:0;
-	padding-top:2px;
-	padding-bottom:2px;
+@mixin dashboard {
+  @include valo;
+  @include dashboard-common;
+  @include dashboard-login-view;
+  @include dashboard-dashboard-view;
+  @include dashboard-schedule-view;
+  @include dashboard-sales-view;
+  @include dashboard-transactions-view;
+  @include dashboard-reports-view;
 }

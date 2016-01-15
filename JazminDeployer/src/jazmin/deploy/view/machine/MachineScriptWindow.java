@@ -82,18 +82,21 @@ public class MachineScriptWindow extends Window{
         footer.setExpandRatio(empty, 1);
         //
         Button newBtn = new Button("New"); 
+        newBtn.addStyleName(ValoTheme.BUTTON_SMALL);
         newBtn.addClickListener(e->newScript());
         footer.addComponent(newBtn);
         footer.setComponentAlignment(newBtn, Alignment.TOP_LEFT);
         //
         //
         Button deleteBtn = new Button("Delete"); 
+        deleteBtn.addStyleName(ValoTheme.BUTTON_SMALL);
         deleteBtn.addClickListener(e->deleteScript());
         deleteBtn.addStyleName(ValoTheme.BUTTON_DANGER); 
         footer.addComponent(deleteBtn);
         footer.setComponentAlignment(deleteBtn, Alignment.TOP_LEFT);
         //
         Button save = new Button("Save");
+        save.addStyleName(ValoTheme.BUTTON_SMALL);
         save.setClickShortcut(KeyCode.S,ShortcutAction.ModifierKey.META);
         save.addStyleName(ValoTheme.BUTTON_PRIMARY); 
         save.addClickListener(e->save());

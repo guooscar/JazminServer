@@ -8,6 +8,7 @@ import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.Widgetset;
+import com.vaadin.server.DefaultErrorHandler;
 import com.vaadin.server.Page;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.VaadinRequest;
@@ -69,12 +70,7 @@ public class DeploySystemUI extends UI {
 	}
 	//
 	public static void showNotificationInfo(String caption,String description){
-		Notification n=new Notification(caption, description);
-		n.setPosition(Position.TOP_CENTER);
-		n.setHtmlContentAllowed(true);
-		n.setDelayMsec(3000);
-		n.setStyleName("dark");
-		n.show(Page.getCurrent());
+		showInfo(caption+":"+description);
 	}
 	
 	/**
@@ -87,4 +83,33 @@ public class DeploySystemUI extends UI {
 	public static DeploySystemUI get(){
 		return (DeploySystemUI) getCurrent();
 	}
+	//
+	public static void showInfo(String content){
+		Notification success = new Notification(content);
+		success.setHtmlContentAllowed(true);
+        success.setDelayMsec(2000);
+        success.setStyleName("bar success small");
+        success.setPosition(Position.TOP_CENTER);
+        success.show(Page.getCurrent());
+	}
+	//
+	@SuppressWarnings("serial")
+	public static void setupErrorHandler(){
+		//
+		UI.getCurrent().setErrorHandler(new DefaultErrorHandler() {
+		    @Override
+		    public void error(com.vaadin.server.ErrorEvent event) {
+		        String cause = "<b>ERROR:</b><br/>";
+		        for (Throwable t = event.getThrowable(); t != null;
+		             t = t.getCause()){
+		            if (t.getCause() == null) {
+		                cause += t.getClass().getName() + "<br/>";
+				        showInfo(cause);
+				        t.printStackTrace();	
+				            	
+		            }
+		        }
+		    } 
+		});
+	}	
 }

@@ -59,6 +59,7 @@ public class MainView extends HorizontalLayout {
 			UI.getCurrent().addWindow(bfw);
 			bfw.focus();
         }
+        DeploySystemUI.setupErrorHandler();
     }
     //
     public void setView(Component view){

@@ -46,6 +46,7 @@ public abstract class DeployBaseView extends VerticalLayout{
 		searchTxt = new TextField("Filter", "");
 		searchTxt.setIcon(FontAwesome.SEARCH);
 		searchTxt.setWidth(100.0f, Unit.PERCENTAGE);
+		searchTxt.addStyleName(ValoTheme.TEXTFIELD_SMALL);
 		searchTxt.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		searchTxt.addShortcutListener(new ShortcutListener("Search",KeyCode.ENTER,null) {
 			@Override
@@ -58,6 +59,7 @@ public abstract class DeployBaseView extends VerticalLayout{
 		optLayout.setExpandRatio(searchTxt,1.0f);
 		//
         Button ok = new Button("Query");
+        ok.addStyleName(ValoTheme.BUTTON_SMALL);
         ok.addStyleName(ValoTheme.BUTTON_PRIMARY);
         optLayout.addComponent(ok);
         ok.addClickListener(e->loadData());
@@ -91,6 +93,7 @@ public abstract class DeployBaseView extends VerticalLayout{
 		if(style!=null){
 			btn.addStyleName(style);
 		}
+		btn.addStyleName(ValoTheme.BUTTON_SMALL);
 		tray.addComponent(btn,tray.getComponentCount()-1);
 		tray.setComponentAlignment(btn, Alignment.MIDDLE_LEFT);
 		btn.addClickListener(cl);

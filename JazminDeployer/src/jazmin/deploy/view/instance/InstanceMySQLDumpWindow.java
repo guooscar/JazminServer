@@ -60,6 +60,7 @@ public class InstanceMySQLDumpWindow extends Window{
 		optLayout.setWidth(100.0f, Unit.PERCENTAGE);
 		
 		Button getBtn = new Button("OK");
+		getBtn.addStyleName(ValoTheme.BUTTON_SMALL);
 		optLayout.addComponent(getBtn);
 	    getBtn.addClickListener(e->{
 	    	String from=fromField.getValue();

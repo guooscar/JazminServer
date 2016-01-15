@@ -28,8 +28,8 @@ public class InputWindow extends Window{
 	//	
 	public InputWindow(Consumer<InputWindow>consumer) {
         Responsive.makeResponsive(this);
-        setWidth(400,Unit.PIXELS);
-        setHeight(200,Unit.PIXELS);
+        setWidth(500,Unit.PIXELS);
+        setHeight(300,Unit.PIXELS);
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);
         setResizable(false);
@@ -70,6 +70,7 @@ public class InputWindow extends Window{
         footer.setExpandRatio(empty, 1);
         //
         Button ok = new Button("OK");
+        ok.addStyleName(ValoTheme.BUTTON_SMALL);
         ok.addStyleName(ValoTheme.BUTTON_PRIMARY); 
         ok.addClickListener(e->{
         	if(!textField.isValid()){
@@ -82,6 +83,7 @@ public class InputWindow extends Window{
         footer.setComponentAlignment(ok, Alignment.TOP_RIGHT);
         //
         Button cancel = new Button("Cancel");
+        cancel.addStyleName(ValoTheme.BUTTON_SMALL);
         cancel.addClickListener(e->close());
         cancel.focus();
         footer.addComponent(cancel);

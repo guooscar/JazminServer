@@ -41,7 +41,7 @@ public class DeploySessionInitListener implements SessionInitListener {
                         .attr("rel", "apple-touch-icon")
                         .attr("href",
                                 contextPath
-                                        + "/VAADIN/themes/dashboard/img/app-icon.png");
+                                        + "/VAADIN/themes/dashboard/img/app-logo.png");
 
             }
 

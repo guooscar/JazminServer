@@ -57,6 +57,7 @@ public class MachineInfoView extends DeployBaseView{
 		searchTxt = new TextField("Filter", "");
 		searchTxt.setIcon(FontAwesome.SEARCH);
 		searchTxt.setWidth(100.0f, Unit.PERCENTAGE);
+		searchTxt.addStyleName(ValoTheme.TEXTFIELD_SMALL);
 		searchTxt.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		searchTxt.addShortcutListener(new ShortcutListener("Search",KeyCode.ENTER,null) {
 			@Override
@@ -70,10 +71,11 @@ public class MachineInfoView extends DeployBaseView{
 		 //
         optOnSelectCheckBox=new CheckBox("Only Selected");
         optLayout.addComponent(optOnSelectCheckBox);
-        optOnSelectCheckBox.addStyleName(ValoTheme.COMBOBOX_LARGE);
+        optOnSelectCheckBox.addStyleName(ValoTheme.COMBOBOX_SMALL);
         optLayout.setComponentAlignment(optOnSelectCheckBox, Alignment.BOTTOM_RIGHT);
 		//
         Button ok = new Button("Query");
+        ok.addStyleName(ValoTheme.BUTTON_SMALL);
         ok.addStyleName(ValoTheme.BUTTON_PRIMARY);
         optLayout.addComponent(ok);
         ok.addClickListener(e->loadData());

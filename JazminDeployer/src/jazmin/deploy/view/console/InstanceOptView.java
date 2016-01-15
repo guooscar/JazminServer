@@ -57,6 +57,7 @@ public class InstanceOptView extends DeployBaseView{
 		searchTxt = new TextField("Filter", "");
 		searchTxt.setIcon(FontAwesome.SEARCH);
 		searchTxt.setWidth(100.0f, Unit.PERCENTAGE);
+		searchTxt.addStyleName(ValoTheme.TEXTFIELD_SMALL);
 		searchTxt.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		searchTxt.addShortcutListener(new ShortcutListener("Search",KeyCode.ENTER,null) {
 			@Override
@@ -69,6 +70,7 @@ public class InstanceOptView extends DeployBaseView{
 		optLayout.setExpandRatio(searchTxt,1.0f);
 		//
         Button ok = new Button("Query");
+        ok.addStyleName(ValoTheme.BUTTON_SMALL);
         ok.addStyleName(ValoTheme.BUTTON_PRIMARY);
         optLayout.addComponent(ok);
         ok.addClickListener(e->loadData());

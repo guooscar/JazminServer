@@ -78,22 +78,27 @@ public class InstanceMemcachedWindow extends Window{
 		optLayout.setWidth(100.0f, Unit.PERCENTAGE);
 		
 		Button getBtn = new Button("Get");
+		getBtn.addStyleName(ValoTheme.BUTTON_SMALL);
 	    optLayout.addComponent(getBtn);
 	    getBtn.addClickListener(e->loadData(OPT_GET));
 	    //
 	    Button addBtn = new Button("Add");
+	    addBtn.addStyleName(ValoTheme.BUTTON_SMALL);
 	    optLayout.addComponent(addBtn);
 	    addBtn.addClickListener(e->loadData(OPT_ADD));
 	    //
 	    Button deleteBtn = new Button("Delete");
 	    optLayout.addComponent(deleteBtn);
+	    deleteBtn.addStyleName(ValoTheme.BUTTON_SMALL);
 	    deleteBtn.addClickListener(e->loadData(OPT_DELETE));
 	    //
 	    Button replaceBtn = new Button("Replace");
+	    replaceBtn.addStyleName(ValoTheme.BUTTON_SMALL);
 	    optLayout.addComponent(replaceBtn);
 	    replaceBtn.addClickListener(e->loadData(OPT_REPLACE));
 	    //
 	    Button formatBtn = new Button("Format");
+	    formatBtn.addStyleName(ValoTheme.BUTTON_SMALL);
 	    formatBtn.addStyleName(ValoTheme.BUTTON_PRIMARY);
 	    optLayout.addComponent(formatBtn);
 	    optLayout.setComponentAlignment(formatBtn, Alignment.MIDDLE_RIGHT);

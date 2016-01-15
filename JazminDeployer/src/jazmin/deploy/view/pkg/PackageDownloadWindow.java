@@ -51,6 +51,7 @@ public class PackageDownloadWindow extends Window{
         footer.setWidth(100.0f, Unit.PERCENTAGE);
 
         Button ok = new Button("Close");
+        ok.addStyleName(ValoTheme.BUTTON_SMALL);
         ok.addStyleName(ValoTheme.BUTTON_PRIMARY);
         ok.addClickListener(e->close());
         ok.focus();

@@ -86,6 +86,7 @@ public class MachineIptablesWindow extends Window{
 	//
 	private void addBtn(String name,String style,Runnable r){
 		Button getBtn = new Button(name);
+		getBtn.addStyleName(ValoTheme.BUTTON_SMALL);
 		if(style!=null){
 			getBtn.addStyleName(style);
 		}

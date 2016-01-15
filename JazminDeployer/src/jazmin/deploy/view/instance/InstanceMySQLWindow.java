@@ -72,21 +72,25 @@ public class InstanceMySQLWindow extends Window{
 		optLayout.addStyleName(ValoTheme.WINDOW_TOP_TOOLBAR);
 		optLayout.setWidth(100.0f, Unit.PERCENTAGE);
 		Button runBtn = new Button("Run(Alt-R)");
+		runBtn.addStyleName(ValoTheme.BUTTON_SMALL);
 		runBtn.addStyleName(ValoTheme.BUTTON_PRIMARY);
 	    optLayout.addComponent(runBtn);
 	    runBtn.addClickListener(e->loadData());
 	    runBtn.setClickShortcut(KeyCode.R,ShortcutAction.ModifierKey.ALT);
 	    //
 		Button infoBtn = new Button("Info");
+		infoBtn.addStyleName(ValoTheme.BUTTON_SMALL);
 		optLayout.addComponent(infoBtn);
 	    infoBtn.addClickListener(e->loadInfo());
 	    //
 	    Button domainBtn = new Button("Domain");
+	    domainBtn.addStyleName(ValoTheme.BUTTON_SMALL);
 	    domainBtn.addStyleName(ValoTheme.BUTTON_PRIMARY);
 	    optLayout.addComponent(domainBtn);
 	    domainBtn.addClickListener(e->dumpDomainMysql());
 	    //
 	    Button dumpBtn = new Button("Dump");
+	    dumpBtn.addStyleName(ValoTheme.BUTTON_SMALL);
 	    dumpBtn.addStyleName(ValoTheme.BUTTON_DANGER);
 	    optLayout.addComponent(dumpBtn);
 	    dumpBtn.addClickListener(e->dumpMysql());

@@ -65,6 +65,7 @@ public class MachineRunCmdWindow extends Window{
         scriptField.setWidth(100.0f, Unit.PERCENTAGE);
         scriptField.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
         Button cmdBtn = new Button("Run");
+        cmdBtn.addStyleName(ValoTheme.BUTTON_SMALL);
         cmdBtn.addStyleName(ValoTheme.BUTTON_DANGER);
         cmdRootCheckBox=new CheckBox("Root");
         HorizontalLayout cmdLayout=new HorizontalLayout(cmdField,cmdRootCheckBox,cmdBtn);
@@ -77,6 +78,7 @@ public class MachineRunCmdWindow extends Window{
         cmdBtn.addClickListener((e)->runCmd());
         //
         Button scriptBtn = new Button("Run");
+        scriptBtn.addStyleName(ValoTheme.BUTTON_SMALL);
         scriptBtn.addStyleName(ValoTheme.BUTTON_DANGER);
         scriptBtn.addClickListener((e)->runScript());
         scriptRootCheckBox=new CheckBox("Root");
