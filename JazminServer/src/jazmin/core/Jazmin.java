@@ -446,7 +446,7 @@ public class Jazmin {
 		logger.info("\n"+ib.toString());
 		Date endTime=new Date();
 		Duration d=Duration.between(startTime.toInstant(),endTime.toInstant());
-		logger.info("jazmin start using {}//",d);
+		logger.info("jazmin {} start using {}//",VERSION,d);
 	}
 	/**
 	 * 
