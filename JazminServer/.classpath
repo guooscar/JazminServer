@@ -3,8 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-	<classpathentry kind="lib" path="lib/log4j-api-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/log4j-core-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/flex-messaging-core.jar"/>
 	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/xmemcached-2.0.0.jar"/>
@@ -37,5 +35,8 @@
 	<classpathentry kind="lib" path="lib/jsch-0.1.53.jar"/>
 	<classpathentry kind="lib" path="lib/fst-2.43-onejar.jar"/>
 	<classpathentry kind="lib" path="lib/fastjson-1.2.6.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-api-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-core-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-nop-1.6.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

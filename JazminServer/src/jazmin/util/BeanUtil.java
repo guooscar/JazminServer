@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jazmin.core.Jazmin;
-import jazmin.log.Logger;
-import jazmin.log.LoggerFactory;
 
 import org.josql.Query;
 import org.josql.QueryResults;
@@ -17,7 +15,6 @@ import org.josql.QueryResults;
  * 27 Dec, 2014
  */
 public class BeanUtil {
-	private static Logger logger=LoggerFactory.get(BeanUtil.class);
 	//
 	public static <T> List<T> copyFromList(Class<T>toClass,List<?>fromBeanList)
 			throws Exception{
@@ -43,9 +40,7 @@ public class BeanUtil {
 				Object fv=bf.get(from);
 				f.setAccessible(true);
 				f.set(to,fv);
-			}catch (Exception e) {
-				logger.warn("can not find field:"+f.getName());
-			}
+			}catch (Exception e) {}
 		}
 		return to;
 	}
@@ -73,9 +68,7 @@ public class BeanUtil {
 				Object fv=f.get(from);
 				toField.setAccessible(true);
 				toField.set(to,fv);
-			}catch (Exception e) {
-				logger.warn("can not find field:"+f.getName());
-			}
+			}catch (Exception e) {}
 		}
 		return to;
 	}

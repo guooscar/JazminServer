@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
+import org.apache.logging.log4j.core.config.plugins.util.PluginManager;
 /**
  * 
  * @author yama
@@ -24,6 +25,7 @@ public class LoggerFactory {
 		logLevelMap.put("ERROR",Level.ERROR);
 		logLevelMap.put("FATAL",Level.FATAL);
 		logLevelMap.put("OFF",Level.OFF);
+		
 	}
 	private static Level level;
 	private static boolean isConsoleLogEnabled;
@@ -33,7 +35,9 @@ public class LoggerFactory {
 		//
 		isConsoleLogEnabled=true;
 		level=Level.INFO;
+		PluginManager.addPackage("jazmin.log");
 	    ConfigurationFactory.setConfigurationFactory(configFactory);
+		configFactory.getConfiguration().start();
 	    allLogList=new ArrayList<>();
 	}
 	//

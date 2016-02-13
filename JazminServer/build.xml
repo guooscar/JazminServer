@@ -113,9 +113,9 @@
 		<unzip dest="${release.dir}/${project.name}-rpc-client/tmp">
 			<fileset dir="${lib.dir}">
 				<include name="netty-all-5.0.0.Alpha2.jar"/>
-				<include name="log4j-api-2.0.1.jar"/>
-				<include name="log4j-core-2.0.1.jar"/>
-				<include name="fastjson-1.2.1.jar"/>
+				<include name="log4j-api-2.5.jar"/>
+				<include name="log4j-core-2.5.jar"/>
+				<include name="fastjson-1.2.6.jar"/>
 			</fileset>
 			<fileset dir="${release.dir}">
 				<include name="**/*.jar"/>
@@ -157,6 +157,7 @@
             <src path="${src.dir}"/>
             <classpath refid="master-classpath"/>
         </javac>
+    	<delete dir="${build.classes.dir}/META-INF"></delete>
     </target>
 	<!-- =================================================================== -->
     <!-- make jar file -->

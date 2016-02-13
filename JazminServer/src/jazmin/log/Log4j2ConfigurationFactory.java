@@ -1,7 +1,9 @@
 package jazmin.log;
 
+import java.io.File;
 import java.io.Serializable;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.zip.Deflater;
 
 import org.apache.logging.log4j.Level;
@@ -10,9 +12,17 @@ import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.ConsoleAppender;
+import org.apache.logging.log4j.core.appender.ConsoleAppender.Target;
 import org.apache.logging.log4j.core.appender.RollingFileAppender;
 import org.apache.logging.log4j.core.appender.rolling.DefaultRolloverStrategy;
 import org.apache.logging.log4j.core.appender.rolling.TimeBasedTriggeringPolicy;
+import org.apache.logging.log4j.core.appender.rolling.action.Action;
+import org.apache.logging.log4j.core.appender.rolling.action.DeleteAction;
+import org.apache.logging.log4j.core.appender.rolling.action.Duration;
+import org.apache.logging.log4j.core.appender.rolling.action.IfFileName;
+import org.apache.logging.log4j.core.appender.rolling.action.IfLastModified;
+import org.apache.logging.log4j.core.appender.rolling.action.PathCondition;
+import org.apache.logging.log4j.core.appender.rolling.action.PathSortByModificationTime;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
 import org.apache.logging.log4j.core.config.ConfigurationSource;
@@ -58,6 +68,7 @@ public class Log4j2ConfigurationFactory extends ConfigurationFactory {
 	 * @author yama
 	 * 22 Dec, 2014
 	 */
+	@SuppressWarnings("serial")
 	class Log4j2Configuration extends DefaultConfiguration {
 		private Appender consoleAppender;
 		private Appender fileAppender;
@@ -74,20 +85,29 @@ public class Log4j2ConfigurationFactory extends ConfigurationFactory {
 				"}";
 		public static final String PATTERN_LAYOUT = 
 				"[%d] [%-5level] [%logger{1}] [%t]- %msg%n";
-		public static final String LOG_FILE_NAME_PATTERN = ".%d{yyyy-MM-dd}";
 		private static final String CONSOLE_LOG_NAME="JazminConsoleLog";
 		//
 		public Log4j2Configuration() {
 			setName("jazmin-log-config");
-			removeAppender("Console");
 			// MARKER
 			Layout<? extends Serializable> layout = PatternLayout.createLayout(
-					PATTERN_LAYOUT, null,null, null, true, true, null,null);
+					PATTERN_LAYOUT, 
+					null,
+					null,
+					null,
+					Charset.defaultCharset(),
+					true, true, null,null);
 			
-			consoleAppender = ConsoleAppender.createAppender(layout, null,
-					"SYSTEM_OUT", CONSOLE_LOG_NAME, null, "false");
+			consoleAppender = ConsoleAppender.createAppender(
+					layout, 
+					null,
+					Target.SYSTEM_OUT,
+					CONSOLE_LOG_NAME,
+					true,
+					false);
 			//remove default console logger
-			getRootLogger().removeAppender("Console");
+			getRootLogger().removeAppender("DefaultConsole-1");
+			
 			//
 			addAppender(consoleAppender);
 			getRootLogger().addAppender(consoleAppender, Level.ALL, null);
@@ -120,21 +140,51 @@ public class Log4j2ConfigurationFactory extends ConfigurationFactory {
 		//
 		public void setFile(String file,boolean immediateFlush){
 			this.file=file;
+			File logFilePath=new File(file);
+			File patternPath=new File(logFilePath.getParent(),"${date:yyyyMM}/"
+						+logFilePath.getName()+"-%d{yyyyMMdd}.log.gz");
+		
 			final TimeBasedTriggeringPolicy timeBasedTriggeringPolicy = 
-					TimeBasedTriggeringPolicy.createPolicy("1", "true");
+					TimeBasedTriggeringPolicy.createPolicy("6", "true");
+			//
+			//
+			DeleteAction deleteAction=	DeleteAction.createDeleteAction(
+					logFilePath.getParent(), 
+					true, 
+					3, 
+					false,
+					PathSortByModificationTime.createSorter(true),
+					new PathCondition[]{
+						IfFileName.createNameCondition("*/*.log.gz",null),
+						IfLastModified.createAgeCondition(Duration.parse("10d"))
+					},
+					null,
+					this);		
+			//
 			final DefaultRolloverStrategy strategy = 
 					DefaultRolloverStrategy.createStrategy(
-							"7", 
 							"1", 
-							null, 
-							Deflater.DEFAULT_COMPRESSION+ "", 
+							"1", 
+							"min", 
+							Deflater.BEST_SPEED+ "", 
+							new Action[]{
+									deleteAction
+							},
+							true,
 							this);
 			Layout<? extends Serializable> layout = PatternLayout.createLayout(
-					COLOR_PATTERN_LAYOUT, null,null, null, true, true, null,null);
-
+					COLOR_PATTERN_LAYOUT,
+					null,
+					null,
+					null,
+					Charset.defaultCharset(),
+					true,
+					false,
+					null,
+					null);
 			fileAppender = RollingFileAppender.createAppender(
 					file,
-					file+LOG_FILE_NAME_PATTERN, 
+					patternPath.getPath(), 
 					"true", 
 					file, 
 					"true",

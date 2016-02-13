@@ -29,7 +29,7 @@ public class RPCClientTest {
 		service.methodA("1");
 	}
 	//
-	private static void test1(){
+	public static void test1(){
 		LoggerFactory.setLevel("INFO");
 		JazminRpcDriver driver=new JazminRpcDriver();
 		driver.addRemoteServer("1","1", "localhost", 6001);
