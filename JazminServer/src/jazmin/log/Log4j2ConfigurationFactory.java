@@ -44,6 +44,7 @@ public class Log4j2ConfigurationFactory extends ConfigurationFactory {
     public Log4j2ConfigurationFactory(){
     	configuration=new Log4j2Configuration();	
     }
+    
 	//
 	@Override
 	protected String[] getSupportedTypes() {
@@ -141,11 +142,10 @@ public class Log4j2ConfigurationFactory extends ConfigurationFactory {
 		public void setFile(String file,boolean immediateFlush){
 			this.file=file;
 			File logFilePath=new File(file);
-			File patternPath=new File(logFilePath.getParent(),"${date:yyyyMM}/"
-						+logFilePath.getName()+"-%d{yyyyMMdd}.log.gz");
-		
+			String patternPath=logFilePath.getParent()+"/${date:yyyyMM}/"
+						+logFilePath.getName()+"-%d{yyyyMMdd}.log.gz";
 			final TimeBasedTriggeringPolicy timeBasedTriggeringPolicy = 
-					TimeBasedTriggeringPolicy.createPolicy("6", "true");
+					TimeBasedTriggeringPolicy.createPolicy("1", "false");
 			//
 			//
 			DeleteAction deleteAction=	DeleteAction.createDeleteAction(
@@ -184,7 +184,7 @@ public class Log4j2ConfigurationFactory extends ConfigurationFactory {
 					null);
 			fileAppender = RollingFileAppender.createAppender(
 					file,
-					patternPath.getPath(), 
+					patternPath, 
 					"true", 
 					file, 
 					"true",
