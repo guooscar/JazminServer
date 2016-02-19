@@ -57,7 +57,7 @@ public class ApplicationLoader {
 				try {
 					return (Application) clz.newInstance();
 				} catch (Exception e) {
-					logger.error(e.getMessage(),e);
+					logger.warn(e.getMessage());
 				} 
 			}
 		}
@@ -67,7 +67,7 @@ public class ApplicationLoader {
 				try {
 					return (Application) clz.newInstance();
 				} catch (Exception e) {
-					logger.error(e.getMessage(),e);
+					logger.error(e.getMessage());
 				}  
 			}
 		}
