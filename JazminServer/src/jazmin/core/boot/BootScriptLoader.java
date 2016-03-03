@@ -178,8 +178,8 @@ public class BootScriptLoader {
 				if(percent>=lastPercent.intValue()+10||lastPercent.intValue()<0){
 					lastPercent.set((int)percent);
 					logger.info("total {} current {} percent {}%",
-							DumpUtil.byteCountToString(current),
 							DumpUtil.byteCountToString(total),
+							DumpUtil.byteCountToString(current),
 							String.format("%.2f",percent));
 				}
 			});
