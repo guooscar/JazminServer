@@ -9,14 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import jazmin.deploy.DeploySystemUI;
-import jazmin.deploy.domain.Instance;
-import jazmin.deploy.ui.BeanTable;
-import jazmin.util.JdbcUtil;
-import jazmin.util.JdbcUtil.ColumnInfo;
-import jazmin.util.JdbcUtil.DatabaseInfo;
-import jazmin.util.JdbcUtil.TableInfo;
-
 import org.vaadin.aceeditor.AceEditor;
 import org.vaadin.aceeditor.AceMode;
 import org.vaadin.aceeditor.AceTheme;
@@ -25,8 +17,18 @@ import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Responsive;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.themes.ValoTheme;
+
+import jazmin.deploy.DeploySystemUI;
+import jazmin.deploy.domain.Instance;
+import jazmin.deploy.ui.BeanTable;
+import jazmin.util.JdbcUtil;
+import jazmin.util.JdbcUtil.ColumnInfo;
+import jazmin.util.JdbcUtil.DatabaseInfo;
+import jazmin.util.JdbcUtil.TableInfo;
 
 /**
  * @author yama
@@ -36,7 +38,9 @@ import com.vaadin.ui.Window;
 public class InstanceMySQLTableDomainWindow extends Window{
 	private Instance instance;
 	private BeanTable<JdbcUtil.TableInfo> tablesList;
+	private Panel panel;
 	private AceEditor editor;
+	private AceEditor daoEditor;
 	//
 	public InstanceMySQLTableDomainWindow(Instance instance) {
 		this.instance=instance;
@@ -48,9 +52,14 @@ public class InstanceMySQLTableDomainWindow extends Window{
         setCloseShortcut(KeyCode.ESCAPE, null);
         setResizable(true);
         setClosable(true);
+        //
+        panel=new Panel();
+		panel.setStyleName(ValoTheme.PANEL_BORDERLESS);
+		panel.setSizeFull();
+		//
         VerticalLayout content = new VerticalLayout();
         content.setSizeFull();
-        setContent(content);
+        setContent(panel);
         tablesList = new BeanTable<JdbcUtil.TableInfo>("", JdbcUtil.TableInfo.class);
         tablesList.setWidth("100%");
         tablesList.setHeight("200px");
@@ -63,11 +72,20 @@ public class InstanceMySQLTableDomainWindow extends Window{
         editor.setUseWorker(true);
         editor.setTheme(AceTheme.eclipse);
         editor.setMode(AceMode.java);
-        editor.setFontSize("10px");
-        editor.setSizeFull();
+        editor.setWidth(100.0f, Unit.PERCENTAGE);
         content.addComponent(editor);
-        content.setExpandRatio(editor, 1f);
-        content.setExpandRatio(editor, 1f);
+        //
+        daoEditor=new AceEditor();
+        daoEditor.setThemePath("/ace");
+        daoEditor.setModePath("/ace");
+        daoEditor.setWorkerPath("/ace"); 
+        daoEditor.setUseWorker(true);
+        daoEditor.setTheme(AceTheme.eclipse);
+        daoEditor.setMode(AceMode.java);
+        daoEditor.setWidth(100.0f, Unit.PERCENTAGE);
+        content.addComponent(daoEditor);
+        //
+        panel.setContent(content);
         //
         tablesList.addItemClickListener(new ItemClickListener() {
 			@Override
@@ -109,7 +127,7 @@ public class InstanceMySQLTableDomainWindow extends Window{
 		String pwd=instance.getPassword();
 		try {
 			List<ColumnInfo>clist=JdbcUtil.getColumns(jdbcUrl, user, pwd, table);
-			StringBuffer sb=new StringBuffer();
+			StringBuilder sb=new StringBuilder();
 			//
 			StringBuffer propertiesString=new StringBuffer();
 			Set<String> includeString=new TreeSet<String>();
@@ -132,7 +150,9 @@ public class InstanceMySQLTableDomainWindow extends Window{
 				}
 			}
 			//
-			includeString.forEach(s->{sb.append("import "+s+";\n");});
+			includeString.forEach(s->{
+					sb.append("import "+s+";\n");
+				});
 			sb.append("/**\n*\n*/\n");
 			sb.append("public class ");
 			sb.append(getDomain(table,true));
@@ -141,6 +161,27 @@ public class InstanceMySQLTableDomainWindow extends Window{
 			sb.append("}");
 			//
 			editor.setValue(sb.toString());
+			//DAO
+			String className=getDomain(table,true);
+			StringBuilder daoSB=new StringBuilder();
+			daoSB.append("import jazmin.driver.jdbc.QueryTerms;\n");
+			daoSB.append("import jazmin.driver.jdbc.SmartBeanDAO;\n\n");
+			daoSB.append("public class "+className+"DAO extends SmartBeanDAO<"+className+">{\n");
+			daoSB.append("\n");
+			daoSB.append("\t").append("public int add").append(className).append("(").append(className).append(" bean){\n");
+			daoSB.append("\t\t").append("bean.updateTime = new Date();\n");
+			daoSB.append("\t\t").append("bean.createTime = new Date();\n");
+			daoSB.append("\t\t").append("return insert(bean, true, \"id\");\n");
+			daoSB.append("\t}\n\n");
+			//
+			daoSB.append("\t").append("public void update").append(className).append("(").append(className).append(" bean){\n");
+			daoSB.append("\t\t").append("bean.updateTime = new Date();\n");
+			daoSB.append("\t\t").append("update(bean, QueryTerms.create().where(\"id\",bean.id),");
+			daoSB.append("\"createTime\", \"id\");\n");	
+			daoSB.append("\t}\n\n");
+			//
+			daoSB.append("\n}");
+			daoEditor.setValue(daoSB.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
 			DeploySystemUI.showNotificationInfo("ERROR",e.getMessage());
@@ -189,11 +230,9 @@ public class InstanceMySQLTableDomainWindow extends Window{
 		typeMap.put("DATE","Date");
 		typeMap.put("TIME","Date");
 		typeMap.put("YEAR","Date");
+		typeMap.put("DOUBLE","Date");
 		typeMap.put("DATETIME","Date");
 		typeMap.put("TIMESTAMP","Date");
-		
-		typeMap.put("DECIMAL","double");
-		
 	}
 	
 	//
