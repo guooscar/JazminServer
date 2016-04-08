@@ -176,7 +176,7 @@ public class FileServerDriver extends Driver{
 			throw new IllegalArgumentException("can not find server:"+serverId);
 		}
 		File serverDir=new File(homeDir,serverId);
-		File secondDir=new File(serverDir,realId.charAt(0)+"");
+		File secondDir=new File(serverDir,realId.charAt(0)+"/"+realId.charAt(1));
 		File file=new File(secondDir,realId);
 		FileServerPair fsp=new FileServerPair();
 		fsp.file=file;

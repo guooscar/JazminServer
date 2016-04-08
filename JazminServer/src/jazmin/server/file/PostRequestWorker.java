@@ -183,7 +183,7 @@ public class PostRequestWorker extends RequestWorker {
 			fileType=fileName.substring(lastIdxOfDot);
 		}
 		String uuid=UUID.randomUUID().toString()+fileType;
-		requestFile=new File(cdnServer.getHomeDir()+"/"+uuid.charAt(0),uuid);
+		requestFile=new File(cdnServer.getHomeDir()+"/"+uuid.charAt(0)+"/"+uuid.charAt(1),uuid);
 		if(!requestFile.exists()){
 			File parentDir=requestFile.getParentFile();
 			if(!parentDir.exists()){
