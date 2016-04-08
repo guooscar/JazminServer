@@ -35,6 +35,9 @@ public class FileDownload extends FileOpt{
 	}
 	//
 	public void open()throws Exception{
+		if(logger.isDebugEnabled()){
+			logger.debug("open file {}",file);
+		}
 		if(file==null){
 			if(logger.isDebugEnabled()){
 				logger.debug("uri convert to path null."+uri);

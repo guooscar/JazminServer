@@ -164,13 +164,13 @@ public class PostRequestWorker extends RequestWorker {
 		if (data.getHttpDataType() == HttpDataType.FileUpload) {
 			FileUpload fu = (FileUpload) data;
 			if (fu.isCompleted()) {
-				if(logger.isDebugEnabled()){
-					logger.debug("file name {} upload complete",fu.getFilename());
-				}
 				requestFile=createFile(fu.getFilename());
 				saveComplete=true;
 				fu.renameTo(requestFile);
 				sendResult(ctx,requestFile);
+				if(logger.isDebugEnabled()){
+					logger.debug("file name {} upload complete,save to {}",fu.getFilename(),requestFile);
+				}
 				clean();
 			}
 		}	

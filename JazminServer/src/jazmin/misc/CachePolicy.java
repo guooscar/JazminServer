@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jazmin.server.cdn;
+package jazmin.misc;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,11 +21,20 @@ import jazmin.log.LoggerFactory;
 public class CachePolicy {
 	private static Logger logger=LoggerFactory.get(CachePolicy.class);
 	//
-	long defaultTTL=3600*1000*24;//one day;
+	long defaultTTL=3600*1000*24*30;//one day;
 	Map<String,Long>policyMap;
 	public CachePolicy() {
 		policyMap=new ConcurrentHashMap<String, Long>();
 	}
+	
+	public long getDefaultTTL() {
+		return defaultTTL;
+	}
+
+	public void setDefaultTTL(long defaultTTL) {
+		this.defaultTTL = defaultTTL;
+	}
+
 	/**
 	 * 
 	 * @param type

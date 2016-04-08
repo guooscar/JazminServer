@@ -18,13 +18,15 @@ public class HttpUploadClientHandler extends SimpleChannelInboundHandler<HttpObj
         if (msg instanceof HttpContent) {
             HttpContent chunk = (HttpContent) msg;
             String response=(chunk.content().toString(CharsetUtil.UTF_8));
-            ctx.channel().attr(ATTR_RESULT).set(response);
+            if(!response.isEmpty()){
+                ctx.channel().attr(ATTR_RESULT).set(response);
+                ctx.channel().close();    	
+            }
         }
     }
-
+    //
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        cause.printStackTrace();
         ctx.channel().close();
     }
 }

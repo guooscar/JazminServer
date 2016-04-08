@@ -38,6 +38,7 @@ import jazmin.core.Server;
 import jazmin.core.thread.Dispatcher;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
+import jazmin.misc.CachePolicy;
 import jazmin.misc.InfoBuilder;
 import jazmin.misc.io.IOWorker;
 import jazmin.server.console.ConsoleServer;
@@ -122,14 +123,18 @@ public class CdnServer extends Server {
 	 * @param ttlInSeconds
 	 * @see jazmin.server.cdn.CachePolicy#addPolicy(java.lang.String, int)
 	 */
-	public void addPolicy(String type, int ttlInSeconds) {
+	public void addCachePolicy(String type, int ttlInSeconds) {
 		cachePolicy.addPolicy(type, ttlInSeconds);
+	}
+	//
+	public long getDefaultCacheTTL(){
+		return cachePolicy.getDefaultTTL();
 	}
 	/**
 	 * @return
 	 * @see jazmin.server.cdn.CachePolicy#getPolicyMap()
 	 */
-	public Map<String, Long> getPolicyMap() {
+	public Map<String, Long> getCachePolicyMap() {
 		return cachePolicy.getPolicyMap();
 	}
 	/**
@@ -329,12 +334,13 @@ public class CdnServer extends Server {
 		.format("%-30s:%-30s\n")
 		.print("port",getPort())
 		.print("homeDir",getHomeDir())
+		.print("defaultCacheTTL",getDefaultCacheTTL())
 		.print("orginSiteURL",getOrginSiteURL())
 		.print("directioryPrinter",getDirectioryPrinter())
 		.print("requestFilter",getRequestFilter());
 		
-		for(Entry<String,Long> e:getPolicyMap().entrySet()){
-			ib.print("policy-"+e.getKey(),e.getValue());
+		for(Entry<String,Long> e:getCachePolicyMap().entrySet()){
+			ib.print("cachePolicy-"+e.getKey(),e.getValue());
 		}
 		return ib.toString();
 	}

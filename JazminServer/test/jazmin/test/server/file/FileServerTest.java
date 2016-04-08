@@ -19,7 +19,7 @@ public class FileServerTest {
 		Jazmin.addServer(new ConsoleServer());
 		FileServer cdnServer=new FileServer();
 		cdnServer.setPort(8080);
-		cdnServer.setHomeDir("/Users/yama/Desktop/file-test");
+		cdnServer.setHomeDir("/Users/yama/Desktop/file-server-test");
 		Jazmin.addServer(cdnServer);
 		Jazmin.start();
 	}

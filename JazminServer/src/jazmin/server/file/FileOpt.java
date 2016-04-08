@@ -56,8 +56,10 @@ public class FileOpt {
 		if(!uri.startsWith("/download/")){
 			return null;
 		}
+		int lastIdxOfSlash=uri.lastIndexOf('/');
+		String file=uri.substring(lastIdxOfSlash+1);
 		// Convert to absolute path.
-		return new File(cdnServer.getHomeDir(),uri);
+		return new File(cdnServer.getHomeDir()+"/"+file.charAt(0),file);
 	}
 	
 }

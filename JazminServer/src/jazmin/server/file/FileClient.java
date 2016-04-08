@@ -24,21 +24,47 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
 import io.netty.handler.stream.ChunkedWriteHandler;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
 
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
 import jazmin.misc.io.IOWorker;
+
+import com.ning.http.client.AsyncHandler;
+import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.AsyncHttpClientConfig;
+import com.ning.http.client.AsyncHttpClientConfig.Builder;
+import com.ning.http.client.HttpResponseBodyPart;
+import com.ning.http.client.HttpResponseHeaders;
+import com.ning.http.client.HttpResponseStatus;
+import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig;
 
 /**
  * @author yama
  * 23 Dec, 2014
  */
 public class FileClient {
+	private static final Logger logger=LoggerFactory.get(FileClient.class);
+	//
 	private EventLoopGroup group;
 	private Bootstrap bootstrap;
 	HttpDataFactory factory;
+	AsyncHttpClientConfig.Builder clientConfigBuilder;
+	AsyncHttpClientConfig clientConfig;
+	AsyncHttpClient asyncHttpClient;
+	
 	//
 	public FileClient() {
+		clientConfigBuilder=new Builder();
+		clientConfigBuilder.setUserAgent("JazminFileClient");
+		clientConfigBuilder.setAsyncHttpClientProviderConfig(new NettyAsyncHttpProviderConfig());
+		clientConfig=clientConfigBuilder.build();
+		asyncHttpClient = new AsyncHttpClient(clientConfig);
 		initNettyConnector();
 	}
 	//
@@ -78,21 +104,23 @@ public class FileClient {
 		.handler(channelInitializer);
 	}
 	//
-	public String formpost(
-            String url,
-            File file) throws Exception {
-		URI simpleURI=new URI(url);
+	public String upload(String serverUrl,File file) throws Exception {
+		if(!file.exists()){
+			throw new IllegalArgumentException("can not find file "+file);
+		}
+		URI simpleURI=new URI(serverUrl);
 		String host=simpleURI.getHost();
         int port=simpleURI.getPort();
         String path=simpleURI.getPath();
         ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port));
         Channel channel = future.sync().channel();
         HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, path);
+        
         HttpPostRequestEncoder bodyRequestEncoder =
                 new HttpPostRequestEncoder(factory, request, true); 
-        bodyRequestEncoder.addBodyAttribute("getform", "POST");;
         bodyRequestEncoder.addBodyFileUpload("file", file, "application/x-zip-compressed", false);
         request = bodyRequestEncoder.finalizeRequest();
+        request.headers().setLong("Content-Length", file.length());
         channel.write(request);
         if (bodyRequestEncoder.isChunked()) { 
             channel.write(bodyRequestEncoder);
@@ -103,10 +131,115 @@ public class FileClient {
         return result;
     }
 	//
-	public static void main(String[] args)throws Exception {
-		FileClient fc=new FileClient();
-		String s=fc.formpost("http://localhost:8080/upload/",new File("/Users/yama/Desktop/book-of-vaadin-zh.pdf"));
-		System.err.println(s);
-		System.out.println("xxxxxb");
+	public static class DownloadAsyncHandler implements AsyncHandler<String>{
+		private File tempFile;
+		private FileOutputStream tempFileOutputStream;
+		private PipedOutputStream outputStream;
+		private long totalBytes;
+		private String fileId;
+		private FileDownloadHandler downloadHandler;
+		private File file;
+		public DownloadAsyncHandler(FileDownloadHandler handler,String fileId,File file) {
+			this.fileId=fileId;
+			this.file=file;
+			this.downloadHandler=handler;
+		}
+		//
+		@Override
+		public com.ning.http.client.AsyncHandler.STATE onBodyPartReceived(
+				HttpResponseBodyPart part) throws Exception {
+			byte partBytes[]=part.getBodyPartBytes();
+			tempFileOutputStream.write(partBytes);
+			outputStream.write(partBytes);
+			return STATE.CONTINUE;
+		}
+
+		@Override
+		public String onCompleted() throws Exception {
+			if(tempFileOutputStream!=null){
+				if(logger.isDebugEnabled()){
+					logger.debug("complete fetch {}",fileId);
+				}
+				try{
+					outputStream.flush();
+					outputStream.close();			
+				}catch(Exception e){
+					logger.catching(e);
+				}
+				//
+				try{
+					tempFileOutputStream.flush();
+					tempFileOutputStream.close();		
+				}catch(Exception e){
+					logger.catching(e);	
+				}
+				if(!file.getParentFile().exists()){
+					boolean success=file.getParentFile().mkdirs();
+					if(!success){
+						logger.error("can not mkdir {}",file.getParentFile());
+					}
+				}	
+				tempFile.renameTo(file);	
+			}
+			return "";
+		}
+
+		@Override
+		public com.ning.http.client.AsyncHandler.STATE onHeadersReceived(
+				HttpResponseHeaders headers) throws Exception {
+			String len=headers.getHeaders().getFirstValue("Content-Length");
+			if(len!=null){
+				totalBytes=Long.valueOf(len);
+			}
+			if(logger.isDebugEnabled()){
+				logger.debug("got length {} bytes from fileId {}",totalBytes,fileId);
+			}
+			tempFile=File.createTempFile("jazmin_file_client","temp");
+			tempFileOutputStream=new FileOutputStream(tempFile);
+			outputStream=new PipedOutputStream();
+			PipedInputStream inputStream=new PipedInputStream(outputStream);
+			downloadHandler.handleInputStream(inputStream, totalBytes);
+			return STATE.CONTINUE;
+		}
+
+		@Override
+		public com.ning.http.client.AsyncHandler.STATE onStatusReceived(
+				HttpResponseStatus status) throws Exception {
+			if(logger.isDebugEnabled()){
+				logger.debug("got status {} {}",status.getUri(),status.getStatusCode());
+			}
+			if(status.getStatusCode()!=200){
+				downloadHandler.handleNotFound();
+				return STATE.ABORT;
+			}
+			return STATE.CONTINUE;
+		}
+
+		@Override
+		public void onThrowable(Throwable e) {
+			downloadHandler.handleException(e);
+			if(tempFileOutputStream!=null){
+				try {
+					tempFileOutputStream.close();
+				} catch (IOException e1) {
+					logger.catching(e1);
+				}
+			}
+			if(tempFile!=null){
+				boolean success=tempFile.delete();
+				logger.debug("delete temp file {} result {}",tempFile,success);
+			}
+			if(e instanceof IOException){
+				logger.warn("uri {} catch exception {}",fileId,e);
+			}else{
+				logger.catching(e);
+			}
+		}
+		
+	}
+	//
+	public void download(String url,File targetFile,FileDownloadHandler handler){
+		DownloadAsyncHandler asyncHandler=new DownloadAsyncHandler(handler,url,targetFile);
+		asyncHttpClient.prepareGet(url).execute(asyncHandler);
 	}
 }

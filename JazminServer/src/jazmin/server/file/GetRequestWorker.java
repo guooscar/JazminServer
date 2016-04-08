@@ -4,29 +4,23 @@
 package jazmin.server.file;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
-import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpHeaderNames.IF_MODIFIED_SINCE;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelProgressiveFuture;
 import io.netty.channel.ChannelProgressiveFutureListener;
 import io.netty.channel.DefaultFileRegion;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
-import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderUtil;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.util.CharsetUtil;
 
 import java.io.File;
 import java.io.RandomAccessFile;
@@ -201,27 +195,17 @@ ChannelProgressiveFutureListener,FileDownload.ResultHandler{
 	}
 	//
 	private void processRequest0() throws Exception {
-		logger.info("process request from {}",ctx.channel());
+		if(logger.isDebugEnabled()){
+			logger.debug("process request from {}",ctx.channel());	
+		}
 		if (!filter()) {
 			fileRequest.close();
 			return;
 		}
-		String uri=fileRequest.uri;
 		File file=fileRequest.file;
 		if(file!=null){
 			if (file.isDirectory()) {
-				if(logger.isDebugEnabled()){
-					logger.debug("uri {} is directory",uri);
-				}
-				if(cdnServer.getDirectioryPrinter()!=null){
-					if (uri.endsWith("/")) {
-						sendListing(ctx,file,cdnServer.getDirectioryPrinter());
-					} else {
-						sendRedirect(ctx, uri + '/');
-					}
-				}else{
-					sendError(ctx,HttpResponseStatus.FORBIDDEN);
-				}
+				sendError(ctx,HttpResponseStatus.FORBIDDEN);
 				fileRequest.close();
 				return;
 			}
@@ -245,19 +229,6 @@ ChannelProgressiveFutureListener,FileDownload.ResultHandler{
 		}
 		fileRequest.resultHandler=this;
 		fileRequest.open();
-	}
-	//
-	private static void sendListing(
-			ChannelHandlerContext ctx,
-			File dir,
-			DirectioryPrinter printer) {
-		FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
-		response.headers().set(CONTENT_TYPE, printer.contentType());
-		ByteBuf buffer = Unpooled.copiedBuffer(printer.print(dir), CharsetUtil.UTF_8);
-		response.content().writeBytes(buffer);
-		buffer.release();
-		// Close the connection as soon as the error message is sent.
-		ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
 	}
 	@Override
 	public void handleHttpContent(DefaultHttpContent content) {
