@@ -16,8 +16,7 @@ import org.josql.QueryResults;
  */
 public class BeanUtil {
 	//
-	public static <T> List<T> copyFromList(Class<T>toClass,List<?>fromBeanList)
-			throws Exception{
+	public static <T> List<T> copyFromList(Class<T>toClass,List<?>fromBeanList){
 		List<T>result=new ArrayList<>();
 		for(Object o:fromBeanList){
 			result.add(copyFrom(toClass,o));
@@ -25,9 +24,13 @@ public class BeanUtil {
 		return result;
 	}
 	//
-	public static  <T> T copyFrom(Class<T>toClass,Object from)throws Exception{
+	public static  <T> T copyFrom(Class<T>toClass,Object from){
 		T to=null;
-		to =  toClass.newInstance();
+		try{
+			to =  toClass.newInstance();
+		}catch(Exception e){
+			throw new IllegalArgumentException(e);
+		}
 		Class<?>beanClass=from.getClass();
 		Field ff[]=toClass.getDeclaredFields();
 		for(Field f:ff){
@@ -45,8 +48,7 @@ public class BeanUtil {
 		return to;
 	}
 	//
-	public static <T> List<T> copyToList(Class<T>toClass,List<?>fromBeanList)
-			throws Exception{
+	public static <T> List<T> copyToList(Class<T>toClass,List<?>fromBeanList){
 		List<T>result=new ArrayList<>();
 		for(Object o:fromBeanList){
 			result.add(copyTo(toClass,o));
@@ -54,9 +56,13 @@ public class BeanUtil {
 		return result;
 	}
 	//
-	public static  <T> T copyTo(Class<T>toClass,Object from)throws Exception{
+	public static  <T> T copyTo(Class<T>toClass,Object from){
 		T to=null;
-		to =  toClass.newInstance();
+		try{
+			to =  toClass.newInstance();
+		}catch(Exception e){
+			throw new IllegalArgumentException(e);
+		}
 		Field ff[]=from.getClass().getDeclaredFields();
 		for(Field f:ff){
 			if(Modifier.isFinal(f.getModifiers())){
@@ -74,7 +80,7 @@ public class BeanUtil {
 	}
 	//
 	@SuppressWarnings("unchecked")
-	public static <T>List<T>query(List<T>collection,String sql){
+	public static <T>List<T> query(List<T>collection,String sql){
 		try{
 			Query query=new Query();
 			query.setClassLoader(Jazmin.getAppClassLoader());
