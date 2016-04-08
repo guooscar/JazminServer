@@ -226,11 +226,11 @@ public class InstanceMySQLTableDomainWindow extends Window{
 		typeMap.put("DOUBLE","double");
 		typeMap.put("FLOAT UNSIGNED","float");
 		typeMap.put("DOUBLE UNSIGNED","double");
+		typeMap.put("DOUBLE","double");
 		
 		typeMap.put("DATE","Date");
 		typeMap.put("TIME","Date");
 		typeMap.put("YEAR","Date");
-		typeMap.put("DOUBLE","Date");
 		typeMap.put("DATETIME","Date");
 		typeMap.put("TIMESTAMP","Date");
 	}
