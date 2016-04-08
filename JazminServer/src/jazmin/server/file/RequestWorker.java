@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jazmin.server.cdn;
+package jazmin.server.file;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
@@ -52,12 +52,12 @@ public abstract class RequestWorker{
 	public static final int HTTP_CACHE_SECONDS = 60;
 	protected ChannelHandlerContext ctx; 
 	protected DefaultHttpRequest request; 
-	protected CdnServer cdnServer;
-	protected File requestFile;
+	protected FileServer cdnServer;
+	protected String requestId;
 	protected FilterContext filterCtx;
 	//
 	RequestWorker(
-			CdnServer cdnServer,
+			FileServer cdnServer,
 			ChannelHandlerContext ctx,
 			DefaultHttpRequest request){
 		this.cdnServer=cdnServer;
@@ -73,19 +73,7 @@ public abstract class RequestWorker{
 			sendError(ctx, BAD_REQUEST);
 			return false;
 		}
-		requestFile=new File(cdnServer.getHomeDir(),request.uri());
-		if(cdnServer.requestFilter!=null){
-			filterCtx=new FilterContext(requestFile);
-			filterCtx.request=request;
-			cdnServer.requestFilter.filter(filterCtx);
-			if(filterCtx.errorCode!=FilterContext.CODE_OK){
-				if(logger.isDebugEnabled()){
-					logger.debug("requestFilter {} reject ",cdnServer.requestFilter);
-				}
-				sendError(ctx,filterCtx.errorCode,filterCtx.responseMap);
-				return false;
-			}
-		}
+		requestId=request.uri();
 		return true;
 	}
 	//

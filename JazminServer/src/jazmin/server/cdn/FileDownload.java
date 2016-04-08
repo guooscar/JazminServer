@@ -58,6 +58,7 @@ public class FileDownload extends FileOpt implements AsyncHandler<String>{
 				logger.debug("uri convert to path null."+uri);
 			}
 			resultHandler.handleNotFound();
+			close();
 			return;
 		}
 		//
@@ -75,6 +76,7 @@ public class FileDownload extends FileOpt implements AsyncHandler<String>{
 					logger.debug("system file {}",file);
 				}
 				resultHandler.handleNotFound();
+				close();
 				return;
 			}
 			if(logger.isDebugEnabled()){
@@ -88,6 +90,7 @@ public class FileDownload extends FileOpt implements AsyncHandler<String>{
 		}else{
 			if(cdnServer.getOrginSiteURL()==null){
 				resultHandler.handleNotFound();
+				close();
 				return;
 			}
 			sourceType=TYPE_REMOTE_STREAM;
@@ -180,6 +183,7 @@ public class FileDownload extends FileOpt implements AsyncHandler<String>{
 		}
 		if(status.getStatusCode()!=200){
 			resultHandler.handleNotFound();
+			close();
 			return STATE.ABORT;
 		}
 		return STATE.CONTINUE;
@@ -204,5 +208,6 @@ public class FileDownload extends FileOpt implements AsyncHandler<String>{
 		}else{
 			logger.catching(e);
 		}
+		
 	}
 }
