@@ -128,8 +128,11 @@ public class FileServerDriver extends Driver{
 		int choice=RandomUtil.randomIntArray(weightArray);
 		ServerInfo si=serverList.get(choice);
 		try {
-			String fileId=client.upload("http://"+si.host+":"+si.port+"/upload/", file);
-			return si.id+"_"+fileId;
+			String realFileId=client.upload("http://"+si.host+":"+si.port+"/upload/", file);
+			String fileId= si.id+"_"+realFileId;
+			FileServerPair fsp=getFileServerPair(fileId);
+			cachePolicy.moveTo(file,fsp.file);
+			return fileId;
 		} catch (Exception e) {
 			throw new FileUploadException(e);
 		}
@@ -138,18 +141,9 @@ public class FileServerDriver extends Driver{
 	 * get local file
 	 */
 	public File getFile(String fileId){
-		int idxOf_=fileId.indexOf('_');
-		if(idxOf_==-1){
-			throw new IllegalArgumentException("bad fileId :"+fileId+",can not find serverId");
-		}
-		String serverId=fileId.substring(0,idxOf_);
-		String realId=fileId.substring(idxOf_+1);
-		//
-		File serverDir=new File(homeDir,serverId);
-		File secondDir=new File(serverDir,realId.charAt(0)+"");
-		File file=new File(secondDir,realId);
-		if(file.exists()){
-			return file;
+		FileServerPair fsp=getFileServerPair(fileId);
+		if(fsp.file.exists()){
+			return fsp.file;
 		}
 		return null;	
 	}
@@ -159,6 +153,18 @@ public class FileServerDriver extends Driver{
 	 * @param handler
 	 */
 	public void downloadFile(String fileId,FileDownloadHandler handler){
+		FileServerPair fsp=getFileServerPair(fileId);
+		client.download("http://"+fsp.serverInfo.host+":"+
+				fsp.serverInfo.port+"/download/"+fsp.readId, fsp.file, handler);
+	}
+	//
+	static class FileServerPair{
+		ServerInfo serverInfo;
+		File file;
+		String readId;
+	}
+	//
+	private FileServerPair getFileServerPair(String fileId){
 		int idxOf_=fileId.indexOf('_');
 		if(idxOf_==-1){
 			throw new IllegalArgumentException("bad fileId :"+fileId+",can not find serverId");
@@ -172,9 +178,13 @@ public class FileServerDriver extends Driver{
 		File serverDir=new File(homeDir,serverId);
 		File secondDir=new File(serverDir,realId.charAt(0)+"");
 		File file=new File(secondDir,realId);
-		client.download("http://"+si.host+":"+si.port+"/download/"+realId, file, handler);
+		FileServerPair fsp=new FileServerPair();
+		fsp.file=file;
+		fsp.serverInfo=si;
+		fsp.readId=realId;
+		return fsp;
 	}
-	
+	//
 	//--------------------------------------------------------------------------
 	@Override
 	public void start() throws Exception {

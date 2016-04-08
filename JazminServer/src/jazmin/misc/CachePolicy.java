@@ -113,7 +113,7 @@ public class CachePolicy {
 	//
 	public File createTempFile()throws Exception{
 		File tempFile=File.createTempFile(UUID.randomUUID().toString(),
-				"jazmin-cdn");
+				"jazmin-temp");
 		return tempFile;
 	}
 	//
@@ -121,9 +121,12 @@ public class CachePolicy {
 		if(!dest.getParentFile().exists()){
 			boolean success=dest.getParentFile().mkdirs();
 			if(!success){
-				logger.error("can not mkdir {}",dest.getParentFile());
+				throw new IllegalArgumentException("can not mkdir "+dest.getParentFile());
 			}
 		}	
 		tempFile.renameTo(dest);
+		if(logger.isDebugEnabled()){
+			logger.debug("move file {} to {}",tempFile,dest);
+		}
 	}
 }

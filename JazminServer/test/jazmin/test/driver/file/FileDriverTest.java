@@ -23,6 +23,15 @@ public class FileDriverTest {
 		
 		fsd.start();
 		//
+		testSingleUpload(fsd);
+	}
+	//
+	public static void testSingleUpload(FileServerDriver fsd)throws Exception{
+		String id = fsd.upload(new File("/Users/yama/Desktop/test.zip"));
+		System.out.println(id);
+	}
+	//
+	public static void testMultiThreadUpload(FileServerDriver fsd){
 		for(int i=0;i<100;i++){
 			new Thread(new Runnable() {
 				@Override

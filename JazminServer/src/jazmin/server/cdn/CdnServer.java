@@ -251,21 +251,6 @@ public class CdnServer extends Server {
 				return;
 			}
 			//
-			if(method.equals(io.netty.handler.codec.http.HttpMethod.POST)||
-					method.equals(io.netty.handler.codec.http.HttpMethod.PUT)){
-				FileUpload upload=new FileUpload(this,requestURI,ctx.channel(),request);
-				requestIdGenerator.increment();
-				upload.id=requestIdGenerator.intValue()+"";
-				requests.put(upload.id, upload);
-				PostRequestWorker worker=new PostRequestWorker(this,ctx,request,upload);
-				ctx.channel().attr(WORKER_KEY).set(worker);
-				worker.request=request;
-				Jazmin.dispatcher.invokeInPool(
-						requestURI,
-						worker,requestWorkerMethod,Dispatcher.EMPTY_CALLBACK);
-				return;
-			}
-			//
 			OtherRequestWorker rw=new OtherRequestWorker(this,ctx,request);
 			Jazmin.dispatcher.invokeInPool(
 					requestURI,

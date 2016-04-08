@@ -20,7 +20,6 @@ import java.util.regex.Pattern;
 public class FileOpt {
 	static final String TYPE_REMOTE_STREAM="remote";
 	static final String TYPE_LOCAL_FILE="local";
-	static final String TYPE_UPLOAD_FILE="upload";
 	
 	String sourceType;
 	String id;
