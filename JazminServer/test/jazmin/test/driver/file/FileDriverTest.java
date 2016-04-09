@@ -16,14 +16,13 @@ public class FileDriverTest {
 		FileServerDriver fsd=new FileServerDriver();
 		fsd.setHomeDir("/Users/yama/Desktop/file-driver-test");
 		//
-		fsd.addServer("s1","localhost",8080,10);
-		fsd.addServer("s2","localhost",8080,10);
-		fsd.addServer("s3","localhost",8080,10);
-		fsd.addServer("s4","localhost",8080,0);
-		
+		fsd.addServer("KdjyFileSystem","localhost",9561,10);
 		fsd.start();
 		//
-		testSingleUpload(fsd);
+		testDownload(fsd);
+	}
+	public static void testDownload(FileServerDriver fsd)throws Exception{
+		fsd.downloadFile("KdjyFileSystem_56a38c77-af73-4ff4-b639-05bc4ce56ce6.jpg");
 	}
 	//
 	public static void testSingleUpload(FileServerDriver fsd)throws Exception{

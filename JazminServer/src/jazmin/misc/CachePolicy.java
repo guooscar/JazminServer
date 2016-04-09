@@ -5,6 +5,8 @@ package jazmin.misc;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +23,7 @@ import jazmin.log.LoggerFactory;
 public class CachePolicy {
 	private static Logger logger=LoggerFactory.get(CachePolicy.class);
 	//
-	long defaultTTL=3600*1000*24*30;//one day;
+	long defaultTTL=3600*1000*24*30L;
 	Map<String,Long>policyMap;
 	public CachePolicy() {
 		policyMap=new ConcurrentHashMap<String, Long>();
@@ -67,35 +69,6 @@ public class CachePolicy {
 		return (now-file.lastModified())>ttl;
 	}
 	//
-	public boolean acceptEmpty(File file){
-		if(file.isDirectory()){
-			return true;
-		}
-		//device file
-		if(!file.isFile()){
-			return false;
-		}
-		if(file.length()==0){
-			return true;
-		}
-		return false;
-	}
-	//
-	public void cleanEmptyFile(File rootDir){
-		for(File f:rootDir.listFiles(this::acceptEmpty)){
-			if(f.isDirectory()){
-				cleanEmptyFile(f);
-			}else{
-				logger.info("delete empty file {},lastModified {}",f,
-						new Date(f.lastModified()));
-				boolean success=f.delete();
-				if(!success){
-					logger.warn("can not delete file {} maybe in use,try next time",f);
-				}
-			}
-		}
-	}
-	//
 	public void cleanFile(File rootDir){
 		for(File f:rootDir.listFiles(this::acceptExpire)){
 			if(f.isDirectory()){
@@ -124,9 +97,14 @@ public class CachePolicy {
 				throw new IllegalArgumentException("can not mkdir "+dest.getParentFile());
 			}
 		}	
-		tempFile.renameTo(dest);
+		Files.move(tempFile.toPath(),dest.toPath(),StandardCopyOption.ATOMIC_MOVE);
 		if(logger.isDebugEnabled()){
 			logger.debug("move file {} to {}",tempFile,dest);
 		}
+	}
+	//
+	public static void main(String[] args) {
+		CachePolicy cp=new CachePolicy();
+		cp.cleanFile(new File("/Users/yama/Desktop/file-driver-test"));
 	}
 }

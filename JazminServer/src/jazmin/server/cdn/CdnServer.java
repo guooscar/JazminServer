@@ -286,7 +286,7 @@ public class CdnServer extends Server {
 	//
 	@Override
 	public void start() throws Exception {
-		cachePolicy.cleanEmptyFile(this.homeDir);
+		cachePolicy.cleanFile(this.homeDir);
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
 			cs.registerCommand(CdnServerCommand.class);

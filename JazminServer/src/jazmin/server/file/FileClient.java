@@ -28,6 +28,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -171,14 +173,9 @@ public class FileClient {
 				}catch(Exception e){
 					logger.catching(e);	
 				}
-				if(!file.getParentFile().exists()){
-					boolean success=file.getParentFile().mkdirs();
-					if(!success){
-						logger.error("can not mkdir {}",file.getParentFile());
-					}
-				}	
+				
 				if(!file.exists()){
-					tempFile.renameTo(file);	
+					Files.move(tempFile.toPath(),file.toPath(), StandardCopyOption.ATOMIC_MOVE);
 					if(logger.isDebugEnabled()){
 						logger.debug("move file {} to {}",tempFile,file);
 					}
@@ -200,7 +197,14 @@ public class FileClient {
 			if(logger.isDebugEnabled()){
 				logger.debug("got length {} bytes from fileId {}",totalBytes,fileId);
 			}
-			tempFile=File.createTempFile("jazmin_file_client","temp");
+			tempFile=new File(file.getAbsoluteFile()+".tmp");
+			if(!tempFile.getParentFile().exists()){
+				boolean success=tempFile.getParentFile().mkdirs();
+				if(!success){
+					logger.error("can not mkdir {}",tempFile.getParentFile());
+				}
+			}	
+			tempFile.createNewFile();
 			tempFileOutputStream=new FileOutputStream(tempFile);
 			return STATE.CONTINUE;
 		}
