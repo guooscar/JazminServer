@@ -179,6 +179,9 @@ public class FileClient {
 				}	
 				if(!file.exists()){
 					tempFile.renameTo(file);	
+					if(logger.isDebugEnabled()){
+						logger.debug("move file {} to {}",tempFile,file);
+					}
 				}else{
 					logger.warn("file {} already exists,delete temp file {}",file,tempFile);
 					tempFile.delete();
