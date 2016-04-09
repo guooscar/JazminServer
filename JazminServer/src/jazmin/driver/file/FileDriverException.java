@@ -5,8 +5,8 @@ package jazmin.driver.file;
  *
  */
 @SuppressWarnings("serial")
-public class FileUploadException extends Exception{
-	public FileUploadException(Throwable e) {
+public class FileDriverException extends Exception{
+	public FileDriverException(Throwable e) {
 		super(e);
 	}
 }

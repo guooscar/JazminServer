@@ -125,6 +125,7 @@ public class PostRequestWorker extends RequestWorker {
 			logger.catching(e);
 		}
 		if(requestFile!=null&&requestFile.length()==0){
+			logger.warn("delete empty file {}",requestFile);
 			requestFile.delete();
 		}
 	}

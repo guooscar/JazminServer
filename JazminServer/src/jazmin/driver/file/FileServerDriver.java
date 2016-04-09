@@ -18,7 +18,6 @@ import jazmin.log.LoggerFactory;
 import jazmin.misc.CachePolicy;
 import jazmin.misc.InfoBuilder;
 import jazmin.server.file.FileClient;
-import jazmin.server.file.FileDownloadHandler;
 import jazmin.util.RandomUtil;
 
 /**
@@ -124,7 +123,7 @@ public class FileServerDriver extends Driver{
 	/**
 	 * upload file to server
 	 */
-	public String upload(File file) throws FileUploadException{
+	public String upload(File file) throws FileDriverException{
 		int choice=RandomUtil.randomIntArray(weightArray);
 		ServerInfo si=serverList.get(choice);
 		try {
@@ -134,7 +133,7 @@ public class FileServerDriver extends Driver{
 			cachePolicy.moveTo(file,fsp.file);
 			return fileId;
 		} catch (Exception e) {
-			throw new FileUploadException(e);
+			throw new FileDriverException(e);
 		}
 	}
 	/**
@@ -151,11 +150,17 @@ public class FileServerDriver extends Driver{
 	 * download file from server
 	 * @param fileId
 	 * @param handler
+	 * @throws FileDriverException 
 	 */
-	public void downloadFile(String fileId,FileDownloadHandler handler){
+	public File downloadFile(String fileId) throws FileDriverException{
 		FileServerPair fsp=getFileServerPair(fileId);
-		client.download("http://"+fsp.serverInfo.host+":"+
-				fsp.serverInfo.port+"/download/"+fsp.readId, fsp.file, handler);
+		try {
+			client.download("http://"+fsp.serverInfo.host+":"+
+					fsp.serverInfo.port+"/download/"+fsp.readId, fsp.file);
+			return fsp.file;
+		} catch (Exception e) {
+			throw new FileDriverException(e);
+		}
 	}
 	//
 	static class FileServerPair{

@@ -26,8 +26,6 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
 
@@ -103,7 +101,13 @@ public class FileClient {
         .option(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, 8*1024)
 		.handler(channelInitializer);
 	}
-	//
+	/**
+	 * upload file to server
+	 * @param serverUrl
+	 * @param file
+	 * @return
+	 * @throws Exception
+	 */
 	public String upload(String serverUrl,File file) throws Exception {
 		if(!file.exists()){
 			throw new IllegalArgumentException("can not find file "+file);
@@ -130,19 +134,20 @@ public class FileClient {
         String result=channel.attr(HttpUploadClientHandler.ATTR_RESULT).get();
         return result;
     }
-	//
+	/**
+	 * 
+	 * @author yama
+	 * 9 Apr, 2016
+	 */
 	public static class DownloadAsyncHandler implements AsyncHandler<String>{
 		private File tempFile;
 		private FileOutputStream tempFileOutputStream;
-		private PipedOutputStream outputStream;
 		private long totalBytes;
 		private String fileId;
-		private FileDownloadHandler downloadHandler;
 		private File file;
-		public DownloadAsyncHandler(FileDownloadHandler handler,String fileId,File file) {
+		public DownloadAsyncHandler(String fileId,File file) {
 			this.fileId=fileId;
 			this.file=file;
-			this.downloadHandler=handler;
 		}
 		//
 		@Override
@@ -150,7 +155,6 @@ public class FileClient {
 				HttpResponseBodyPart part) throws Exception {
 			byte partBytes[]=part.getBodyPartBytes();
 			tempFileOutputStream.write(partBytes);
-			outputStream.write(partBytes);
 			return STATE.CONTINUE;
 		}
 
@@ -159,12 +163,6 @@ public class FileClient {
 			if(tempFileOutputStream!=null){
 				if(logger.isDebugEnabled()){
 					logger.debug("complete fetch {}",fileId);
-				}
-				try{
-					outputStream.flush();
-					outputStream.close();			
-				}catch(Exception e){
-					logger.catching(e);
 				}
 				//
 				try{
@@ -179,7 +177,12 @@ public class FileClient {
 						logger.error("can not mkdir {}",file.getParentFile());
 					}
 				}	
-				tempFile.renameTo(file);	
+				if(!file.exists()){
+					tempFile.renameTo(file);	
+				}else{
+					logger.warn("file {} already exists,delete temp file {}",file,tempFile);
+					tempFile.delete();
+				}
 			}
 			return "";
 		}
@@ -196,9 +199,6 @@ public class FileClient {
 			}
 			tempFile=File.createTempFile("jazmin_file_client","temp");
 			tempFileOutputStream=new FileOutputStream(tempFile);
-			outputStream=new PipedOutputStream();
-			PipedInputStream inputStream=new PipedInputStream(outputStream);
-			downloadHandler.handleInputStream(inputStream, totalBytes);
 			return STATE.CONTINUE;
 		}
 
@@ -209,7 +209,6 @@ public class FileClient {
 				logger.debug("got status {} {}",status.getUri(),status.getStatusCode());
 			}
 			if(status.getStatusCode()!=200){
-				downloadHandler.handleNotFound();
 				return STATE.ABORT;
 			}
 			return STATE.CONTINUE;
@@ -217,7 +216,6 @@ public class FileClient {
 
 		@Override
 		public void onThrowable(Throwable e) {
-			downloadHandler.handleException(e);
 			if(tempFileOutputStream!=null){
 				try {
 					tempFileOutputStream.close();
@@ -237,9 +235,14 @@ public class FileClient {
 		}
 		
 	}
-	//
-	public void download(String url,File targetFile,FileDownloadHandler handler){
-		DownloadAsyncHandler asyncHandler=new DownloadAsyncHandler(handler,url,targetFile);
-		asyncHttpClient.prepareGet(url).execute(asyncHandler);
+	/**
+	 * download file from server
+	 * @param url
+	 * @param targetFile
+	 * @param handler
+	 */
+	public void download(String url,File targetFile)throws Exception{
+		DownloadAsyncHandler asyncHandler=new DownloadAsyncHandler(url,targetFile);
+		asyncHttpClient.prepareGet(url).execute(asyncHandler).get();
 	}
 }

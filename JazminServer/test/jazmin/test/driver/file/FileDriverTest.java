@@ -3,7 +3,7 @@ package jazmin.test.driver.file;
 import java.io.File;
 
 import jazmin.driver.file.FileServerDriver;
-import jazmin.driver.file.FileUploadException;
+import jazmin.driver.file.FileDriverException;
 
 /**
  * 
@@ -40,7 +40,7 @@ public class FileDriverTest {
 					try {
 						id = fsd.upload(new File("/Users/yama/Desktop/test.zip"));
 						System.out.println(id);
-					} catch (FileUploadException e) {
+					} catch (FileDriverException e) {
 						e.printStackTrace();
 					}
 				}
