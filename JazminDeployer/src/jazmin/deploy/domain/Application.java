@@ -51,6 +51,8 @@ public class Application{
 	public static final String TYPE_JAZMIN_RELAY="jazmin-relay";
 	public static final String TYPE_JAZMIN_RTSP="jazmin-rtsp";
 	public static final String TYPE_JAZMIN_CDN="jazmin-cdn";
+	public static final String TYPE_JAZMIN_FILE="jazmin-file";
+	
 	
 	//
 	public static final String TYPE_MYSQL="mysql";
@@ -67,7 +69,7 @@ public class Application{
 	public static final String LAYER_WEB="Web Tier";
 	public static final String LAYER_APP="App Tier";
 	public static final String LAYER_CACHE="Cache Tier";
-	public static final String LAYER_DB="DB Tier";
+	public static final String LAYER_DB="Storage Tier";
 	public static final String LAYER_OTHER="Other Tier";
 	//
 	static{
@@ -83,9 +85,12 @@ public class Application{
 		typeLayerMap.put(TYPE_JAZMIN_CDN,LAYER_WEB);
 		//
 		typeLayerMap.put(TYPE_MYSQL,LAYER_DB);
+		typeLayerMap.put(TYPE_JAZMIN_FILE,LAYER_DB);
+		typeLayerMap.put(TYPE_REDIS,LAYER_DB);
+		
+		
 		typeLayerMap.put(TYPE_MEMCACHED,LAYER_CACHE);
 		typeLayerMap.put(TYPE_HAPROXY,LAYER_PROXY);
-		typeLayerMap.put(TYPE_REDIS,LAYER_CACHE);
 		//
 		typeLayerMap.put(TYPE_BROSWER,LAYER_USER);
 		typeLayerMap.put(TYPE_CLIENT,LAYER_USER);

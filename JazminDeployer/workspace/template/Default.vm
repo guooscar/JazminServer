@@ -1,17 +1,17 @@
 #if($instance.application.type=="jazmin-msg"||
 $instance.application.type=="jazmin-rpc"||
 $instance.application.type=="jazmin-web")
-//
-#set($deployHost =	$env.getOrDefault("deploy.hostname","localhost"))
 //logger
-#set($logLevel	=	$properties.getOrDefault("jazmin.log.level","INFO"))
+#set($logLevel	=	$properties.getOrDefault("jazmin.log.level","DEBUG"))
 #set($logFile 	=	$properties.getOrDefault("jazmin.log.file","'./log/'+jazmin.getServerName()+'.log'"))
+#set($performanceLogFile 	=	$properties.getOrDefault("jazmin.log.file","'./log/performance-'+jazmin.getServerName()+'.log'"))
 
 jazmin.setLogLevel("$logLevel");
 jazmin.setLogFile($logFile,true);
+jazmin.dispatcher.setPerformanceLogFile($performanceLogFile);
 //------------------------------------------------------------------------------
 var httpClientDriver=new HttpClientDriver();
-Jazmin.addDriver(httpClientDriver);
+jazmin.addDriver(httpClientDriver);
 //server
 #if($instance.application.type=="jazmin-msg")
 //message server 
@@ -43,10 +43,9 @@ jazmin.addServer(webServer);
 #if($app.type=="jazmin-rpc")
 //rpc
 #foreach($dependsInstance in $instances)
-#if ($dependsInstance.appId == $app.id)
+#if ($dependsInstance.appId == $app.id && $dependsInstance.cluster==$instance.cluster)
 var rpcDriver=new JazminRpcDriver();
-rpcDriver.addRemoteServer("$app.id","$dependsInstance.id","$dependsInstance.machine.publicHost",$dependsInstance.port);
-//rpcDriver.subscribe("MainData", "MainData"+jazmin.getServerName());
+rpcDriver.addRemoteServer("$app.id","$dependsInstance.id","$dependsInstance.machine.privateHost",$dependsInstance.port);
 jazmin.addDriver(rpcDriver);
 #end
 #end
@@ -55,11 +54,12 @@ jazmin.addDriver(rpcDriver);
 #if($app.type=="mysql")
 //mysql
 #foreach($dependsInstance in $instances)
-#if ($dependsInstance.appId == $app.id)
+#if ($dependsInstance.appId == $app.id && $dependsInstance.cluster==$instance.cluster)
 var db=new C3p0ConnectionDriver();
 db.setUser('$dependsInstance.user');
 db.setPassword('$dependsInstance.password');
-db.setUrl("jdbc:mysql://$dependsInstance.machine.privateHost:$dependsInstance.port/$dependsInstance.id?useUnicode=true&characterEncoding=UTF-8");
+#set($encoding = $dependsInstance.properties.getOrDefault("db.encoding","UTF-8"))
+db.setUrl("jdbc:mysql://$dependsInstance.machine.privateHost:$dependsInstance.port/$dependsInstance.id?useUnicode=true&characterEncoding=$encoding");
 db.setDriverClass("com.mysql.jdbc.Driver");
 jazmin.addDriver(db);
 #end
@@ -76,15 +76,23 @@ jazmin.addServer(consoleServer);
 //------------------------------------------------------------------------------
 //app
 
+
+
 #if($instance.application.type=="jazmin-web")
 var targetApp="./instance/$instance.id/$instance.appId"+".war"
-jazmin.copyFile("http://$deployHost:$deployServerPort/srv/deploy/pkg/"+jazmin.getServerName(),targetApp)
+#set($loadPackage=$instance.application.properties.getOrDefault("loadPackage","false"))
+#if($loadPackage=="true")
+jazmin.copyFile("http://itit.io:8888/srv/deploy/pkg/"+jazmin.getServerName(),targetApp)
+#end
 webServer.addWar("/",targetApp);
 #end
 
 #if($instance.application.type!="jazmin-web")
 var targetApp="./instance/$instance.id/$instance.appId"+".jaz"
-jazmin.copyFile("http://$deployHost:$deployServerPort/srv/deploy/pkg/"+jazmin.getServerName(),targetApp)
+#set($loadPackage=$instance.application.properties.getOrDefault("loadPackage","false"))
+#if($loadPackage=="true")
+jazmin.copyFile("http://itit.io:8888/srv/deploy/pkg/"+jazmin.getServerName(),targetApp)
+#end
 jazmin.loadApplication(targetApp);
 #end
 //endofjazmin
@@ -119,15 +127,16 @@ stats   hide-version
 frontend web_in
 mode http
 maxconn 5000
-redirect prefix http://www.$properties.hostname code 301 if { hdr(host) -i $properties.hostname }
 bind :$instance.port
 #foreach($i in $instance.application.depends)
 #set ($app = $applicationMap.get($i))
 #if($app.type=="jazmin-web")
-acl is_$app.id hdr_beg(host) -i $properties.hostname
+acl is_$app.id hdr_beg(host) -i $app.properties.hostname
 
-#if($app.properties.www=="true")
-acl is_www$app.id hdr_beg(host) -i www.$properties.hostname
+#if($app.properties.hostnames)
+#foreach($k in $app.properties.hostnames.split(","))
+acl is_$k$app.id hdr_beg(host) -i $k
+#end
 #end
 
 #end
@@ -136,9 +145,13 @@ acl is_www$app.id hdr_beg(host) -i www.$properties.hostname
 #set ($app = $applicationMap.get($i))
 #if($app.type=="jazmin-web")
 use_backend server_$app.id if is_$app.id
-#if($app.properties.www=="true")
-use_backend server_$app.id if is_www$app.id
+
+#if($app.properties.hostnames)
+#foreach($k in $app.properties.hostnames.split(","))
+use_backend server_$app.id if is_$k$app.id
 #end
+#end
+
 #end
 #end
 
@@ -148,16 +161,16 @@ use_backend server_$app.id if is_www$app.id
 backend server_$app.id
 mode http #http 模式
 balance roundrobin
-cookie  JSESSIONID prefix
+cookie         SERVER_ID insert
 option  httpclose
 rspadd Access-Control-Allow-Origin:\ *
 #foreach($dependsInstance in $instances)
 #if ($dependsInstance.appId == $app.id)
-server $dependsInstance.id $dependsInstance.machine.privateHost:$dependsInstance.port
+server $dependsInstance.id $dependsInstance.machine.privateHost:$dependsInstance.port cookie $dependsInstance.id
 #end
 #end
 
 #end
 #end
 
-#end 
+#end
