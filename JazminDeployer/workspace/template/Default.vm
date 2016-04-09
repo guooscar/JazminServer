@@ -32,7 +32,7 @@ jazmin.addServer(rpcServer);
 //file server 
 fileServer=new FileServer();
 #set($homeDir 	=	$properties.getOrDefault("fileserver.home","file_server"))
-fileDriver.setHomeDir("$homeDir");
+fileServer.setHomeDir("$homeDir");
 fileServer.setPort($instance.port);
 jazmin.addServer(fileServer);
 #end

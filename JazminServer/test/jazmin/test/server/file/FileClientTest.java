@@ -20,5 +20,6 @@ public class FileClientTest {
 		
 		fc.download("http://skydu.local:6008/download/f35e3737-b518-4eb4-a1ed-53bc47119eaa.jpg",
 				new File("/Users/yama/Desktop/test.txt"));
+		System.out.println("a");
 	}
 }
