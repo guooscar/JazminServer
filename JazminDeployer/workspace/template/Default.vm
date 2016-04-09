@@ -27,6 +27,13 @@ rpcServer.setPort($instance.port);
 jazmin.addServer(rpcServer);
 #end
 
+#if($instance.application.type=="jazmin-file")
+//file server 
+fileServer=new FileServer();
+fileServer.setPort($instance.port);
+jazmin.addServer(fileServer);
+#end
+
 
 #if($instance.application.type=="jazmin-web")
 //web server 
@@ -62,6 +69,20 @@ db.setPassword('$dependsInstance.password');
 db.setUrl("jdbc:mysql://$dependsInstance.machine.privateHost:$dependsInstance.port/$dependsInstance.id?useUnicode=true&characterEncoding=$encoding");
 db.setDriverClass("com.mysql.jdbc.Driver");
 jazmin.addDriver(db);
+#end
+#end
+#end
+
+
+#foreach($i in $instance.application.depends)
+#set ($app = $applicationMap.get($i))
+#if($app.type=="jazmin-file")
+//file
+#foreach($dependsInstance in $instances)
+#if ($dependsInstance.appId == $app.id && $dependsInstance.cluster==$instance.cluster)
+var fileDriver=new FileServerDriver();
+fileDriver.addServer("$dependsInstance.id","$dependsInstance.machine.privateHost",$dependsInstance.port,10);
+jazmin.addDriver(fileDriver);
 #end
 #end
 #end

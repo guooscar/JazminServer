@@ -85,6 +85,7 @@ public class BootScriptLoader {
 				"importPackage(Packages.jazmin.core.task);"+
 				//drivers
 				"importPackage(Packages.jazmin.driver.jdbc);"+
+				"importPackage(Packages.jazmin.driver.file);"+
 				"importPackage(Packages.jazmin.driver.memcached);"+
 				"importPackage(Packages.jazmin.driver.mcache);"+
 				"importPackage(Packages.jazmin.driver.rpc);"+
@@ -97,6 +98,7 @@ public class BootScriptLoader {
 				//servers
 				"importPackage(Packages.jazmin.server.console);"+
 				"importPackage(Packages.jazmin.server.cdn);"+
+				"importPackage(Packages.jazmin.server.file);"+
 				"importPackage(Packages.jazmin.server.jmx);"+
 				"importPackage(Packages.jazmin.server.msg);"+
 				"importPackage(Packages.jazmin.server.im);"+
