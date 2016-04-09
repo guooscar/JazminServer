@@ -1,5 +1,6 @@
 #if($instance.application.type=="jazmin-msg"||
 $instance.application.type=="jazmin-rpc"||
+$instance.application.type=="jazmin-file"||
 $instance.application.type=="jazmin-web")
 //logger
 #set($logLevel	=	$properties.getOrDefault("jazmin.log.level","DEBUG"))
@@ -30,6 +31,8 @@ jazmin.addServer(rpcServer);
 #if($instance.application.type=="jazmin-file")
 //file server 
 fileServer=new FileServer();
+#set($homeDir 	=	$properties.getOrDefault("fileserver.home","file_server"))
+fileDriver.setHomeDir("$homeDir");
 fileServer.setPort($instance.port);
 jazmin.addServer(fileServer);
 #end
@@ -74,13 +77,13 @@ jazmin.addDriver(db);
 #end
 
 
-#foreach($i in $instance.application.depends)
-#set ($app = $applicationMap.get($i))
 #if($app.type=="jazmin-file")
 //file
 #foreach($dependsInstance in $instances)
 #if ($dependsInstance.appId == $app.id && $dependsInstance.cluster==$instance.cluster)
 var fileDriver=new FileServerDriver();
+#set($homeDir 	=	$properties.getOrDefault("filedriver.home","file_driver"))
+fileDriver.setHomeDir("$homeDir");
 fileDriver.addServer("$dependsInstance.id","$dependsInstance.machine.privateHost",$dependsInstance.port,10);
 jazmin.addDriver(fileDriver);
 #end
