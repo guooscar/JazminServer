@@ -22,9 +22,15 @@ public class FileDriverFileView implements View{
 	private int cacheSeconds=24*3600*30;
 	private String fileId;
 	private FileServerDriver fileDriver;
+	private String fileName;
 	public FileDriverFileView(FileServerDriver fileDriver,String fileId) {
 		this.fileDriver=fileDriver;
 		this.fileId=fileId;
+	}
+	//
+	public FileDriverFileView(FileServerDriver fileDriver,String fileId,String fileName) {
+		this(fileDriver,fileId);
+		this.fileName=fileName;
 	}
 	//
 	@Override
@@ -34,7 +40,11 @@ public class FileDriverFileView implements View{
 		if(file==null){
 			file=fileDriver.downloadFile(fileId);
 		}
-		writeCommonHeader(file.length(),file.getName(),response);
+		String fn=file.getName();
+		if(fileName!=null){
+			fn=fileName;
+		}
+		writeCommonHeader(file.length(),fn,response);
 		ServletOutputStream outStream = response.getOutputStream();
 	    FileInputStream fis=new FileInputStream(file);
         IOUtil.copy(fis,outStream);
