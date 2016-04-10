@@ -127,8 +127,13 @@ public class FileServerDriver extends Driver{
 	 * @return
 	 * @throws IOException
 	 */
-	public File createTempFile() throws IOException{
-		String fileName=UUID.randomUUID().toString()+".tmp";
+	public File createTempFile(String name) throws IOException{
+		String type=".tmp";
+		int lastIndexOfDot=name.lastIndexOf('.');
+		if(lastIndexOfDot!=-1){
+			type=name.substring(lastIndexOfDot);
+		}
+		String fileName="tmp_"+UUID.randomUUID().toString()+type;
 		File file=new File(homeDir,fileName);
 		file.createNewFile();
 		return file;
