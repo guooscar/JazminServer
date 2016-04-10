@@ -4,11 +4,13 @@
 package jazmin.driver.file;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import jazmin.core.Driver;
@@ -120,6 +122,17 @@ public class FileServerDriver extends Driver{
 		cachePolicy.cleanFile(homeDir);
 	}
 	//--------------------------------------------------------------------------
+	/**
+	 * create temp file in home dir
+	 * @return
+	 * @throws IOException
+	 */
+	public File createTempFile() throws IOException{
+		String fileName=UUID.randomUUID().toString()+".tmp";
+		File file=new File(homeDir,fileName);
+		file.createNewFile();
+		return file;
+	}
 	/**
 	 * upload file to server
 	 */
