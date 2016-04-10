@@ -30,6 +30,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.concurrent.TimeUnit;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -249,7 +250,17 @@ public class FileClient {
 	 * @param handler
 	 */
 	public void download(String url,File targetFile)throws Exception{
+		download(url, targetFile,60*10);
+	}
+	//
+	/**
+	 * download file from server
+	 * @param url
+	 * @param targetFile
+	 * @param handler
+	 */
+	public void download(String url,File targetFile,int timeoutSeconds)throws Exception{
 		DownloadAsyncHandler asyncHandler=new DownloadAsyncHandler(url,targetFile);
-		asyncHttpClient.prepareGet(url).execute(asyncHandler).get();
+		asyncHttpClient.prepareGet(url).execute(asyncHandler).get(timeoutSeconds,TimeUnit.SECONDS);
 	}
 }
