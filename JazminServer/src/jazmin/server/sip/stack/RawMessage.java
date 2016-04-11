@@ -8,6 +8,8 @@ import java.io.IOException;
 import jazmin.server.sip.io.buffer.Buffer;
 import jazmin.server.sip.io.buffer.Buffers;
 
+import org.jboss.netty.buffer.ChannelBuffer;
+
 /**
  * Represents a raw sip message coming off of the network.
  * 

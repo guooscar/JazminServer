@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.LongAdder;
+import java.util.concurrent.atomic.AtomicLong;
 
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
@@ -62,7 +62,7 @@ public class CdnServer extends Server {
 	//
 	private File homeDir;
 	private URL orginSiteURL;
-	private LongAdder requestIdGenerator;
+	private AtomicLong requestIdGenerator;
 	private Map<String,FileOpt>requests;
 	//
 	AsyncHttpClientConfig.Builder clientConfigBuilder;
@@ -76,7 +76,7 @@ public class CdnServer extends Server {
 	//
 	public CdnServer() {
 		port = 8001;
-		requestIdGenerator=new LongAdder();
+		requestIdGenerator=new AtomicLong();
 		requests=new ConcurrentHashMap<String, FileOpt>();
 		asyncHttpClient = new AsyncHttpClient();
 		clientConfigBuilder=new Builder();
@@ -240,8 +240,7 @@ public class CdnServer extends Server {
 			HttpMethod method=request.method();
 			if(method.equals(io.netty.handler.codec.http.HttpMethod.GET)){
 				FileDownload fileRequest=new FileDownload(this,requestURI,ctx.channel(),request);
-				requestIdGenerator.increment();
-				fileRequest.id=requestIdGenerator.intValue()+"";
+				fileRequest.id=requestIdGenerator.incrementAndGet()+"";
 				requests.put(fileRequest.id, fileRequest);
 				GetRequestWorker rw=new GetRequestWorker(this,fileRequest,ctx,request);
 				ctx.channel().attr(WORKER_KEY).set(rw);

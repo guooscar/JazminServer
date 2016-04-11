@@ -7,8 +7,8 @@ import io.netty.channel.Channel;
 
 import java.net.InetSocketAddress;
 
-import jazmin.log.LoggerFactory;
 import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
 import jazmin.server.sip.SipChannel;
 import jazmin.server.sip.io.sip.SipMessage;
 

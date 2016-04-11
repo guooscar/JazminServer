@@ -35,7 +35,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.LongAdder;
+import java.util.concurrent.atomic.AtomicLong;
 
 import jazmin.core.Jazmin;
 import jazmin.core.JazminThreadFactory;
@@ -100,7 +100,7 @@ public class SipServer extends Server{
     private  SipMessageHandler messageHandler;
     private  Method handlerMethod;
     private  Map<String,SipSession>sessionMap;
-    private  LongAdder sessionIdLongAdder;
+    private  AtomicLong sessionIdLongAdder;
     private  Map<SipURI, SipLocationBinding> locationStore;
     private  Map<String, SipChannel>channels;
   
@@ -125,7 +125,7 @@ public class SipServer extends Server{
         sessionMap=new ConcurrentHashMap<String, SipSession>();
         locationStore=new ConcurrentHashMap<SipURI, SipLocationBinding>();
         channels=new ConcurrentHashMap<String, SipChannel>();
-        sessionIdLongAdder=new LongAdder();
+        sessionIdLongAdder=new AtomicLong();
         sessionTimeout=60;
         scheduledExecutorService=new ScheduledThreadPoolExecutor(
 				3,
@@ -661,8 +661,7 @@ public class SipServer extends Server{
 		if(create){
 			SipSession session=new SipSession(this);
 			session.setSessionTimeout(sessionTimeout);
-			sessionIdLongAdder.increment();
-			session.sessionId=sessionIdLongAdder.longValue();
+			session.sessionId=sessionIdLongAdder.incrementAndGet();
 			session.callId=callId;
 			sessionMap.put(callId,session);
 			return session;			

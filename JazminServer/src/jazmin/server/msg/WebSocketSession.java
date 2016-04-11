@@ -3,8 +3,6 @@
  */
 package jazmin.server.msg;
 
-import com.alibaba.fastjson.JSON;
-
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import jazmin.log.Logger;
@@ -12,6 +10,8 @@ import jazmin.log.LoggerFactory;
 import jazmin.server.msg.codec.ResponseMessage;
 import jazmin.server.msg.codec.json.ResponseProto;
 import jazmin.util.DumpUtil;
+
+import com.alibaba.fastjson.JSON;
 
 /**
  * @author yama

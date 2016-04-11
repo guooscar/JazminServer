@@ -20,7 +20,6 @@
 
 package jazmin.codec.sdp;
 
-import jazmin.codec.sdp.SdpField;
 
 /**
  * v=[version number]

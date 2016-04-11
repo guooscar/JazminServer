@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.LongAdder;
+import java.util.concurrent.atomic.AtomicLong;
 
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
@@ -56,7 +56,7 @@ public class FileServer extends Server {
 	private EventLoopGroup workerGroup;
 	//
 	private File homeDir;
-	private LongAdder requestIdGenerator;
+	private AtomicLong requestIdGenerator;
 	private Map<String,FileOpt>requests;
 	//
 	AsyncHttpClientConfig.Builder clientConfigBuilder;
@@ -68,7 +68,7 @@ public class FileServer extends Server {
 	//
 	public FileServer() {
 		port = 9001;
-		requestIdGenerator=new LongAdder();
+		requestIdGenerator=new AtomicLong();
 		requests=new ConcurrentHashMap<String, FileOpt>();
 		asyncHttpClient = new AsyncHttpClient();
 		clientConfigBuilder=new Builder();
@@ -192,8 +192,7 @@ public class FileServer extends Server {
 			if(requestURI.startsWith("/download/")&&
 					method.equals(io.netty.handler.codec.http.HttpMethod.GET)){
 				FileDownload fileRequest=new FileDownload(this,requestURI,ctx.channel(),request);
-				requestIdGenerator.increment();
-				fileRequest.id=requestIdGenerator.intValue()+"";
+				fileRequest.id=requestIdGenerator.incrementAndGet()+"";
 				requests.put(fileRequest.id, fileRequest);
 				GetRequestWorker rw=new GetRequestWorker(this,fileRequest,ctx,request);
 				ctx.channel().attr(WORKER_KEY).set(rw);
@@ -207,8 +206,7 @@ public class FileServer extends Server {
 					(method.equals(io.netty.handler.codec.http.HttpMethod.POST)||
 					method.equals(io.netty.handler.codec.http.HttpMethod.PUT))){
 				FileUpload upload=new FileUpload(this,requestURI,ctx.channel(),request);
-				requestIdGenerator.increment();
-				upload.id=requestIdGenerator.intValue()+"";
+				upload.id=requestIdGenerator.incrementAndGet()+"";
 				requests.put(upload.id, upload);
 				PostRequestWorker worker=new PostRequestWorker(this,ctx,request,upload);
 				ctx.channel().attr(WORKER_KEY).set(worker);

@@ -3,11 +3,11 @@
  */
 package jazmin.server.file;
 
-import jazmin.core.thread.NoTraceLog;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import jazmin.core.thread.NoTraceLog;
 
 
 /**

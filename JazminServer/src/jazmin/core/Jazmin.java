@@ -33,9 +33,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.serializer.SerializeConfig;
-
 import jazmin.core.app.Application;
 import jazmin.core.app.ApplicationLoader;
 import jazmin.core.boot.BootScriptLoader;
@@ -47,6 +44,9 @@ import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
 import jazmin.util.DumpUtil;
 import jazmin.util.IOUtil;
+
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.serializer.SerializeConfig;
 
 /**
  * JazminServer is a Java based application/message/rpc server.

@@ -1,10 +1,11 @@
 package jazmin.server.msg.client;
 
-import java.io.IOException;
-
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+
+import java.io.IOException;
+
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.msg.codec.ResponseMessage;
