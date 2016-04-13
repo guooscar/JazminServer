@@ -23,15 +23,19 @@ public class FileDriverFileView implements View{
 	private String fileId;
 	private FileServerDriver fileDriver;
 	private String fileName;
+	private String contentDisposition;
 	public FileDriverFileView(FileServerDriver fileDriver,String fileId) {
 		this.fileDriver=fileDriver;
 		this.fileId=fileId;
+		contentDisposition="attachment";
 	}
 	//
 	public FileDriverFileView(FileServerDriver fileDriver,String fileId,String fileName) {
 		this(fileDriver,fileId);
 		this.fileName=fileName;
 	}
+	//
+	
 	//
 	@Override
 	public void render(Context ctx) throws Exception {
@@ -51,6 +55,30 @@ public class FileDriverFileView implements View{
         IOUtil.closeQuietly(fis);
         IOUtil.closeQuietly(outStream);
     }
+	/**
+	 * @return the contentDisposition
+	 */
+	public String getContentDisposition() {
+		return contentDisposition;
+	}
+	/**
+	 * @param contentDisposition the contentDisposition to set
+	 */
+	public void setContentDisposition(String contentDisposition) {
+		this.contentDisposition = contentDisposition;
+	}
+	/**
+	 * @return the cacheSeconds
+	 */
+	public int getCacheSeconds() {
+		return cacheSeconds;
+	}
+	/**
+	 * @param cacheSeconds the cacheSeconds to set
+	 */
+	public void setCacheSeconds(int cacheSeconds) {
+		this.cacheSeconds = cacheSeconds;
+	}
 	//
 	private void writeCommonHeader(long length,String name,HttpServletResponse response)
 			throws Exception{
@@ -64,7 +92,7 @@ public class FileDriverFileView implements View{
         // sets HTTP header
         String filename = new String(name.getBytes("UTF-8"), "ISO8859-1");
         response.setHeader("Content-Disposition", 
-        		"attachment; filename=\"" + filename + "\"");
+        		contentDisposition+"; filename=\"" + filename + "\"");
         if(cacheSeconds>0){
         	long expiry = new Date().getTime() + cacheSeconds*1000;
         	response.setDateHeader("Expires", expiry);

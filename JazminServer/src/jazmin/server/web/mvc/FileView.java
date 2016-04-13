@@ -20,19 +20,34 @@ public class FileView implements View{
 	private File file;
 	private String mimetype;
 	private int cacheSeconds;
+	private String contentDisposition;
 	public FileView(String filePath,String mimetype) {
 		this.file=new File(filePath);
 		this.mimetype=mimetype;
+		contentDisposition="attachment";
 	}
 	public FileView(String filePath,String mimetype,int cacheSeconds) {
 		this.file=new File(filePath);
 		this.mimetype=mimetype;
 		this.cacheSeconds=cacheSeconds;
+		contentDisposition="attachment";
 	}
 	public FileView(String filePath) {
 		this(filePath,null);
 	}
 	
+	/**
+	 * @return the contentDisposition
+	 */
+	public String getContentDisposition() {
+		return contentDisposition;
+	}
+	/**
+	 * @param contentDisposition the contentDisposition to set
+	 */
+	public void setContentDisposition(String contentDisposition) {
+		this.contentDisposition = contentDisposition;
+	}
 	//
 	@Override
 	public void render(Context ctx) throws Exception {
@@ -54,7 +69,7 @@ public class FileView implements View{
         // sets HTTP header
         String filename = new String(file.getName().getBytes("UTF-8"), "ISO8859-1");
         response.setHeader("Content-Disposition", 
-        		"attachment; filename=\"" + filename + "\"");
+        		contentDisposition+"; filename=\"" + filename + "\"");
         if(cacheSeconds>0){
         	long expiry = new Date().getTime() + cacheSeconds*1000;
         	response.setDateHeader("Expires", expiry);
