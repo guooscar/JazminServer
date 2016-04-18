@@ -36,4 +36,6 @@ public @interface TaskDefine{
 	 * @return time unit of repeat time
 	 */
 	TimeUnit unit();
+	//
+	boolean runInThreadPool() default true;
 }

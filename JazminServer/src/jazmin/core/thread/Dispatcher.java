@@ -296,6 +296,17 @@ public class Dispatcher extends Lifecycle implements Executor{
 	/**
 	 * 
 	 */
+	public void invokeInCaller(String traceId,Object instance,Method method){
+		invokeInCaller(
+				traceId,
+				instance, 
+				method, 
+				EMPTY_CALLBACK,
+				EMPTY_ARGS);
+	}
+	/**
+	 * 
+	 */
 	public void invokeInPool(
 			String traceId,
 			Object instance,

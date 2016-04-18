@@ -49,6 +49,7 @@ public class TaskStore extends Lifecycle{
 			task.unit=td.unit();
 			task.method=m;
 			task.instance=instance;
+			task.runInThreadPool=td.runInThreadPool();
 			taskMap.put(task.id,task);
 		}
 	}

@@ -18,6 +18,7 @@ public class JazminTask implements Runnable{
 	public Object instance;
 	public int runTimes;
 	public Method method;
+	public boolean runInThreadPool;
 	//
 	public JazminTask() {
 		runTimes=0;
@@ -26,6 +27,10 @@ public class JazminTask implements Runnable{
 	@Override
 	public void run() {
 		runTimes++;
-		Jazmin.dispatcher.invokeInPool("",instance, method);
+		if(runInThreadPool){
+			Jazmin.dispatcher.invokeInPool("",instance, method);
+		}else{
+			Jazmin.dispatcher.invokeInCaller("",instance, method);
+		}
 	}
 }
