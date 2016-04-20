@@ -188,6 +188,10 @@ public class FileServerDriver extends Driver{
 				throw new FileDriverException("wait 60 seconds for another client download");
 			}
 		}
+		File localFile=getFile(fileId);
+		if(localFile!=null){
+			return localFile;
+		}
 		try {
 			downloadSet.add(fileId);
 			client.download("http://"+fsp.serverInfo.host+":"+
