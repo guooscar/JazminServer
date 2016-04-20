@@ -6,10 +6,13 @@ package jazmin.driver.file;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -34,6 +37,7 @@ public class FileServerDriver extends Driver{
 	private List<ServerInfo>serverList;
 	private Map<String,ServerInfo>serverMap;
 	private int weightArray[];
+	private Set<String>downloadSet;
 	//
 	static class ServerInfo{
 		String id;
@@ -47,6 +51,7 @@ public class FileServerDriver extends Driver{
 		client=new FileClient();
 		serverList=new ArrayList<FileServerDriver.ServerInfo>();
 		serverMap=new HashMap<String, FileServerDriver.ServerInfo>();
+		downloadSet=Collections.synchronizedSet(new TreeSet<>());
 	}
 	//
 	public void addServer(String id,String host,int port,int weight){
@@ -172,12 +177,26 @@ public class FileServerDriver extends Driver{
 	 */
 	public File downloadFile(String fileId) throws FileDriverException{
 		FileServerPair fsp=getFileServerPair(fileId);
+		int counter=0;
+		while(downloadSet.contains(fileId)){
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				logger.catching(e);
+			}
+			if(counter++>60){
+				throw new FileDriverException("wait 60 seconds for another client download");
+			}
+		}
 		try {
+			downloadSet.add(fileId);
 			client.download("http://"+fsp.serverInfo.host+":"+
 					fsp.serverInfo.port+"/download/"+fsp.readId, fsp.file);
 			return fsp.file;
 		} catch (Exception e) {
 			throw new FileDriverException(e);
+		}finally{
+			downloadSet.remove(fileId);
 		}
 	}
 	//
