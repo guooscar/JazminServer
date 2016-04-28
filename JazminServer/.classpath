@@ -7,7 +7,6 @@
 	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/xmemcached-2.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
-	<classpathentry kind="lib" path="lib/jetty.jar"/>
 	<classpathentry kind="lib" path="lib/gently-utils-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/josql-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/c3p0-0.9.5.jar"/>
@@ -38,5 +37,6 @@
 	<classpathentry kind="lib" path="lib/log4j-api-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-core-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-nop-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-9.3.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

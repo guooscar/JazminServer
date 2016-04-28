@@ -32,6 +32,7 @@ import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.Jetty;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.ThreadPool;
@@ -57,6 +58,7 @@ public class WebServer extends jazmin.core.Server{
 	private String keyStorePassword;
 	private int idleTimeout=30;//30seconds
 	private boolean dirAllowed=false;
+	private String hostname;
 	static{
 		System.getProperties().put("org.eclipse.jetty.util.log.class",JettyLogger.class.getName());
 	}
@@ -252,6 +254,14 @@ public class WebServer extends jazmin.core.Server{
 	public WebAppContext getWebAppContext(){
 		return webAppContext;
 	}
+	//
+	public void setHostname(String hostname){
+		this.hostname=hostname;
+	}
+	//
+	public String getHostname(){
+		return hostname;
+	}
 	//--------------------------------------------------------------------------
 	//
 	static class JettyThreadPool implements ThreadPool{
@@ -369,6 +379,7 @@ public class WebServer extends jazmin.core.Server{
 		InfoBuilder ib=InfoBuilder.create();
 		ib.section("info");
 		ib.format("%-30s:%-30s\n");
+		ib.print("jettyVersion",Jetty.VERSION);
 		ib.print("port",port);
 		ib.print("httpsPort",httpsPort);
 		ib.print("keyStoreFile",keyStoreFile);
