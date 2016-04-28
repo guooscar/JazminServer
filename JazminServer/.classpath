@@ -37,6 +37,6 @@
 	<classpathentry kind="lib" path="lib/log4j-api-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-core-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-nop-1.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/jetty-9.3.8.jar"/>
+	<classpathentry kind="lib" path="lib/jetty.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
