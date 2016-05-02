@@ -9,6 +9,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import jazmin.deploy.DeploySystemUI;
+import jazmin.deploy.domain.Instance;
+import jazmin.deploy.ui.BeanTable;
+import jazmin.util.JdbcUtil;
+import jazmin.util.JdbcUtil.ColumnInfo;
+import jazmin.util.JdbcUtil.DatabaseInfo;
+import jazmin.util.JdbcUtil.TableInfo;
+
 import org.vaadin.aceeditor.AceEditor;
 import org.vaadin.aceeditor.AceMode;
 import org.vaadin.aceeditor.AceTheme;
@@ -17,19 +25,11 @@ import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Responsive;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
-
-import jazmin.deploy.DeploySystemUI;
-import jazmin.deploy.domain.Instance;
-import jazmin.deploy.ui.BeanTable;
-import jazmin.util.JdbcUtil;
-import jazmin.util.JdbcUtil.ColumnInfo;
-import jazmin.util.JdbcUtil.DatabaseInfo;
-import jazmin.util.JdbcUtil.TableInfo;
 
 /**
  * @author yama
@@ -74,6 +74,7 @@ public class InstanceMySQLTableDomainWindow extends Window{
         editor.setTheme(AceTheme.eclipse);
         editor.setMode(AceMode.java);
         editor.setWidth(100.0f, Unit.PERCENTAGE);
+        editor.setHeight("100%");
         //
         daoEditor=new AceEditor();
         daoEditor.setThemePath("/ace");
@@ -83,9 +84,12 @@ public class InstanceMySQLTableDomainWindow extends Window{
         daoEditor.setTheme(AceTheme.eclipse);
         daoEditor.setMode(AceMode.java);
         daoEditor.setWidth(100.0f, Unit.PERCENTAGE);
-        HorizontalLayout hl=new HorizontalLayout(editor,daoEditor);
-        hl.setExpandRatio(editor,0.5f);
-        content.addComponent(hl);
+        daoEditor.setHeight("100%");
+        HorizontalSplitPanel hp=new HorizontalSplitPanel(editor,daoEditor);
+        hp.setSizeFull();
+        hp.setHeight("600px");
+        content.addComponent(hp);
+        content.setExpandRatio(hp,1.0f);
         panel.setContent(content);
         //
         tablesList.addItemClickListener(new ItemClickListener() {
