@@ -47,7 +47,7 @@ public class MachineOptView extends DeployBaseView{
 			public void itemClick(ItemClickEvent event) {
 				if(event.isDoubleClick()){
 					Machine machine=table.getItemValue(event.getItem());
-					MachineWebSshWindow window=new MachineWebSshWindow(machine);
+					MachineWebSshWindow window=new MachineWebSshWindow(machine,false);
 					Component c=window.getContent();
 					c.setCaption(window.getCaption());
 					DeploySystemUI.get().getMainView().getConsoleView().addOptView(c);

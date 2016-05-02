@@ -19,9 +19,13 @@ import com.vaadin.ui.Window;
 @SuppressWarnings("serial")
 public class MachineWebSshWindow extends Window{
 	//
-	public MachineWebSshWindow(Machine machine) {
+	public MachineWebSshWindow(Machine machine,boolean root) {
         Responsive.makeResponsive(this);
-        setCaption(machine.sshUser+"@"+machine.id);
+        if(root){
+        	 setCaption("root@"+machine.id);
+        }else{
+       	 setCaption(machine.sshUser+"@"+machine.id);
+        }
         setWidth(90.0f, Unit.PERCENTAGE);
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);
@@ -32,8 +36,14 @@ public class MachineWebSshWindow extends Window{
         content.setSizeFull();
         setContent(content);
         content.setImmediate(false);
+        String url="/srv/deploy/webssh/"+machine.id;
+        if(root){
+        	url="/srv/deploy/rootwebssh/"+machine.id;
+        }
         BrowserFrame frame=new BrowserFrame(null,
-        		new ExternalResource("/srv/deploy/webssh/"+machine.id));
+        		new ExternalResource(url));
+        //
+        //
         frame.setSizeFull();
         content.addComponent(frame);
         content.setExpandRatio(frame, 1f);

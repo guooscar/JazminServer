@@ -154,6 +154,25 @@ public class DeployController {
 		c.view(new ResourceView("/jsp/webssh.jsp"));
 	}
 	//
+	@Service(id="rootwebssh",queryCount=3)
+	public void rootwebssh(Context c){
+		if(!checkMachine(c,"")){
+			return;
+		}
+		List<String>querys=c.request().querys();
+		String machineId=querys.get(2);
+		Machine machine=DeployManager.getMachine(machineId);
+		if(machine==null){
+			c.view(new ErrorView(404));
+			return;
+		}
+		c.put("sshHost",machine.publicHost);
+		c.put("sshUser","root");
+		c.put("sshPort",machine.sshPort);
+		c.put("sshPassword",machine.rootSshPassword);
+		c.view(new ResourceView("/jsp/webssh.jsp"));
+	}
+	//
 	@Service(id="sysgraph")
 	public void getSystemGraph(Context c){
 		if(!checkMachine(c,"")){

@@ -137,7 +137,8 @@ public class MachineInfoView extends DeployBaseView{
 		addOptButton("View Scripts",null, (e)->showScripts());
 		addOptButton("Test Machine",null, (e)->checkMachine());
 		addOptButton("Copy Files",ValoTheme.BUTTON_PRIMARY, (e)->copyFiles());
-		addOptButton("SSH Login",ValoTheme.BUTTON_PRIMARY, (e)->sshLogin());
+		addOptButton("Root SSH",ValoTheme.BUTTON_DANGER, (e)->rootSshLogin());
+		addOptButton("SSH",ValoTheme.BUTTON_PRIMARY, (e)->sshLogin());
 		addOptButton("Iptables",ValoTheme.BUTTON_DANGER, (e)->viewIptables());
 		
 		addOptButton("Run Command",ValoTheme.BUTTON_DANGER, (e)->runCmd());
@@ -192,7 +193,19 @@ public class MachineInfoView extends DeployBaseView{
 			DeploySystemUI.showNotificationInfo("Info",
 					"Please choose which machine to login.");
 		}else{
-			MachineWebSshWindow bfw=new MachineWebSshWindow(machine);
+			MachineWebSshWindow bfw=new MachineWebSshWindow(machine,false);
+			UI.getCurrent().addWindow(bfw);
+			bfw.focus();
+		}
+	}
+	//
+	private void rootSshLogin(){
+		Machine machine=table.getSelectValue();
+		if(machine==null){
+			DeploySystemUI.showNotificationInfo("Info",
+					"Please choose which machine to login.");
+		}else{
+			MachineWebSshWindow bfw=new MachineWebSshWindow(machine,true);
 			UI.getCurrent().addWindow(bfw);
 			bfw.focus();
 		}
