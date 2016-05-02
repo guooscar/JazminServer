@@ -17,6 +17,7 @@ import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Responsive;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
@@ -73,7 +74,6 @@ public class InstanceMySQLTableDomainWindow extends Window{
         editor.setTheme(AceTheme.eclipse);
         editor.setMode(AceMode.java);
         editor.setWidth(100.0f, Unit.PERCENTAGE);
-        content.addComponent(editor);
         //
         daoEditor=new AceEditor();
         daoEditor.setThemePath("/ace");
@@ -83,8 +83,9 @@ public class InstanceMySQLTableDomainWindow extends Window{
         daoEditor.setTheme(AceTheme.eclipse);
         daoEditor.setMode(AceMode.java);
         daoEditor.setWidth(100.0f, Unit.PERCENTAGE);
-        content.addComponent(daoEditor);
-        //
+        HorizontalLayout hl=new HorizontalLayout(editor,daoEditor);
+        hl.setExpandRatio(editor,0.5f);
+        content.addComponent(hl);
         panel.setContent(content);
         //
         tablesList.addItemClickListener(new ItemClickListener() {
