@@ -23,6 +23,8 @@ public class Instance{
 	//
 	public static final String P_MEMCACHED_SIZE="memcached.size";
 	//
+	public static final String P_NO_CHECK_IP="nocheckip";
+	//
 	public String id;
 	public String cluster;
 	public String appId;

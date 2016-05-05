@@ -38,6 +38,9 @@ public class DeployController {
 		if(instance==null){
 			return false;
 		}
+		if(instance.getProperties().containsKey(Instance.P_NO_CHECK_IP)){
+			return true;
+		}
 		String remoteAddr=c.request().raw().getRemoteAddr();
 		if(!instance.machine.publicHost.equals(remoteAddr)
 				&&!instance.machine.privateHost.equals(remoteAddr)){
@@ -45,7 +48,7 @@ public class DeployController {
 					instance.machine.publicHost,
 					instance.machine.privateHost,
 					remoteAddr);	
-			c.view(new ErrorView(HttpServletResponse.SC_FORBIDDEN));
+			c.view(new ErrorView(HttpServletResponse.SC_FORBIDDEN,"bad machine host"));
 			return false;
 		}
 		return true;
@@ -82,7 +85,7 @@ public class DeployController {
 		String instanceId = querys.get(2);
 		Instance instance=DeployManager.getInstance(instanceId);
 		if(!checkMachine(c,instanceId)){
-			return;
+				return;
 		}
 		jazmin.deploy.domain.AppPackage result = DeployManager
 				.getInstancePackage(instanceId);
