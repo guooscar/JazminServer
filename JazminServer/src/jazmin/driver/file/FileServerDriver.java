@@ -143,6 +143,18 @@ public class FileServerDriver extends Driver{
 		file.createNewFile();
 		return file;
 	}
+	//
+	/**
+	 * create temp file in home dir
+	 * @return
+	 * @throws IOException
+	 */
+	public File createTemDir(String name) throws IOException{
+		String fileName="tmp_"+UUID.randomUUID().toString();
+		File file=new File(homeDir,fileName);
+		file.mkdirs();
+		return file;
+	}
 	/**
 	 * upload file to server
 	 */
