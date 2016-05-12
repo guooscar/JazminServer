@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
 import jazmin.core.Driver;
@@ -72,6 +73,9 @@ public class HttpClientDriver extends Driver{
 				.print("isAcceptAnyCertificate",isAcceptAnyCertificate())
 				.print("isAllowPoolingConnections",isAllowPoolingConnections())
 				.print("isAllowPoolingSslConnections",isAllowPoolingSslConnections())
+				.print("hostnameVerifier",getHostnameVerifier())
+				.print("sslSessionCacheSize",getSslSessionCacheSize())
+				.print("sslSessionTimeout",getSslSessionTimeout())
 				
 				.toString();			
 	}
@@ -106,10 +110,51 @@ public class HttpClientDriver extends Driver{
 		}
 	}
 	//--------------------------------------------------------------------------
+	
 	/**
 	 */
 	public int getConnectTimeout() {
 		return clientConfig.getConnectTimeout();
+	}
+	/**
+	 * @param hostnameVerifier
+	 * @return
+	 * @see com.ning.http.client.AsyncHttpClientConfig.Builder#setHostnameVerifier(javax.net.ssl.HostnameVerifier)
+	 */
+	public Builder setHostnameVerifier(HostnameVerifier hostnameVerifier) {
+		return clientConfigBuilder.setHostnameVerifier(hostnameVerifier);
+	}
+	/**
+	 * @param sslSessionCacheSize
+	 * @return
+	 * @see com.ning.http.client.AsyncHttpClientConfig.Builder#setSslSessionCacheSize(java.lang.Integer)
+	 */
+	public Builder setSslSessionCacheSize(Integer sslSessionCacheSize) {
+		return clientConfigBuilder.setSslSessionCacheSize(sslSessionCacheSize);
+	}
+	/**
+	 * @param useProxyProperties
+	 * @return
+	 * @see com.ning.http.client.AsyncHttpClientConfig.Builder#setUseProxyProperties(boolean)
+	 */
+	public Builder setUseProxyProperties(boolean useProxyProperties) {
+		return clientConfigBuilder.setUseProxyProperties(useProxyProperties);
+	}
+	/**
+	 * @param useProxySelector
+	 * @return
+	 * @see com.ning.http.client.AsyncHttpClientConfig.Builder#setUseProxySelector(boolean)
+	 */
+	public Builder setUseProxySelector(boolean useProxySelector) {
+		return clientConfigBuilder.setUseProxySelector(useProxySelector);
+	}
+	/**
+	 * @param webSocketTimeout
+	 * @return
+	 * @see com.ning.http.client.AsyncHttpClientConfig.Builder#setWebSocketTimeout(int)
+	 */
+	public Builder setWebSocketTimeout(int webSocketTimeout) {
+		return clientConfigBuilder.setWebSocketTimeout(webSocketTimeout);
 	}
 	/**
 	 */
@@ -311,6 +356,55 @@ public class HttpClientDriver extends Driver{
 	}
 
 
+	/**
+	 * @return
+	 * @see com.ning.http.client.AsyncHttpClientConfig#getEnabledCipherSuites()
+	 */
+	public String[] getEnabledCipherSuites() {
+		return clientConfig.getEnabledCipherSuites();
+	}
+	/**
+	 * @return
+	 * @see com.ning.http.client.AsyncHttpClientConfig#getEnabledProtocols()
+	 */
+	public String[] getEnabledProtocols() {
+		return clientConfig.getEnabledProtocols();
+	}
+	/**
+	 * @return
+	 * @see com.ning.http.client.AsyncHttpClientConfig#getHostnameVerifier()
+	 */
+	public HostnameVerifier getHostnameVerifier() {
+		return clientConfig.getHostnameVerifier();
+	}
+	/**
+	 * @return
+	 * @see com.ning.http.client.AsyncHttpClientConfig#getMaxRedirects()
+	 */
+	public int getMaxRedirects() {
+		return clientConfig.getMaxRedirects();
+	}
+	/**
+	 * @return
+	 * @see com.ning.http.client.AsyncHttpClientConfig#getSslSessionCacheSize()
+	 */
+	public Integer getSslSessionCacheSize() {
+		return clientConfig.getSslSessionCacheSize();
+	}
+	/**
+	 * @return
+	 * @see com.ning.http.client.AsyncHttpClientConfig#getSslSessionTimeout()
+	 */
+	public Integer getSslSessionTimeout() {
+		return clientConfig.getSslSessionTimeout();
+	}
+	/**
+	 * @return
+	 * @see com.ning.http.client.AsyncHttpClientConfig#getWebSocketTimeout()
+	 */
+	public int getWebSocketTimeout() {
+		return clientConfig.getWebSocketTimeout();
+	}
 	/**
 	 */
 	public int getConnectionTTL() {
