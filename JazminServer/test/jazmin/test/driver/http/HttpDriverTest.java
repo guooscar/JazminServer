@@ -3,6 +3,9 @@
  */
 package jazmin.test.driver.http;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
+
 import jazmin.core.Jazmin;
 import jazmin.driver.http.HttpClientDriver;
 import jazmin.server.console.ConsoleServer;
@@ -18,6 +21,12 @@ public class HttpDriverTest {
 	 */
 	public static void main(String[] args) {
 		HttpClientDriver hd=new HttpClientDriver();
+		hd.setHostnameVerifier(new HostnameVerifier() {
+			@Override
+			public boolean verify(String arg0, SSLSession arg1) {
+				return true;
+			}
+		});
 		Jazmin.addDriver(hd);
 		ConsoleServer cs=new ConsoleServer();
 		cs.setPort(2222);
