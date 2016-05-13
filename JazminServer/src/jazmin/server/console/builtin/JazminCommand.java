@@ -114,7 +114,7 @@ public class JazminCommand extends ConsoleCommand {
     //
     private void showTasks(String args){
     	TablePrinter tp=TablePrinter.create(out).
-    			length(40,20,15,15,10).
+    			length(40,10,20,15,15,10).
     			headers("NAME","INPOOL","INITDELAY","PERIOD","UNIT","RUNTIMES");  	
     	List<JazminTask>tasks=Jazmin.taskStore.getTasks();
 		for(JazminTask task:tasks){
