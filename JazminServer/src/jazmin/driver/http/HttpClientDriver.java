@@ -121,40 +121,40 @@ public class HttpClientDriver extends Driver{
 	 * @return
 	 * @see com.ning.http.client.AsyncHttpClientConfig.Builder#setHostnameVerifier(javax.net.ssl.HostnameVerifier)
 	 */
-	public Builder setHostnameVerifier(HostnameVerifier hostnameVerifier) {
-		return clientConfigBuilder.setHostnameVerifier(hostnameVerifier);
+	public void setHostnameVerifier(HostnameVerifier hostnameVerifier) {
+		clientConfigBuilder.setHostnameVerifier(hostnameVerifier);
 	}
 	/**
 	 * @param sslSessionCacheSize
 	 * @return
 	 * @see com.ning.http.client.AsyncHttpClientConfig.Builder#setSslSessionCacheSize(java.lang.Integer)
 	 */
-	public Builder setSslSessionCacheSize(Integer sslSessionCacheSize) {
-		return clientConfigBuilder.setSslSessionCacheSize(sslSessionCacheSize);
+	public void setSslSessionCacheSize(Integer sslSessionCacheSize) {
+		clientConfigBuilder.setSslSessionCacheSize(sslSessionCacheSize);
 	}
 	/**
 	 * @param useProxyProperties
 	 * @return
 	 * @see com.ning.http.client.AsyncHttpClientConfig.Builder#setUseProxyProperties(boolean)
 	 */
-	public Builder setUseProxyProperties(boolean useProxyProperties) {
-		return clientConfigBuilder.setUseProxyProperties(useProxyProperties);
+	public void setUseProxyProperties(boolean useProxyProperties) {
+		clientConfigBuilder.setUseProxyProperties(useProxyProperties);
 	}
 	/**
 	 * @param useProxySelector
 	 * @return
 	 * @see com.ning.http.client.AsyncHttpClientConfig.Builder#setUseProxySelector(boolean)
 	 */
-	public Builder setUseProxySelector(boolean useProxySelector) {
-		return clientConfigBuilder.setUseProxySelector(useProxySelector);
+	public void setUseProxySelector(boolean useProxySelector) {
+		clientConfigBuilder.setUseProxySelector(useProxySelector);
 	}
 	/**
 	 * @param webSocketTimeout
 	 * @return
 	 * @see com.ning.http.client.AsyncHttpClientConfig.Builder#setWebSocketTimeout(int)
 	 */
-	public Builder setWebSocketTimeout(int webSocketTimeout) {
-		return clientConfigBuilder.setWebSocketTimeout(webSocketTimeout);
+	public void setWebSocketTimeout(int webSocketTimeout) {
+		 clientConfigBuilder.setWebSocketTimeout(webSocketTimeout);
 	}
 	/**
 	 */
