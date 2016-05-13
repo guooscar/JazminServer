@@ -41,6 +41,7 @@ public class HttpClientDriver extends Driver{
 		handlerMap=new ConcurrentHashMap<Integer, HttpHandler>();
 		asyncHttpClient = new AsyncHttpClient();
 		clientConfigBuilder=new Builder();
+		clientConfigBuilder.setHostnameVerifier(new AllowAllHostnameVerifier());
 		errorLogs=new LinkedList<String>();
 	}
 	//
