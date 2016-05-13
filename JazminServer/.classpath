@@ -27,7 +27,6 @@
 	<classpathentry kind="lib" path="lib/commons-pool2-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-1.50.jar"/>
-	<classpathentry kind="lib" path="lib/async-http-client-1.9.24.jar"/>
 	<classpathentry kind="lib" path="lib/netty-3.10.3.Final.jar"/>
 	<classpathentry kind="lib" path="lib/mongo-java-driver-3.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.36-bin.jar"/>
@@ -38,5 +37,6 @@
 	<classpathentry kind="lib" path="lib/log4j-core-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-nop-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/jetty.jar"/>
+	<classpathentry kind="lib" path="lib/async-http-client-1.9.38.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

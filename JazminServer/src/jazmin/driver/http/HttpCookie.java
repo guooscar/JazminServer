@@ -19,12 +19,11 @@ public class HttpCookie {
 			boolean rawValue,
 			String domain,
 			String path, 
-			long expires, 
 			int maxAge,
 			boolean secure,
 			boolean httpOnly) {
 		super();
-		this.cookie=new Cookie(name, value, rawValue, domain, path, expires, maxAge, secure, httpOnly);
+		this.cookie=new Cookie(name, value, rawValue, domain, path,  maxAge, secure, httpOnly);
 	}
 	//
 	/**
@@ -34,18 +33,12 @@ public class HttpCookie {
 	public String getDomain() {
 		return cookie.getDomain();
 	}
-	/**
-	 * @return
-	 * @see com.ning.http.client.cookie.Cookie#getExpires()
-	 */
-	public long getExpires() {
-		return cookie.getExpires();
-	}
+
 	/**
 	 * @return
 	 * @see com.ning.http.client.cookie.Cookie#getMaxAge()
 	 */
-	public int getMaxAge() {
+	public long getMaxAge() {
 		return cookie.getMaxAge();
 	}
 	/**
