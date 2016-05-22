@@ -163,6 +163,9 @@ public class FileServerDriver extends Driver{
 		ServerInfo si=serverList.get(choice);
 		try {
 			String realFileId=client.upload("http://"+si.host+":"+si.port+"/upload/", file);
+			if(realFileId==null){
+				throw new IllegalStateException("upload failed "+file); 
+			}
 			String fileId= si.id+"_"+realFileId;
 			FileServerPair fsp=getFileServerPair(fileId);
 			cachePolicy.moveTo(file,fsp.file);
