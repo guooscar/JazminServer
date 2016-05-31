@@ -234,4 +234,8 @@ public class HttpRequest {
 	public BoundRequestBuilder setUri(HttpURI uri) {
 		return requestBuilder.setUri(uri.uri);
 	}
+	//
+	public BoundRequestBuilder getRequestBuilder() {
+		return requestBuilder;
+	}
 }
