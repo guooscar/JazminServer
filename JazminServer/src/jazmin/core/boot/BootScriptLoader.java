@@ -22,6 +22,7 @@ import jazmin.core.Driver;
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
 import jazmin.core.job.JobStore;
+import jazmin.core.monitor.Monitor;
 import jazmin.core.task.TaskStore;
 import jazmin.core.thread.Dispatcher;
 import jazmin.log.Logger;
@@ -82,6 +83,7 @@ public class BootScriptLoader {
 				"importPackage(Packages.jazmin.core.aop);"+
 				"importPackage(Packages.jazmin.core.app);"+
 				"importPackage(Packages.jazmin.core.job);"+
+				"importPackage(Packages.jazmin.core.monitor);"+
 				"importPackage(Packages.jazmin.core.task);"+
 				//drivers
 				"importPackage(Packages.jazmin.driver.jdbc);"+
@@ -207,6 +209,10 @@ public class BootScriptLoader {
 		@Override
 		public TaskStore getTaskStore() {
 			return Jazmin.taskStore;
+		}
+		@Override
+		public Monitor getMonitor() {
+			return Jazmin.mointor;
 		}
 	}
 }

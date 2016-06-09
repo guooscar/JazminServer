@@ -24,6 +24,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,6 +38,8 @@ import jazmin.core.app.Application;
 import jazmin.core.app.ApplicationLoader;
 import jazmin.core.boot.BootScriptLoader;
 import jazmin.core.job.JobStore;
+import jazmin.core.monitor.Monitor;
+import jazmin.core.monitor.MonitorAgent;
 import jazmin.core.task.TaskStore;
 import jazmin.core.thread.Dispatcher;
 import jazmin.log.Logger;
@@ -107,10 +110,11 @@ public class Jazmin {
 					new JazminThreadFactory("ScheduledExecutor"),
 					new ThreadPoolExecutor.AbortPolicy());
 	//--------------------------------------------------------------------------
-	public static final Environment environment=new Environment();
-	public static final Dispatcher dispatcher=new Dispatcher();
-	public static final TaskStore taskStore=new TaskStore();
-	public static final JobStore jobStore=new JobStore();
+	public static  Environment environment=new Environment();
+	public static  Dispatcher dispatcher=new Dispatcher();
+	public static  TaskStore taskStore=new TaskStore();
+	public static  JobStore jobStore=new JobStore();
+	public static  Monitor mointor=new Monitor();
 	//
 	private static List<Lifecycle>lifecycles;
 	private static Map<String,Driver>drivers;
@@ -375,6 +379,25 @@ public class Jazmin {
 	static void dumpLogo(){
 		logger.info("\n"+LOGO);	
 	}
+	//
+	private static class JazminMonitorAgent implements MonitorAgent{
+		@Override
+		public void start(Monitor monitor) {
+			Map<String,String>jazminInfo=new HashMap<String, String>();
+			jazminInfo.put("serverName",getServerName());
+			jazminInfo.put("serverPath",getServerPath());
+			jazminInfo.put("appClassloader",appClassloader.toString());
+			jazminInfo.put("applicationPackage",applicationPackage);
+			jazminInfo.put("jazminVersion",VERSION);
+			jazminInfo.put("startTime", new Date()+"");
+			monitor.sample("Jazmin.Info",Monitor.CATEGORY_TYPE_KV,jazminInfo);
+		}
+		//
+		@Override
+		public void sample(Monitor monitor) {
+			
+		}
+	}
 	/**
 	 * start jazmin server
 	 */
@@ -402,6 +425,8 @@ public class Jazmin {
 				System.exit(1);
 			}
 		}
+		JazminMonitorAgent agent=new jazmin.core.Jazmin.JazminMonitorAgent();
+		mointor.registerAgent(agent);
 		//start up sequence is very important,not change it
 		lifecycles.add(environment);
 		lifecycles.add(dispatcher);
@@ -409,6 +434,7 @@ public class Jazmin {
 		lifecycles.addAll(drivers.values());
 		lifecycles.add(taskStore);
 		lifecycles.add(jobStore);
+		lifecycles.add(mointor);
 		if(application!=null){
 			lifecycles.add(application);
 		}

@@ -6,8 +6,12 @@ package jazmin.driver.jdbc;
 import java.beans.PropertyVetoException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import jazmin.core.Jazmin;
+import jazmin.core.monitor.Monitor;
+import jazmin.core.monitor.MonitorAgent;
 import jazmin.misc.InfoBuilder;
 import jazmin.server.console.ConsoleServer;
 
@@ -274,10 +278,15 @@ public class C3p0ConnectionDriver extends ConnectionDriver {
 	@Override
 	public void init() throws Exception {
 		super.init();
+	}
+	//
+	@Override
+	public void start() throws Exception {
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
 			cs.registerCommand(C3p0DriverCommand.class);
 		}
+		Jazmin.mointor.registerAgent(new C3p0ConnectionDriverMonitorAgent());
 	}
 	//
 	@Override
@@ -301,5 +310,40 @@ public class C3p0ConnectionDriver extends ConnectionDriver {
 				.print("threadPoolSize",getThreadPoolSize())
 				.print("statSql",isStatSql())
 				.toString();
+	}
+	//
+	//
+	private class C3p0ConnectionDriverMonitorAgent implements MonitorAgent{
+		@Override
+		public void sample(Monitor monitor) {
+			Map<String,String>info=new HashMap<String, String>();
+			try{
+				info.put("NumConnections",getNumConnections()+"");
+				info.put("NumIdleConnections",getNumIdleConnections()+"");
+				info.put("ThreadPoolNumActiveThreads",getThreadPoolNumActiveThreads()+"");
+				info.put("ThreadPoolNumIdleThreads",getThreadPoolNumIdleThreads()+"");
+				info.put("ThreadPoolNumTasksPending",getThreadPoolNumTasksPending()+"");
+				info.put("ThreadPoolSize",getThreadPoolSize()+"");    
+			}catch(Exception e){
+			}
+			monitor.sample("C3p0ConnectionDriver.Stat",Monitor.CATEGORY_TYPE_VALUE,info);
+		}
+		//
+		@Override
+		public void start(Monitor monitor) {
+			Map<String,String>info=new HashMap<String, String>();
+			info.put("user",getUser());
+			info.put("driverClass",getDriverClass());
+			info.put("initialPoolSize",getInitialPoolSize()+"");
+			info.put("url",getUrl());
+			info.put("loginTimeout",getLoginTimeout()+"");
+			info.put("maxConnectionAge",getMaxConnectionAge()+"");
+			info.put("maxIdleTime",getMaxIdleTime()+"");
+			info.put("maxPoolSize",getMaxPoolSize()+"");
+			info.put("minPoolSize",getMinPoolSize()+"");
+			info.put("threadPoolSize",getThreadPoolSize()+"");
+			info.put("statSql",isStatSql()+"");
+			monitor.sample("C3p0ConnectionDriver.Info",Monitor.CATEGORY_TYPE_KV,info);
+		}
 	}
 }
