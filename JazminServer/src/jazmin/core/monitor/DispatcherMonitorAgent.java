@@ -40,6 +40,9 @@ public class DispatcherMonitorAgent implements MonitorAgent{
 		double totalFullTime=dispatcher.getTotalFullTime();
 		double totalRunTime=dispatcher.getTotalRunTime();
 		double totalInvokeCount=dispatcher.getTotalInvokeCount();
+		if(totalInvokeCount<=0){
+			totalInvokeCount=1;
+		}
 		poolSize.put("currentSize",dispatcher.getPoolSize()+"");
 		poolSize.put("maxPoolSize",dispatcher.getMaximumPoolSize()+"");
 		//
