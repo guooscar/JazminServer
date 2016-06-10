@@ -37,7 +37,6 @@ public class MonitorManager implements Runnable {
 	static MonitorManager instance;
 	//
 	private Queue<MonitorInfo> queue;
-
 	//
 	public static MonitorManager get() {
 		if (instance == null) {
