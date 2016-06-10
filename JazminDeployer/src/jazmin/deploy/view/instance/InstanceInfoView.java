@@ -531,6 +531,9 @@ public class InstanceInfoView extends DeployBaseView {
 			DeploySystemUI.showInfo("No Monitor Data");
 			return;
 		}
+		datas.sort((a,b)->{
+			return a.name.compareTo(b.name);
+		});
 		MonitorSelectWindow window = new MonitorSelectWindow(instance.id, datas);
 		UI.getCurrent().addWindow(window);
 	}

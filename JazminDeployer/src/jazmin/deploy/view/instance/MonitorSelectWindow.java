@@ -24,7 +24,6 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 import jazmin.deploy.domain.MonitorInfo;
-import jazmin.deploy.view.monitor.MonitorManager;
 
 /**
  *
@@ -38,12 +37,12 @@ public class MonitorSelectWindow extends Window {
 	private OptionGroupWithTitleCommponent<String> keyValueCommponent;
 	private OptionGroupWithTitleCommponent<String> monitorCommponent;
 
-	public MonitorSelectWindow(String instance) {
+	public MonitorSelectWindow(String instance, List<MonitorInfo> datas) {
 		this.instance = instance;
-		initUI();
+		initUI(datas);
 	}
 
-	private void initUI() {
+	private void initUI(List<MonitorInfo> datas) {
 		center();
 		setCloseShortcut(KeyCode.ESCAPE, null);
 		setResizable(false);
@@ -54,11 +53,10 @@ public class MonitorSelectWindow extends Window {
 		setHeight("700px");
 		Map<String, String> keyValueMap = new LinkedHashMap<>();
 		Map<String, String> monitorMap = new LinkedHashMap<>();
-		List<MonitorInfo> datas = MonitorManager.get().getMonitorInfos(instance);
 		for (MonitorInfo data : datas) {
 			if (MonitorInfo.CATEGORY_TYPE_KV.equals(data.type)) {
 				keyValueMap.put(data.name, data.name);
-			} else{
+			} else {
 				monitorMap.put(data.name, data.name);
 			}
 		}
@@ -102,7 +100,7 @@ public class MonitorSelectWindow extends Window {
 	}
 
 	/**
-	 * Option Group 
+	 * Option Group
 	 *
 	 * @author ginko.wang
 	 * @date 2016-6-10 20:46:30
