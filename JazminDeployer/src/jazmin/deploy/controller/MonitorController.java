@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -97,7 +96,6 @@ public class MonitorController {
 		query.endTime = c.getLong("endTime");
 		List<MonitorInfo> list = MonitorManager.get().getData(query);
 		List<Long> labels = new ArrayList<>();
-		Random random = new Random();
 		Map<String, List<Double>> datasets = new LinkedHashMap<>();
 		for (MonitorInfo e : list) {
 			LinkedHashMap<String, String> values = JSONUtil.fromJson(e.value, LinkedHashMap.class);
@@ -107,7 +105,7 @@ public class MonitorController {
 					datas = new ArrayList<>();
 					datasets.put(entry.getKey(), datas);
 				}
-				datas.add(Double.valueOf(entry.getValue()) * random.nextInt(50));
+				datas.add(Double.valueOf(entry.getValue()));
 			}
 			labels.add(e.time);
 		}
