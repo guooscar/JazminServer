@@ -326,12 +326,14 @@ public class C3p0ConnectionDriver extends ConnectionDriver {
 				info2.put("ThreadPoolNumIdleThreads",getThreadPoolNumIdleThreads()+"");
 				info2.put("ThreadPoolNumTasksPending",getThreadPoolNumTasksPending()+"");
 				info2.put("ThreadPoolSize",getThreadPoolSize()+"");    
-			
-			
 			}catch(Exception e){
 			}
 			monitor.sample("C3p0ConnectionDriver.ConnectionStat",Monitor.CATEGORY_TYPE_VALUE,info1);
 			monitor.sample("C3p0ConnectionDriver.ThreadStat",Monitor.CATEGORY_TYPE_VALUE,info2);
+			//
+			Map<String,String>info3=new HashMap<String, String>();
+			info3.put("InvokeCount",getTotalInvokeCount()+"");
+			monitor.sample("C3p0ConnectionDriver.InvokeCount",Monitor.CATEGORY_TYPE_COUNT,info3);
 		}
 		//
 		@Override

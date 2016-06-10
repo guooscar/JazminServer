@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 
 import jazmin.core.Driver;
@@ -31,6 +32,7 @@ public abstract class ConnectionDriver extends Driver{
 	//
 	private Map<String,InvokeStat> sqlStatMap;
 	private boolean isStatSql;
+	private AtomicLong totalInvokeCounter;
 	//
 	static class ConnectionStatus {
 		public ConnectionWrapper connection;
@@ -43,9 +45,15 @@ public abstract class ConnectionDriver extends Driver{
 		isStatSql=true;
 		sqlStatMap=new ConcurrentHashMap<String, InvokeStat>();
 		globalStatusHolder=new ThreadLocal<ConnectionDriver.ConnectionStatus>();
+		totalInvokeCounter=new AtomicLong();
+	}
+	//
+	public long getTotalInvokeCount(){
+		return totalInvokeCounter.longValue();
 	}
 	//
 	public void statSql(String sql,int time,boolean error){
+		totalInvokeCounter.incrementAndGet();
 		if(!isStatSql){
 			return;
 		}
