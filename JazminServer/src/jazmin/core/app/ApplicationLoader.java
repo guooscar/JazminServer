@@ -56,7 +56,7 @@ public class ApplicationLoader {
 			if(clz.getSimpleName().equals(applicationName)){
 				try {
 					return (Application) clz.newInstance();
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					logger.warn(e.getMessage());
 				} 
 			}
@@ -66,7 +66,7 @@ public class ApplicationLoader {
 			if(clz.isAssignableFrom(Application.class)){
 				try {
 					return (Application) clz.newInstance();
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					logger.error(e.getMessage());
 				}  
 			}
