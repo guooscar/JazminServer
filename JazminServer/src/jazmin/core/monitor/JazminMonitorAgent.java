@@ -39,9 +39,9 @@ public  class JazminMonitorAgent implements MonitorAgent{
 			for(InvokeStat stat:stats){
 				String s=("IC:"+stat.invokeCount+
 						  " ERROR:"+stat.errorCount+
-						  " AVGFULL"+stat.avgFullTime()+
-						  " AVGRUN"+stat.avgRunTime()+
-						  " MAXFULL"+stat.maxFullTime+
+						  " AVGFULL:"+stat.avgFullTime()+
+						  " AVGRUN:"+stat.avgRunTime()+
+						  " MAXFULL:"+stat.maxFullTime+
 						  " MAXRUN:"+stat.maxRunTime);
 				info.put(stat.name, s);
 			};

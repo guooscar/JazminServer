@@ -19,11 +19,11 @@ public class DispatcherMonitorAgent implements MonitorAgent{
 	public void start(Monitor monitor) {
 		Dispatcher dispatcher=Jazmin.dispatcher;
 		Map<String,String>info=new HashMap<String, String>();
-		info.put("corePoolSize:",dispatcher.getCorePoolSize()+"");
-		info.put("maxPoolSize:",dispatcher.getMaximumPoolSize()+"");
-		info.put("rejectedExecutionHandler:",dispatcher.getRejectedExecutionHandler()+"");
-		info.put("availableProcessors:",Runtime.getRuntime().availableProcessors()+"");
-		info.put("performanceLogFile:",dispatcher.getPerformanceLogFile()+"");
+		info.put("corePoolSize",dispatcher.getCorePoolSize()+"");
+		info.put("maxPoolSize",dispatcher.getMaximumPoolSize()+"");
+		info.put("rejectedExecutionHandler",dispatcher.getRejectedExecutionHandler()+"");
+		info.put("availableProcessors",Runtime.getRuntime().availableProcessors()+"");
+		info.put("performanceLogFile",dispatcher.getPerformanceLogFile()+"");
 		info.put("largestPoolSize",dispatcher.getLargestPoolSize()+"");
 		info.put("allowsCoreThreadTimeOut",dispatcher.allowsCoreThreadTimeOut()+"");
 		monitor.sample("Jazmin.Dispatcher.Info",Monitor.CATEGORY_TYPE_KV,info);
