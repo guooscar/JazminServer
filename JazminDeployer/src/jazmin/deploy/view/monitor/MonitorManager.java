@@ -87,6 +87,9 @@ public class MonitorManager implements Runnable {
 	
 	private File getReaderFile(MonitorInfoQuery query) throws IOException {
 		File folder = new File(logPath, query.instance);
+		if(!folder.exists()){
+			return null;
+		}
 		if(query.startTime!=null){
 			Date startTime=new Date(query.startTime);
 			if (!isToday(startTime)){
@@ -122,6 +125,9 @@ public class MonitorManager implements Runnable {
 
 	private BufferedReader getReader(MonitorInfoQuery query) throws IOException {
 		File file = getReaderFile(query);
+		if(file==null){
+			return null;
+		}
 		return new BufferedReader(new FileReader(file));
 	}
 
@@ -170,6 +176,9 @@ public class MonitorManager implements Runnable {
 		BufferedReader reader = null;
 		try {
 			reader = getReader(query);
+			if(reader==null){
+				return list;
+			}
 			String tmpStr = null;
 			while ((tmpStr = reader.readLine()) != null) {
 				String[] datas = tmpStr.split("\t");
