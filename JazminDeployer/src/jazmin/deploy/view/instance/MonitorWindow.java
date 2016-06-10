@@ -10,9 +10,13 @@ public class MonitorWindow extends Window {
 
 	private BrowserFrame frame;
 	private String instance;
+	private String keyvalues;
+	private String charts;
 
-	public MonitorWindow(String instance) {
+	public MonitorWindow(String instance, String keyvalues, String charts) {
 		this.instance = instance;
+		this.keyvalues = keyvalues;
+		this.charts = charts;
 		initUI();
 	}
 
@@ -21,10 +25,11 @@ public class MonitorWindow extends Window {
 		setCloseShortcut(KeyCode.ESCAPE, null);
 		setResizable(true);
 		setClosable(true);
-		setCaption("[" + instance + "]监控");
+		setCaption("[" + instance + "]Monitor");
 		setHeight("90%");
-		setWidth("1000px");
-		this.frame = new BrowserFrame(null, new ExternalResource("/srv/monitor/view?instance=" + instance));
+		setWidth("1020px");
+		this.frame = new BrowserFrame(null,
+				new ExternalResource("/srv/monitor/view?instance=" + instance + "&charts=" + charts + "&keyvalues=" + keyvalues));
 		this.frame.setImmediate(true);
 		this.frame.setSizeFull();
 		setContent(frame);

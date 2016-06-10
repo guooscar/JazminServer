@@ -11606,3 +11606,30 @@ div.v-layout.v-horizontal.v-widget {
 .dashboard .reports .transaction .seats {
 	left: 60%;
 }
+
+.dashboard .v-caption-section-label{
+	border-bottom:1px solid #ddd;	
+	color:#197de1;
+	margin-top:20px;
+	
+}
+
+.dashboard .toggle-btn {
+	font-size: 12px;
+	padding: 0px 6px;
+	cursor: pointer;
+	margin-left: 10px;
+}
+
+.dashboard .toggle-btn .v-panel-captionwrap{
+	transition:transform,-o-transform,-moz-transform,-webkit-transform 300ms ease-in-out;
+	-moz-transition:transform,-o-transform,-moz-transform,-webkit-transform 300ms ease-in-out;
+	-webkit-transition:transform,-o-transform,-moz-transform,-webkit-transform 300ms ease-in-out;
+	-o-transition:transform,-o-transform,-moz-transform,-webkit-transform 300ms ease-in-out;
+}
+.dashboard .toggle-btn.rotate-180 .v-panel-captionwrap{
+	-webkit-transform: rotate(180deg);
+	-moz-transform: rotate(180deg);
+	-o-transform: rotate(180deg);
+	transform: rotate(180deg);
+}
