@@ -67,7 +67,7 @@ public class MonitorController {
 			iterator.remove();
 		}
 		list.sort((a,b)->{
-			return a.name.indexOf(0)-b.name.indexOf(0);
+			return a.name.compareTo(b.name);
 		});
 		c.put("list", list);
 		c.view(new ResourceView("/jsp/monitor.jsp"));
