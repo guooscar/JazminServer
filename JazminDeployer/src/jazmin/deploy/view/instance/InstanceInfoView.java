@@ -135,6 +135,7 @@ public class InstanceInfoView extends DeployBaseView {
 	//
 	private void initUI() {
 		addOptButton("Console", ValoTheme.BUTTON_PRIMARY, (e) -> viewConsole());
+		addOptButton("Monitor", ValoTheme.BUTTON_PRIMARY, (e) -> viewMonitor());
 		addOptButton("TailLog", null, (e) -> viewTailLog());
 		addOptButton("Detail", null, (e) -> viewDetail());
 		addOptButton("BootFile", null, (e) -> viewBootFile());
@@ -146,7 +147,6 @@ public class InstanceInfoView extends DeployBaseView {
 		addOptButton("Start", ValoTheme.BUTTON_DANGER, (e) -> startInstance());
 		addOptButton("Stop", ValoTheme.BUTTON_DANGER, (e) -> stopInstance());
 		addOptButton("Restart", ValoTheme.BUTTON_DANGER, (e) -> restartInstance());
-		addOptButton("Monitor", ValoTheme.BUTTON_PRIMARY, (e) -> viewMonitor());
 	}
 
 	private void viewConsole() {
@@ -524,7 +524,7 @@ public class InstanceInfoView extends DeployBaseView {
 		if (instance == null) {
 			return;
 		}
-		MonitorWindow window = new MonitorWindow(instance.id);
+		MonitorSelectWindow window = new MonitorSelectWindow(instance.id);
 		UI.getCurrent().addWindow(window);
 	}
 
