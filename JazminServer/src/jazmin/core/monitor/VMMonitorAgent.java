@@ -46,7 +46,7 @@ public class VMMonitorAgent implements MonitorAgent{
 	}
 
 	@Override
-	public void sample(Monitor monitor) {
+	public void sample(int idx,Monitor monitor) {
 		Map<String,String>threadInfo=new HashMap<String, String>();
 		threadInfo.put("total",threadMXBean.getThreadCount()+"");
 		threadInfo.put("started",threadMXBean.getTotalStartedThreadCount()+"");

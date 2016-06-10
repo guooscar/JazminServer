@@ -294,7 +294,7 @@ public class FileServerDriver extends Driver{
 	//
 	private class FileDriverMonitorAgent implements MonitorAgent{
 		@Override
-		public void sample(Monitor monitor) {
+		public void sample(int idx,Monitor monitor) {
 			Map<String,String>info=new HashMap<String, String>();
 			info.put("uploadCount",uploadCounter.longValue()+"");
 			info.put("downloadCount",downloadCounter.longValue()+"");

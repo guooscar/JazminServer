@@ -24,7 +24,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,8 +37,8 @@ import jazmin.core.app.Application;
 import jazmin.core.app.ApplicationLoader;
 import jazmin.core.boot.BootScriptLoader;
 import jazmin.core.job.JobStore;
+import jazmin.core.monitor.JazminMonitorAgent;
 import jazmin.core.monitor.Monitor;
-import jazmin.core.monitor.MonitorAgent;
 import jazmin.core.task.TaskStore;
 import jazmin.core.thread.Dispatcher;
 import jazmin.log.Logger;
@@ -379,25 +378,7 @@ public class Jazmin {
 	static void dumpLogo(){
 		logger.info("\n"+LOGO);	
 	}
-	//
-	private static class JazminMonitorAgent implements MonitorAgent{
-		@Override
-		public void start(Monitor monitor) {
-			Map<String,String>jazminInfo=new HashMap<String, String>();
-			jazminInfo.put("serverName",getServerName());
-			jazminInfo.put("serverPath",getServerPath());
-			jazminInfo.put("appClassloader",appClassloader.toString());
-			jazminInfo.put("applicationPackage",applicationPackage);
-			jazminInfo.put("jazminVersion",VERSION);
-			jazminInfo.put("startTime", new Date()+"");
-			monitor.sample("Jazmin.Info",Monitor.CATEGORY_TYPE_KV,jazminInfo);
-		}
-		//
-		@Override
-		public void sample(Monitor monitor) {
-			
-		}
-	}
+
 	/**
 	 * start jazmin server
 	 */
@@ -425,8 +406,7 @@ public class Jazmin {
 				System.exit(1);
 			}
 		}
-		JazminMonitorAgent agent=new jazmin.core.Jazmin.JazminMonitorAgent();
-		mointor.registerAgent(agent);
+		mointor.registerAgent(new JazminMonitorAgent());
 		//start up sequence is very important,not change it
 		lifecycles.add(environment);
 		lifecycles.add(dispatcher);

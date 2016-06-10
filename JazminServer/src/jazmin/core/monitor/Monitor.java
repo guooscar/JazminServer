@@ -77,15 +77,17 @@ public class Monitor extends Lifecycle implements Runnable{
 	//
 	@Override
 	public void run() {
+		int idx=0;
 		while(true){
 			try {
 				Thread.sleep(10*1000L);
 			} catch (InterruptedException e) {
 				logger.catching(e);
 			}
+			idx++;
 			for(MonitorAgent ma:monitorAgents){
 				try{
-					ma.sample(this);
+					ma.sample(idx,this);
 				}catch(Exception e){
 					logger.catching(e);
 				}

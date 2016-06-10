@@ -497,7 +497,7 @@ public class HttpClientDriver extends Driver{
 	//
 	private class HttpClientDriverMointorAgent implements MonitorAgent{
 		@Override
-		public void sample(Monitor monitor) {
+		public void sample(int idx,Monitor monitor) {
 			Map<String,String>info=new HashMap<String, String>();
 			info.put("requestCount",requestCounter.longValue()+"");
 			monitor.sample("HttpClientDriver.Request",Monitor.CATEGORY_TYPE_COUNT,info);

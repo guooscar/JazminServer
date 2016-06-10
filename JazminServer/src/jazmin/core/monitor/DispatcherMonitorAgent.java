@@ -30,7 +30,7 @@ public class DispatcherMonitorAgent implements MonitorAgent{
 	}
 
 	@Override
-	public void sample(Monitor monitor) {
+	public void sample(int idx,Monitor monitor) {
 		Map<String,String>poolSize=new HashMap<String, String>();
 		Map<String,String>queueSize=new HashMap<String, String>();
 		Map<String,String>avgTime=new HashMap<String, String>();

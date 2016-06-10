@@ -295,7 +295,7 @@ public class FileServer extends Server {
 	//
 	private  class FileServerMonitorAgent implements MonitorAgent{
 		@Override
-		public void sample(Monitor monitor) {
+		public void sample(int idx,Monitor monitor) {
 			Map<String,String>info=new HashMap<String, String>();
 			info.put("uploadCount:",uploadCounter.longValue()+"");
 			info.put("downloadCount:",downloadCounter.longValue()+"");

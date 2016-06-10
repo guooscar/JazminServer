@@ -315,7 +315,7 @@ public class C3p0ConnectionDriver extends ConnectionDriver {
 	//
 	private class C3p0ConnectionDriverMonitorAgent implements MonitorAgent{
 		@Override
-		public void sample(Monitor monitor) {
+		public void sample(int idx,Monitor monitor) {
 			Map<String,String>info=new HashMap<String, String>();
 			try{
 				info.put("NumConnections",getNumConnections()+"");

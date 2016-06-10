@@ -9,5 +9,5 @@ package jazmin.core.monitor;
  */
 public interface MonitorAgent {
 	public void start(Monitor monitor);
-	public void sample(Monitor monitor);
+	public void sample(int idx,Monitor monitor);
 }
