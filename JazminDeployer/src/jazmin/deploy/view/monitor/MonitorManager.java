@@ -37,7 +37,6 @@ public class MonitorManager implements Runnable {
 	static MonitorManager instance;
 	//
 	private Queue<MonitorInfo> queue;
-
 	//
 	public static MonitorManager get() {
 		if (instance == null) {
@@ -61,9 +60,8 @@ public class MonitorManager implements Runnable {
 	private MonitorInfo getMonitorInfo() {
 		return queue.poll();
 	}
-
 	//
-	private File getFile(String instance, String name, String type,boolean isWrite) throws IOException {
+	private File getWriterFile(String instance, String name, String type) throws IOException {
 		File folder = new File(logPath, instance);
 		if (!folder.exists()) {
 			folder.mkdirs();
@@ -71,12 +69,7 @@ public class MonitorManager implements Runnable {
 		String fileName = name + "-" + type + ".log";
 		File file = new File(folder, fileName);
 		if (!file.exists()) {
-			if(isWrite){
-				file.createNewFile();
-			}else{
-				throw new IllegalArgumentException("file not found instance:"+
-						instance+",name:"+name+",type:"+type);
-			}
+			file.createNewFile();
 		}
 		long lastModified = file.lastModified();
 		logger.debug("instance:{} name:{} type:{} lastModified:{}", instance, name, type, lastModified);
@@ -88,6 +81,26 @@ public class MonitorManager implements Runnable {
 				file.createNewFile();// 重新创建文件
 			}
 		}
+		return file;
+	}
+	
+	private File getReaderFile(MonitorInfoQuery query) throws IOException {
+		File folder = new File(logPath, query.instance);
+		if(!folder.exists()){
+			return null;
+		}
+		if(query.startTime!=null){
+			Date startTime=new Date(query.startTime);
+			if (!isToday(startTime)){
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+				String date = sdf.format(startTime);
+				folder=new File(folder.getAbsolutePath()+File.separator+date);
+			}
+		}
+		String fileName = query.name + "-" + query.type + ".log";
+		File file = new File(folder, fileName);
+		
+		
 		return file;
 	}
 
@@ -109,13 +122,16 @@ public class MonitorManager implements Runnable {
 				&& calDateA.get(Calendar.DAY_OF_MONTH) == calDateB.get(Calendar.DAY_OF_MONTH);
 	}
 
-	private BufferedReader getReader(String instance, String name, String type) throws IOException {
-		File file = getFile(instance, name, type,false);
+	private BufferedReader getReader(MonitorInfoQuery query) throws IOException {
+		File file = getReaderFile(query);
+		if(file==null){
+			return null;
+		}
 		return new BufferedReader(new FileReader(file));
 	}
 
 	private BufferedWriter getWriter(MonitorInfo monitorInfo) throws IOException {
-		File file = getFile(monitorInfo.instance, monitorInfo.name, monitorInfo.type,true);
+		File file = getWriterFile(monitorInfo.instance, monitorInfo.name, monitorInfo.type);
 		boolean append = true;
 		if (monitorInfo.type.equals(MonitorInfo.CATEGORY_TYPE_KV)) {
 			append = false;
@@ -158,7 +174,10 @@ public class MonitorManager implements Runnable {
 		List<MonitorInfo> list = new ArrayList<>();
 		BufferedReader reader = null;
 		try {
-			reader = getReader(query.instance, query.name, query.type);
+			reader = getReader(query);
+			if(reader==null){
+				return list;
+			}
 			String tmpStr = null;
 			while ((tmpStr = reader.readLine()) != null) {
 				String[] datas = tmpStr.split("\t");
