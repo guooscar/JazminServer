@@ -154,6 +154,9 @@ public class MonitorManager implements Runnable {
 	public List<MonitorInfo> getMonitorInfos(String instance) {
 		List<MonitorInfo> list = new ArrayList<>();
 		File directory = new File(logPath, instance);
+		if(!directory.exists()){
+			return list;
+		}
 		File[] files = directory.listFiles();
 		for (File file : files) {
 			if (file.isDirectory()) {
