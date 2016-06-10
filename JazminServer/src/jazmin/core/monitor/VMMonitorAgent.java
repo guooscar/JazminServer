@@ -57,16 +57,21 @@ public class VMMonitorAgent implements MonitorAgent{
 		Map<String,String>memoryInfo=new HashMap<String, String>();
 		MemoryUsage heapUsage=memoryMXBean.getHeapMemoryUsage();
     	MemoryUsage nonheapUsage=memoryMXBean.getNonHeapMemoryUsage();
-		threadInfo.put("heap.init",(heapUsage.getInit())+"");
-		threadInfo.put("heap.max",(heapUsage.getMax())+"");
-		threadInfo.put("heap.used",(heapUsage.getUsed())+"");
-		threadInfo.put("heap.commtted",(heapUsage.getCommitted())+"");
+    	memoryInfo.put("heap.init",(heapUsage.getInit())+"");
+    	memoryInfo.put("heap.max",(heapUsage.getMax())+"");
+    	memoryInfo.put("heap.used",(heapUsage.getUsed())+"");
+		memoryInfo.put("heap.commtted",(heapUsage.getCommitted())+"");
+		monitor.sample("VM.MemoryHeap",Monitor.CATEGORY_TYPE_VALUE,memoryInfo);
+		
 		//
-		threadInfo.put("nonheap.init",(nonheapUsage.getInit())+"");
-		threadInfo.put("nonheap.max",(nonheapUsage.getMax())+"");
-		threadInfo.put("nonheap.used",(nonheapUsage.getUsed())+"");
-		threadInfo.put("nonheap.commtted",(nonheapUsage.getCommitted())+"");
-		monitor.sample("VM.Memory",Monitor.CATEGORY_TYPE_VALUE,memoryInfo);
+		Map<String,String>memory2Info=new HashMap<String, String>();
+		
+		memory2Info.put("nonheap.init",(nonheapUsage.getInit())+"");
+		memory2Info.put("nonheap.max",(nonheapUsage.getMax())+"");
+		memory2Info.put("nonheap.used",(nonheapUsage.getUsed())+"");
+		memory2Info.put("nonheap.commtted",(nonheapUsage.getCommitted())+"");
+		monitor.sample("VM.MemoryNonHeap",Monitor.CATEGORY_TYPE_VALUE,memory2Info);
+		
 	}
 	
 }

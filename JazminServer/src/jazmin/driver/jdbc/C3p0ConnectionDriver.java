@@ -316,17 +316,22 @@ public class C3p0ConnectionDriver extends ConnectionDriver {
 	private class C3p0ConnectionDriverMonitorAgent implements MonitorAgent{
 		@Override
 		public void sample(int idx,Monitor monitor) {
-			Map<String,String>info=new HashMap<String, String>();
+			Map<String,String>info1=new HashMap<String, String>();
+			Map<String,String>info2=new HashMap<String, String>();
 			try{
-				info.put("NumConnections",getNumConnections()+"");
-				info.put("NumIdleConnections",getNumIdleConnections()+"");
-				info.put("ThreadPoolNumActiveThreads",getThreadPoolNumActiveThreads()+"");
-				info.put("ThreadPoolNumIdleThreads",getThreadPoolNumIdleThreads()+"");
-				info.put("ThreadPoolNumTasksPending",getThreadPoolNumTasksPending()+"");
-				info.put("ThreadPoolSize",getThreadPoolSize()+"");    
+				info1.put("NumConnections",getNumConnections()+"");
+				info1.put("NumIdleConnections",getNumIdleConnections()+"");
+				//
+				info2.put("ThreadPoolNumActiveThreads",getThreadPoolNumActiveThreads()+"");
+				info2.put("ThreadPoolNumIdleThreads",getThreadPoolNumIdleThreads()+"");
+				info2.put("ThreadPoolNumTasksPending",getThreadPoolNumTasksPending()+"");
+				info2.put("ThreadPoolSize",getThreadPoolSize()+"");    
+			
+			
 			}catch(Exception e){
 			}
-			monitor.sample("C3p0ConnectionDriver.Stat",Monitor.CATEGORY_TYPE_VALUE,info);
+			monitor.sample("C3p0ConnectionDriver.ConnectionStat",Monitor.CATEGORY_TYPE_VALUE,info1);
+			monitor.sample("C3p0ConnectionDriver.ThreadStat",Monitor.CATEGORY_TYPE_VALUE,info2);
 		}
 		//
 		@Override
