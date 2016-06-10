@@ -4,6 +4,7 @@
 package jazmin.deploy.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -65,6 +66,9 @@ public class MonitorController {
 			}
 			iterator.remove();
 		}
+		list.sort((a,b)->{
+			return a.name.indexOf(0)-b.name.indexOf(0);
+		});
 		c.put("list", list);
 		c.view(new ResourceView("/jsp/monitor.jsp"));
 	}
@@ -97,6 +101,7 @@ public class MonitorController {
 		List<MonitorInfo> list = MonitorManager.get().getData(query);
 		List<Long> labels = new ArrayList<>();
 		Map<String, List<Double>> datasets = new LinkedHashMap<>();
+		Map<String,Double> lastCountValue=new HashMap<>();
 		for (MonitorInfo e : list) {
 			LinkedHashMap<String, String> values = JSONUtil.fromJson(e.value, LinkedHashMap.class);
 			for (Map.Entry<String, String> entry : values.entrySet()) {
@@ -105,10 +110,22 @@ public class MonitorController {
 					datas = new ArrayList<>();
 					datasets.put(entry.getKey(), datas);
 				}
-				datas.add(Double.valueOf(entry.getValue()));
+				double value=Double.valueOf(entry.getValue());
+				//如果是count类型的
+				if (MonitorInfo.CATEGORY_TYPE_COUNT.equals(e.type)) {
+					if(lastCountValue.containsKey(entry.getKey())){
+						datas.add(value-lastCountValue.get(entry.getKey()));
+					}
+					lastCountValue.put(entry.getKey(),value);
+				}else{
+					datas.add(value);
+				}
+				
 			}
 			labels.add(e.time);
 		}
+		//
+		
 		c.put("datasets", datasets);
 		c.put("labels", labels);
 		c.put("errorCode", 0);

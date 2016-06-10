@@ -58,7 +58,7 @@ public class MonitorSelectWindow extends Window {
 		for (MonitorInfo data : datas) {
 			if (MonitorInfo.CATEGORY_TYPE_KV.equals(data.type)) {
 				keyValueMap.put(data.name, data.name);
-			} else if (MonitorInfo.CATEGORY_TYPE_VALUE.equals(data.type)) {
+			} else{
 				monitorMap.put(data.name, data.name);
 			}
 		}

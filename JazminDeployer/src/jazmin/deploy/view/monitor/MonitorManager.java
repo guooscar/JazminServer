@@ -76,7 +76,7 @@ public class MonitorManager implements Runnable {
 		if (type != null && !type.equals(MonitorInfo.CATEGORY_TYPE_KV)) {
 			if (!isToday(new Date(lastModified))) {// 归档
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-				String date = sdf.format(new Date());
+				String date = sdf.format(new Date(lastModified));
 				move(file, folder.getAbsolutePath() + File.separator + date);
 				file.createNewFile();// 重新创建文件
 			}
