@@ -8,8 +8,8 @@ import java.util.List;
 
 import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.Application;
-import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.Instance;
+import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.ui.BeanTable;
 import jazmin.deploy.view.instance.InstanceHaproxyStatWindow;
 import jazmin.deploy.view.instance.InstanceMemcachedWindow;

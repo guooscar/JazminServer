@@ -7,8 +7,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import jazmin.core.Jazmin;
-import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.PackageDownloadInfo;
+import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.ui.BeanTable;
 
 import com.vaadin.event.ShortcutAction.KeyCode;

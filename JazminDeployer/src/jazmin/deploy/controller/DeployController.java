@@ -8,9 +8,9 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.Instance;
 import jazmin.deploy.domain.Machine;
+import jazmin.deploy.manager.DeployManager;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.web.mvc.Context;

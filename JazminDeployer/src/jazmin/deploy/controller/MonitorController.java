@@ -14,7 +14,7 @@ import java.util.TreeSet;
 
 import jazmin.deploy.domain.MonitorInfo;
 import jazmin.deploy.domain.MonitorInfoQuery;
-import jazmin.deploy.view.monitor.MonitorManager;
+import jazmin.deploy.manager.MonitorManager;
 import jazmin.server.web.mvc.Context;
 import jazmin.server.web.mvc.Controller;
 import jazmin.server.web.mvc.HttpMethod;

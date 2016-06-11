@@ -9,8 +9,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import jazmin.core.Jazmin;
 import jazmin.deploy.DeploySystemUI;
-import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.Machine;
+import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.ui.BeanTable;
 import jazmin.deploy.view.main.DeployBaseView;
 import jazmin.deploy.view.main.TaskProgressWindow;

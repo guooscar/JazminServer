@@ -4,8 +4,8 @@
 package jazmin.deploy.view.machine;
 
 import jazmin.deploy.DeploySystemUI;
-import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.Machine;
+import jazmin.deploy.manager.DeployManager;
 import jazmin.util.SshUtil;
 
 import org.vaadin.aceeditor.AceEditor;

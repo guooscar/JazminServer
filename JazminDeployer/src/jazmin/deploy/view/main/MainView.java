@@ -3,8 +3,8 @@ package jazmin.deploy.view.main;
 import java.io.File;
 
 import jazmin.deploy.DeploySystemUI;
-import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.User;
+import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.view.app.ApplicationInfoView;
 import jazmin.deploy.view.console.ConsoleView;
 import jazmin.deploy.view.instance.InstanceInfoView;

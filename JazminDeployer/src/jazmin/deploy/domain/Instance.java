@@ -3,6 +3,7 @@
  */
 package jazmin.deploy.domain;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +39,7 @@ public class Instance{
 	public int priority;
 	public String packageVersion;
 	public Map<String,String>properties;
+	public Date lastAliveTime;
 	//
 	public Instance() {
 		super();
@@ -211,5 +213,18 @@ public class Instance{
 	public void setApplication(Application application) {
 		this.application = application;
 	}
+	/**
+	 * @return the lastAliveTime
+	 */
+	public Date getLastAliveTime() {
+		return lastAliveTime;
+	}
+	/**
+	 * @param lastAliveTime the lastAliveTime to set
+	 */
+	public void setLastAliveTime(Date lastAliveTime) {
+		this.lastAliveTime = lastAliveTime;
+	}
+	
 	
 }

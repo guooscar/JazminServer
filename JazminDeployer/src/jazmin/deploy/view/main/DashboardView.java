@@ -3,9 +3,9 @@
  */
 package jazmin.deploy.view.main;
 
-import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.Instance;
 import jazmin.deploy.domain.Machine;
+import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.ui.StaticBeanForm;
 
 import com.vaadin.server.Responsive;

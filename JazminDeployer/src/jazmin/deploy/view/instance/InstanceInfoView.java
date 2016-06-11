@@ -26,16 +26,16 @@ import com.vaadin.ui.themes.ValoTheme;
 import jazmin.core.Jazmin;
 import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.Application;
-import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.Instance;
 import jazmin.deploy.domain.MonitorInfo;
+import jazmin.deploy.manager.DeployManager;
+import jazmin.deploy.manager.MonitorManager;
 import jazmin.deploy.ui.BeanTable;
 import jazmin.deploy.view.main.CodeEditorCallback;
 import jazmin.deploy.view.main.CodeEditorWindow;
 import jazmin.deploy.view.main.DeployBaseView;
 import jazmin.deploy.view.main.InputWindow;
 import jazmin.deploy.view.main.TaskProgressWindow;
-import jazmin.deploy.view.monitor.MonitorManager;
 
 /**
  * @author yama 6 Jan, 2015
