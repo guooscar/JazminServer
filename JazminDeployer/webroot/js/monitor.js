@@ -16,8 +16,8 @@
  * @auth: ginko.wang
  * @date: 2016-05-25 23:39
  */
-!!(function(window, $) {
-	var ITAjax = function() {
+!!(function (window, $) {
+	var ITAjax = function () {
 		this.baseRes = undefined;
 		this.url = undefined;
 		this.timeout = 0;
@@ -56,31 +56,78 @@
 	 *       _this.options.defaults.complete}}}
 	 */
 	ITAjax.options = {
-		defaults : {
-			timeout : 300000,
-			type : "POST",
-			resDataType : "JSON",
-			async : true,
-			args : {},
-			headers : {},
-			types : {
-				GET : "GET",
-				POST : "POST"
+		defaults: {
+			timeout: 300000,
+			type: "POST",
+			resDataType: "JSON",
+			async: true,
+			args: {},
+			headers: {},
+			types: {
+				GET: "GET",
+				POST: "POST"
 			},
-			codes : {
-
+			codes: {
+				1000: "error ocurr",
+                100: "HTTPSTATUS.CODE:100",
+                101: "HTTPSTATUS.CODE:101",
+                102: "HTTPSTATUS.CODE:102",
+                200: "HTTPSTATUS.CODE:200",
+                201: "HTTPSTATUS.CODE:201",
+                202: "HTTPSTATUS.CODE:202",
+                203: "HTTPSTATUS.CODE:203",
+                204: "HTTPSTATUS.CODE:204",
+                205: "HTTPSTATUS.CODE:205",
+                206: "HTTPSTATUS.CODE:206",
+                302: "HTTPSTATUS.CODE:302",
+                303: "HTTPSTATUS.CODE:303",
+                304: "HTTPSTATUS.CODE:304",
+                305: "HTTPSTATUS.CODE:305",
+                306: "HTTPSTATUS.CODE:306",
+                400: "HTTPSTATUS.CODE:400",
+                401: "HTTPSTATUS.CODE:401",
+                403: "HTTPSTATUS.CODE:403",
+                404: "HTTPSTATUS.CODE:404",
+                405: "HTTPSTATUS.CODE:405",
+                406: "HTTPSTATUS.CODE:406",
+                407: "HTTPSTATUS.CODE:407",
+                408: "HTTPSTATUS.CODE:408",
+                409: "HTTPSTATUS.CODE:409",
+                410: "HTTPSTATUS.CODE:410",
+                411: "HTTPSTATUS.CODE:411",
+                412: "HTTPSTATUS.CODE:412",
+                413: "HTTPSTATUS.CODE:413",
+                414: "HTTPSTATUS.CODE:414",
+                415: "HTTPSTATUS.CODE:415",
+                421: "HTTPSTATUS.CODE:421",
+                422: "HTTPSTATUS.CODE:422",
+                423: "HTTPSTATUS.CODE:423",
+                424: "HTTPSTATUS.CODE:424",
+                426: "HTTPSTATUS.CODE:426",
+                500: "HTTPSTATUS.CODE:500",
+                501: "HTTPSTATUS.CODE:501",
+                502: "HTTPSTATUS.CODE:502",
+                503: "HTTPSTATUS.CODE:503",
+                504: "HTTPSTATUS.CODE:504",
+                505: "HTTPSTATUS.CODE:505",
+                506: "HTTPSTATUS.CODE:506",
+                507: "HTTPSTATUS.CODE:507",
+                509: "HTTPSTATUS.CODE:508",
+                510: "HTTPSTATUS.CODE:510",
+                601: "HTTPSTATUS.CODE:601",
+                602: "HTTPSTATUS.CODE:602"
 			}
 
 		},
-		callbacks : {
-			code : function(codes, data) {
+		callbacks: {
+			code: function (codes, data) {
 				return false;
 			},
-			proccess : function(proccess) {
+			proccess: function (proccess) {
 			},
-			success : function(data) {
+			success: function (data) {
 			},
-			error : function(xhr, textStatus, errorThrown, _url) {
+			error: function (xhr, textStatus, errorThrown, _url) {
 				var _this = this;
 				var data = {};
 				var _status = xhr.status;
@@ -95,9 +142,13 @@
 				if (checked) {
 					return;
 				}
-				alert("error occur ：" + errorThrown + "\r\nurl : " + _url + "");
+				if (window.console) {
+					window.console.error("error occur ：" + errorThrown + "\r\nurl : " + _url + "");
+				} else {
+					alert("error occur ：" + errorThrown + "\r\nurl : " + _url + "");
+				}
 			},
-			complete : function(xhr, textStatus, statusCode) {
+			complete: function (xhr, textStatus, statusCode) {
 
 			}
 		}
@@ -109,7 +160,7 @@
 	 * @param resBase
 	 * @returns {ITAjax.resBase|*}
 	 */
-	ITAjax.prototype.resBase = function(baseRes) {
+	ITAjax.prototype.resBase = function (baseRes) {
 		var _this = this;
 		if (!!baseRes) {
 			_this.baseRes = baseRes;
@@ -130,7 +181,7 @@
 	 * 
 	 * @private
 	 */
-	ITAjax.prototype.__init__ = function() {
+	ITAjax.prototype.__init__ = function () {
 		var _this = this;
 		_this.baseRes = "";
 		_this.url = undefined;
@@ -153,7 +204,7 @@
 	 * 
 	 * @param url
 	 */
-	ITAjax.prototype.action = function(url) {
+	ITAjax.prototype.action = function (url) {
 		var _this = this;
 		_this.url = url;
 		return _this;
@@ -163,7 +214,7 @@
 	 * 
 	 * @param params
 	 */
-	ITAjax.prototype.params = function(args) {
+	ITAjax.prototype.params = function (args) {
 		var _this = this;
 		_this.args = $.extend(_this.args, args);
 		return _this;
@@ -173,7 +224,7 @@
 	 * 
 	 * @param type
 	 */
-	ITAjax.prototype.method = function(type) {
+	ITAjax.prototype.method = function (type) {
 		var _this = this;
 		_this.type = type;
 		return _this;
@@ -184,7 +235,7 @@
 	 * 
 	 * @param dataType
 	 */
-	ITAjax.prototype.dataType = function(resDataType) {
+	ITAjax.prototype.dataType = function (resDataType) {
 		var _this = this;
 		_this.resDataType = resDataType;
 		return _this;
@@ -194,7 +245,7 @@
 	 * 
 	 * @param callback
 	 */
-	ITAjax.prototype.success = function(callback) {
+	ITAjax.prototype.success = function (callback) {
 		var _this = this;
 		_this.onsuccess = callback;
 		return _this;
@@ -205,7 +256,7 @@
 	 * 
 	 * @param callback
 	 */
-	ITAjax.prototype.error = function(callback) {
+	ITAjax.prototype.error = function (callback) {
 		var _this = this;
 		_this.onerror = callback;
 		return _this;
@@ -216,7 +267,7 @@
 	 * 
 	 * @param callback
 	 */
-	ITAjax.prototype.complete = function(callback) {
+	ITAjax.prototype.complete = function (callback) {
 		var _this = this;
 		_this.oncomplete = callback;
 		return _this;
@@ -225,14 +276,14 @@
 	/**
 	 * 发起接口调用
 	 */
-	ITAjax.prototype.invoke = function() {
+	ITAjax.prototype.invoke = function () {
 		var _this = this;
 		var _url = _this.resBase() + _this.url;
 		if (!_url) {
 			return;
 		}
 		var _headers = $.extend({}, ITAjax.options.defaults.headers,
-				_this.headers);
+			_this.headers);
 		var _timeout = _this.timeout;
 		var _method = _this.type;
 		var _dataType = _this.resDataType;
@@ -240,8 +291,8 @@
 		var _async = _this.async;
 		var _codes = $.extend({}, ITAjax.options.defaults.codes, _this.codes);
 		var _proccess = _this.onproccess || ITAjax.options.callbacks.proccess
-				|| function(_process) {
-				};
+			|| function (_process) {
+			};
 		var _code = _this.oncode || ITAjax.options.callbacks.code;
 		var _success = _this.onsuccess || ITAjax.options.callbacks.success;
 		var _error = _this.onerror || ITAjax.options.callbacks.error;
@@ -250,14 +301,14 @@
 			_timeout = ITAjax.options.defaults.timeout;
 		}
 		$.ajax(_url, {
-			type : _method,
-			method : _method,
-			headers : _headers,
-			data : _params,
-			beforeSend : function() {
+			type: _method,
+			method: _method,
+			headers: _headers,
+			data: _params,
+			beforeSend: function () {
 				_proccess(10);
 			},
-			success : function(data) {
+			success: function (data) {
 				_proccess(70);
 				var checked = _code(_codes, data);
 				if (checked) {
@@ -269,45 +320,45 @@
 				}
 				_proccess(90);
 			},
-			error : function(xhr, textStatus, errorThrown) {
+			error: function (xhr, textStatus, errorThrown) {
 				if (typeof (_error) === "function") {
 					_error.call(_this, xhr, textStatus, errorThrown, _url);
 				} else {
 					itit.logger.error("error ", xhr);
 				}
 			},
-			complete : function(xhr, textStatus, statusCode) {
+			complete: function (xhr, textStatus, statusCode) {
 				if (typeof (_complete) === "function") {
 					_complete.call(_this, xhr, textStatus, statusCode);
 				}
 				_proccess(100);
 				_this.__done__();
 			},
-			statusCode : {
-				0 : function() {
+			statusCode: {
+				0: function () {
 				},
-				200 : function() {
+				200: function () {
 				},
-				400 : function() {
+				400: function () {
 				},
-				403 : function() {
+				403: function () {
 				},
-				404 : function() {
+				404: function () {
 				},
-				408 : function() {
+				408: function () {
 				},
-				500 : function() {
+				500: function () {
 				},
-				502 : function() {
+				502: function () {
 				},
-				503 : function() {
+				503: function () {
 				},
-				504 : function() {
+				504: function () {
 				}
 			},
-			timeout : _timeout,
-			async : _async,
-			dataType : _dataType
+			timeout: _timeout,
+			async: _async,
+			dataType: _dataType
 		});
 		return _this;
 	};
@@ -318,7 +369,7 @@
 	 * @returns {ITAjax}
 	 * @private
 	 */
-	ITAjax.prototype.__done__ = function() {
+	ITAjax.prototype.__done__ = function () {
 		var _this = this;
 		_this.__init__();
 		return _this;
@@ -371,7 +422,7 @@
  * @auth: ginko.wang
  * @date: 2016-05-25 23:39
  */
-!!(function(window, $, itit) {
+!!(function (window, $, itit) {
 	var $codes = {};
 
 	/**
@@ -381,7 +432,7 @@
 	 * @param data
 	 * @returns {boolean}
 	 */
-	ITAjax.options.callbacks.code = function(codes, data) {
+	ITAjax.options.callbacks.code = function (codes, data) {
 		var _code = -1;
 		do {
 			if (typeof (data) !== "object") {
@@ -401,7 +452,6 @@
 		if (_message !== 0 && !!!_message) {
 			return false;
 		}
-		console.log(_message);
 		return true;
 	};
 
@@ -410,7 +460,7 @@
 	 * 
 	 * @param precent
 	 */
-	ITAjax.options.callbacks.proccess = function(precent) {
+	ITAjax.options.callbacks.proccess = function (precent) {
 		var _precent = parseInt(precent);
 		if (isNaN(_precent)) {
 			return;
@@ -428,7 +478,7 @@
 		}
 		if (_precent >= 100) {
 			$processer.width("100%");
-			$container.delay(500).fadeOut(300, function() {
+			$container.delay(500).fadeOut(300, function () {
 				$processer.width("0%");
 			});
 			return;
@@ -440,13 +490,13 @@
  * @auth: ginko.wang
  * @date: 2016-06-09 19:43
  */
-!!(function(document, window, Chart) {
+!!(function (document, window, Chart) {
 
 	/**
 	 * @param selector
 	 * @constructor
 	 */
-	var ITChart = function(name, el) {
+	var ITChart = function (name, el) {
 		this.name = name;
 		this.context = el;
 		this.__chart__ = undefined;
@@ -458,51 +508,51 @@
 	 * 
 	 * @private
 	 */
-	ITChart.prototype.__init__ = function() {
+	ITChart.prototype.__init__ = function () {
 		Chart.defaults.global.hover.mode = 'single';
 		Chart.defaults.global.animation = {
-			duration : 0
+			duration: 0
 		};
 		Chart.defaults.global.elements.point = {
-			pointStyle : "point"
+			pointStyle: "point"
 		};
 		var _this = this;
 		_this.__chart__ = new Chart(_this.context, {
-			type : 'line',
-			data : {
-				labels : [ "" ],
-				datasets : []
+			type: 'line',
+			data: {
+				labels: [""],
+				datasets: []
 			},
-			animation : {
-				duration : 0
+			animation: {
+				duration: 0
 			},
-			options : {
-				title : {
-					display : true,
-					text : _this.name,
+			options: {
+				title: {
+					display: true,
+					text: _this.name,
 				},
-				responsive : false,
-				scales : {
-					xAxes : [ {
-						type : 'time',
-						time : {
-							displayFormats : {
-								minute : "HH:mm",
-								hour : "HH:mm"
+				responsive: false,
+				scales: {
+					xAxes: [{
+						type: 'time',
+						time: {
+							displayFormats: {
+								minute: "HH:mm",
+								hour: "HH:mm"
 							}
 						}
-					} ],
-					yAxes : [ {
-						ticks : {
-							beginAtZero : true
+					}],
+					yAxes: [{
+						ticks: {
+							beginAtZero: true
 						}
-					} ]
+					}]
 				}
 			},
-			scaleOverride : true,
-			scaleSteps : 10,
-			scaleStepWidth : 50,
-			scaleStartValue : 0
+			scaleOverride: true,
+			scaleSteps: 10,
+			scaleStepWidth: 50,
+			scaleStartValue: 0
 		});
 		this.__datasets__ = [];
 	};
@@ -512,7 +562,7 @@
 	 * 
 	 * @param labels
 	 */
-	ITChart.prototype.labels = function(labels) {
+	ITChart.prototype.labels = function (labels) {
 		if (!Array.isArray(labels)) {
 			return;
 		}
@@ -525,7 +575,7 @@
 	 * 
 	 * @param dataset
 	 */
-	ITChart.prototype.push = function(dataset) {
+	ITChart.prototype.push = function (dataset) {
 		if (typeof (dataset) !== "object") {
 			return;
 		}
@@ -547,7 +597,7 @@
 	/**
 	 * 数据图标更新
 	 */
-	ITChart.prototype.update = function() {
+	ITChart.prototype.update = function () {
 		var _this = this;
 		_this.__chart__.update();
 	};

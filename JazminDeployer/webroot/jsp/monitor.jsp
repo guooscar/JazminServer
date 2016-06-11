@@ -6,7 +6,6 @@
 <head>
 <meta charset="utf-8">
 <title>Monitor</title>
-<link rel="stylesheet" type="text/css" href="/css/sweetalert.css">
 <style>
 html, body {
 	padding: 0;
@@ -60,7 +59,11 @@ body {
 	border-bottom: solid #EEE 1px;
 }
 
-.info-container {
+.data-info{
+
+}
+
+.basic-info-container {
 	float: left;
 	overflow: auto;
 	border-radius: 5px;
@@ -70,7 +73,15 @@ body {
 	height: 450px;
 }
 
-.info-container .remove, .info-container .remove {
+.chart-info-container {
+	display: inline-block;
+	overflow: auto;
+	border-radius: 5px;
+	margin: 5px 0px;
+	border: solid 1px #EEE;
+}
+
+.basic-info-container .remove, .chart-info-container .remove {
 	float: right;
 }
 
@@ -108,11 +119,13 @@ body {
 
 .basic-info .infos table .label {
 	padding: 0px 10px;
+	text-align: left;
 }
 
 .basic-info .infos table .content {
 	color: #555;
 	padding: 0px 10px;
+	text-align: left;
 }
 
 .date-time-container {
@@ -173,7 +186,7 @@ body {
 				<div id="${item.instance }-${step.index }-table-container"
 					data-instance="${item.instance }" 
 					data-name="${item.name }"
-					class="info-container">
+					class="basic-info-container data-info">
 					<div class="opt">
 						<span class="remove"
 							data-selector="#${item.instance }-${step.index }-table-container"></span>
@@ -199,7 +212,7 @@ body {
 				<div id="${item.instance }-${step.index }-chart-container"
 					data-instance="${item.instance }"
 					data-name="${item.name }"
-					class="info-container">
+					class="chart-info-container data-info">
 					<div class="opt">
 						<span class="remove"
 							data-selector="#${item.instance }-${step.index }-chart-container"></span>
@@ -210,14 +223,13 @@ body {
 						data-name="${item.name }" 
 						data-type="${item.type }"
 						data-id="${item.instance }-${item.name }"
-						width="600" height="400"></canvas>
+						width="500" height="400"></canvas>
 				</div>
 			</c:if>
 		</c:forEach>
 		<div style="clear: both;"></div>
 	</div>
 	<script type="text/javascript" src="/js/jquery.js"></script>
-	<script type="text/javascript" src="/js/sweetalert.min.js"></script>
 	<script type="text/javascript" src="/js/moment.js"></script>
 	<script type="text/javascript" src="/js/Chart.js"></script>
 	<script type="text/javascript" src="/js/monitor.js"></script>
@@ -429,6 +441,7 @@ body {
 				var _recently = !!$("#recentlyTime:checked")[0];
 				var _now = new Date();
 				if (_recently) {
+					$("#day").val(day(_now));
 					$("#endTime").val(time(_now));
 					window.__instanceRefresh__();
 				}
@@ -443,24 +456,13 @@ body {
 			$("body").on("click", "#refreshBtn", function() {
 				window.__instanceRefresh__();
 			});
-			$("body").on("click",".info-container .remove",function() {
+			$("body").on("click",".data-info .remove",function() {
 				var _selector = $(this).data("selector");
 				var $selector = $(_selector);
 				if (!$selector[0]) {
 					return;
 				}
-				var _name = $selector.data("name");
-				swal({
-					title: "Are you sure?",
-					text: "You will remove the <span style='font-weidht:900;color:#DD6B55;'>" + _name + "</span> monitor !<br/> You can refresh the page to restore it .",   
-					showCancelButton: true,   
-					confirmButtonColor: "#DD6B55",   
-					confirmButtonText: "Yes, remove it!",
-					html: true,
-					closeOnConfirm: true 
-				}, function(){
-					$selector.remove();
-				});
+				$selector.remove();
 			});
 		});
 	</script>
