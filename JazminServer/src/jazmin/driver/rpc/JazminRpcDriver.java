@@ -526,7 +526,7 @@ public class JazminRpcDriver extends Driver{
 		public void sample(int idx,Monitor monitor) {
 			Map<String,String>info1=new HashMap<String, String>();
 			info1.put("invokeCount", getTotalInvokeCount()+"");
-			monitor.sample("JazminRpcDriver.InvokeCount",Monitor.CATEGORY_TYPE_VALUE,info1);
+			monitor.sample("JazminRpcDriver.InvokeCount",Monitor.CATEGORY_TYPE_COUNT,info1);
 		}
 		//
 		@Override

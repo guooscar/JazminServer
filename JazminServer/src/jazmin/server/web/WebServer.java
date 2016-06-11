@@ -2,14 +2,21 @@ package jazmin.server.web;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSessionEvent;
+import javax.servlet.http.HttpSessionListener;
 import javax.servlet.jsp.JspApplicationContext;
 import javax.servlet.jsp.JspFactory;
 
 import jazmin.core.Jazmin;
+import jazmin.core.monitor.Monitor;
+import jazmin.core.monitor.MonitorAgent;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
@@ -59,10 +66,12 @@ public class WebServer extends jazmin.core.Server{
 	private int idleTimeout=30;//30seconds
 	private boolean dirAllowed=false;
 	private String hostname;
+	private AtomicLong totalSessionCounter;
 	static{
 		System.getProperties().put("org.eclipse.jetty.util.log.class",JettyLogger.class.getName());
 	}
 	public WebServer() {
+		totalSessionCounter=new AtomicLong();
 	}
 	/**
 	 * set jetty logger enable flag
@@ -155,6 +164,21 @@ public class WebServer extends jazmin.core.Server{
 		configList.add("org.eclipse.jetty.annotations.AnnotationConfiguration");
 		webAppContext.setConfigurationClasses(configList);
 		//
+		if(webAppContext.getSessionHandler()!=null){
+			if(webAppContext.getSessionHandler().getSessionManager()!=null){
+				webAppContext.getSessionHandler().getSessionManager().addEventListener(new HttpSessionListener() {
+					@Override
+					public void sessionDestroyed(HttpSessionEvent e) {
+						totalSessionCounter.decrementAndGet();
+					}
+					//
+					@Override
+					public void sessionCreated(HttpSessionEvent e) {
+						totalSessionCounter.incrementAndGet();
+					}
+				});
+			}
+		}
 		//
 		return webAppContext;
 	}
@@ -348,7 +372,7 @@ public class WebServer extends jazmin.core.Server{
 		server.setConnectors(connectors.toArray(new Connector[connectors.size()]));		
         server.setHandler(handlers);
         server.start();
-		if(webAppContext!=null){
+      if(webAppContext!=null){
 			Jazmin.setAppClassLoader(webAppContext.getClassLoader());
 		}
 		//
@@ -368,6 +392,8 @@ public class WebServer extends jazmin.core.Server{
 				jac.addELResolver(new PublicFieldELResolver());					
 			}
 		}
+		//
+		Jazmin.mointor.registerAgent(new WebServerMonitorAgent());
 	}
 	//
 	public void stop() throws Exception{
@@ -410,4 +436,33 @@ public class WebServer extends jazmin.core.Server{
 		//
 		return ib.toString();
 	}
+	//
+	//
+	private  class WebServerMonitorAgent implements MonitorAgent{
+		@Override
+		public void sample(int idx,Monitor monitor) {
+			Map<String,String>info=new HashMap<String, String>();
+			info.put("SessionCount", totalSessionCounter.longValue()+"");
+			monitor.sample("WebServer.SessionCount",Monitor.CATEGORY_TYPE_VALUE,info);
+			//
+			Map<String,String>info2=new HashMap<String, String>();
+			info2.put("InvokeCount", DispatchServlet.dispatcher.getInvokeCount()+"");
+			monitor.sample("WebServer.InvokeCount",Monitor.CATEGORY_TYPE_COUNT,info2);
+		}
+		//
+		@Override
+		public void start(Monitor monitor) {
+			Map<String,String>info=new HashMap<String, String>();
+			info.put("jettyVersion",Jetty.VERSION);
+			info.put("port",port+"");
+			info.put("httpsPort",httpsPort+"");
+			info.put("keyStoreFile",keyStoreFile+"");
+			info.put("keyStoreType",keyStoreType+"");
+			info.put("idleTimeout",idleTimeout+"");
+			info.put("dirAllowed",dirAllowed+"");
+			info.put("webAppContext",webAppContext+"");
+			monitor.sample("WebServer.Info",Monitor.CATEGORY_TYPE_KV,info);
+		}
+	}
+	
 }

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -33,9 +34,11 @@ public class Dispatcher {
 	private Map<String,ControllerStub>controllerMap;
 	private ControllerStub indexController;
 	private Map<String,SessionObject>sessionObjectMap;
+	private AtomicLong invokeCounter;
 	public Dispatcher() {
 		controllerMap=new ConcurrentHashMap<String, ControllerStub>();
 		sessionObjectMap=new ConcurrentHashMap<>();
+		invokeCounter=new AtomicLong();
 	}
 	/**
 	 * 
@@ -66,7 +69,12 @@ public class Dispatcher {
 		controllerMap.put(cc.id(),cs);
 	}
 	//
+	public long getInvokeCount(){
+		return invokeCounter.longValue();
+	}
+	//
 	Context invokeService(Request request,Response response){
+		invokeCounter.incrementAndGet();
 		Context ctx=new Context();
 		ctx.request=request;
 		ctx.response=response;
