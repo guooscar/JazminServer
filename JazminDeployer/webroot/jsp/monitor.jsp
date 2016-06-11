@@ -47,7 +47,7 @@ body {
 	height: 400px;
 	overflow: auto;
 	border-radius: 5px;
-	margin:5px 0px;
+	margin: 5px 0px;
 	border: solid 1px #EEE;
 }
 
@@ -80,17 +80,19 @@ body {
 }
 
 .basic-info .infos table .label {
+	text-align: left;
 	padding: 0px 10px;
 }
 
 .basic-info .infos table .content {
+	text-align: left;
 	color: #555;
 	padding: 0px 10px;
 }
 
 .date-time-container {
 	width: 700px;
-	text-align:center;
+	text-align: center;
 	margin: 0 auto;
 }
 
@@ -157,10 +159,10 @@ body {
 	<div class="container-charts">
 		<c:forEach var="item" items="${list }">
 			<c:if test="${item.type != 'KeyValue' }">
-			<canvas id="${item.instance }-${item.name }" class="instance-charts"
-				data-instance="${item.instance }" data-name="${item.name }"
-				data-type="${item.type }" data-id="${item.instance }-${item.name }"
-				width="500" height="400"></canvas>
+				<canvas id="${item.instance }-${item.name }" class="instance-charts"
+					data-instance="${item.instance }" data-name="${item.name }"
+					data-type="${item.type }" data-id="${item.instance }-${item.name }"
+					width="500" height="400"></canvas>
 			</c:if>
 		</c:forEach>
 		<div style="clear: both;"></div>
@@ -223,8 +225,11 @@ body {
 			;
 			var date = new Date();
 			$("#day").val(day(date));
-			$("#startTime")
-					.val(time(new Date(date.getTime() - 1000 * 60 * 60)));
+			var stime = new Date(date.getTime() - 1000 * 60 * 60);
+			if (stime.getDate() != date.getDate()) {
+				stime.setHours(date.getHours(), 0, 0, 0);
+			}
+			$("#startTime").val(time(stime));
 			$("#endTime").val(time(date));
 			var instanceCharts = [];
 			var colors = [];
@@ -278,7 +283,7 @@ body {
 				var _type = $el.data("type");
 				var _instanceChart = instanceCharts[_id];
 				if (!_instanceChart) {
-					instanceCharts[_id] = new ITChart(_name + "-" + _type, $el);
+					instanceCharts[_id] = new ITChart(_name, $el);
 				}
 				__refreshChart__(el);
 			};
@@ -296,8 +301,6 @@ body {
 					var html = [];
 					html.push('<div class="title">');
 					html.push(_name);
-					html.push('-');
-					html.push(_type);
 					html.push('</div>');
 					html.push('<div class="infos">');
 					html.push('<table><tbody>');
@@ -378,7 +381,7 @@ body {
 				var _day = $("#day").val();
 				var _recently = !!$("#recentlyTime:checked")[0];
 				var _now = new Date();
-				if(_recently){
+				if (_recently) {
 					$("#endTime").val(time(_now));
 					window.__instanceRefresh__();
 				}
