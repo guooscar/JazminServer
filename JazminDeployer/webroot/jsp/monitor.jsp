@@ -6,6 +6,7 @@
 <head>
 <meta charset="utf-8">
 <title>Monitor</title>
+<link rel="stylesheet" type="text/css" href="/css/sweetalert.css">
 <style>
 html, body {
 	padding: 0;
@@ -18,6 +19,24 @@ body {
 	line-height: 150%;
 }
 
+.remove {
+	display: inline-block;
+	width: 24px;
+	height: 24px;
+	background:url("/image/close-alt.png") center no-repeat transparent;
+	margin:5px 10px;
+	text-align: center;
+	font-size: 18px;
+	-webkit-border-radius:50%;
+    -moz-border-radius:50%;
+    border-radius:50%;
+    cursor: pointer;
+}
+
+.remove:hover {
+	background-color: #C2B9BC;
+}
+
 .container-charts {
 	
 }
@@ -28,8 +47,8 @@ body {
 
 .date-container {
 	position: fixed;
-	height: 40px;
-	line-height: 40px;
+	height: 30px;
+	line-height: 30px;
 	width: 100%;
 	background-color: #FFF;
 	border-bottom: solid #EEE 1px;
@@ -41,14 +60,22 @@ body {
 	border-bottom: solid #EEE 1px;
 }
 
-.basic-info {
+.info-container {
 	float: left;
-	width: 33%;
-	height: 400px;
 	overflow: auto;
 	border-radius: 5px;
 	margin: 5px 0px;
 	border: solid 1px #EEE;
+	width: 33%;
+	height: 450px;
+}
+
+.info-container .remove, .info-container .remove {
+	float: right;
+}
+
+.basic-info {
+	
 }
 
 .basic-info .title {
@@ -80,12 +107,10 @@ body {
 }
 
 .basic-info .infos table .label {
-	text-align: left;
 	padding: 0px 10px;
 }
 
 .basic-info .infos table .content {
-	text-align: left;
 	color: #555;
 	padding: 0px 10px;
 }
@@ -105,7 +130,7 @@ body {
 }
 
 .date-time-container .item input[type="time"] {
-	width: 100px;
+	width: 140px;
 }
 
 .date-time-container .item input[type="button"] {
@@ -142,14 +167,26 @@ body {
 		</div>
 	</div>
 	<div style="height: 60px;"></div>
-	<div class="basic-info-charts">
-		<c:forEach var="item" items="${list }">
+	<div>
+		<c:forEach var="item" items="${list }" varStatus="step">
 			<c:if test="${item.type == 'KeyValue' }">
-				<div id="${item.instance }-${item.name }" class="basic-info"
-					data-instance="${item.instance }" data-name="${item.name }"
-					data-type="${item.type }" data-id="${item.instance }-${item.name }">
-					<div class="title">${item.name }</div>
-					<div class="infos">loading...</div>
+				<div id="${item.instance }-${step.index }-table-container"
+					data-instance="${item.instance }" 
+					data-name="${item.name }"
+					class="info-container">
+					<div class="opt">
+						<span class="remove"
+							data-selector="#${item.instance }-${step.index }-table-container"></span>
+					</div>
+					<div id="${item.instance }-${item.name }" class="basic-info"
+						data-instance="${item.instance }" 
+						data-name="${item.name }"
+						data-type="${item.type }"
+						data-id="${item.instance }-${item.name }"
+						>
+						<div class="title">${item.name }</div>
+						<div class="infos">loading...</div>
+					</div>
 				</div>
 			</c:if>
 		</c:forEach>
@@ -157,17 +194,30 @@ body {
 	</div>
 	<div style="height: 10px;"></div>
 	<div class="container-charts">
-		<c:forEach var="item" items="${list }">
+		<c:forEach var="item" items="${list }" varStatus="step">
 			<c:if test="${item.type != 'KeyValue' }">
-				<canvas id="${item.instance }-${item.name }" class="instance-charts"
-					data-instance="${item.instance }" data-name="${item.name }"
-					data-type="${item.type }" data-id="${item.instance }-${item.name }"
-					width="500" height="400"></canvas>
+				<div id="${item.instance }-${step.index }-chart-container"
+					data-instance="${item.instance }"
+					data-name="${item.name }"
+					class="info-container">
+					<div class="opt">
+						<span class="remove"
+							data-selector="#${item.instance }-${step.index }-chart-container"></span>
+					</div>
+					<canvas id="${item.instance }-${item.name }"
+						class="instance-charts" 
+						data-instance="${item.instance }"
+						data-name="${item.name }" 
+						data-type="${item.type }"
+						data-id="${item.instance }-${item.name }"
+						width="600" height="400"></canvas>
+				</div>
 			</c:if>
 		</c:forEach>
 		<div style="clear: both;"></div>
 	</div>
 	<script type="text/javascript" src="/js/jquery.js"></script>
+	<script type="text/javascript" src="/js/sweetalert.min.js"></script>
 	<script type="text/javascript" src="/js/moment.js"></script>
 	<script type="text/javascript" src="/js/Chart.js"></script>
 	<script type="text/javascript" src="/js/monitor.js"></script>
@@ -225,11 +275,8 @@ body {
 			;
 			var date = new Date();
 			$("#day").val(day(date));
-			var stime = new Date(date.getTime() - 1000 * 60 * 60);
-			if (stime.getDate() != date.getDate()) {
-				stime.setHours(date.getHours(), 0, 0, 0);
-			}
-			$("#startTime").val(time(stime));
+			$("#startTime")
+					.val(time(new Date(date.getTime() - 1000 * 60 * 60)));
 			$("#endTime").val(time(date));
 			var instanceCharts = [];
 			var colors = [];
@@ -395,6 +442,25 @@ body {
 			}, 10000);
 			$("body").on("click", "#refreshBtn", function() {
 				window.__instanceRefresh__();
+			});
+			$("body").on("click",".info-container .remove",function() {
+				var _selector = $(this).data("selector");
+				var $selector = $(_selector);
+				if (!$selector[0]) {
+					return;
+				}
+				var _name = $selector.data("name");
+				swal({
+					title: "Are you sure?",
+					text: "You will remove the <span style='font-weidht:900;color:#DD6B55;'>" + _name + "</span> monitor !<br/> You can refresh the page to restore it .",   
+					showCancelButton: true,   
+					confirmButtonColor: "#DD6B55",   
+					confirmButtonText: "Yes, remove it!",
+					html: true,
+					closeOnConfirm: true 
+				}, function(){
+					$selector.remove();
+				});
 			});
 		});
 	</script>
