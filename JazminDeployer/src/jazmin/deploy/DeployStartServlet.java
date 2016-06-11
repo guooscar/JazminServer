@@ -9,7 +9,7 @@ import javax.servlet.annotation.WebServlet;
 import jazmin.core.Jazmin;
 import jazmin.core.Lifecycle;
 import jazmin.core.LifecycleAdapter;
-import jazmin.deploy.domain.DeployManager;
+import jazmin.deploy.manager.DeployManager;
 import jazmin.server.console.ConsoleServer;
 import jazmin.server.web.WebServer;
 import jazmin.server.webssh.WebSshServer;

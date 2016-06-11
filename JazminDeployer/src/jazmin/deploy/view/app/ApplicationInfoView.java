@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 import jazmin.core.Jazmin;
 import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.Application;
-import jazmin.deploy.domain.DeployManager;
+import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.ui.BeanTable;
 import jazmin.deploy.view.main.CodeEditorCallback;
 import jazmin.deploy.view.main.CodeEditorWindow;

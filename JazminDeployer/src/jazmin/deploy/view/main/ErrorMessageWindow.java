@@ -3,14 +3,14 @@
  */
 package jazmin.deploy.view.main;
 
-import jazmin.deploy.domain.DeployManager;
-
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Responsive;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+
+import jazmin.deploy.manager.DeployManager;
 
 /**
  * @author yama

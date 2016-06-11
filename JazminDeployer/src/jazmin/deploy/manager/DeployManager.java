@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jazmin.deploy.domain;
+package jazmin.deploy.manager;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +23,17 @@ import java.util.regex.Pattern;
 
 import jazmin.core.Jazmin;
 import jazmin.deploy.DeployStartServlet;
+import jazmin.deploy.domain.AppPackage;
+import jazmin.deploy.domain.Application;
+import jazmin.deploy.domain.GraphVizRenderer;
+import jazmin.deploy.domain.Instance;
+import jazmin.deploy.domain.Machine;
+import jazmin.deploy.domain.OutputListener;
+import jazmin.deploy.domain.PackageDownloadInfo;
+import jazmin.deploy.domain.RepoItem;
+import jazmin.deploy.domain.Script;
+import jazmin.deploy.domain.TopSearch;
+import jazmin.deploy.domain.User;
 import jazmin.deploy.domain.ant.AntManager;
 import jazmin.deploy.domain.svn.WorkingCopy;
 import jazmin.log.Logger;

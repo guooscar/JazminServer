@@ -1,4 +1,4 @@
-package jazmin.deploy.view.monitor;
+package jazmin.deploy.manager;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import com.ibm.icu.text.SimpleDateFormat;
 
 import jazmin.core.Jazmin;
+import jazmin.deploy.domain.Instance;
 import jazmin.deploy.domain.MonitorInfo;
 import jazmin.deploy.domain.MonitorInfoQuery;
 import jazmin.log.Logger;
@@ -32,9 +33,11 @@ public class MonitorManager implements Runnable {
 	//
 	private static Logger logger = LoggerFactory.get(MonitorManager.class);
 	//
-	private String logPath = "log" + File.separator + "monitor";
+	private static final String LOG_PATH = "log" + File.separator + "monitor";
+	
+	private static final String SUFFIX=".log";
 	//
-	static MonitorManager instance;
+	private static MonitorManager instance;
 	//
 	private Queue<MonitorInfo> queue;
 	//
@@ -44,48 +47,45 @@ public class MonitorManager implements Runnable {
 		}
 		return instance;
 	}
-
 	//
 	private MonitorManager() {
 		queue = new ConcurrentLinkedQueue<MonitorInfo>();
 		Jazmin.scheduleAtFixedRate(this, 10, 10, TimeUnit.SECONDS);
 	}
-
 	//
 	public void addMonitorInfo(MonitorInfo info) {
 		queue.add(info);
+		Instance instance=DeployManager.getInstance(info.instance);
+		if(instance!=null){
+			instance.setAlive(true);
+			instance.setLastAliveTime(new Date());
+		}
 	}
-
 	//
 	private MonitorInfo getMonitorInfo() {
 		return queue.poll();
 	}
 	//
-	private File getWriterFile(String instance, String name, String type) throws IOException {
-		File folder = new File(logPath, instance);
-		if (!folder.exists()) {
-			folder.mkdirs();
+	public static void move(File srcFile, String destPath) {
+		File dir = new File(destPath);
+		if (!dir.exists()) {
+			dir.mkdirs();
 		}
-		String fileName = name + "-" + type + ".log";
-		File file = new File(folder, fileName);
-		if (!file.exists()) {
-			file.createNewFile();
-		}
-		long lastModified = file.lastModified();
-		logger.debug("instance:{} name:{} type:{} lastModified:{}", instance, name, type, lastModified);
-		if (type != null && !type.equals(MonitorInfo.CATEGORY_TYPE_KV)) {
-			if (!isToday(new Date(lastModified))) {// 归档
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-				String date = sdf.format(new Date());
-				move(file, folder.getAbsolutePath() + File.separator + date);
-				file.createNewFile();// 重新创建文件
-			}
-		}
-		return file;
+		srcFile.renameTo(new File(dir, srcFile.getName()));
 	}
-	
-	private File getReaderFile(MonitorInfoQuery query) throws IOException {
-		File folder = new File(logPath, query.instance);
+	//
+	public static boolean isToday(Date date) {
+		Calendar calDateA = Calendar.getInstance();
+		calDateA.setTime(date);
+		Calendar calDateB = Calendar.getInstance();
+		calDateB.setTime(new Date());
+		return calDateA.get(Calendar.YEAR) == calDateB.get(Calendar.YEAR)
+				&& calDateA.get(Calendar.MONTH) == calDateB.get(Calendar.MONTH)
+				&& calDateA.get(Calendar.DAY_OF_MONTH) == calDateB.get(Calendar.DAY_OF_MONTH);
+	}
+	//
+	private BufferedReader getReader(MonitorInfoQuery query) throws IOException {
+		File folder = new File(LOG_PATH, query.instance);
 		if(!folder.exists()){
 			return null;
 		}
@@ -97,48 +97,36 @@ public class MonitorManager implements Runnable {
 				folder=new File(folder.getAbsolutePath()+File.separator+date);
 			}
 		}
-		String fileName = query.name + "-" + query.type + ".log";
+		String fileName = query.name + "-" + query.type + SUFFIX;
 		File file = new File(folder, fileName);
-		
-		
-		return file;
-	}
-
-	public static void move(File srcFile, String destPath) {
-		File dir = new File(destPath);
-		if (!dir.exists()) {
-			dir.mkdirs();
-		}
-		srcFile.renameTo(new File(dir, srcFile.getName()));
-	}
-
-	public static boolean isToday(Date date) {
-		Calendar calDateA = Calendar.getInstance();
-		calDateA.setTime(date);
-		Calendar calDateB = Calendar.getInstance();
-		calDateB.setTime(new Date());
-		return calDateA.get(Calendar.YEAR) == calDateB.get(Calendar.YEAR)
-				&& calDateA.get(Calendar.MONTH) == calDateB.get(Calendar.MONTH)
-				&& calDateA.get(Calendar.DAY_OF_MONTH) == calDateB.get(Calendar.DAY_OF_MONTH);
-	}
-
-	private BufferedReader getReader(MonitorInfoQuery query) throws IOException {
-		File file = getReaderFile(query);
-		if(file==null){
-			return null;
-		}
 		return new BufferedReader(new FileReader(file));
 	}
-
+	//
 	private BufferedWriter getWriter(MonitorInfo monitorInfo) throws IOException {
-		File file = getWriterFile(monitorInfo.instance, monitorInfo.name, monitorInfo.type);
+		File folder = new File(LOG_PATH, monitorInfo.instance);
+		if (!folder.exists()) {
+			folder.mkdirs();
+		}
+		String fileName = monitorInfo.name + "-" + monitorInfo.type + SUFFIX;
+		File file = new File(folder, fileName);
+		if (!file.exists()) {
+			file.createNewFile();
+		}
+		long lastModified = file.lastModified();
+		if (monitorInfo.type != null && !monitorInfo.type.equals(MonitorInfo.CATEGORY_TYPE_KV)) {
+			if (!isToday(new Date(lastModified))) {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+				String date = sdf.format(new Date(lastModified));
+				move(file, folder.getAbsolutePath() + File.separator + date);
+				file.createNewFile();
+			}
+		}
 		boolean append = true;
 		if (monitorInfo.type.equals(MonitorInfo.CATEGORY_TYPE_KV)) {
 			append = false;
 		}
 		return new BufferedWriter(new FileWriter(file, append));
 	}
-
 	//
 	private void addData(MonitorInfo info) throws IOException {
 		BufferedWriter writer = getWriter(info);
@@ -150,10 +138,13 @@ public class MonitorManager implements Runnable {
 			writer.close();
 		}
 	}
-
+	//
 	public List<MonitorInfo> getMonitorInfos(String instance) {
 		List<MonitorInfo> list = new ArrayList<>();
-		File directory = new File(logPath, instance);
+		File directory = new File(LOG_PATH, instance);
+		if(!directory.exists()){
+			return list;
+		}
 		File[] files = directory.listFiles();
 		for (File file : files) {
 			if (file.isDirectory()) {
@@ -229,5 +220,14 @@ public class MonitorManager implements Runnable {
 				logger.error(e.getMessage(), e);
 			}
 		}
+		//
+		long now=System.currentTimeMillis();
+		DeployManager.getInstances().forEach((in)->{
+			if(in.isAlive){
+				if(in.lastAliveTime!=null&&(now-in.lastAliveTime.getTime())>1000*60){
+					in.setAlive(false);
+				}
+			}
+		});
 	}
 }

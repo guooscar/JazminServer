@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jazmin.deploy.DeploySystemUI;
-import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.User;
+import jazmin.deploy.manager.DeployManager;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 

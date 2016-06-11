@@ -6,7 +6,7 @@ package jazmin.deploy.controller;
 import java.util.List;
 
 import jazmin.core.Jazmin;
-import jazmin.deploy.domain.DeployManager;
+import jazmin.deploy.manager.DeployManager;
 import jazmin.server.web.mvc.Context;
 import jazmin.server.web.mvc.Controller;
 import jazmin.server.web.mvc.FileView;

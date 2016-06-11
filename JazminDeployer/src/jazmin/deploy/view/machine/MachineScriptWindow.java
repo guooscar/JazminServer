@@ -6,8 +6,8 @@ package jazmin.deploy.view.machine;
 import java.io.IOException;
 
 import jazmin.deploy.DeploySystemUI;
-import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.Script;
+import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.ui.BeanTable;
 import jazmin.deploy.view.main.InputWindow;
 

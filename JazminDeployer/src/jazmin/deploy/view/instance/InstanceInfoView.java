@@ -26,8 +26,10 @@ import com.vaadin.ui.themes.ValoTheme;
 import jazmin.core.Jazmin;
 import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.Application;
-import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.Instance;
+import jazmin.deploy.domain.MonitorInfo;
+import jazmin.deploy.manager.DeployManager;
+import jazmin.deploy.manager.MonitorManager;
 import jazmin.deploy.ui.BeanTable;
 import jazmin.deploy.view.main.CodeEditorCallback;
 import jazmin.deploy.view.main.CodeEditorWindow;
@@ -524,7 +526,15 @@ public class InstanceInfoView extends DeployBaseView {
 		if (instance == null) {
 			return;
 		}
-		MonitorSelectWindow window = new MonitorSelectWindow(instance.id);
+		List<MonitorInfo> datas = MonitorManager.get().getMonitorInfos(instance.id);
+		if(datas.isEmpty()){
+			DeploySystemUI.showInfo("No Monitor Data");
+			return;
+		}
+		datas.sort((a,b)->{
+			return a.name.compareTo(b.name);
+		});
+		MonitorSelectWindow window = new MonitorSelectWindow(instance.id, datas);
 		UI.getCurrent().addWindow(window);
 	}
 

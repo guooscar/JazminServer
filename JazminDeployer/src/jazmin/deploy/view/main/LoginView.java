@@ -1,8 +1,8 @@
 package jazmin.deploy.view.main;
 
 import jazmin.deploy.DeploySystemUI;
-import jazmin.deploy.domain.DeployManager;
 import jazmin.deploy.domain.User;
+import jazmin.deploy.manager.DeployManager;
 import jazmin.util.MD5Util;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
