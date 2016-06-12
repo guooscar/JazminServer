@@ -18,6 +18,24 @@ body {
 	line-height: 150%;
 }
 
+.remove {
+	display: inline-block;
+	width: 24px;
+	height: 24px;
+	background:url("/image/close-alt.png") center no-repeat transparent;
+	margin:5px 10px;
+	text-align: center;
+	font-size: 18px;
+	-webkit-border-radius:50%;
+    -moz-border-radius:50%;
+    border-radius:50%;
+    cursor: pointer;
+}
+
+.remove:hover {
+	background-color: #C2B9BC;
+}
+
 .container-charts {
 	
 }
@@ -28,8 +46,8 @@ body {
 
 .date-container {
 	position: fixed;
-	height: 40px;
-	line-height: 40px;
+	height: 30px;
+	line-height: 30px;
 	width: 100%;
 	background-color: #FFF;
 	border-bottom: solid #EEE 1px;
@@ -41,14 +59,34 @@ body {
 	border-bottom: solid #EEE 1px;
 }
 
-.basic-info {
+.data-info{
+
+}
+
+.basic-info-container {
 	float: left;
-	width: 33%;
-	height: 400px;
 	overflow: auto;
 	border-radius: 5px;
 	margin: 5px 0px;
 	border: solid 1px #EEE;
+	width: 33%;
+	height: 450px;
+}
+
+.chart-info-container {
+	display: inline-block;
+	overflow: auto;
+	border-radius: 5px;
+	margin: 5px 0px;
+	border: solid 1px #EEE;
+}
+
+.basic-info-container .remove, .chart-info-container .remove {
+	float: right;
+}
+
+.basic-info {
+	
 }
 
 .basic-info .title {
@@ -80,14 +118,14 @@ body {
 }
 
 .basic-info .infos table .label {
-	text-align: left;
 	padding: 0px 10px;
+	text-align: left;
 }
 
 .basic-info .infos table .content {
-	text-align: left;
 	color: #555;
 	padding: 0px 10px;
+	text-align: left;
 }
 
 .date-time-container {
@@ -105,7 +143,7 @@ body {
 }
 
 .date-time-container .item input[type="time"] {
-	width: 100px;
+	width: 140px;
 }
 
 .date-time-container .item input[type="button"] {
@@ -142,14 +180,26 @@ body {
 		</div>
 	</div>
 	<div style="height: 60px;"></div>
-	<div class="basic-info-charts">
-		<c:forEach var="item" items="${list }">
+	<div>
+		<c:forEach var="item" items="${list }" varStatus="step">
 			<c:if test="${item.type == 'KeyValue' }">
-				<div id="${item.instance }-${item.name }" class="basic-info"
-					data-instance="${item.instance }" data-name="${item.name }"
-					data-type="${item.type }" data-id="${item.instance }-${item.name }">
-					<div class="title">${item.name }</div>
-					<div class="infos">loading...</div>
+				<div id="${item.instance }-${step.index }-table-container"
+					data-instance="${item.instance }" 
+					data-name="${item.name }"
+					class="basic-info-container data-info">
+					<div class="opt">
+						<span class="remove"
+							data-selector="#${item.instance }-${step.index }-table-container"></span>
+					</div>
+					<div id="${item.instance }-${item.name }" class="basic-info"
+						data-instance="${item.instance }" 
+						data-name="${item.name }"
+						data-type="${item.type }"
+						data-id="${item.instance }-${item.name }"
+						>
+						<div class="title">${item.name }</div>
+						<div class="infos">loading...</div>
+					</div>
 				</div>
 			</c:if>
 		</c:forEach>
@@ -157,12 +207,24 @@ body {
 	</div>
 	<div style="height: 10px;"></div>
 	<div class="container-charts">
-		<c:forEach var="item" items="${list }">
+		<c:forEach var="item" items="${list }" varStatus="step">
 			<c:if test="${item.type != 'KeyValue' }">
-				<canvas id="${item.instance }-${item.name }" class="instance-charts"
-					data-instance="${item.instance }" data-name="${item.name }"
-					data-type="${item.type }" data-id="${item.instance }-${item.name }"
-					width="500" height="400"></canvas>
+				<div id="${item.instance }-${step.index }-chart-container"
+					data-instance="${item.instance }"
+					data-name="${item.name }"
+					class="chart-info-container data-info">
+					<div class="opt">
+						<span class="remove"
+							data-selector="#${item.instance }-${step.index }-chart-container"></span>
+					</div>
+					<canvas id="${item.instance }-${item.name }"
+						class="instance-charts" 
+						data-instance="${item.instance }"
+						data-name="${item.name }" 
+						data-type="${item.type }"
+						data-id="${item.instance }-${item.name }"
+						width="500" height="400"></canvas>
+				</div>
 			</c:if>
 		</c:forEach>
 		<div style="clear: both;"></div>
@@ -225,11 +287,8 @@ body {
 			;
 			var date = new Date();
 			$("#day").val(day(date));
-			var stime = new Date(date.getTime() - 1000 * 60 * 60);
-			if (stime.getDate() != date.getDate()) {
-				stime.setHours(date.getHours(), 0, 0, 0);
-			}
-			$("#startTime").val(time(stime));
+			$("#startTime")
+					.val(time(new Date(date.getTime() - 1000 * 60 * 60)));
 			$("#endTime").val(time(date));
 			var instanceCharts = [];
 			var colors = [];
@@ -382,6 +441,7 @@ body {
 				var _recently = !!$("#recentlyTime:checked")[0];
 				var _now = new Date();
 				if (_recently) {
+					$("#day").val(day(_now));
 					$("#endTime").val(time(_now));
 					window.__instanceRefresh__();
 				}
@@ -395,6 +455,14 @@ body {
 			}, 10000);
 			$("body").on("click", "#refreshBtn", function() {
 				window.__instanceRefresh__();
+			});
+			$("body").on("click",".data-info .remove",function() {
+				var _selector = $(this).data("selector");
+				var $selector = $(_selector);
+				if (!$selector[0]) {
+					return;
+				}
+				$selector.remove();
 			});
 		});
 	</script>
