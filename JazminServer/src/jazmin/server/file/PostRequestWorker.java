@@ -92,9 +92,6 @@ public class PostRequestWorker extends RequestWorker {
 	private void handleContent(DefaultHttpContent content) throws IOException{
 		if (decoder != null) {
 			if (content instanceof HttpContent) {
-				if(logger.isDebugEnabled()){
-					logger.debug("handle httpcontent "+content);
-				}
 				// New chunk is received
 				HttpContent chunk = (HttpContent) content;
 				try {
