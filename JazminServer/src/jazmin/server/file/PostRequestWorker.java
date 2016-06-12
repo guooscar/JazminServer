@@ -23,7 +23,6 @@ import io.netty.handler.codec.http.multipart.DiskFileUpload;
 import io.netty.handler.codec.http.multipart.FileUpload;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
-import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder.EndOfDataDecoderException;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder.ErrorDataDecoderException;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData.HttpDataType;
@@ -45,15 +44,12 @@ public class PostRequestWorker extends RequestWorker {
 	private static Logger logger = LoggerFactory.get(PostRequestWorker.class);
 	//
 	private static final HttpDataFactory factory = new DefaultHttpDataFactory(
-			DefaultHttpDataFactory.MAXSIZE);
+			DefaultHttpDataFactory.MINSIZE);
 	HttpPostRequestDecoder decoder;
 	static {
         DiskFileUpload.deleteOnExitTemporaryFile = true; // should delete file
-                                                         // on exit (in normal
-                                                         // exit)
         DiskFileUpload.baseDirectory = null; // system temp directory
         DiskAttribute.deleteOnExitTemporaryFile = true; // should delete file on
-                                                        // exit (in normal exit)
         DiskAttribute.baseDirectory = null; // system temp directory
     }
 	//
@@ -96,22 +92,25 @@ public class PostRequestWorker extends RequestWorker {
 	private void handleContent(DefaultHttpContent content) throws IOException{
 		if (decoder != null) {
 			if (content instanceof HttpContent) {
+				if(logger.isDebugEnabled()){
+					logger.debug("handle httpcontent "+content);
+				}
 				// New chunk is received
 				HttpContent chunk = (HttpContent) content;
 				try {
-	                 decoder.offer(chunk);
-	            } catch (ErrorDataDecoderException e1) {
-	            	 logger.catching(e1);
-	            	 ctx.channel().close();
-	                 return;
-	            }
-				fileUpload.transferedBytes+=content.content().capacity();
+                    decoder.offer(chunk);
+                } catch (ErrorDataDecoderException e1) {
+                	logger.catching(e1);
+                	sendError(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR);
+                	clean();
+                    return;
+                }
+			    fileUpload.transferedBytes+=content.content().capacity();
 				readHttpDataChunkByChunk();
 				if(chunk instanceof LastHttpContent){
 					sendResult(ctx, requestFile);
 					clean();
 				}
-			
 			}
 			
 		} 
@@ -127,6 +126,10 @@ public class PostRequestWorker extends RequestWorker {
 		if(requestFile!=null&&requestFile.length()==0){
 			logger.warn("delete empty file {}",requestFile);
 			requestFile.delete();
+		}
+		//
+		if(decoder!=null){
+			decoder.cleanFiles();
 		}
 	}
 	//
@@ -146,22 +149,23 @@ public class PostRequestWorker extends RequestWorker {
 	 * @throws IOException 
 	 */
 	private void readHttpDataChunkByChunk() throws IOException {
-		try{
-			while (decoder.hasNext()) {
-				InterfaceHttpData data = decoder.next();
-				if (data != null) {
-					try {
-						// new value
-						writeHttpData(data);
-					} finally {
-						data.release();
-					}
+		while (decoder.hasNext()) {
+			InterfaceHttpData data = decoder.next();
+			if (data != null) {
+				try {
+					// new value
+					writeHttpData(data);
+				} finally {
+					data.release();
 				}
 			}
-		}catch (EndOfDataDecoderException e1) {}
+		}
 	}
 	//
 	private void writeHttpData(InterfaceHttpData data) throws IOException {
+		if(logger.isDebugEnabled()){
+			logger.debug("write http data {}",data);
+		}
 		if (data.getHttpDataType() == HttpDataType.FileUpload) {
 			FileUpload fu = (FileUpload) data;
 			if (fu.isCompleted()) {

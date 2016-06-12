@@ -41,5 +41,6 @@ public class FileServerHandler extends SimpleChannelInboundHandler<HttpObject> {
     	if(rw!=null){
     		rw.channelClosed();
     	}
+    	ctx.channel().close();
     }
 }

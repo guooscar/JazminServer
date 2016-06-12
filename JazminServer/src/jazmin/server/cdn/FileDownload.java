@@ -4,7 +4,6 @@
 package jazmin.server.cdn;
 
 import io.netty.channel.Channel;
-import io.netty.handler.codec.Headers.NameVisitor;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 
 import java.io.File;
@@ -96,14 +95,6 @@ public class FileDownload extends FileOpt implements AsyncHandler<String>{
 			sourceType=TYPE_REMOTE_STREAM;
 			String targetURL=cdnServer.getOrginSiteURL()+uri;
 			Map<String,Collection<String>>headerMap=new HashMap<String,Collection<String>>();
-			httpRequest.headers().forEachName(new NameVisitor<CharSequence>() {
-				@Override
-				public boolean visit(CharSequence name) throws Exception {
-					//headerMap.put(name.toString(),
-					//		httpRequest.headers().getAllAndConvert(name));
-					return true;
-				}
-			});
 			cdnServer.asyncHttpClient
 			.prepareGet(targetURL)
 			.setHeaders(headerMap)

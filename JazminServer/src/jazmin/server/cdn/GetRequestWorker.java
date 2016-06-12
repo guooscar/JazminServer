@@ -21,10 +21,10 @@ import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaderUtil;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.util.CharsetUtil;
@@ -136,12 +136,12 @@ ChannelProgressiveFutureListener,FileDownload.ResultHandler{
 	private void sendObject(Object obj,long length){
 		long fileLength = length;
 		HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
-		HttpHeaderUtil.setContentLength(response, fileLength);
+		HttpUtil.setContentLength(response, fileLength);
 		File file=fileRequest.file;
 		setContentTypeHeader(response, file);
 		setDateAndCacheHeaders(response, file);
 		//
-		if (HttpHeaderUtil.isKeepAlive(request)) {
+		if (HttpUtil.isKeepAlive(request)) {
 			response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
 		}
 		// Write the initial line and the header.
@@ -156,7 +156,7 @@ ChannelProgressiveFutureListener,FileDownload.ResultHandler{
 		lastContentFuture = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
 		sendFileFuture.addListener(this);
 		// Decide whether to close the connection or not.
-		if (!HttpHeaderUtil.isKeepAlive(request)) {
+		if (!HttpUtil.isKeepAlive(request)) {
 			// Close the connection when the whole content is written out.
 			lastContentFuture.addListener(ChannelFutureListener.CLOSE);
 		}
@@ -243,7 +243,7 @@ ChannelProgressiveFutureListener,FileDownload.ResultHandler{
 			}
 		}
 		// Cache Validation
-		String ifModifiedSince = request.headers().getAndConvert(
+		String ifModifiedSince = request.headers().getAsString(
 				IF_MODIFIED_SINCE);
 		if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
 			SimpleDateFormat dateFormatter = new SimpleDateFormat(

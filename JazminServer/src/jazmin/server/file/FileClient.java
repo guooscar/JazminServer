@@ -104,6 +104,8 @@ public class FileClient {
         .option(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, 8*1024)
 		.handler(channelInitializer);
 	}
+	
+	//
 	/**
 	 * upload file to server
 	 * @param serverUrl
@@ -133,6 +135,7 @@ public class FileClient {
             channel.write(bodyRequestEncoder);
         }
         channel.flush();
+        bodyRequestEncoder.cleanFiles();
         channel.closeFuture().sync();
         String result=channel.attr(HttpUploadClientHandler.ATTR_RESULT).get();
         return result;

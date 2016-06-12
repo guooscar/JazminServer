@@ -39,10 +39,10 @@ public class FilterContext {
 	}
 	//
 	public String getRequestHeader(String name){
-		return request.headers().getAndConvert(name);
+		return request.headers().getAsString(name);
 	}
 	public List<String> getRequestHeaders(String name){
-		return request.headers().getAllAndConvert(name);
+		return request.headers().getAllAsString(name);
 	}
 	//
 	public void setResponseHeader(String key,String value){

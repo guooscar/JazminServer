@@ -15,6 +15,7 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.netty.handler.timeout.IdleStateHandler;
 
@@ -152,12 +153,11 @@ public class WebSshServer extends Server{
 		File certiFile = new File(certificateFile);
 		File keyFile = new File(privateKeyFile);
 		if (certiFile.exists() && keyFile.exists()) {
-			sslContext = SslContext.newServerContext(new File(certificateFile),
-					new File(privateKeyFile), privateKeyPhrase);	
+			sslContext=SslContextBuilder.forServer(new File(certificateFile),
+					new File(privateKeyFile), privateKeyPhrase).build();
 		} else {
 			SelfSignedCertificate ssc = new SelfSignedCertificate();
-			sslContext = SslContext.newServerContext(ssc.certificate(),
-					ssc.privateKey());
+			sslContext=SslContextBuilder.forServer(ssc.certificate(),ssc.privateKey()).build();
 		}
 		return sslContext;
     }

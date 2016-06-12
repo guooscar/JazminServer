@@ -43,7 +43,6 @@ public class FileServerDriver extends Driver{
 	private Set<String>downloadSet;
 	private AtomicLong uploadCounter;
 	private AtomicLong downloadCounter;
-	
 	//
 	static class ServerInfo{
 		String id;
@@ -61,6 +60,8 @@ public class FileServerDriver extends Driver{
 		uploadCounter=new AtomicLong();
 		downloadCounter=new AtomicLong();
 	}
+	//
+	
 	//
 	public void addServer(String id,String host,int port,int weight){
 		ServerInfo si=new ServerInfo();
@@ -81,6 +82,8 @@ public class FileServerDriver extends Driver{
 		}
 	}
 	
+	
+
 	//
 	public void setHomeDir(String path){
 		homeDir=new File(path);
