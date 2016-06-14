@@ -3,6 +3,7 @@
  */
 package jazmin.core.monitor;
 
+import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
@@ -20,12 +21,15 @@ public class VMMonitorAgent implements MonitorAgent{
 	private ThreadMXBean threadMXBean;
 	private RuntimeMXBean runtimeMXBean;
 	private MemoryMXBean memoryMXBean;
+	private GarbageCollectorMXBean garbageCollectorMXBean;
 	//
 	@Override
 	public void start(Monitor monitor) {
 		threadMXBean=ManagementFactory.getThreadMXBean();
     	runtimeMXBean=ManagementFactory.getRuntimeMXBean();
     	memoryMXBean=ManagementFactory.getMemoryMXBean();
+    	garbageCollectorMXBean=ManagementFactory.getGarbageCollectorMXBeans().get(0);
+    	
 		//
 		Map<String,String>vmInfo=new HashMap<String, String>();
 		vmInfo.put("bootClassPath",runtimeMXBean.getBootClassPath());
@@ -75,6 +79,14 @@ public class VMMonitorAgent implements MonitorAgent{
 		memory2Info.put("nonheap.used",(nonheapUsage.getUsed())+"");
 		memory2Info.put("nonheap.commtted",(nonheapUsage.getCommitted())+"");
 		monitor.sample("VM.MemoryNonHeap",Monitor.CATEGORY_TYPE_VALUE,memory2Info);
+		//
+		Map<String,String>garInfo1=new HashMap<String, String>();
+		garInfo1.put("collectionCount",(garbageCollectorMXBean.getCollectionCount())+"");
+		monitor.sample("VM.GarbageCollectorCount",Monitor.CATEGORY_TYPE_COUNT,garInfo1);
+		//
+		Map<String,String>garInfo2=new HashMap<String, String>();
+		garInfo2.put("collectionCount",(garbageCollectorMXBean.getCollectionTime())+"");
+		monitor.sample("VM.GarbageCollectorTime",Monitor.CATEGORY_TYPE_COUNT,garInfo2);
 		
 	}
 	
