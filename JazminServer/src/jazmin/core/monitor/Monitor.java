@@ -40,6 +40,7 @@ public class Monitor extends Lifecycle implements Runnable{
 		monitorAgents=new ArrayList<MonitorAgent>();
 		registerAgent(new VMMonitorAgent());
 		registerAgent(new DispatcherMonitorAgent());
+		registerAgent(new OSMonitorAgent());
 	}
 	//
 	public void registerAgent(MonitorAgent agent){
