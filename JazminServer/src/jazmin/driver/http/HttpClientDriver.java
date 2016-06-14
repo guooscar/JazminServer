@@ -474,22 +474,27 @@ public class HttpClientDriver extends Driver{
 	//--------------------------------------------------------------------------
 	//
 	public HttpRequest get(String url){
+		requestCounter.incrementAndGet();
 		HttpRequest req=new HttpRequest(this,asyncHttpClient.prepareGet(url));
 		return req;
 	}
 	public HttpRequest post(String url){
+		requestCounter.incrementAndGet();
 		HttpRequest req=new HttpRequest(this,asyncHttpClient.preparePost(url));
 		return req;
 	}
 	public HttpRequest head(String url){
+		requestCounter.incrementAndGet();
 		HttpRequest req=new HttpRequest(this,asyncHttpClient.prepareHead(url));
 		return req;
 	}
 	public HttpRequest delete(String url){
+		requestCounter.incrementAndGet();
 		HttpRequest req=new HttpRequest(this,asyncHttpClient.prepareDelete(url));
 		return req;
 	}
 	public HttpRequest options(String url){
+		requestCounter.incrementAndGet();
 		HttpRequest req=new HttpRequest(this,asyncHttpClient.prepareOptions(url));
 		return req;
 	}

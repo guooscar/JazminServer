@@ -38,11 +38,11 @@ public  class JazminMonitorAgent implements MonitorAgent{
 			List<InvokeStat>stats=Jazmin.dispatcher.getInvokeStats();
 			for(InvokeStat stat:stats){
 				String s=("IC:"+stat.invokeCount+
-						  " ERROR:"+stat.errorCount+
-						  " AVGFULL:"+stat.avgFullTime()+
-						  " AVGRUN:"+stat.avgRunTime()+
-						  " MAXFULL:"+stat.maxFullTime+
-						  " MAXRUN:"+stat.maxRunTime);
+						  "/ERROR:"+stat.errorCount+
+						  "/AVGFULL:"+stat.avgFullTime()+
+						  "/AVGRUN:"+stat.avgRunTime()+
+						  "/MAXFULL:"+stat.maxFullTime+
+						  "/MAXRUN:"+stat.maxRunTime);
 				info.put(stat.name, s);
 			};
 			monitor.sample("Jazmin.InvokeStat",Monitor.CATEGORY_TYPE_KV,info);

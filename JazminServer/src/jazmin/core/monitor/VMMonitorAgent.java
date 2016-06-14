@@ -49,10 +49,14 @@ public class VMMonitorAgent implements MonitorAgent{
 	public void sample(int idx,Monitor monitor) {
 		Map<String,String>threadInfo=new HashMap<String, String>();
 		threadInfo.put("total",threadMXBean.getThreadCount()+"");
-		threadInfo.put("started",threadMXBean.getTotalStartedThreadCount()+"");
 		threadInfo.put("peak",threadMXBean.getPeakThreadCount()+"");
 		threadInfo.put("deamon",threadMXBean.getDaemonThreadCount()+"");
 		monitor.sample("VM.Thread",Monitor.CATEGORY_TYPE_VALUE,threadInfo);
+		
+		
+		Map<String,String>threadStartedInfo=new HashMap<String, String>();
+		threadStartedInfo.put("started",threadMXBean.getTotalStartedThreadCount()+"");
+		monitor.sample("VM.ThreadStarted",Monitor.CATEGORY_TYPE_COUNT,threadStartedInfo);
 		//	
 		Map<String,String>memoryInfo=new HashMap<String, String>();
 		MemoryUsage heapUsage=memoryMXBean.getHeapMemoryUsage();
