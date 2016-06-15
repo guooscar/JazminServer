@@ -337,6 +337,7 @@ public class RpcServer extends Server{
 		public void end(Object instance, Method method, Object[]args,Object ret, Throwable e) {
 			rpcSessionThreadLocal.set(null);
 			RpcMessage rspMessage=new RpcMessage();
+			rspMessage.sentTime=message.sentTime;
 			rspMessage.id=message.id;
 			rspMessage.type=RpcMessage.TYPE_RPC_CALL_RSP;
 			if(e instanceof AppException){
