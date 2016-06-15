@@ -114,7 +114,11 @@ public class MonitorController {
 				//如果是count类型的
 				if (MonitorInfo.CATEGORY_TYPE_COUNT.equals(e.type)) {
 					if(lastCountValue.containsKey(entry.getKey())){
-						datas.add(value-lastCountValue.get(entry.getKey()));
+						double v=value-lastCountValue.get(entry.getKey());
+						if(v<0){
+							v=0;
+						}
+						datas.add(v);
 					}
 					lastCountValue.put(entry.getKey(),value);
 				}else{
