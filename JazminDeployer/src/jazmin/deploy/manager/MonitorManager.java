@@ -23,6 +23,7 @@ import jazmin.deploy.domain.monitor.MonitorInfoQuery;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.util.DumpUtil;
+import jazmin.util.FileUtil;
 
 /**
  * 
@@ -149,7 +150,7 @@ public class MonitorManager implements Runnable {
 			String date = sdf.format(getNextDay(-7));
 			File folder = new File(LOG_PATH, info.instance+File.separator + date);
 			if(folder.exists()){
-				folder.delete();
+				FileUtil.deleteDirectory(folder);
 			}
 		} finally {
 			writer.close();
