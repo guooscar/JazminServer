@@ -30,7 +30,7 @@ public class OSMonitorAgent implements MonitorAgent{
 	@Override
 	public void sample(int idx,Monitor monitor) {
 		Map<String,String>loadAvg=new HashMap<String, String>();
-		loadAvg.put("SystemLoadAverage",((int)osMXBean.getSystemLoadAverage()*100)+"");
+		loadAvg.put("SystemLoadAverage",((int)(osMXBean.getSystemLoadAverage()*1000))+"");
 		monitor.sample("OS.SystemLoadAverage",Monitor.CATEGORY_TYPE_VALUE,loadAvg);
 	}
 	
