@@ -1,4 +1,4 @@
-package jazmin.deploy.domain;
+package jazmin.deploy.domain.monitor;
 
 /**
  * 
@@ -21,6 +21,8 @@ public class MonitorInfo {
 	public String value;
 	/**time*/
 	public long time;
+	/**描述*/
+	public String description;
 	//
 	@Override
 	public String toString(){

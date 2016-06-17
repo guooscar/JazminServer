@@ -27,7 +27,7 @@ import jazmin.core.Jazmin;
 import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.Application;
 import jazmin.deploy.domain.Instance;
-import jazmin.deploy.domain.MonitorInfo;
+import jazmin.deploy.domain.monitor.MonitorInfo;
 import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.manager.MonitorManager;
 import jazmin.deploy.ui.BeanTable;

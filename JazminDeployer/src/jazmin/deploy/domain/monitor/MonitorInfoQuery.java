@@ -1,4 +1,4 @@
-package jazmin.deploy.domain;
+package jazmin.deploy.domain.monitor;
 
 /**
  * 

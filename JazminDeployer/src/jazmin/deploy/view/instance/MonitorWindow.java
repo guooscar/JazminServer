@@ -27,7 +27,7 @@ public class MonitorWindow extends Window {
 		setClosable(true);
 		setCaption("[" + instance + "]Monitor");
 		setHeight("90%");
-		setWidth("1020px");
+		setWidth("1010px");
 		this.frame = new BrowserFrame(null,
 				new ExternalResource("/srv/monitor/view?instance=" + instance + "&charts=" + charts + "&keyvalues=" + keyvalues));
 		this.frame.setImmediate(true);

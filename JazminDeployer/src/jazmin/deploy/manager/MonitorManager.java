@@ -18,8 +18,8 @@ import com.ibm.icu.text.SimpleDateFormat;
 
 import jazmin.core.Jazmin;
 import jazmin.deploy.domain.Instance;
-import jazmin.deploy.domain.MonitorInfo;
-import jazmin.deploy.domain.MonitorInfoQuery;
+import jazmin.deploy.domain.monitor.MonitorInfo;
+import jazmin.deploy.domain.monitor.MonitorInfoQuery;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.util.DumpUtil;
