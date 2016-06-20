@@ -18,11 +18,12 @@ import com.ibm.icu.text.SimpleDateFormat;
 
 import jazmin.core.Jazmin;
 import jazmin.deploy.domain.Instance;
-import jazmin.deploy.domain.MonitorInfo;
-import jazmin.deploy.domain.MonitorInfoQuery;
+import jazmin.deploy.domain.monitor.MonitorInfo;
+import jazmin.deploy.domain.monitor.MonitorInfoQuery;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.util.DumpUtil;
+import jazmin.util.FileUtil;
 
 /**
  * 
@@ -72,6 +73,16 @@ public class MonitorManager implements Runnable {
 			dir.mkdirs();
 		}
 		srcFile.renameTo(new File(dir, srcFile.getName()));
+	}
+	//获取距离今天num天的日期0点 
+	public static Date getNextDay(int num){
+		 Calendar now=Calendar.getInstance();
+		 now.add(Calendar.DAY_OF_YEAR,num);
+		 now.set(Calendar.HOUR_OF_DAY, 0);
+		 now.set(Calendar.MINUTE, 0);
+		 now.set(Calendar.SECOND, 0);
+		 now.set(Calendar.MILLISECOND, 0);
+	     return now.getTime();
 	}
 	//
 	public static boolean isToday(Date date) {
@@ -134,6 +145,13 @@ public class MonitorManager implements Runnable {
 			writer.write(info.toString());
 			writer.newLine();
 			writer.flush();
+			//delete 7 days ago log
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+			String date = sdf.format(getNextDay(-7));
+			File folder = new File(LOG_PATH, info.instance+File.separator + date);
+			if(folder.exists()){
+				FileUtil.deleteDirectory(folder);
+			}
 		} finally {
 			writer.close();
 		}

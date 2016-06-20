@@ -23,7 +23,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
-import jazmin.deploy.domain.MonitorInfo;
+import jazmin.deploy.domain.monitor.MonitorInfo;
 
 /**
  *

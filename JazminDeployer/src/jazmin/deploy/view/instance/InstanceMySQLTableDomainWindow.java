@@ -185,6 +185,10 @@ public class InstanceMySQLTableDomainWindow extends Window{
 			daoSB.append("\"createTime\", \"id\");\n");	
 			daoSB.append("\t}\n\n");
 			//
+			daoSB.append("\t").append("public "+className+" get").append(className).append("ById(int id){\n");
+			daoSB.append("\t\t").append("return query(QueryTerms.create().where(\"id\",id));\n");
+			daoSB.append("\t}\n\n");
+			//
 			daoSB.append("\n}");
 			daoEditor.setValue(daoSB.toString());
 		} catch (Exception e) {

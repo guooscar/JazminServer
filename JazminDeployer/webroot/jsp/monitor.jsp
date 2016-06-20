@@ -20,16 +20,16 @@ body {
 
 .remove {
 	display: inline-block;
-	width: 24px;
-	height: 24px;
-	background:url("/image/close-alt.png") center no-repeat transparent;
-	margin:5px 10px;
+	width: 20px;
+	height: 20px;
+	background: url("/image/close-alt.png") center no-repeat transparent;
+	margin: 10px;
 	text-align: center;
 	font-size: 18px;
-	-webkit-border-radius:50%;
-    -moz-border-radius:50%;
-    border-radius:50%;
-    cursor: pointer;
+	-webkit-border-radius: 50%;
+	-moz-border-radius: 50%;
+	border-radius: 50%;
+	cursor: pointer;
 }
 
 .remove:hover {
@@ -56,11 +56,10 @@ body {
 	-moz-box-shadow: 0px 5px 5px #888;
 	box-shadow: 0px 5px 5px #888;
 	border-bottom: solid #EEE 1px;
-	border-bottom: solid #EEE 1px;
 }
 
-.data-info{
-
+.data-info {
+	
 }
 
 .basic-info-container {
@@ -77,6 +76,7 @@ body {
 	display: inline-block;
 	overflow: auto;
 	border-radius: 5px;
+	padding-right: 10px;
 	margin: 5px 0px;
 	border: solid 1px #EEE;
 }
@@ -156,9 +156,38 @@ body {
 .date-time-container .item input[type="checkbox"] {
 	width: 20px;
 }
+
+.loading-bg {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	z-index: 99;
+	display: none;
+	background-color: rgba(0, 0, 0, .5)
+}
+
+.loading-bg.show {
+	display: block;
+}
+
+.loading-bg .content {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	color: #EEE;
+	display: inline-block;
+	margin-left: -15px;
+	margin-top: -150px;
+	font-size: 30px;
+}
 </style>
 </head>
 <body>
+	<div id="loading" class="loading-bg">
+		<div class="content">loading...</div>
+	</div>
 	<div class="date-container">
 		<div class="date-time-container">
 			<div class="item">
@@ -174,7 +203,7 @@ body {
 				<input id="refreshBtn" type="button" value="Query" />
 			</div>
 			<div class="item">
-				<input id="recentlyTime" type="checkbox" />Realtime
+				<input id="realTime" type="checkbox" />Realtime
 			</div>
 			<div style="clear: both;"></div>
 		</div>
@@ -183,20 +212,17 @@ body {
 	<div>
 		<c:forEach var="item" items="${list }" varStatus="step">
 			<c:if test="${item.type == 'KeyValue' }">
-				<div id="${item.instance }-${step.index }-table-container"
-					data-instance="${item.instance }" 
-					data-name="${item.name }"
+				<div id="${item.instance }-table-container-${step.index }"
+					data-instance="${item.instance }" data-name="${item.name }"
 					class="basic-info-container data-info">
 					<div class="opt">
 						<span class="remove"
-							data-selector="#${item.instance }-${step.index }-table-container"></span>
+							data-selector="#${item.instance }-table-container-${step.index }"></span>
 					</div>
-					<div id="${item.instance }-${item.name }" class="basic-info"
-						data-instance="${item.instance }" 
-						data-name="${item.name }"
-						data-type="${item.type }"
-						data-id="${item.instance }-${item.name }"
-						>
+					<div id="${item.instance }-table-${step.index }" class="basic-info"
+						data-instance="${item.instance }" data-name="${item.name }"
+						data-description="${item.description }" data-type="${item.type }"
+						data-id="${item.instance }-table-${step.index }">
 						<div class="title">${item.name }</div>
 						<div class="infos">loading...</div>
 					</div>
@@ -209,21 +235,19 @@ body {
 	<div class="container-charts">
 		<c:forEach var="item" items="${list }" varStatus="step">
 			<c:if test="${item.type != 'KeyValue' }">
-				<div id="${item.instance }-${step.index }-chart-container"
-					data-instance="${item.instance }"
-					data-name="${item.name }"
+				<div id="${item.instance }-chart-container-${step.index }"
+					data-instance="${item.instance }" data-name="${item.name }"
 					class="chart-info-container data-info">
 					<div class="opt">
 						<span class="remove"
-							data-selector="#${item.instance }-${step.index }-chart-container"></span>
+							data-selector="#${item.instance }-chart-container-${step.index }"></span>
 					</div>
-					<canvas id="${item.instance }-${item.name }"
-						class="instance-charts" 
-						data-instance="${item.instance }"
-						data-name="${item.name }" 
+					<canvas id="${item.instance }-chart-${step.index }"
+						class="instance-charts" data-instance="${item.instance }"
+						data-name="${item.name }" data-description="${item.description }"
 						data-type="${item.type }"
-						data-id="${item.instance }-${item.name }"
-						width="500" height="400"></canvas>
+						data-id="${item.instance }-chart-${step.index }" width="480"
+						height="400"></canvas>
 				</div>
 			</c:if>
 		</c:forEach>
@@ -284,12 +308,25 @@ body {
 				}
 				return format.join("");
 			}
-			;
-			var date = new Date();
-			$("#day").val(day(date));
-			$("#startTime")
-					.val(time(new Date(date.getTime() - 1000 * 60 * 60)));
-			$("#endTime").val(time(date));
+			window.__lastHour__ = function(date) {
+				var _date = new Date();
+				if (!!date) {
+					_date = new Date(date.getTime());
+				}
+				var _lastHourDate = new Date(_date.getTime() - 1000 * 60 * 60);
+				var _date = _date.getDate();
+				var _lastDate = _lastHourDate.getDate();
+				if (_date != _lastDate) {
+					_lastHourDate = _date;
+					_lastHourDate.setHours(0, 0, 0, 0);
+				}
+				return _lastHourDate;
+			};
+			window.__initTime__ = function(date) {
+				$("#day").val(day(date));
+				$("#startTime").val(time(__lastHour__(date)));
+				$("#endTime").val(time(date));
+			}
 			var instanceCharts = [];
 			var colors = [];
 			colors.push({
@@ -340,11 +377,14 @@ body {
 				var _id = $el.data("id");
 				var _name = $el.data("name");
 				var _type = $el.data("type");
+				var _description = $el.data("description");
+				if (!!_description && _description.length > 0) {
+					_name = _name + " (" + _description + ") ";
+				}
 				var _instanceChart = instanceCharts[_id];
 				if (!_instanceChart) {
 					instanceCharts[_id] = new ITChart(_name, $el);
 				}
-				__refreshChart__(el);
 			};
 			window.__refreshBasicInfo__ = function(el) {
 				var $el = $(el);
@@ -387,61 +427,88 @@ body {
 					$el.html(html.join(''));
 				}).invoke();
 			};
-			window.__refreshChart__ = function(el) {
-				var $el = $(el);
-				var _id = $el.data("id");
+			window.__updateChart__ = function(data) {
+				var _instanceChart = instanceCharts[data.chartId];
+				if (!_instanceChart) {
+					return;
+				}
+				_instanceChart.labels(data.labels);
+				var _index = 0;
+				for ( var _property in data.datasets) {
+					var _color = colors[_index];
+					_instanceChart.push({
+						label : '# ' + _property,
+						backgroundColor : _color.bgc,
+						borderColor : _color.bc,
+						data : data.datasets[_property],
+						borderWidth : 1
+					});
+					_index++;
+				}
+				_instanceChart.update();
+			};
+			window.__refreshCharts__ = function() {
+				var $charts = $(".instance-charts");
+				var _len = $charts.length;
+				if (isNaN(_len) || _len == 0) {
+					return;
+				}
+				var _charts = [];
+				for (var i = 0; i < _len; i++) {
+					var $el = $($charts[i]);
+					var _id = $el.data("id");
+					var _type = $el.data("type");
+					var _name = $el.data("name");
+					var _chart = _id + ":" + _name + ":" + _type;
+					_charts.push(_chart);
+				}
+				_charts = _charts.join("$");
 				var _instance = $el.data("instance");
-				var _type = $el.data("type");
-				var _name = $el.data("name");
 				var _day = $("#day").val();
 				var _stime = $("#startTime").val();
 				var _etime = $("#endTime").val();
 				var _startTime = Date.parse(_day + " " + _stime);
 				var _endTime = Date.parse(_day + " " + _etime);
-				itAjax.action("/srv/monitor/refresh-chart").params({
+				if (isNaN(_startTime)) {
+					_startTime = null;
+				}
+				if (isNaN(_endTime)) {
+					_endTime = null;
+				}
+				if (!$("#realTime:checked")[0]) {
+					$("#loading").addClass("show");
+				}
+				itAjax.action("/srv/monitor/refresh-charts").params({
 					instance : _instance,
-					name : _name,
-					type : _type,
+					charts : _charts,
 					startTime : _startTime,
 					endTime : _endTime
-				}).success(function(data) {
-					var _instanceChart = instanceCharts[_id];
-					_instanceChart.labels(data.labels);
-					var _index = 0;
-					for ( var _property in data.datasets) {
-						var _color = colors[_index];
-						_instanceChart.push({
-							label : '# ' + _property,
-							backgroundColor : _color.bgc,
-							borderColor : _color.bc,
-							data : data.datasets[_property],
-							borderWidth : 1
-						});
-						_index++;
+				}).success(function(result) {
+					if (!result.datas) {
+						return;
 					}
-					_instanceChart.update();
+					var _len = result.datas.length;
+					for (var i = 0; i < _len; i++) {
+						__updateChart__(result.datas[i]);
+					}
+					$("#loading").removeClass("show");
+				}).error(function() {
+					$("#loading").removeClass("show");
 				}).invoke();
 			};
 			window.__instanceRefresh__ = function() {
 				$(".basic-info").each(function(index, el) {
 					__refreshBasicInfo__(el);
 				});
-				$(".instance-charts").each(function(index, el) {
-					__refreshChart__(el);
-				});
+				__refreshCharts__();
 			};
-			$(".basic-info").each(function(index, el) {
-				__initBasicInfo__(el);
-			});
-			$(".instance-charts").each(function(index, el) {
-				__initChart__(el);
-			});
 			var interval = window.setInterval(function() {
 				var _day = $("#day").val();
-				var _recently = !!$("#recentlyTime:checked")[0];
+				var _realTime = !!$("#realTime:checked")[0];
 				var _now = new Date();
-				if (_recently) {
+				if (_realTime) {
 					$("#day").val(day(_now));
+					$("#startTime").val(time(__lastHour__(_now)));
 					$("#endTime").val(time(_now));
 					window.__instanceRefresh__();
 				}
@@ -456,7 +523,7 @@ body {
 			$("body").on("click", "#refreshBtn", function() {
 				window.__instanceRefresh__();
 			});
-			$("body").on("click",".data-info .remove",function() {
+			$("body").on("click", ".data-info .remove", function() {
 				var _selector = $(this).data("selector");
 				var $selector = $(_selector);
 				if (!$selector[0]) {
@@ -464,6 +531,16 @@ body {
 				}
 				$selector.remove();
 			});
+			(function() {
+				__initTime__(new Date());
+				$(".basic-info").each(function(index, el) {
+					__initBasicInfo__(el);
+				});
+				$(".instance-charts").each(function(index, el) {
+					__initChart__(el);
+				});
+				__refreshCharts__();
+			})();
 		});
 	</script>
 </body>
