@@ -860,9 +860,9 @@ public class DeployManager {
 	}
 	//
 	
-	public static void compileApp(Application app,OutputListener listener) {
+	public static int compileApp(Application app,OutputListener listener) {
 		if(app.scmUser==null){
-			return;
+			return -1;
 		}
 		File localPath=new File(DeployManager.repoPath,app.id);
 		if(!localPath.exists()){
@@ -881,7 +881,7 @@ public class DeployManager {
 		} catch (SVNException e) {
 			logger.catching(e);
 			listener.onOutput(e.getMessage());
-			return;
+			return -1;
 		}
 		//
 		if(app.antTarget!=null){
@@ -890,13 +890,14 @@ public class DeployManager {
 			antManager.setCommonLib(DeployManager.antCommonLibPath);
 			File buildFile=new File(localPath, "build.xml");
 			try {
-				antManager.antCall(app.antTarget,buildFile.getAbsolutePath());
+				return antManager.antCall(app.antTarget,buildFile.getAbsolutePath());
 			} catch (Exception e) {
 				logger.catching(e);
 				listener.onOutput(e.getMessage());
-				return;
+				return -1;
 			}
 		}
+		return -1;
 	}
 	
 }

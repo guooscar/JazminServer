@@ -257,8 +257,9 @@ public class ApplicationInfoView extends DeployBaseView{
 			});
 			final StringBuilder result=new StringBuilder("done");
 			try {
-				DeployManager.compileApp(app,
+				int ret=DeployManager.compileApp(app,
 						ApplicationInfoView.this::appendOutput);
+				result.append(" ret:"+ret);
 			} catch (Exception e) {
 				result.append(":"+e.getMessage());
 			}
