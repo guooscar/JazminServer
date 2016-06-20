@@ -60,23 +60,47 @@ public class MonitorController {
 	 */
 	@Service(id = "view")
 	public void monitorView(Context c) {
-		String instance = c.getString("instance", true);
+		String instances = c.getString("instances", true);
 		String keyvalues = c.getStringOrDefault("keyvalues", "");
 		String charts = c.getStringOrDefault("charts", "");
-		Set<String> inclues = new TreeSet<>();
+		Set<String> instanceSet = new TreeSet<>();
+		Set<String> inclueSet = new TreeSet<>();
+		String[] is = instances.split("\\$");
 		String[] kvs = keyvalues.split("\\$");
 		String[] cs = charts.split("\\$");
+		for (String temp : is) {
+			instanceSet.add(temp);
+		}
 		for (String temp : kvs) {
-			inclues.add(temp);
+			inclueSet.add(temp);
 		}
 		for (String temp : cs) {
-			inclues.add(temp);
+			inclueSet.add(temp);
 		}
+		List<MonitorInfo> list = new ArrayList<>();
+		for (String temp : instanceSet) {
+			list.addAll(monitor(inclueSet, temp));
+		}
+		list.sort((a, b) -> {
+			return a.name.compareTo(b.name);
+		});
+		c.put("list", list);
+		c.view(new ResourceView("/jsp/monitor.jsp"));
+	}
+
+	/**
+	 * 获取监控数据
+	 * 
+	 * @param inclueSet
+	 * @param instance
+	 * @return
+	 */
+	private List<MonitorInfo> monitor(Set<String> inclueSet, String instance) {
 		List<MonitorInfo> list = MonitorManager.get().getMonitorInfos(instance);
 		Iterator<MonitorInfo> iterator = list.iterator();
 		while (iterator.hasNext()) {
 			MonitorInfo info = iterator.next();
-			if (inclues.contains(info.name)) {
+			if (inclueSet.contains(info.name)) {
 				KeyValue<Long, String> kv = FORMAT.get(info.name);
 				if (kv != null) {
 					info.description = kv.getValue();
@@ -90,11 +114,7 @@ public class MonitorController {
 			}
 			iterator.remove();
 		}
-		list.sort((a, b) -> {
-			return a.name.compareTo(b.name);
-		});
-		c.put("list", list);
-		c.view(new ResourceView("/jsp/monitor.jsp"));
+		return list;
 	}
 
 	@Service(id = "refresh-basicinfo", method = HttpMethod.POST)
@@ -116,7 +136,6 @@ public class MonitorController {
 
 	@Service(id = "refresh-charts", method = HttpMethod.POST)
 	public void refreshChartDatas(Context context) {
-		String instance = context.getString("instance", true);
 		String charts = context.getString("charts", true);
 		Long startTime = context.getLong("startTime");
 		Long endTime = context.getLong("endTime");
@@ -125,13 +144,14 @@ public class MonitorController {
 		for (String chart : chartArray) {
 			MonitorChartData data = new MonitorChartData();
 			String[] items = chart.split("\\:");
-			if (items.length != 3) {
+			if (items.length != 4) {
 				continue;
 			}
 			data.chartId = items[0];
-			data.name = items[1];
-			data.type = items[2];
-			data = refreshChartData(instance, startTime, endTime, data);
+			data.instance = items[1];
+			data.name = items[2];
+			data.type = items[3];
+			data = refreshChartData(startTime, endTime, data);
 			datas.add(data);
 		}
 		context.put("datas", datas);
@@ -139,9 +159,9 @@ public class MonitorController {
 		context.view(new JsonView());
 	}
 
-	private MonitorChartData refreshChartData(String instance, Long startTime, Long endTime, MonitorChartData data) {
+	private MonitorChartData refreshChartData(Long startTime, Long endTime, MonitorChartData data) {
 		MonitorInfoQuery query = new MonitorInfoQuery();
-		query.instance = instance;
+		query.instance = data.instance;
 		query.name = data.name;
 		query.type = data.type;
 		query.startTime = startTime;

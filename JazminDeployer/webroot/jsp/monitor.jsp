@@ -223,7 +223,7 @@ body {
 						data-instance="${item.instance }" data-name="${item.name }"
 						data-description="${item.description }" data-type="${item.type }"
 						data-id="${item.instance }-table-${step.index }">
-						<div class="title">${item.name }</div>
+						<div class="title">${item.instance}@${item.name }</div>
 						<div class="infos">loading...</div>
 					</div>
 				</div>
@@ -376,10 +376,14 @@ body {
 				var $el = $(el);
 				var _id = $el.data("id");
 				var _name = $el.data("name");
+				var _instance = $el.data("instance");
 				var _type = $el.data("type");
 				var _description = $el.data("description");
 				if (!!_description && _description.length > 0) {
-					_name = _name + " (" + _description + ") ";
+					_name = _instance + "@" + _name + " (" + _description
+							+ ") ";
+				} else {
+					_name = _instance + "@" + _name;
 				}
 				var _instanceChart = instanceCharts[_id];
 				if (!_instanceChart) {
@@ -399,6 +403,8 @@ body {
 				}).success(function(data) {
 					var html = [];
 					html.push('<div class="title">');
+					html.push(_instance);
+					html.push('@');
 					html.push(_name);
 					html.push('</div>');
 					html.push('<div class="infos">');
@@ -456,14 +462,14 @@ body {
 				var _charts = [];
 				for (var i = 0; i < _len; i++) {
 					var $el = $($charts[i]);
+					var _instance = $el.data("instance");
 					var _id = $el.data("id");
 					var _type = $el.data("type");
 					var _name = $el.data("name");
-					var _chart = _id + ":" + _name + ":" + _type;
+					var _chart = _id + ":" + _instance + ":" + _name + ":" + _type;
 					_charts.push(_chart);
 				}
 				_charts = _charts.join("$");
-				var _instance = $el.data("instance");
 				var _day = $("#day").val();
 				var _stime = $("#startTime").val();
 				var _etime = $("#endTime").val();
@@ -479,7 +485,6 @@ body {
 					$("#loading").addClass("show");
 				}
 				itAjax.action("/srv/monitor/refresh-charts").params({
-					instance : _instance,
 					charts : _charts,
 					startTime : _startTime,
 					endTime : _endTime

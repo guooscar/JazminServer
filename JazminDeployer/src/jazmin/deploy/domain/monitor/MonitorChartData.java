@@ -13,6 +13,7 @@ import java.util.Map;
 public class MonitorChartData {
 
 	public String chartId;
+	public String instance;
 	public String name;
 	public String type;
 	public List<Long> labels;
