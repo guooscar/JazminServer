@@ -5,7 +5,9 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -33,34 +35,47 @@ import jazmin.deploy.domain.monitor.MonitorInfo;
 public class MonitorSelectWindow extends Window {
 	private static final long serialVersionUID = 1L;
 
-	private String instance;
+	private Map<String, List<MonitorInfo>> dataMap;
+	private Set<String> instanceSet;
 	private OptionGroupWithTitleCommponent<String> keyValueCommponent;
 	private OptionGroupWithTitleCommponent<String> monitorCommponent;
 
-	public MonitorSelectWindow(String instance, List<MonitorInfo> datas) {
-		this.instance = instance;
-		initUI(datas);
+	public MonitorSelectWindow(Map<String, List<MonitorInfo>> dataMap) {
+		this.dataMap = dataMap;
+		initUI();
 	}
 
-	private void initUI(List<MonitorInfo> datas) {
+	private void initUI() {
+		instanceSet = new TreeSet<>();
+		StringBuffer buffer = new StringBuffer();
+		Map<String, String> keyValueMap = new LinkedHashMap<>();
+		Map<String, String> monitorMap = new LinkedHashMap<>();
+		Set<Entry<String, List<MonitorInfo>>> entries = dataMap.entrySet();
+		for (Entry<String, List<MonitorInfo>> entry : entries) {
+			buffer.append(entry.getKey());
+			buffer.append("$");
+			instanceSet.add(entry.getKey());
+			List<MonitorInfo> datas = entry.getValue();
+			for (MonitorInfo data : datas) {
+				if (MonitorInfo.CATEGORY_TYPE_KV.equals(data.type)) {
+					keyValueMap.put(data.name, data.name);
+				} else {
+					monitorMap.put(data.name, data.name);
+				}
+			}
+		}
+		if (buffer.length() > 1) {
+			buffer = buffer.deleteCharAt(buffer.length() - 1);
+		}
+		String instances = buffer.toString();
 		center();
 		setCloseShortcut(KeyCode.ESCAPE, null);
 		setResizable(false);
 		setClosable(true);
 		setResponsive(true);
-		setCaption("[" + instance + "] Monitor Options");
+		setCaption("[" + instances + "] Monitor Options");
 		setWidth("800px");
 		setHeight("700px");
-		Map<String, String> keyValueMap = new LinkedHashMap<>();
-		Map<String, String> monitorMap = new LinkedHashMap<>();
-		for (MonitorInfo data : datas) {
-			if (MonitorInfo.CATEGORY_TYPE_KV.equals(data.type)) {
-				keyValueMap.put(data.name, data.name);
-			} else {
-				monitorMap.put(data.name, data.name);
-			}
-		}
-
 		VerticalLayout contentLayout = new VerticalLayout();
 		contentLayout.setSizeFull();
 		VerticalLayout monitorLayout = new VerticalLayout();
@@ -94,7 +109,7 @@ public class MonitorSelectWindow extends Window {
 	private void confirm(Event event) {
 		String keyvalues = this.keyValueCommponent.getTagString("$");
 		String charts = this.monitorCommponent.getTagString("$");
-		MonitorWindow window = new MonitorWindow(this.instance, keyvalues, charts);
+		MonitorWindow window = new MonitorWindow(this.instanceSet, keyvalues, charts);
 		UI.getCurrent().addWindow(window);
 		this.close();
 	}

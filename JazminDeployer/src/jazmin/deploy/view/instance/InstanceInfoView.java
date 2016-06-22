@@ -4,7 +4,9 @@
 package jazmin.deploy.view.instance;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -522,19 +524,26 @@ public class InstanceInfoView extends DeployBaseView {
 	}
 
 	private void viewMonitor() {
-		Instance instance = this.table.getSelectValue();
-		if (instance == null) {
+		List<Instance> instanceList = this.table.getSelectValues();
+		if (instanceList == null) {
 			return;
 		}
-		List<MonitorInfo> datas = MonitorManager.get().getMonitorInfos(instance.id);
-		if(datas.isEmpty()){
+		Map<String, List<MonitorInfo>> dataMap = new LinkedHashMap<>();
+		for (Instance instance : instanceList) {
+			List<MonitorInfo> datas = MonitorManager.get().getMonitorInfos(instance.id);
+			if (datas.isEmpty()) {
+				continue;
+			}
+			datas.sort((a, b) -> {
+				return a.name.compareTo(b.name);
+			});
+			dataMap.put(instance.id, datas);
+		}
+		if (dataMap.isEmpty()) {
 			DeploySystemUI.showInfo("No Monitor Data");
 			return;
 		}
-		datas.sort((a,b)->{
-			return a.name.compareTo(b.name);
-		});
-		MonitorSelectWindow window = new MonitorSelectWindow(instance.id, datas);
+		MonitorSelectWindow window = new MonitorSelectWindow(dataMap);
 		UI.getCurrent().addWindow(window);
 	}
 
