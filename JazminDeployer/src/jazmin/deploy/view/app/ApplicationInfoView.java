@@ -255,11 +255,15 @@ public class ApplicationInfoView extends DeployBaseView{
 						"/"+getOptApps().size()+"...");
 				window.updateTask(app.id, "compiling...");
 			});
-			final StringBuilder result=new StringBuilder("done");
+			final StringBuilder result=new StringBuilder();
 			try {
 				int ret=DeployManager.compileApp(app,
 						ApplicationInfoView.this::appendOutput);
-				result.append(" ret:"+ret);
+				if(ret==0){
+					result.append("success");
+				}else{
+					result.append("fail");
+				}
 			} catch (Exception e) {
 				result.append(":"+e.getMessage());
 			}
