@@ -3,11 +3,13 @@
  */
 package jazmin.deploy.controller;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import jazmin.core.Jazmin;
 import jazmin.deploy.domain.Instance;
 import jazmin.deploy.domain.Machine;
 import jazmin.deploy.manager.DeployManager;
@@ -222,4 +224,13 @@ public class DeployController {
 			c.view(new FileView(result.file));
 		}
 	}	
+	//
+	@Service(id="download_jazmin")
+	public void downloadJazmin(Context c){
+		String path=Jazmin.environment.getString("deploy.ant.lib","");
+		File jazminFile=new File(path,"jazmin.jar");
+		if(jazminFile.exists()){
+			c.view(new FileView(jazminFile.getAbsolutePath()));
+		}
+	}
 }
