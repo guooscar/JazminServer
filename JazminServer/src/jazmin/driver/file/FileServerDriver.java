@@ -310,7 +310,7 @@ public class FileServerDriver extends Driver{
 				File path=new File(getHomeDir());
 				long size=FileUtil.sizeOfPath(path.toPath());
 				sizeInfo.put("totalSize:",size+"");
-				monitor.sample("FileServer.HomeDirSize",Monitor.CATEGORY_TYPE_VALUE,sizeInfo);
+				monitor.sample("FileDriver.HomeDirSize",Monitor.CATEGORY_TYPE_VALUE,sizeInfo);
 			}
 		}
 		//
