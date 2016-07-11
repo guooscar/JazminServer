@@ -9,6 +9,7 @@ import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -24,8 +25,6 @@ import java.util.regex.Pattern;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.tmatesoft.svn.core.SVNException;
-
-import com.ibm.icu.text.SimpleDateFormat;
 
 import jazmin.core.Jazmin;
 import jazmin.deploy.DeployStartServlet;
