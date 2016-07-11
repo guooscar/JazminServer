@@ -7,7 +7,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Queue;
@@ -20,6 +19,7 @@ import jazmin.core.Jazmin;
 import jazmin.deploy.domain.Instance;
 import jazmin.deploy.domain.monitor.MonitorInfo;
 import jazmin.deploy.domain.monitor.MonitorInfoQuery;
+import jazmin.deploy.util.DateUtil;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.util.DumpUtil;
@@ -74,26 +74,6 @@ public class MonitorManager implements Runnable {
 		}
 		srcFile.renameTo(new File(dir, srcFile.getName()));
 	}
-	//获取距离今天num天的日期0点 
-	public static Date getNextDay(int num){
-		 Calendar now=Calendar.getInstance();
-		 now.add(Calendar.DAY_OF_YEAR,num);
-		 now.set(Calendar.HOUR_OF_DAY, 0);
-		 now.set(Calendar.MINUTE, 0);
-		 now.set(Calendar.SECOND, 0);
-		 now.set(Calendar.MILLISECOND, 0);
-	     return now.getTime();
-	}
-	//
-	public static boolean isToday(Date date) {
-		Calendar calDateA = Calendar.getInstance();
-		calDateA.setTime(date);
-		Calendar calDateB = Calendar.getInstance();
-		calDateB.setTime(new Date());
-		return calDateA.get(Calendar.YEAR) == calDateB.get(Calendar.YEAR)
-				&& calDateA.get(Calendar.MONTH) == calDateB.get(Calendar.MONTH)
-				&& calDateA.get(Calendar.DAY_OF_MONTH) == calDateB.get(Calendar.DAY_OF_MONTH);
-	}
 	//
 	private BufferedReader getReader(MonitorInfoQuery query) throws IOException {
 		File folder = new File(LOG_PATH, query.instance);
@@ -102,7 +82,7 @@ public class MonitorManager implements Runnable {
 		}
 		if(query.startTime!=null){
 			Date startTime=new Date(query.startTime);
-			if (!isToday(startTime)){
+			if (!DateUtil.isToday(startTime)){
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 				String date = sdf.format(startTime);
 				folder=new File(folder.getAbsolutePath()+File.separator+date);
@@ -110,6 +90,9 @@ public class MonitorManager implements Runnable {
 		}
 		String fileName = query.name + "-" + query.type + SUFFIX;
 		File file = new File(folder, fileName);
+		if(!file.exists()){
+			return null;
+		}
 		return new BufferedReader(new FileReader(file));
 	}
 	//
@@ -125,7 +108,7 @@ public class MonitorManager implements Runnable {
 		}
 		long lastModified = file.lastModified();
 		if (monitorInfo.type != null && !monitorInfo.type.equals(MonitorInfo.CATEGORY_TYPE_KV)) {
-			if (!isToday(new Date(lastModified))) {
+			if (!DateUtil.isToday(new Date(lastModified))) {
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 				String date = sdf.format(new Date(lastModified));
 				move(file, folder.getAbsolutePath() + File.separator + date);
@@ -147,7 +130,7 @@ public class MonitorManager implements Runnable {
 			writer.flush();
 			//delete 7 days ago log
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-			String date = sdf.format(getNextDay(-7));
+			String date = sdf.format(DateUtil.getNextDay(-7));
 			File folder = new File(LOG_PATH, info.instance+File.separator + date);
 			if(folder.exists()){
 				FileUtil.deleteDirectory(folder);
