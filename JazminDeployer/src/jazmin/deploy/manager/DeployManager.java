@@ -9,6 +9,7 @@ import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -20,6 +21,10 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
+
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
+import org.tmatesoft.svn.core.SVNException;
 
 import jazmin.core.Jazmin;
 import jazmin.deploy.DeployStartServlet;
@@ -36,6 +41,7 @@ import jazmin.deploy.domain.TopSearch;
 import jazmin.deploy.domain.User;
 import jazmin.deploy.domain.ant.AntManager;
 import jazmin.deploy.domain.svn.WorkingCopy;
+import jazmin.deploy.util.DateUtil;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.web.WebServer;
@@ -45,10 +51,6 @@ import jazmin.util.IOUtil;
 import jazmin.util.JSONUtil;
 import jazmin.util.JSONUtil.JSONPropertyFilter;
 import jazmin.util.SshUtil;
-
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
-import org.tmatesoft.svn.core.SVNException;
 
 /**
  * @author yama
@@ -180,13 +182,48 @@ public class DeployManager {
 	public static void saveConfigFile(String file,String value){
 		String configDir=workSpaceDir+"config";
 		try {
-			FileUtil.saveContent(value, new File(configDir,file));
+			//save to log/BACK_UP_PATH/ first for backup
+			File f=new File(configDir,file);
+			backupConfigFile(f);
+			FileUtil.saveContent(value,f);
 			reload();
 		} catch (IOException e) {
 			logger.catching(e);
 		}
 	}
-	
+	//
+	private static void backupConfigFile(File file){
+		try {
+			Date now=new Date();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+			String date = sdf.format(now);
+			File dir=new File(workSpaceDir+"backup",date);
+			if(!dir.exists()){
+				dir.mkdirs();
+			}
+			//
+			sdf = new SimpleDateFormat("yyyyMMddhhmmss");
+			String dateTime = sdf.format(new Date());
+			File backupFile=new File(dir.getAbsolutePath(),file.getName()+"-"+dateTime);
+			//
+			if(!backupFile.exists()){
+				backupFile.createNewFile();
+			}
+			FileUtil.saveContent(FileUtil.getContent(file),backupFile);
+			logger.debug("backupConfigFile file:{} backupFile:{}",
+					file.getName(),backupFile.getAbsolutePath());
+			//
+			//delete 7 days ago log
+			sdf = new SimpleDateFormat("yyyyMMdd");
+			date = sdf.format(DateUtil.getNextDay(-7));
+			File folder = new File(workSpaceDir+"backup",date);
+			if(folder.exists()){
+				FileUtil.deleteDirectory(folder);
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(),e);
+		}
+	}
 	//
 	public static void setPackageVersion(List<Instance>instances,String version){
 		if(version==null||version.trim().isEmpty()){
