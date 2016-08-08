@@ -9,14 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import jazmin.deploy.DeploySystemUI;
-import jazmin.deploy.domain.Instance;
-import jazmin.deploy.ui.BeanTable;
-import jazmin.util.JdbcUtil;
-import jazmin.util.JdbcUtil.ColumnInfo;
-import jazmin.util.JdbcUtil.DatabaseInfo;
-import jazmin.util.JdbcUtil.TableInfo;
-
 import org.vaadin.aceeditor.AceEditor;
 import org.vaadin.aceeditor.AceMode;
 import org.vaadin.aceeditor.AceTheme;
@@ -31,17 +23,29 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
+import jazmin.deploy.DeploySystemUI;
+import jazmin.deploy.domain.Instance;
+import jazmin.deploy.ui.BeanTable;
+import jazmin.util.JdbcUtil;
+import jazmin.util.JdbcUtil.ColumnInfo;
+import jazmin.util.JdbcUtil.DatabaseInfo;
+import jazmin.util.JdbcUtil.TableInfo;
+
 /**
  * @author yama
  * 6 Jan, 2015
  */
 @SuppressWarnings("serial")
 public class InstanceMySQLTableDomainWindow extends Window{
+	//
 	private Instance instance;
 	private BeanTable<JdbcUtil.TableInfo> tablesList;
 	private Panel panel;
 	private AceEditor editor;
 	private AceEditor daoEditor;
+	private String user;
+	private int port;
+	private String password;
 	//
 	public InstanceMySQLTableDomainWindow(Instance instance) {
 		this.instance=instance;
@@ -100,21 +104,32 @@ public class InstanceMySQLTableDomainWindow extends Window{
 			}
 		});
         //
+        port=instance.port;
+        if(instance.getProperties().containsKey(Instance.P_DB_PUBLIC_PORT)){
+			port=Integer.valueOf(instance.getProperties().get(Instance.P_DB_PUBLIC_PORT));
+		}
+		user=instance.getUser();
+		if(instance.getProperties().containsKey(Instance.P_DB_PUBLIC_USER)){
+			user=instance.getProperties().get(Instance.P_DB_PUBLIC_USER);
+		}
+		password=instance.getPassword();
+		if(instance.getProperties().containsKey(Instance.P_DB_PUBLIC_PASSWORD)){
+			password=instance.getProperties().get(Instance.P_DB_PUBLIC_PASSWORD);
+		}
+        //
         loadTable();
     }
 	//
 	private void loadTable(){
 		String jdbcUrl="jdbc:mysql://"+instance.getMachine().getPublicHost()
-				+":"+instance.port+"/"
+				+":"+port+"/"
 				+instance.id
 				+"?useUnicode=true&characterEncoding=UTF-8";
-		String user=instance.getUser();
-		String pwd=instance.getPassword();
 		try {
-			DatabaseInfo dbInfo= JdbcUtil.getDatabaseInfo(jdbcUrl, user, pwd);
+			DatabaseInfo dbInfo= JdbcUtil.getDatabaseInfo(jdbcUrl, user, password);
 			setCaption(instance.id+" ("+dbInfo.databaseProductName+"-"
 										+dbInfo.databaseProductVersion+")");
-			List<TableInfo>list=JdbcUtil.getTables(jdbcUrl, user, pwd);
+			List<TableInfo>list=JdbcUtil.getTables(jdbcUrl, user, password);
 			tablesList.setData(list);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -125,13 +140,11 @@ public class InstanceMySQLTableDomainWindow extends Window{
 	//
 	private void loadDomain(String table){
 		String jdbcUrl="jdbc:mysql://"+instance.getMachine().getPublicHost()
-				+":"+instance.port+"/"
+				+":"+port+"/"
 				+instance.id
 				+"?useUnicode=true&characterEncoding=UTF-8";
-		String user=instance.getUser();
-		String pwd=instance.getPassword();
 		try {
-			List<ColumnInfo>clist=JdbcUtil.getColumns(jdbcUrl, user, pwd, table);
+			List<ColumnInfo>clist=JdbcUtil.getColumns(jdbcUrl, user, password, table);
 			StringBuilder sb=new StringBuilder();
 			//
 			StringBuffer propertiesString=new StringBuffer();
