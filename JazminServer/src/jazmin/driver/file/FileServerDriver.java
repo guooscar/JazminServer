@@ -10,14 +10,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import jazmin.core.Driver;
 import jazmin.core.Jazmin;
+import jazmin.core.monitor.Monitor;
+import jazmin.core.monitor.MonitorAgent;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.CachePolicy;
@@ -38,6 +41,8 @@ public class FileServerDriver extends Driver{
 	private Map<String,ServerInfo>serverMap;
 	private int weightArray[];
 	private Set<String>downloadSet;
+	private AtomicLong uploadCounter;
+	private AtomicLong downloadCounter;
 	//
 	static class ServerInfo{
 		String id;
@@ -52,7 +57,11 @@ public class FileServerDriver extends Driver{
 		serverList=new ArrayList<FileServerDriver.ServerInfo>();
 		serverMap=new HashMap<String, FileServerDriver.ServerInfo>();
 		downloadSet=Collections.synchronizedSet(new TreeSet<>());
+		uploadCounter=new AtomicLong();
+		downloadCounter=new AtomicLong();
 	}
+	//
+	
 	//
 	public void addServer(String id,String host,int port,int weight){
 		ServerInfo si=new ServerInfo();
@@ -73,6 +82,8 @@ public class FileServerDriver extends Driver{
 		}
 	}
 	
+	
+
 	//
 	public void setHomeDir(String path){
 		homeDir=new File(path);
@@ -159,6 +170,7 @@ public class FileServerDriver extends Driver{
 	 * upload file to server
 	 */
 	public String upload(File file) throws FileDriverException{
+		uploadCounter.incrementAndGet();
 		int choice=RandomUtil.randomIntArray(weightArray);
 		ServerInfo si=serverList.get(choice);
 		try {
@@ -191,6 +203,7 @@ public class FileServerDriver extends Driver{
 	 * @throws FileDriverException 
 	 */
 	public File downloadFile(String fileId) throws FileDriverException{
+		downloadCounter.incrementAndGet();
 		FileServerPair fsp=getFileServerPair(fileId);
 		int counter=0;
 		while(downloadSet.contains(fileId)){
@@ -249,6 +262,7 @@ public class FileServerDriver extends Driver{
 	//--------------------------------------------------------------------------
 	@Override
 	public void start() throws Exception {
+		Jazmin.mointor.registerAgent(new FileDriverMonitorAgent());
 		if(homeDir==null){
 			throw new IllegalArgumentException("home dir can not be null");
 		}
@@ -279,5 +293,26 @@ public class FileServerDriver extends Driver{
 		//
 		
 		return ib.toString();
+	}
+	//
+	private class FileDriverMonitorAgent implements MonitorAgent{
+		@Override
+		public void sample(int idx,Monitor monitor) {
+			Map<String,String>info=new HashMap<String, String>();
+			info.put("uploadCount",uploadCounter.longValue()+"");
+			info.put("downloadCount",downloadCounter.longValue()+"");
+			monitor.sample("FileDriver.Request",Monitor.CATEGORY_TYPE_COUNT,info);
+		}
+		//
+		@Override
+		public void start(Monitor monitor) {
+			Map<String,String>info=new HashMap<String, String>();
+			info.put("homeDir",homeDir.toString());
+			int index=1;
+			for(ServerInfo si:serverList){
+				info.put("server-"+(index++), si.host+":"+si.port+"#"+si.weight);
+			}
+			monitor.sample("FileDriver.Info",Monitor.CATEGORY_TYPE_KV,info);
+		}
 	}
 }

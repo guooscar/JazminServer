@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,6 +32,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
+import jazmin.core.monitor.Monitor;
+import jazmin.core.monitor.MonitorAgent;
 import jazmin.core.thread.Dispatcher;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -58,6 +61,9 @@ public class FileServer extends Server {
 	private File homeDir;
 	private AtomicLong requestIdGenerator;
 	private Map<String,FileOpt>requests;
+	private AtomicLong downloadCounter;
+	private AtomicLong uploadCounter;
+	
 	//
 	AsyncHttpClientConfig.Builder clientConfigBuilder;
 	AsyncHttpClientConfig clientConfig;
@@ -75,6 +81,8 @@ public class FileServer extends Server {
 		clientConfigBuilder.setUserAgent(SERVER_NAME);
 		clientConfigBuilder.setAsyncHttpClientProviderConfig(new NettyAsyncHttpProviderConfig());
 		directioryPrinter=new HtmlDirectoryPrinter();
+		downloadCounter=new AtomicLong();
+		uploadCounter=new AtomicLong();
 	}
 	//
 	private void initNetty() throws Exception {
@@ -191,6 +199,7 @@ public class FileServer extends Server {
 			//
 			if(requestURI.startsWith("/download/")&&
 					method.equals(io.netty.handler.codec.http.HttpMethod.GET)){
+				downloadCounter.incrementAndGet();
 				FileDownload fileRequest=new FileDownload(this,requestURI,ctx.channel(),request);
 				fileRequest.id=requestIdGenerator.incrementAndGet()+"";
 				requests.put(fileRequest.id, fileRequest);
@@ -205,6 +214,7 @@ public class FileServer extends Server {
 			if(requestURI.startsWith("/upload/")&&
 					(method.equals(io.netty.handler.codec.http.HttpMethod.POST)||
 					method.equals(io.netty.handler.codec.http.HttpMethod.PUT))){
+				uploadCounter.incrementAndGet();
 				FileUpload upload=new FileUpload(this,requestURI,ctx.channel(),request);
 				upload.id=requestIdGenerator.incrementAndGet()+"";
 				requests.put(upload.id, upload);
@@ -253,6 +263,9 @@ public class FileServer extends Server {
 		if(cs!=null){
 			cs.registerCommand(FileServerCommand.class);
 		}
+		//
+		Jazmin.mointor.registerAgent(new FileServerMonitorAgent());
+		//
 		if(homeDir==null){
 			try {
 				homeDir=Files.createTempDirectory("JazminCdnServer").toFile();
@@ -276,8 +289,25 @@ public class FileServer extends Server {
 		.print("port",getPort())
 		.print("homeDir",getHomeDir())
 		.print("directioryPrinter",getDirectioryPrinter())
-		.print("requestFilter",getRequestFilter());
-		
+		.print("requestFilter",getRequestFilter());	
 		return ib.toString();
+	}
+	//
+	private  class FileServerMonitorAgent implements MonitorAgent{
+		@Override
+		public void sample(int idx,Monitor monitor) {
+			Map<String,String>info=new HashMap<String, String>();
+			info.put("uploadCount:",uploadCounter.longValue()+"");
+			info.put("downloadCount:",downloadCounter.longValue()+"");
+			monitor.sample("FileServer.RequestCount",Monitor.CATEGORY_TYPE_COUNT,info);
+		}
+		//
+		@Override
+		public void start(Monitor monitor) {
+			Map<String,String>info=new HashMap<String, String>();
+			info.put("homeDir:",getHomeDir()+"");
+			info.put("port:",getPort()+"");
+			monitor.sample("FileServer.Info",Monitor.CATEGORY_TYPE_KV,info);
+		}
 	}
 }

@@ -1,17 +1,21 @@
 package jazmin.driver.http;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
 import jazmin.core.Driver;
 import jazmin.core.Jazmin;
+import jazmin.core.monitor.Monitor;
+import jazmin.core.monitor.MonitorAgent;
 import jazmin.misc.InfoBuilder;
 import jazmin.server.console.ConsoleServer;
 
@@ -36,6 +40,7 @@ public class HttpClientDriver extends Driver{
 	//
 	Map<Integer,HttpHandler>handlerMap;
 	LinkedList<String>errorLogs;
+	AtomicLong requestCounter;
 	//
 	public HttpClientDriver() {
 		handlerMap=new ConcurrentHashMap<Integer, HttpHandler>();
@@ -43,6 +48,7 @@ public class HttpClientDriver extends Driver{
 		clientConfigBuilder=new Builder();
 		clientConfigBuilder.setHostnameVerifier(new AllowAllHostnameVerifier());
 		errorLogs=new LinkedList<String>();
+		requestCounter=new AtomicLong();
 	}
 	//
 	@Override
@@ -51,10 +57,15 @@ public class HttpClientDriver extends Driver{
 		clientConfig=clientConfigBuilder.build();
 		asyncHttpClient = new AsyncHttpClient(new NettyAsyncHttpProvider(clientConfig),clientConfig);
 		//
+	}
+	//
+	@Override
+	public void start() throws Exception {
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
 			cs.registerCommand(HttpClientDriverCommand.class);
 		}
+		Jazmin.mointor.registerAgent(new HttpClientDriverMointorAgent());
 	}
 	//
 	@Override
@@ -463,23 +474,51 @@ public class HttpClientDriver extends Driver{
 	//--------------------------------------------------------------------------
 	//
 	public HttpRequest get(String url){
+		requestCounter.incrementAndGet();
 		HttpRequest req=new HttpRequest(this,asyncHttpClient.prepareGet(url));
 		return req;
 	}
 	public HttpRequest post(String url){
+		requestCounter.incrementAndGet();
 		HttpRequest req=new HttpRequest(this,asyncHttpClient.preparePost(url));
 		return req;
 	}
 	public HttpRequest head(String url){
+		requestCounter.incrementAndGet();
 		HttpRequest req=new HttpRequest(this,asyncHttpClient.prepareHead(url));
 		return req;
 	}
 	public HttpRequest delete(String url){
+		requestCounter.incrementAndGet();
 		HttpRequest req=new HttpRequest(this,asyncHttpClient.prepareDelete(url));
 		return req;
 	}
 	public HttpRequest options(String url){
+		requestCounter.incrementAndGet();
 		HttpRequest req=new HttpRequest(this,asyncHttpClient.prepareOptions(url));
 		return req;
+	}
+	//
+	//
+	private class HttpClientDriverMointorAgent implements MonitorAgent{
+		@Override
+		public void sample(int idx,Monitor monitor) {
+			Map<String,String>info=new HashMap<String, String>();
+			info.put("requestCount",requestCounter.longValue()+"");
+			monitor.sample("HttpClientDriver.Request",Monitor.CATEGORY_TYPE_COUNT,info);
+			//
+			Map<String,String>error=new HashMap<String, String>();
+			int i=1;
+			for(String log:errorLogs){
+				error.put("Error-"+(i++), log);
+			}
+			monitor.sample("HttpClientDriver.ErrorLog",Monitor.CATEGORY_TYPE_KV,error);
+		}
+		//
+		@Override
+		public void start(Monitor monitor) {
+			
+		}
+		
 	}
 }

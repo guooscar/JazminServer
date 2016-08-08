@@ -27,6 +27,8 @@ import java.util.concurrent.atomic.LongAdder;
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
 import jazmin.core.app.AppException;
+import jazmin.core.monitor.Monitor;
+import jazmin.core.monitor.MonitorAgent;
 import jazmin.core.thread.DispatcherCallbackAdapter;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -335,6 +337,7 @@ public class RpcServer extends Server{
 		public void end(Object instance, Method method, Object[]args,Object ret, Throwable e) {
 			rpcSessionThreadLocal.set(null);
 			RpcMessage rspMessage=new RpcMessage();
+			rspMessage.sentTime=message.sentTime;
 			rspMessage.id=message.id;
 			rspMessage.type=RpcMessage.TYPE_RPC_CALL_RSP;
 			if(e instanceof AppException){
@@ -581,6 +584,7 @@ public class RpcServer extends Server{
 	@Override
 	public void start() throws Exception {
 		nettyServer.bind(port).sync();
+		Jazmin.mointor.registerAgent(new RpcServerMonitorAgent());
 	}
 	//
 	@Override
@@ -617,6 +621,24 @@ public class RpcServer extends Server{
 		}
 		return ib.toString();
 	}
-	
+	//
+	//
+	private  class RpcServerMonitorAgent implements MonitorAgent{
+		@Override
+		public void sample(int idx,Monitor monitor) {
+			Map<String,String>info=new HashMap<String, String>();
+			info.put("InBoundBytes", getInBoundBytes()+"");
+			info.put("OutBoundBytes", getOutBoundBytes()+"");
+			monitor.sample("RpcServer.Network",Monitor.CATEGORY_TYPE_COUNT,info);
+		}
+		//
+		@Override
+		public void start(Monitor monitor) {
+			Map<String,String>info=new HashMap<String, String>();
+			info.put("port:",getPort()+"");
+			info.put("idleTime:",getIdleTime()+"");
+			monitor.sample("RpcServer.Info",Monitor.CATEGORY_TYPE_KV,info);
+		}
+	}
 	
 }

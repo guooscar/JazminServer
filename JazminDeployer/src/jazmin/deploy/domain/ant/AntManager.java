@@ -23,7 +23,7 @@ public class AntManager {
 	//
 	
 	//
-	public void antCall(String target,String buildFile)throws Exception{
+	public int antCall(String target,String buildFile)throws Exception{
 		List<String>commands=new ArrayList<String>();
 		commands.add(antPath);
 		commands.add("-f");
@@ -39,7 +39,7 @@ public class AntManager {
 		InputStreamReader is=new InputStreamReader(process);
 		is.setOutputListener(outputListener);
 		is.startThread();
-		process.waitFor();
+		return process.waitFor();
 	}
 
 	/**

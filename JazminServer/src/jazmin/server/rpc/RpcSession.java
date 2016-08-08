@@ -240,7 +240,9 @@ public class RpcSession {
 	 */
 	void write(RpcMessage message){
 		if(channel!=null){
-			message.sentTime=System.currentTimeMillis();
+			if(message.sentTime==0){
+				message.sentTime=System.currentTimeMillis();
+			}
 			channel.writeAndFlush(message);
 			sentPackageCount.increment();			
 		}

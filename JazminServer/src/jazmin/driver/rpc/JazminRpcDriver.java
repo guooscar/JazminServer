@@ -10,6 +10,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,6 +22,8 @@ import java.util.concurrent.atomic.LongAdder;
 
 import jazmin.core.Driver;
 import jazmin.core.Jazmin;
+import jazmin.core.monitor.Monitor;
+import jazmin.core.monitor.MonitorAgent;
 import jazmin.core.thread.Dispatcher;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -474,6 +477,8 @@ public class JazminRpcDriver extends Driver{
 		if(cs!=null){
 			cs.registerCommand(JazminRpcDriverCommand.class);
 		}
+		//
+		Jazmin.mointor.registerAgent(new JazminRpcDriverMonitorAgent());
 	}
 	//
 	@Override
@@ -513,5 +518,26 @@ public class JazminRpcDriver extends Driver{
 		ib.format("%s\n");
 		syncProxyMap.keySet().forEach(o->ib.print(o));
 		return ib.toString();
+	}
+	
+	//
+	private class JazminRpcDriverMonitorAgent implements MonitorAgent{
+		@Override
+		public void sample(int idx,Monitor monitor) {
+			Map<String,String>info1=new HashMap<String, String>();
+			info1.put("invokeCount", getTotalInvokeCount()+"");
+			monitor.sample("JazminRpcDriver.InvokeCount",Monitor.CATEGORY_TYPE_COUNT,info1);
+		}
+		//
+		@Override
+		public void start(Monitor monitor) {
+			Map<String,String>info=new HashMap<String, String>();
+			for(Entry<String, List<RemoteServerInfo>>e:serverInfoMap.entrySet()){
+				e.getValue().forEach(rs->{
+					info.put("RemoteServer-"+rs.name,rs.name+"/"+rs.remoteHostAddress+":"+rs.remotePort);	
+				});
+			}
+			monitor.sample("JazminRpcDriver.Info",Monitor.CATEGORY_TYPE_KV,info);
+		}
 	}
 }

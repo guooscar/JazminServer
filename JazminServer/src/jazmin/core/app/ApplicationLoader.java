@@ -53,22 +53,22 @@ public class ApplicationLoader {
 		applicationName=applicationName.substring(0,applicationName.length()-4);
 		//
 		for(Class<?>clz:getApplicationClasses()){
-			if(clz.getSimpleName().equals(applicationName)){
-				try {
-					return (Application) clz.newInstance();
-				} catch (Exception e) {
-					logger.warn(e.getMessage());
-				} 
+			try {
+				if(clz.getSimpleName().equals(applicationName)){
+						return (Application) clz.newInstance();
+				}
+			} catch (Throwable e) {
+				logger.warn(e.getMessage());
 			}
 		}
 		//if no appclass found return first one
 		for(Class<?>clz:getApplicationClasses()){
-			if(clz.isAssignableFrom(Application.class)){
-				try {
+			try {
+				if(clz.isAssignableFrom(Application.class)){
 					return (Application) clz.newInstance();
-				} catch (Exception e) {
-					logger.error(e.getMessage());
-				}  
+				}
+			} catch (Throwable e) {
+				logger.error(e.getMessage());
 			}
 		}
 		logger.warn("no application class found");

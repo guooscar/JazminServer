@@ -13,7 +13,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaderUtil;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
@@ -127,11 +127,11 @@ public class IMWebSocketServerHandler extends SimpleChannelInboundHandler<Object
 					CharsetUtil.UTF_8);
 			res.content().writeBytes(buf);
 			buf.release();
-			HttpHeaderUtil.setContentLength(res, res.content().readableBytes());
+			HttpUtil.setContentLength(res, res.content().readableBytes());
 		}
 		// Send the response and close the connection if necessary.
 		ChannelFuture f = ctx.channel().writeAndFlush(res);
-		if (!HttpHeaderUtil.isKeepAlive(req) || res.status().code() != 200) {
+		if (!HttpUtil.isKeepAlive(req) || res.status().code() != 200) {
 			f.addListener(ChannelFutureListener.CLOSE);
 		}
 	}

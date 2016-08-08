@@ -37,6 +37,8 @@ import jazmin.core.app.Application;
 import jazmin.core.app.ApplicationLoader;
 import jazmin.core.boot.BootScriptLoader;
 import jazmin.core.job.JobStore;
+import jazmin.core.monitor.JazminMonitorAgent;
+import jazmin.core.monitor.Monitor;
 import jazmin.core.task.TaskStore;
 import jazmin.core.thread.Dispatcher;
 import jazmin.log.Logger;
@@ -107,10 +109,11 @@ public class Jazmin {
 					new JazminThreadFactory("ScheduledExecutor"),
 					new ThreadPoolExecutor.AbortPolicy());
 	//--------------------------------------------------------------------------
-	public static final Environment environment=new Environment();
-	public static final Dispatcher dispatcher=new Dispatcher();
-	public static final TaskStore taskStore=new TaskStore();
-	public static final JobStore jobStore=new JobStore();
+	public static  Environment environment=new Environment();
+	public static  Dispatcher dispatcher=new Dispatcher();
+	public static  TaskStore taskStore=new TaskStore();
+	public static  JobStore jobStore=new JobStore();
+	public static  Monitor mointor=new Monitor();
 	//
 	private static List<Lifecycle>lifecycles;
 	private static Map<String,Driver>drivers;
@@ -375,6 +378,7 @@ public class Jazmin {
 	static void dumpLogo(){
 		logger.info("\n"+LOGO);	
 	}
+
 	/**
 	 * start jazmin server
 	 */
@@ -402,6 +406,7 @@ public class Jazmin {
 				System.exit(1);
 			}
 		}
+		mointor.registerAgent(new JazminMonitorAgent());
 		//start up sequence is very important,not change it
 		lifecycles.add(environment);
 		lifecycles.add(dispatcher);
@@ -409,6 +414,7 @@ public class Jazmin {
 		lifecycles.addAll(drivers.values());
 		lifecycles.add(taskStore);
 		lifecycles.add(jobStore);
+		lifecycles.add(mointor);
 		if(application!=null){
 			lifecycles.add(application);
 		}

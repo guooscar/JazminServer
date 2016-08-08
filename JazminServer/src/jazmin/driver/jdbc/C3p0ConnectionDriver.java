@@ -6,8 +6,12 @@ package jazmin.driver.jdbc;
 import java.beans.PropertyVetoException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import jazmin.core.Jazmin;
+import jazmin.core.monitor.Monitor;
+import jazmin.core.monitor.MonitorAgent;
 import jazmin.misc.InfoBuilder;
 import jazmin.server.console.ConsoleServer;
 
@@ -274,10 +278,15 @@ public class C3p0ConnectionDriver extends ConnectionDriver {
 	@Override
 	public void init() throws Exception {
 		super.init();
+	}
+	//
+	@Override
+	public void start() throws Exception {
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
 			cs.registerCommand(C3p0DriverCommand.class);
 		}
+		Jazmin.mointor.registerAgent(new C3p0ConnectionDriverMonitorAgent());
 	}
 	//
 	@Override
@@ -301,5 +310,47 @@ public class C3p0ConnectionDriver extends ConnectionDriver {
 				.print("threadPoolSize",getThreadPoolSize())
 				.print("statSql",isStatSql())
 				.toString();
+	}
+	//
+	//
+	private class C3p0ConnectionDriverMonitorAgent implements MonitorAgent{
+		@Override
+		public void sample(int idx,Monitor monitor) {
+			Map<String,String>info1=new HashMap<String, String>();
+			Map<String,String>info2=new HashMap<String, String>();
+			try{
+				info1.put("NumConnections",getNumConnections()+"");
+				info1.put("NumIdleConnections",getNumIdleConnections()+"");
+				//
+				info2.put("ThreadPoolNumActiveThreads",getThreadPoolNumActiveThreads()+"");
+				info2.put("ThreadPoolNumIdleThreads",getThreadPoolNumIdleThreads()+"");
+				info2.put("ThreadPoolNumTasksPending",getThreadPoolNumTasksPending()+"");
+				info2.put("ThreadPoolSize",getThreadPoolSize()+"");    
+			}catch(Exception e){
+			}
+			monitor.sample("C3p0ConnectionDriver.ConnectionStat",Monitor.CATEGORY_TYPE_VALUE,info1);
+			monitor.sample("C3p0ConnectionDriver.ThreadStat",Monitor.CATEGORY_TYPE_VALUE,info2);
+			//
+			Map<String,String>info3=new HashMap<String, String>();
+			info3.put("InvokeCount",getTotalInvokeCount()+"");
+			monitor.sample("C3p0ConnectionDriver.InvokeCount",Monitor.CATEGORY_TYPE_COUNT,info3);
+		}
+		//
+		@Override
+		public void start(Monitor monitor) {
+			Map<String,String>info=new HashMap<String, String>();
+			info.put("user",getUser());
+			info.put("driverClass",getDriverClass());
+			info.put("initialPoolSize",getInitialPoolSize()+"");
+			info.put("url",getUrl());
+			info.put("loginTimeout",getLoginTimeout()+"");
+			info.put("maxConnectionAge",getMaxConnectionAge()+"");
+			info.put("maxIdleTime",getMaxIdleTime()+"");
+			info.put("maxPoolSize",getMaxPoolSize()+"");
+			info.put("minPoolSize",getMinPoolSize()+"");
+			info.put("threadPoolSize",getThreadPoolSize()+"");
+			info.put("statSql",isStatSql()+"");
+			monitor.sample("C3p0ConnectionDriver.Info",Monitor.CATEGORY_TYPE_KV,info);
+		}
 	}
 }
