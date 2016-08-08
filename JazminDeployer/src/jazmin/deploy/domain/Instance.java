@@ -25,6 +25,9 @@ public class Instance{
 	public static final String P_MEMCACHED_SIZE="memcached.size";
 	//
 	public static final String P_NO_CHECK_IP="nocheckip";
+	public static final String P_DB_PUBLIC_PORT="db.public.port";
+	public static final String P_DB_PUBLIC_USER="db.public.user";
+	public static final String P_DB_PUBLIC_PASSWORD="db.public.password";
 	//
 	public String id;
 	public String cluster;

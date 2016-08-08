@@ -215,7 +215,6 @@ public class MonitorManager implements Runnable {
 				break;
 			}
 			try {
-				logger.debug("info:{}", DumpUtil.dump(info));
 				addData(info);
 			} catch (IOException e) {
 				logger.error(e.getMessage(), e);
