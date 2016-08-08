@@ -9,16 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import jazmin.deploy.DeploySystemUI;
-import jazmin.deploy.domain.Instance;
-import jazmin.deploy.ui.BeanTable;
-import jazmin.log.Logger;
-import jazmin.log.LoggerFactory;
-import jazmin.util.JdbcUtil;
-import jazmin.util.JdbcUtil.ColumnInfo;
-import jazmin.util.JdbcUtil.DatabaseInfo;
-import jazmin.util.JdbcUtil.TableInfo;
-
 import org.vaadin.aceeditor.AceEditor;
 import org.vaadin.aceeditor.AceMode;
 import org.vaadin.aceeditor.AceTheme;
@@ -33,14 +23,20 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
+import jazmin.deploy.DeploySystemUI;
+import jazmin.deploy.domain.Instance;
+import jazmin.deploy.ui.BeanTable;
+import jazmin.util.JdbcUtil;
+import jazmin.util.JdbcUtil.ColumnInfo;
+import jazmin.util.JdbcUtil.DatabaseInfo;
+import jazmin.util.JdbcUtil.TableInfo;
+
 /**
  * @author yama
  * 6 Jan, 2015
  */
 @SuppressWarnings("serial")
 public class InstanceMySQLTableDomainWindow extends Window{
-	//
-	private static Logger logger=LoggerFactory.get(InstanceMySQLTableDomainWindow.class);
 	//
 	private Instance instance;
 	private BeanTable<JdbcUtil.TableInfo> tablesList;
@@ -137,8 +133,6 @@ public class InstanceMySQLTableDomainWindow extends Window{
 			tablesList.setData(list);
 		} catch (Exception e) {
 			e.printStackTrace();
-			logger.error("loadTable fail.host:{} port:{} user:{} password:{}",
-					instance.getMachine().getPublicHost(),port,user,password);
 			DeploySystemUI.showNotificationInfo("ERROR",e.getMessage());
 		}
 		
