@@ -270,9 +270,9 @@ public  class CommandView extends VerticalLayout{
 				int ret=DeployManager.compileApp(app,
 						CommandView.this::appendOutput);
 				if(ret==0){
-					ss.append("success");
+					ss.append("success **************************************");
 				}else{
-					ss.append("fail");
+					ss.append("fail *****************************************");
 				}
 			} catch (Exception e) {
 				ss.append(":"+e.getMessage());
@@ -290,6 +290,7 @@ public  class CommandView extends VerticalLayout{
 	private void appendOutput(String s){
 		getUI().access(()->{
 			editor.setValue(editor.getValue()+s);
+			editor.scrollToPosition(editor.getValue().length()-1);
 		});
 		
 	}
@@ -335,6 +336,7 @@ public  class CommandView extends VerticalLayout{
 		}else{
 			editor.setValue(editor.getValue()+"\n"+s);
 		}
+		editor.scrollToPosition(editor.getValue().length()-1);
 	}
 	//
 	public String getSearchValue(){
