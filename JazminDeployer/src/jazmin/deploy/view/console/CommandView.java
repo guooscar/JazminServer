@@ -101,6 +101,11 @@ public  class CommandView extends VerticalLayout{
 	//
 	private void executeCommand(String cmd){
 		String cmds[]=cmd.split("\\s+");
+		List<String>ss=new ArrayList<String>();
+		for(String c:cmds){
+			ss.add(c.trim());
+		}
+		cmds=ss.toArray(new String[ss.size()]);
 		if(cmds.length<2){
 			showResult("missing arguments");
 			return;
@@ -121,6 +126,7 @@ public  class CommandView extends VerticalLayout{
 			restart(cmds);
 			return;
 		}
+		showResult("bad command:"+cmds[0]);
 	}
 	//
 	private void restart(String args[]){
