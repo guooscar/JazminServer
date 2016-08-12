@@ -135,7 +135,7 @@ public  class CommandView extends VerticalLayout{
 		});
 		if(result.isEmpty()){
 			getUI().access(()->{
-			showResult("can not find target instance");
+				showResult("can not find target instance");
 			});
 			return;
 		}
@@ -158,9 +158,12 @@ public  class CommandView extends VerticalLayout{
 				ss.append(":" + e.getMessage());
 			}
 			getUI().access(() -> {
-				showResult(instance.id+" "+result.toString());
+				showResult(instance.id+" "+ss.toString());
 			});
 		}
+		getUI().access(() -> {
+			showResult("stop complete");
+		});
 		//
 		getUI().access(() -> {
 			DeploySystemUI.showNotificationInfo("Info", "stop complete");
