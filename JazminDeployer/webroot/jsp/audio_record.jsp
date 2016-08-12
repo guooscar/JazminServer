@@ -20,18 +20,11 @@
 	canvas { 
 		display: inline-block; 
 		background: #202020; 
-		width: 95%;
-		height: 45%;
+		width: 100%;
+		height: 80%;
 		box-shadow: 0px 0px 10px blue;
 	}
-	#controls {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: space-around;
-		height: 20%;
-		width: 100%;
-	}
+	
 	#record { height: 15vh; }
 	#record.recording { 
 		background: red;
@@ -52,20 +45,15 @@
 	}
 	@media (orientation: landscape) {
 		body { flex-direction: row;}
-		#controls { flex-direction: column; height: 100%; width: 10%;}
-		#viz { height: 100%; width: 90%;}
+		#viz { height: 100%; width: 100%;}
 	}
 
 	</style>
 </head>
 <body>
-	<div id="viz">
-		<canvas id="analyser" width="1024" height="500"></canvas>
-		<canvas id="wavedisplay" width="1024" height="500"></canvas>
-	</div>
-	<div id="controls">
+	<div id="viz" style="padding:20px">
+		<canvas id="analyser" width="" height="500"></canvas>
 		<img id="record" src="/image/mic128.png" onclick="toggleRecording(this);">
-		<a id="save" href="#"><img src="/image/save.svg"></a>
 	</div>
 </body>
 </html>

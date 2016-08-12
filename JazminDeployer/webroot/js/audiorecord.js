@@ -126,16 +126,12 @@ DEALINGS IN THE SOFTWARE.
   };
 
   Recorder.setupDownload = function(blob, filename){
-    var url = (window.URL || window.webkitURL).createObjectURL(blob);
+	var url = (window.URL || window.webkitURL).createObjectURL(blob);
     var link = document.getElementById("save");
-    link.onclick=function(){
-    	var audio =  document.createElement("audio")
-    	audio.src=url;
-		audio.play();
-		uploadAudio(blob);
-    }
-    //link.href = url;
-    //link.download = filename || 'output.wav';
+    var audio =  document.createElement("audio")
+	audio.src=url;
+	audio.play();
+	uploadAudio(blob);
   }
   //
   function uploadAudio(blob){
@@ -200,8 +196,7 @@ function saveAudio() {
 
 function gotBuffers( buffers ) {
  var canvas = document.getElementById( "wavedisplay" );
-
- drawBuffer( canvas.width, canvas.height, canvas.getContext('2d'), buffers[0] );
+ //drawBuffer( canvas.width, canvas.height, canvas.getContext('2d'), buffers[0] );
 
  // the ONLY time gotBuffers is called is right after a new recording is completed - 
  // so here's where we should set up the download.
