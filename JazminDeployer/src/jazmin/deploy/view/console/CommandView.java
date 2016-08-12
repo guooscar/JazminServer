@@ -6,10 +6,15 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import jazmin.core.Jazmin;
 import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.Application;
 import jazmin.deploy.domain.Instance;
 import jazmin.deploy.manager.DeployManager;
+
+import org.vaadin.aceeditor.AceEditor;
+import org.vaadin.aceeditor.AceMode;
+import org.vaadin.aceeditor.AceTheme;
 
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
@@ -17,7 +22,6 @@ import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
@@ -25,7 +29,7 @@ import com.vaadin.ui.themes.ValoTheme;
 @SuppressWarnings("serial")
 public  class CommandView extends VerticalLayout{
 	protected TextField inputTxt;
-	protected TextArea outputTextArea;
+	AceEditor editor;
 	//
 	public CommandView() {
 		super();
@@ -62,11 +66,21 @@ public  class CommandView extends VerticalLayout{
         ok.addClickListener(e->loadData());
         optLayout.setComponentAlignment(ok, Alignment.BOTTOM_RIGHT);
         
-        outputTextArea=new TextArea();
-        outputTextArea.setEnabled(false);
-		addComponent(outputTextArea);
-		outputTextArea.setSizeFull();
-        setExpandRatio(outputTextArea, 1);
+        //
+        editor= new AceEditor();
+        editor.setThemePath("/ace");
+        editor.setModePath("/ace");
+        editor.setWorkerPath("/ace"); 
+        editor.setMode(AceMode.sql);
+        editor.setShowPrintMargin(false);
+        editor.setUseWorker(true);
+        editor.setShowGutter(false);
+        editor.setTheme(AceTheme.eclipse);
+        editor.setMode(AceMode.sh);
+        editor.setFontSize("12px");
+        editor.setSizeFull();
+        addComponent(editor);
+	    setExpandRatio(editor, 1);
         addComponent(optLayout);
         
 	}
@@ -78,9 +92,11 @@ public  class CommandView extends VerticalLayout{
 		}
 		inputTxt.setValue("");
 		String[] commands=text.split(";");
-		for(String command:commands){
-			executeCommand(command);
-		}
+		Jazmin.execute(()->{
+			for(String command:commands){
+				executeCommand(command);
+			}
+		});
 	}
 	//
 	private void executeCommand(String cmd){
@@ -118,13 +134,17 @@ public  class CommandView extends VerticalLayout{
 			return a.priority-b.priority;
 		});
 		if(result.isEmpty()){
+			getUI().access(()->{
 			showResult("can not find target instance");
+			});
 			return;
 		}
-		showResult("find "+result.size()+" instances");
-		for(Instance ap:result){
-			showResult(ap.id);
-		}
+		getUI().access(()->{
+			showResult("find "+result.size()+" instances");
+			for(Instance ap:result){
+				showResult(ap.id);
+			}
+		});
 		AtomicInteger counter = new AtomicInteger();
 		for (Instance instance : result) {
 			getUI().access(() -> {
@@ -152,14 +172,19 @@ public  class CommandView extends VerticalLayout{
 		Collections.sort(result,(a,b)->{
 			return a.priority-b.priority;
 		});
+		
 		if(result.isEmpty()){
-			showResult("can not find target instance");
+			getUI().access(()->{
+				showResult("can not find target instance");
+			});
 			return;
 		}
-		showResult("find "+result.size()+" instances");
-		for(Instance ap:result){
-			showResult(ap.id);
-		}
+		getUI().access(()->{
+			showResult("find "+result.size()+" instances");
+			for(Instance ap:result){
+				showResult(ap.id);
+			}
+		});
 		AtomicInteger counter = new AtomicInteger();
 		AtomicInteger waitCounter = new AtomicInteger();
 		for (Instance instance : result) {
@@ -219,13 +244,18 @@ public  class CommandView extends VerticalLayout{
 			return a.priority-b.priority;
 		});
 		if(result.isEmpty()){
-			showResult("can not find target application");
+			getUI().access(()->{
+				showResult("can not find target application");
+			});
 			return;
 		}
-		showResult("find "+result.size()+" applications");
-		for(Application ap:result){
-			showResult(ap.id);
-		}
+		getUI().access(()->{
+			showResult("find "+result.size()+" applications");
+			for(Application ap:result){
+				showResult(ap.id);
+			}
+		});
+		
 		//
 		AtomicInteger counter=new AtomicInteger();
 		for(Application app:result){
@@ -259,7 +289,7 @@ public  class CommandView extends VerticalLayout{
 	//
 	private void appendOutput(String s){
 		getUI().access(()->{
-			showResult(s);
+			editor.setValue(editor.getValue()+s);
 		});
 		
 	}
@@ -299,7 +329,12 @@ public  class CommandView extends VerticalLayout{
 	}
 	//
 	private void showResult(String s){
-		outputTextArea.setValue(outputTextArea.getValue()+"\n"+s);
+		String t=editor.getValue();
+		if(t==null||t.isEmpty()){
+			editor.setValue(s);
+		}else{
+			editor.setValue(editor.getValue()+"\n"+s);
+		}
 	}
 	//
 	public String getSearchValue(){

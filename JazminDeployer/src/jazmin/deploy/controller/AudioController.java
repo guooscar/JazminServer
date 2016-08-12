@@ -34,10 +34,10 @@ public class AudioController {
 	public void uploadAudio(Context ctx)throws Exception{
 		HttpServletRequest req=ctx.request().raw();
 		Part part = req.getPart("data");
-		File outFile=new File("/Users/yama/Desktop/test.wav");
-		outFile.createNewFile();
-		FileOutputStream fos=new FileOutputStream(outFile);
-		IOUtil.copy(part.getInputStream(), fos);
+		//File outFile=new File("/Users/yama/Desktop/test.wav");
+		//outFile.createNewFile();
+		//FileOutputStream fos=new FileOutputStream(outFile);
+		//IOUtil.copy(part.getInputStream(), fos);
 		ctx.view(new JsonView());
 	}
 	//
