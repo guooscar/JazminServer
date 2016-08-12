@@ -131,7 +131,7 @@ public  class CommandView extends VerticalLayout{
 	private void stop(String args[]){
 		List<Instance>result=getInstance(args);
 		Collections.sort(result,(a,b)->{
-			return a.priority-b.priority;
+			return b.priority-a.priority;
 		});
 		if(result.isEmpty()){
 			getUI().access(()->{
@@ -170,7 +170,7 @@ public  class CommandView extends VerticalLayout{
 	private void start(String args[]){
 		List<Instance>result=getInstance(args);
 		Collections.sort(result,(a,b)->{
-			return a.priority-b.priority;
+			return b.priority-a.priority;
 		});
 		
 		if(result.isEmpty()){
@@ -241,7 +241,7 @@ public  class CommandView extends VerticalLayout{
 	private void compile(String args[]){
 		List<Application>result=getApplications(args);
 		Collections.sort(result,(a,b)->{
-			return a.priority-b.priority;
+			return b.priority-a.priority;
 		});
 		if(result.isEmpty()){
 			getUI().access(()->{
