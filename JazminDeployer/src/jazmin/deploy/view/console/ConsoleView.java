@@ -18,8 +18,10 @@ public class ConsoleView extends VerticalLayout {
         addComponent(tabsheet);
         setExpandRatio(tabsheet, 1);
         //
+        tabsheet.addComponent(new CommandView());
         tabsheet.addComponent(new MachineOptView());
         tabsheet.addComponent(new InstanceOptView());
+        
       }
     //
     public void addOptView(Component component){
