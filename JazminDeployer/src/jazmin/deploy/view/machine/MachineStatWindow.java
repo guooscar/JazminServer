@@ -114,8 +114,8 @@ public class MachineStatWindow extends Window implements CellRender{
 		getUI().access(()->{
 			setCaption(machine.id);
 			beanForm.setBean(machineStat);
-			fsinfoTable.setData(machineStat.fsinfos);
-			networkInfoTable.setData(new ArrayList<MachineStat.NetInfInfo>(machineStat.netInfInfos.values()));
+			fsinfoTable.setBeanData(machineStat.fsinfos);
+			networkInfoTable.setBeanData(new ArrayList<MachineStat.NetInfInfo>(machineStat.netInfInfos.values()));
 		});
 	}
 	@Override

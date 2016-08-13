@@ -23,7 +23,10 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window.CloseEvent;
+import com.vaadin.ui.Window.CloseListener;
 import com.vaadin.ui.themes.ValoTheme;
 
 @SuppressWarnings("serial")
@@ -65,7 +68,13 @@ public  class CommandView extends VerticalLayout{
         optLayout.addComponent(ok);
         ok.addClickListener(e->loadData());
         optLayout.setComponentAlignment(ok, Alignment.BOTTOM_RIGHT);
-        
+        //
+        Button historyBtn = new Button("History");
+        historyBtn.addStyleName(ValoTheme.BUTTON_SMALL);
+        historyBtn.addStyleName(ValoTheme.BUTTON_PRIMARY);
+        optLayout.addComponent(historyBtn);
+        historyBtn.addClickListener(e->showHistory());
+        optLayout.setComponentAlignment(historyBtn, Alignment.BOTTOM_RIGHT);
         //
         editor= new AceEditor();
         editor.setThemePath("/ace");
@@ -85,11 +94,26 @@ public  class CommandView extends VerticalLayout{
         
 	}
 	//
+	private void showHistory(){
+		CommandHistoryWindow hw=new CommandHistoryWindow();
+		UI.getCurrent().addWindow(hw);
+		hw.focus();
+		hw.addCloseListener(new CloseListener() {
+			@Override
+			public void windowClose(CloseEvent e) {
+				if(hw.getSelectedCommand()!=null){
+					inputTxt.setValue(hw.getSelectedCommand());
+				}
+			}
+		});
+	}
+	//
 	protected void loadData(){
 		String text=inputTxt.getValue();
 		if(text==null||text.trim().isEmpty()){
 			return;
 		}
+		CommandHistoryWindow.addHistory(text);
 		inputTxt.setValue("");
 		String[] commands=text.split(";");
 		Jazmin.execute(()->{

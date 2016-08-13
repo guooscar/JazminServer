@@ -67,7 +67,7 @@ public class PackageInfoView extends DeployBaseView{
 			if(packages.isEmpty()){
 				DeploySystemUI.showNotificationInfo("Result","No mactch result found.");		
 			}
-			table.setData(packages);
+			table.setBeanData(packages);
     	} catch (Throwable e1) {
     		DeploySystemUI.showNotificationInfo("Error",e1.getMessage());
 		}

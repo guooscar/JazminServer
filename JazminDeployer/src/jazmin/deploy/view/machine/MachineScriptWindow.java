@@ -126,7 +126,7 @@ public class MachineScriptWindow extends Window{
 	}
 	//
 	private void loadData(){
-		table.setData(DeployManager.getScripts());
+		table.setBeanData(DeployManager.getScripts());
 	}
 	//
 	private void deleteScript(){

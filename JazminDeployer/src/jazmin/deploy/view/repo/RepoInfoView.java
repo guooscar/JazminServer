@@ -61,7 +61,7 @@ public class RepoInfoView extends DeployBaseView{
 			if(repoItems.isEmpty()){
 				DeploySystemUI.showNotificationInfo("Result","No mactch result found.");		
 			}
-			table.setData(repoItems);
+			table.setBeanData(repoItems);
     	} catch (Throwable e1) {
     		DeploySystemUI.showNotificationInfo("Error",e1.getMessage());
 		}

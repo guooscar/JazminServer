@@ -68,7 +68,7 @@ public class MachineOptView extends DeployBaseView{
 			if(machines.isEmpty()){
 				DeploySystemUI.showNotificationInfo("Result","No match result found.");		
 			}
-			table.setData(machines);
+			table.setBeanData(machines);
     	} catch (Throwable e1) {
     		DeploySystemUI.showNotificationInfo("Error",e1.getMessage());
 		}

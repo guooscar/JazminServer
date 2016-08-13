@@ -289,7 +289,7 @@ public class ApplicationInfoView extends DeployBaseView{
 			if(applications.isEmpty()){
 				DeploySystemUI.showNotificationInfo("Result","No mactch result found.");		
 			}
-			table.setData(applications);
+			table.setBeanData(applications);
     	} catch (Throwable e1) {
     		DeploySystemUI.showNotificationInfo("Error",e1.getMessage());
 		}
