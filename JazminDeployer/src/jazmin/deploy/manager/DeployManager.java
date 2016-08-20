@@ -349,6 +349,45 @@ public class DeployManager {
 		return result;
 	}
 	//
+	public static List<Application>getApplicationByPrefix(String prefix){
+		List<Application>result=new ArrayList<Application>();
+		for(Application a:applicationMap.values()){
+			if(a.id.toLowerCase().startsWith(prefix.toLowerCase())){
+				result.add(a);
+			}
+		}
+		return result;
+	}
+	//
+	public static Application getApplicationById(String id){
+		for(Application a:applicationMap.values()){
+			if(a.id.equalsIgnoreCase(id)){
+				return a;
+			}
+		}
+		return null;
+	}
+	//
+	//
+	public static List<Instance>getInstanceByPrefix(String prefix){
+		List<Instance>result=new ArrayList<Instance>();
+		for(Instance a:instanceMap.values()){
+			if(a.id.toLowerCase().startsWith(prefix.toLowerCase())){
+				result.add(a);
+			}
+		}
+		return result;
+	}
+	//
+	public static Instance getInstanceById(String id){
+		for(Instance a:instanceMap.values()){
+			if(a.id.equalsIgnoreCase(id)){
+				return a;
+			}
+		}
+		return null;
+	}
+	//
 	public static List<AppPackage>getPackages(String search)throws Exception{
 		if(search==null||search.trim().isEmpty()){
 			return new ArrayList<AppPackage>();

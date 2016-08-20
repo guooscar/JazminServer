@@ -262,7 +262,7 @@ public class InstanceInfoView extends DeployBaseView {
 			if (instanceList.isEmpty()) {
 				DeploySystemUI.showNotificationInfo("Result", "No mactch result found.");
 			}
-			table.setData(instanceList);
+			table.setBeanData(instanceList);
 		} catch (Throwable e1) {
 			DeploySystemUI.showNotificationInfo("Error", e1.getMessage());
 		}

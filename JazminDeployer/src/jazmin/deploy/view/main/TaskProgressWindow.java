@@ -168,7 +168,7 @@ public class TaskProgressWindow extends Window{
 	}
 	//
 	public void reload(){
-		table.setData(tasks);
+		table.setBeanData(tasks);
 	}
 	//
 	/**

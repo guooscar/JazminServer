@@ -58,12 +58,12 @@ public class BeanTable<T> extends Table{
 		firstColumn=showColumns.get(0);
 	}
 	//
-	public void setData(List<T>list){
+	public void setBeanData(List<T>list){
 		removeAllItems();
 		setData0(list);
 	}
 	//
-	public void appendData(List<T>list){
+	public void appendBeanData(List<T>list){
 		setData0(list);
 	}
 	//

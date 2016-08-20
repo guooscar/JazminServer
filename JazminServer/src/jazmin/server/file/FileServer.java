@@ -40,6 +40,7 @@ import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
 import jazmin.misc.io.IOWorker;
 import jazmin.server.console.ConsoleServer;
+import jazmin.util.FileUtil;
 
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
@@ -300,6 +301,15 @@ public class FileServer extends Server {
 			info.put("uploadCount:",uploadCounter.longValue()+"");
 			info.put("downloadCount:",downloadCounter.longValue()+"");
 			monitor.sample("FileServer.RequestCount",Monitor.CATEGORY_TYPE_COUNT,info);
+			//
+			//sample every 60*30;
+			if(idx%180==0){
+				Map<String,String>sizeInfo=new HashMap<String, String>();
+				File path=new File(getHomeDir());
+				long size=FileUtil.sizeOfPath(path.toPath());
+				sizeInfo.put("totalSize:",size+"");
+				monitor.sample("FileServer.HomeDirSize",Monitor.CATEGORY_TYPE_VALUE,sizeInfo);
+			}
 		}
 		//
 		@Override

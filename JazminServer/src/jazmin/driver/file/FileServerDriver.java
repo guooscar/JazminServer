@@ -26,6 +26,7 @@ import jazmin.log.LoggerFactory;
 import jazmin.misc.CachePolicy;
 import jazmin.misc.InfoBuilder;
 import jazmin.server.file.FileClient;
+import jazmin.util.FileUtil;
 import jazmin.util.RandomUtil;
 
 /**
@@ -302,6 +303,15 @@ public class FileServerDriver extends Driver{
 			info.put("uploadCount",uploadCounter.longValue()+"");
 			info.put("downloadCount",downloadCounter.longValue()+"");
 			monitor.sample("FileDriver.Request",Monitor.CATEGORY_TYPE_COUNT,info);
+			//
+			//sample every 60*30;
+			if(idx%180==0){
+				Map<String,String>sizeInfo=new HashMap<String, String>();
+				File path=new File(getHomeDir());
+				long size=FileUtil.sizeOfPath(path.toPath());
+				sizeInfo.put("totalSize:",size+"");
+				monitor.sample("FileDriver.HomeDirSize",Monitor.CATEGORY_TYPE_VALUE,sizeInfo);
+			}
 		}
 		//
 		@Override

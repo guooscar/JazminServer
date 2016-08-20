@@ -47,6 +47,8 @@ public class MonitorController {
 
 	private static final Map<String, KeyValue<Long, String>> FORMAT = new HashMap<>();
 	static {
+		FORMAT.put("FileServer.HomeDirSize", new KeyValue<>(1000000L, "MB"));
+		FORMAT.put("FileDriver.HomeDirSize", new KeyValue<>(1000000L, "MB"));
 		FORMAT.put("VM.MemoryHeap", new KeyValue<>(1000000L, "MB"));
 		FORMAT.put("VM.MemoryNonHeap", new KeyValue<>(1000000L, "MB"));
 		FORMAT.put("RpcServer.Network", new KeyValue<>(1000L, "KB"));

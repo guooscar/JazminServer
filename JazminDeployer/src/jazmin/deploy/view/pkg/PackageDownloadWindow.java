@@ -61,7 +61,7 @@ public class PackageDownloadWindow extends Window{
         //
 		scheduledFuture=Jazmin.scheduleAtFixedRate(this::refreshData, 1, 1,TimeUnit.SECONDS);
         addCloseListener(this::onClose);
-        table.setData(DeployManager.getPackageDownloadInfos());
+        table.setBeanData(DeployManager.getPackageDownloadInfos());
     }
 	//
 	private void onClose(CloseEvent e){
@@ -70,7 +70,7 @@ public class PackageDownloadWindow extends Window{
 	//
 	private void refreshData(){
 		getUI().access(()->{
-			table.setData(DeployManager.getPackageDownloadInfos());
+			table.setBeanData(DeployManager.getPackageDownloadInfos());
 		});
 	}
 	//

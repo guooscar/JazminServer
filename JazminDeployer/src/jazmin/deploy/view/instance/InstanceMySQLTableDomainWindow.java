@@ -130,7 +130,7 @@ public class InstanceMySQLTableDomainWindow extends Window{
 			setCaption(instance.id+" ("+dbInfo.databaseProductName+"-"
 										+dbInfo.databaseProductVersion+")");
 			List<TableInfo>list=JdbcUtil.getTables(jdbcUrl, user, password);
-			tablesList.setData(list);
+			tablesList.setBeanData(list);
 		} catch (Exception e) {
 			e.printStackTrace();
 			DeploySystemUI.showNotificationInfo("ERROR",e.getMessage());

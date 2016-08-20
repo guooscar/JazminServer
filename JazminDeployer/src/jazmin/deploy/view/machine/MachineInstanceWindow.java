@@ -74,7 +74,7 @@ public class MachineInstanceWindow extends Window{
 				mi.port=ii.port;
 				mis.add(mi);
 			}
-		 	table.setData(mis);
+		 	table.setBeanData(mis);
     	} catch (Throwable e1) {
     		DeploySystemUI.showNotificationInfo("Error",e1.getMessage());
 		}

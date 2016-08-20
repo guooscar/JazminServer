@@ -91,7 +91,7 @@ public class InstanceMySQLTableInfoWindow extends Window{
 			setCaption(instance.id+" ("+dbInfo.databaseProductName+"-"
 										+dbInfo.databaseProductVersion+")");
 			List<TableInfo>list=JdbcUtil.getTables(jdbcUrl, user, pwd);
-			tablesList.setData(list);
+			tablesList.setBeanData(list);
 		} catch (Exception e) {
 			e.printStackTrace();
 			DeploySystemUI.showNotificationInfo("ERROR",e.getMessage());
@@ -108,13 +108,13 @@ public class InstanceMySQLTableInfoWindow extends Window{
 		String pwd=instance.getPassword();
 		try {
 			List<ColumnInfo>clist=JdbcUtil.getColumns(jdbcUrl, user, pwd, table);
-			columnList.setData(clist);
+			columnList.setBeanData(clist);
 			//
 			List<PrimaryKeyInfo>plist=JdbcUtil.getPrimaryKeys(jdbcUrl, user, pwd, table);
-			primaryKeyList.setData(plist);
+			primaryKeyList.setBeanData(plist);
 			//
 			List<IndexInfo>ilist=JdbcUtil.getIndexs(jdbcUrl, user, pwd, table);
-			indexList.setData(ilist);
+			indexList.setBeanData(ilist);
 		} catch (Exception e) {
 			e.printStackTrace();
 			DeploySystemUI.showNotificationInfo("ERROR",e.getMessage());
