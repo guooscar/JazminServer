@@ -5,11 +5,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import jazmin.deploy.ui.BeanTable;
-
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
+import com.vaadin.server.Page;
+import com.vaadin.server.WebBrowser;
 import com.vaadin.ui.Window;
+
+import jazmin.deploy.ui.BeanTable;
 
 /**
  * 
@@ -51,7 +53,8 @@ public class CommandHistoryWindow extends Window{
 		table.addItemClickListener(new ItemClickListener() {
 			@Override
 			public void itemClick(ItemClickEvent event) {
-				if(event.isDoubleClick()){
+				WebBrowser wb=Page.getCurrent().getWebBrowser();
+				if(wb.isIPhone()||wb.isAndroid()||event.isDoubleClick()){
 					HistoryBean hb=table.getValueByItem(event.getItem());
 					selectedCommand=hb.cmd;
 					close();
