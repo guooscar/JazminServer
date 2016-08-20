@@ -54,7 +54,7 @@ public class CommandHistoryWindow extends Window{
 			@Override
 			public void itemClick(ItemClickEvent event) {
 				WebBrowser wb=Page.getCurrent().getWebBrowser();
-				//support ios android
+				//support ios and android
 				if(wb.isIPhone()||wb.isAndroid()||event.isDoubleClick()){
 					HistoryBean hb=table.getValueByItem(event.getItem());
 					selectedCommand=hb.cmd;
