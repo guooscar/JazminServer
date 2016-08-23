@@ -439,7 +439,7 @@ public class InstanceInfoView extends DeployBaseView {
 		window.getUI().access(() -> {
 			window.close();
 			DeploySystemUI.showNotificationInfo("Info", "start complete");
-			DeploySystemUI.get().showWebNotification("Info","start complete");
+			DeploySystemUI.get().showWebNotification("JazminDeployer","start complete");
 		});
 	}
 
@@ -486,7 +486,7 @@ public class InstanceInfoView extends DeployBaseView {
 				window.close();
 			}
 			DeploySystemUI.showNotificationInfo("Info", "stop complete");
-			DeploySystemUI.get().showWebNotification("Info","stop complete");
+			DeploySystemUI.get().showWebNotification("Info","JazminDeployer complete");
 		});
 	}
 

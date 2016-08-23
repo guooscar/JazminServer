@@ -3,8 +3,8 @@ package jazmin.deploy;
 import jazmin.deploy.domain.User;
 import jazmin.deploy.view.main.LoginView;
 import jazmin.deploy.view.main.MainView;
+import jazmin.deploy.webnotifications.WebNotification;
 
-import com.porotype.webnotifications.WebNotification;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
@@ -52,7 +52,7 @@ public class DeploySystemUI extends UI {
 	}
 	//
 	public void showWebNotification(String title,String content){
-		webNotification.show(title, content);
+		webNotification.show(title, content,"/image/jazmin-logo.png");
 	}
 	//
 	public  void showMainView(){

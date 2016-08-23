@@ -197,7 +197,7 @@ public  class CommandView extends VerticalLayout{
 		//
 		getUI().access(() -> {
 			DeploySystemUI.showNotificationInfo("Info", "stop complete");
-			DeploySystemUI.get().showWebNotification("Info","stop complete");
+			DeploySystemUI.get().showWebNotification("JazminDeployer","stop complete");
 		});
 	}
 	//
@@ -269,7 +269,7 @@ public  class CommandView extends VerticalLayout{
 		}
 		getUI().access(() -> {
 			DeploySystemUI.showNotificationInfo("Info", "start complete");
-			DeploySystemUI.get().showWebNotification("Info","start complete");
+			DeploySystemUI.get().showWebNotification("JazminDeployer","start complete");
 		});
 	}
 	//
@@ -319,7 +319,7 @@ public  class CommandView extends VerticalLayout{
 		};
 		getUI().access(()->{
 			DeploySystemUI.showNotificationInfo("Info", "compile complete");
-			DeploySystemUI.get().showWebNotification("Info","compile complete");
+			DeploySystemUI.get().showWebNotification("JazminDeployer","compile complete");
 		});	
 	}
 	//
