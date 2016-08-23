@@ -4,6 +4,7 @@ import jazmin.deploy.domain.User;
 import jazmin.deploy.view.main.LoginView;
 import jazmin.deploy.view.main.MainView;
 
+import com.porotype.webnotifications.WebNotification;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
@@ -35,15 +36,23 @@ public class DeploySystemUI extends UI {
 	//
 	private MainView mainView;
 	//
+	private WebNotification webNotification;
+	//
 	@Override
     protected void init(VaadinRequest request) {
+		webNotification=new WebNotification(this);
 		Responsive.makeResponsive(this);
 		addStyleName(ValoTheme.UI_WITH_MENU);
 		if(getUser()==null){
 			showLoginView();	
 		}else{
+			webNotification.requestPermission();
 			showMainView();		
 		}
+	}
+	//
+	public void showWebNotification(String title,String content){
+		webNotification.show(title, content);
 	}
 	//
 	public  void showMainView(){

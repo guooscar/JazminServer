@@ -10,6 +10,20 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import jazmin.core.Jazmin;
+import jazmin.deploy.DeploySystemUI;
+import jazmin.deploy.domain.Application;
+import jazmin.deploy.domain.Instance;
+import jazmin.deploy.domain.monitor.MonitorInfo;
+import jazmin.deploy.manager.DeployManager;
+import jazmin.deploy.manager.MonitorManager;
+import jazmin.deploy.ui.BeanTable;
+import jazmin.deploy.view.main.CodeEditorCallback;
+import jazmin.deploy.view.main.CodeEditorWindow;
+import jazmin.deploy.view.main.DeployBaseView;
+import jazmin.deploy.view.main.InputWindow;
+import jazmin.deploy.view.main.TaskProgressWindow;
+
 import org.vaadin.aceeditor.AceMode;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
@@ -24,20 +38,6 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.themes.ValoTheme;
-
-import jazmin.core.Jazmin;
-import jazmin.deploy.DeploySystemUI;
-import jazmin.deploy.domain.Application;
-import jazmin.deploy.domain.Instance;
-import jazmin.deploy.domain.monitor.MonitorInfo;
-import jazmin.deploy.manager.DeployManager;
-import jazmin.deploy.manager.MonitorManager;
-import jazmin.deploy.ui.BeanTable;
-import jazmin.deploy.view.main.CodeEditorCallback;
-import jazmin.deploy.view.main.CodeEditorWindow;
-import jazmin.deploy.view.main.DeployBaseView;
-import jazmin.deploy.view.main.InputWindow;
-import jazmin.deploy.view.main.TaskProgressWindow;
 
 /**
  * @author yama 6 Jan, 2015
@@ -439,6 +439,7 @@ public class InstanceInfoView extends DeployBaseView {
 		window.getUI().access(() -> {
 			window.close();
 			DeploySystemUI.showNotificationInfo("Info", "start complete");
+			DeploySystemUI.get().showWebNotification("Info","start complete");
 		});
 	}
 
@@ -485,6 +486,7 @@ public class InstanceInfoView extends DeployBaseView {
 				window.close();
 			}
 			DeploySystemUI.showNotificationInfo("Info", "stop complete");
+			DeploySystemUI.get().showWebNotification("Info","stop complete");
 		});
 	}
 
