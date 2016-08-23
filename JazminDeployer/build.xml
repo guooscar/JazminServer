@@ -113,6 +113,7 @@
 		</copy>
 		<copy todir="${release.dir}/${project.name}/WEB-INF/classes">
 			<fileset dir="${src.dir}">
+				<include name="**/*.js"/>
 				<include name="**/*.json"/>
 				<include name="**/*.rule"/>
 				<include name="**/*.script"/>
