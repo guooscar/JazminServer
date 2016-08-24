@@ -119,7 +119,8 @@
         this.myNotify = new Notification(this.title, {
             'body': this.options.body,
             'tag' : this.options.tag,
-            'icon' : this.options.icon
+            'icon' : this.options.icon,
+            'renotify':true
         });
 
         if (this.options.timeout && !isNaN(this.options.timeout)) {

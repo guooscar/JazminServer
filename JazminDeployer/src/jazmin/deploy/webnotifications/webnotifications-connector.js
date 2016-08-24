@@ -7,7 +7,8 @@ window.jazmin_deploy_webnotifications_WebNotification = function() {
 	this.show = function(title, message,icon) {
 		var n = new Notify(title, {
 			body : message,
-			icon:icon
+			icon:icon,
+			tag:'jazmin'
 		});
 		n.show();
 	}
