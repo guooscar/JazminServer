@@ -51,6 +51,7 @@ public class RpcClient {
 	private Map<Integer,RPCLock>lockMap;
 	private long timeout;
 	private String principal;
+	private RpcBreaker breakerCounter;
 	//
 	static class RPCLock{
 		public int id;
@@ -60,6 +61,7 @@ public class RpcClient {
 	}
 	//
 	public RpcClient() {
+		breakerCounter=new RpcBreaker();
 		messageId=new AtomicInteger();
 		lockMap=new ConcurrentHashMap<Integer, RPCLock>();
 		timeout=DEFAULT_TIMEOUT;
@@ -99,6 +101,7 @@ public class RpcClient {
 				msg.type=RpcMessage.TYPE_RPC_CALL_RSP;
 				msg.payloads=new Object[]{null,e};
 				lock.asyncCallback.callback(null,msg);
+				breakerCounter.stat(true);
 				lockMap.remove(id);
 			}
 		});
@@ -260,6 +263,11 @@ public class RpcClient {
 	 * sync invoke service
 	 */
 	public RpcMessage invokeSync(RpcSession session,String serviceId,Object args[]){
+		if(breakerCounter.isBreak()){
+			logger.fatal("rpc client:"+session.cluster+" breaking,serviceId:"+serviceId);
+			throw new RpcBreakerException(
+					"rpc client:"+session.cluster+" breaking,serviceId:"+serviceId);
+		}
 		RPCLock lock=new RPCLock();
 		lock.startTime=System.currentTimeMillis();
 		int nextMsgId=messageId.incrementAndGet();
@@ -273,6 +281,7 @@ public class RpcClient {
 					long currentTime=System.currentTimeMillis();
 					if((currentTime-lock.startTime)>timeout){
 						lockMap.remove(lock.id);
+						breakerCounter.stat(true);
 						throw new RpcException(
 								"rpc request:"+lock.id+" timeout,serviceId:"+serviceId);
 					}
@@ -281,6 +290,7 @@ public class RpcClient {
 				Thread.currentThread().interrupt();
 			}
 			lockMap.remove(lock.id);
+			breakerCounter.stat(false);
 			return lock.response;
 		}
 	}
@@ -292,6 +302,11 @@ public class RpcClient {
 			String serviceId,
 			Object args[],
 			RpcMessageCallback callback){
+		if(breakerCounter.isBreak()){
+			logger.fatal("rpc client:"+session.cluster+" breaking,serviceId:"+serviceId);
+			throw new RpcBreakerException(
+					"rpc client:"+session.cluster+" breaking,serviceId:"+serviceId);
+		}
 		RPCLock lock=new RPCLock();
 		lock.startTime=System.currentTimeMillis();
 		lock.id=messageId.incrementAndGet();
