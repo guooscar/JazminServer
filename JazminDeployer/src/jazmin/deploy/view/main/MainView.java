@@ -69,12 +69,12 @@ public class MainView extends HorizontalLayout {
     //
     private void initMenus(){
     	menuView.addMenuItem("Dashboard", FontAwesome.DASHBOARD,DashboardView.class);	
-    	menuView.addMenuItem("Instances", FontAwesome.HOME,new InstanceInfoView());
-    	menuView.addMenuItem("Machines", FontAwesome.GEAR,new MachineInfoView());	
-    	menuView.addMenuItem("Applications", FontAwesome.ANDROID,new ApplicationInfoView());	
+    	menuView.addMenuItem("Instances", FontAwesome.LIST,new InstanceInfoView());
+    	menuView.addMenuItem("Machines", FontAwesome.DESKTOP,new MachineInfoView());	
+    	menuView.addMenuItem("Applications", FontAwesome.FILE,new ApplicationInfoView());	
         if(DeploySystemUI.getUser().id.equals(User.ADMIN)){
-    		menuView.addMenuItem("Packages", FontAwesome.ANCHOR,new PackageInfoView());	
-        	menuView.addMenuItem("Repos", FontAwesome.APPLE,new RepoInfoView());
+    		menuView.addMenuItem("Packages", FontAwesome.FOLDER_O,new PackageInfoView());	
+        	menuView.addMenuItem("Repos", FontAwesome.CLOUD_UPLOAD,new RepoInfoView());
         	consoleView=new ConsoleView();
     	}
      	menuView.addMenuItem("Consoles", FontAwesome.CODE,consoleView);		
