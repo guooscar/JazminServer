@@ -309,15 +309,15 @@ body {
 				return format.join("");
 			}
 			window.__lastHour__ = function(date) {
-				var _date = new Date();
+				var _cdate = new Date();
 				if (!!date) {
-					_date = new Date(date.getTime());
+					_cdate = new Date(date.getTime());
 				}
-				var _lastHourDate = new Date(_date.getTime() - 1000 * 60 * 60);
-				var _date = _date.getDate();
+				var _lastHourDate = new Date(_cdate.getTime() - 1000 * 60 * 60);
+				var _date = _cdate.getDate();
 				var _lastDate = _lastHourDate.getDate();
 				if (_date != _lastDate) {
-					_lastHourDate = _date;
+					_lastHourDate = _cdate;
 					_lastHourDate.setHours(0, 0, 0, 0);
 				}
 				return _lastHourDate;
