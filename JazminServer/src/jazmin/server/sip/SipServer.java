@@ -372,7 +372,15 @@ public class SipServer extends Server{
 	public void setWebSocketPort(int webSocketPort) {
 		this.webSocketPort = webSocketPort;
 	}
-
+	//
+	/**
+	 * @param webSocketPort the webSocketPort to set
+	 */
+	public void setSWebSocketPort(int swebSocketPort) {
+		this.swebSocketPort = swebSocketPort;
+	}
+	//
+	
 	/**
 	 * @param sessionTimeout the sessionTimeout to set
 	 */
