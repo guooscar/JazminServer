@@ -4,12 +4,23 @@ $instance.application.type=="jazmin-file"||
 $instance.application.type=="jazmin-web")
 //logger
 #set($logLevel	=	$properties.getOrDefault("jazmin.log.level","DEBUG"))
-#set($logFile 	=	$properties.getOrDefault("jazmin.log.file","'./log/'+jazmin.getServerName()+'.log'"))
-#set($performanceLogFile 	=	$properties.getOrDefault("jazmin.log.file","'./log/performance-'+jazmin.getServerName()+'.log'"))
+#set($logFile 	=	$properties.getOrDefault("jazmin.log.file","./log/"))
+#set($performanceLogFile 	=	$properties.getOrDefault("jazmin.log.file","./log/"))
+
+try {
+jazmin.getMonitor().setMonitorUrl("http://itit.io:8888/srv/monitor/report");
+} catch (e) {}
+
+#foreach($param in ${properties.keySet()})  
+jazmin.setEnv("$param","${properties.get($param)}");
+#end  
+
+jazmin.getDispatcher().setCorePoolSize(64);
+jazmin.getDispatcher().setMaximumPoolSize(64);
 
 jazmin.setLogLevel("$logLevel");
-jazmin.setLogFile($logFile,true);
-jazmin.dispatcher.setPerformanceLogFile($performanceLogFile);
+jazmin.setLogFile("$logFile" +jazmin.getServerName()+'.log',true);
+jazmin.dispatcher.setPerformanceLogFile("$performanceLogFile" + 'performance-'+jazmin.getServerName()+'.log');
 //------------------------------------------------------------------------------
 var httpClientDriver=new HttpClientDriver();
 jazmin.addDriver(httpClientDriver);
@@ -43,6 +54,7 @@ jazmin.addServer(fileServer);
 webServer=new WebServer();
 webServer.setPort($instance.port);
 jazmin.setEnv("resource.host","$properties.getOrDefault("resource","")");
+jazmin.setEnv("hostname","$properties.getOrDefault("hostname","")");
 jazmin.addServer(webServer);
 #end
 //------------------------------------------------------------------------------
@@ -52,20 +64,21 @@ jazmin.addServer(webServer);
 #set ($app = $applicationMap.get($i))
 #if($app.type=="jazmin-rpc")
 //rpc
+var rpcDriver=new JazminRpcDriver();
 #foreach($dependsInstance in $instances)
 #if ($dependsInstance.appId == $app.id && $dependsInstance.cluster==$instance.cluster)
-var rpcDriver=new JazminRpcDriver();
 rpcDriver.addRemoteServer("$app.id","$dependsInstance.id","$dependsInstance.machine.privateHost",$dependsInstance.port);
+#end
+#end
 jazmin.addDriver(rpcDriver);
-#end
-#end
 #end
 	
 #if($app.type=="mysql")
 //mysql
 #foreach($dependsInstance in $instances)
-#if ($dependsInstance.appId == $app.id && $dependsInstance.cluster==$instance.cluster)
+#if ($dependsInstance.appId == $app.id )
 var db=new C3p0ConnectionDriver();
+db.setMaxPoolSize(128);
 db.setUser('$dependsInstance.user');
 db.setPassword('$dependsInstance.password');
 #set($encoding = $dependsInstance.properties.getOrDefault("db.encoding","UTF-8"))
@@ -79,15 +92,20 @@ jazmin.addDriver(db);
 
 #if($app.type=="jazmin-file")
 //file
-#foreach($dependsInstance in $instances)
-#if ($dependsInstance.appId == $app.id && $dependsInstance.cluster==$instance.cluster)
 var fileDriver=new FileServerDriver();
 #set($homeDir 	=	$properties.getOrDefault("filedriver.home","file_driver"))
 fileDriver.setHomeDir("$homeDir");
+#foreach($dependsInstance in $instances)
+#if ($dependsInstance.appId == $app.id)
+#if ($dependsInstance.cluster==$instance.cluster)
 fileDriver.addServer("$dependsInstance.id","$dependsInstance.machine.privateHost",$dependsInstance.port,10);
+#end
+#if ($dependsInstance.cluster!=$instance.cluster)
+fileDriver.addServer("$dependsInstance.id","$dependsInstance.machine.publicHost",$dependsInstance.port,10);
+#end
+#end
+#end
 jazmin.addDriver(fileDriver);
-#end
-#end
 #end
 
 #end
@@ -148,21 +166,57 @@ maxconn                 3000
 stats   uri  /$stat_url
 stats   hide-version
 
+#set ($sslpath = $properties.getOrDefault("haproxy.sslpem",""))
+#if($sslpath != "")
+frontend https_web_in
+bind *:443 ssl crt $sslpath
+mode http
+maxconn 100000
+option httpclose
+option forwardfor
+option http-server-close
+reqadd X-Forwarded-Proto:\ https
+#foreach($i in $instance.application.depends)
+#set ($app = $applicationMap.get($i))
+#if($app.type=="jazmin-web")
+acl is_ssl_$app.id hdr_beg(host) -i $app.properties.hostname
+#if($app.properties.hostnames)
+#foreach($k in $app.properties.hostnames.split(","))
+acl is_ssl_$k$app.id hdr_beg(host) -i $k
+#end
+#end
+#end
+#end
+#foreach($i in $instance.application.depends)
+#set ($app = $applicationMap.get($i))
+#if($app.type=="jazmin-web")
+use_backend server_$app.id if is_ssl_$app.id
+
+#if($app.properties.hostnames)
+#foreach($k in $app.properties.hostnames.split(","))
+use_backend server_$app.id if is_$k$app.id
+#end
+#end
+
+#end
+#end
+#end
+
 frontend web_in
 mode http
-maxconn 5000
+option forwardfor
+option http-server-close
+maxconn 100000
 bind :$instance.port
 #foreach($i in $instance.application.depends)
 #set ($app = $applicationMap.get($i))
 #if($app.type=="jazmin-web")
 acl is_$app.id hdr_beg(host) -i $app.properties.hostname
-
 #if($app.properties.hostnames)
 #foreach($k in $app.properties.hostnames.split(","))
 acl is_$k$app.id hdr_beg(host) -i $k
 #end
 #end
-
 #end
 #end
 #foreach($i in $instance.application.depends)
@@ -183,7 +237,7 @@ use_backend server_$app.id if is_$k$app.id
 #set ($app = $applicationMap.get($i))
 #if($app.type=="jazmin-web")
 backend server_$app.id
-mode http #http 模式
+mode http #http
 balance roundrobin
 cookie         SERVER_ID insert
 option  httpclose
