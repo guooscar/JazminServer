@@ -118,7 +118,7 @@ public  class CommandView extends VerticalLayout{
 		String[] commands=text.split(";");
 		Jazmin.execute(()->{
 			for(String command:commands){
-				executeCommand(command);
+				executeCommand(command.trim());
 			}
 		});
 	}
