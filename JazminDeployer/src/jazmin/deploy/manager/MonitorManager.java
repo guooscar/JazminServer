@@ -176,10 +176,11 @@ public class MonitorManager implements Runnable {
 				String saveKey = datas[2];
 				if (saveKey.equals(query.name)) {
 					MonitorInfo info = new MonitorInfo();
-					info.time = Long.valueOf(datas[0]);
-					info.type = datas[1];
-					info.name = datas[2];
-					info.value = datas[3];
+					info.machine=datas[0];
+					info.time = Long.valueOf(datas[1]);
+					info.type = datas[2];
+					info.name = datas[3];
+					info.value = datas[4];
 					if (query.startTime != null) {
 						if (info.time < query.startTime) {
 							continue;

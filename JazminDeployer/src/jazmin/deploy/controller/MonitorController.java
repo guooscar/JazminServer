@@ -36,6 +36,8 @@ public class MonitorController {
 	@Service(id = "report", method = HttpMethod.ALL)
 	public void report(Context c) {
 		MonitorInfo info = new MonitorInfo();
+		String machine=c.request().raw().getRemoteAddr();
+		info.machine=machine;
 		info.instance = c.getString("instance");
 		info.time = c.getLong("time");
 		info.type = c.getString("type");
