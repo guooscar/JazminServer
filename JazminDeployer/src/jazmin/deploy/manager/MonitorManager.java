@@ -13,8 +13,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 
-import com.ibm.icu.text.SimpleDateFormat;
-
 import jazmin.core.Jazmin;
 import jazmin.deploy.domain.Instance;
 import jazmin.deploy.domain.monitor.MonitorInfo;
@@ -22,8 +20,9 @@ import jazmin.deploy.domain.monitor.MonitorInfoQuery;
 import jazmin.deploy.util.DateUtil;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.util.DumpUtil;
 import jazmin.util.FileUtil;
+
+import com.ibm.icu.text.SimpleDateFormat;
 
 /**
  * 
@@ -173,13 +172,14 @@ public class MonitorManager implements Runnable {
 			String tmpStr = null;
 			while ((tmpStr = reader.readLine()) != null) {
 				String[] datas = tmpStr.split("\t");
-				String saveKey = datas[2];
+				String saveKey = datas[3];
 				if (saveKey.equals(query.name)) {
 					MonitorInfo info = new MonitorInfo();
-					info.time = Long.valueOf(datas[0]);
-					info.type = datas[1];
-					info.name = datas[2];
-					info.value = datas[3];
+					info.machine=datas[0];
+					info.time = Long.valueOf(datas[1]);
+					info.type = datas[2];
+					info.name = datas[3];
+					info.value = datas[4];
 					if (query.startTime != null) {
 						if (info.time < query.startTime) {
 							continue;
