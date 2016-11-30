@@ -12,18 +12,20 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.MissingArgumentException;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.UnrecognizedOptionException;
+
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.console.ConsoleServer;
 import jazmin.server.console.ascii.TerminalWriter;
 import jazmin.server.console.repl.ReadLineEnvironment;
 import jazmin.util.DumpUtil;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.UnrecognizedOptionException;
 /**
  * 
  * @author yama
@@ -108,7 +110,11 @@ public class ConsoleCommand{
     	od.desc=desc;
     	od.runnable=runnable;
     	commandOptionMap.put(id, od);
-    	options.addOption(id, hasArgs, desc);
+    	Option option=new Option(id, desc);
+    	if(od.hasArgs){
+    		option.setArgs(Option.UNLIMITED_VALUES);
+    	}
+    	options.addOption(option);
     }
     //
     public String getId() {
@@ -142,7 +148,12 @@ public class ConsoleCommand{
     			hit=true;
     			String args=null;
     			if(e.getValue().hasArgs){
-    				args=cli.getOptionValue(e.getKey());
+    				String t[]=cli.getOptionValues(e.getKey());
+    				StringBuilder sb=new StringBuilder();
+    				for(String q:t){
+    					sb.append(q+" ");
+    				}
+    				args=sb.toString().trim();
     			}
     			if(cli.hasOption("loop")){
     				runWithLoop(args,od.runnable::run);
@@ -178,6 +189,8 @@ public class ConsoleCommand{
 			run();
 		} catch (IOException |UnrecognizedOptionException e2) {
 			this.out.println(e2.getMessage());
+		} catch (MissingArgumentException e) {
+			this.out.println(e.getMessage());
 		}catch (Exception e) {
 			logger.catching(e);	
 			this.out.println(e.getMessage());

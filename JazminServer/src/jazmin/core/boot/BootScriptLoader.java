@@ -97,6 +97,8 @@ public class BootScriptLoader {
 				"importPackage(Packages.jazmin.driver.http);"+
 				"importPackage(Packages.jazmin.driver.mail);"+
 				"importPackage(Packages.jazmin.driver.mongodb);"+
+				"importPackage(Packages.jazmin.driver.influxdb);"+
+				
 				//servers
 				"importPackage(Packages.jazmin.server.console);"+
 				"importPackage(Packages.jazmin.server.cdn);"+
