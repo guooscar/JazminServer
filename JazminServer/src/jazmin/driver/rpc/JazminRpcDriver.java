@@ -63,6 +63,7 @@ public class JazminRpcDriver extends Driver{
 		public String cluster;
 		public String name;
 		public String credential;
+		public boolean enableSSL;
 	}
 	//
 	public JazminRpcDriver(){
@@ -120,22 +121,23 @@ public class JazminRpcDriver extends Driver{
 	public void addRemoteServer(String uri) throws URISyntaxException{
 		URI u=new URI(uri);
 		String schema=u.getScheme();
-		if(schema==null||!schema.equals("jazmin")){
+		if(schema==null||!schema.equals("jazmin")||!schema.equals("jazmins")){
 			throw new IllegalArgumentException("schema should be jazmin");
 		}
 		String host=u.getHost();
 		int port=u.getPort();
 		String credential=u.getUserInfo();
 		String path=u.getPath();
+		boolean enableSSL=schema.equals("jazmins");
 		//
 		String ss[]=path.split("/");
 		if(ss.length<3){
 			throw new IllegalArgumentException("can not find cluster or server name");
 		}
 		if(credential==null){
-			addRemoteServer(ss[1],ss[2], host, port);
+			addRemoteServer(ss[1],ss[2], host, port,enableSSL);
 		}else{
-			addRemoteServer(ss[1],ss[2],credential,host, port);
+			addRemoteServer(ss[1],ss[2],credential,host, port,enableSSL);
 		}
 	}
 	/**
@@ -150,7 +152,23 @@ public class JazminRpcDriver extends Driver{
 			String name,
 			String host,
 			int port){
-		addRemoteServer(cluster,name,null,host,port);
+		addRemoteServer(cluster,name,null,host,port,false);
+	}
+	/**
+	 * add remote server that rpc driver will connecting
+	 * @param cluster the cluster of this server
+	 * @param name the name of this server
+	 * @param host the host of this server
+	 * @param port the port of this server
+	 * @param if enable ssl connect
+	 */
+	public void addRemoteServer(
+			String cluster,
+			String name,
+			String host,
+			int port,
+			boolean enableSSL){
+		addRemoteServer(cluster,name,null,host,port,enableSSL);
 	}
 	/**
 	 * 
@@ -167,7 +185,8 @@ public class JazminRpcDriver extends Driver{
 			String name,
 			String credential,
 			String host,
-			int port){
+			int port,
+			boolean enableSSL){
 		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
@@ -177,6 +196,7 @@ public class JazminRpcDriver extends Driver{
 		si.remoteHostAddress=host;
 		si.remotePort=port;
 		si.credential=credential;
+		si.enableSSL=enableSSL;
 		List<RemoteServerInfo>serverList=serverInfoMap.get(cluster);
 		if(serverList==null){
 			serverList=new ArrayList<>();
@@ -193,6 +213,7 @@ public class JazminRpcDriver extends Driver{
 		session.setPrincipal(principal);
 		session.setCredential(serverInfo.credential);
 		session.setDisablePushMessage(disablePushMessage);
+		session.setEnableSSL(serverInfo.enableSSL);
 		Set<String>topics=topicMap.get(serverInfo.cluster);
 		if(topics!=null){
 			topics.forEach((topic)->session.subscribe(topic));
@@ -506,7 +527,7 @@ public class JazminRpcDriver extends Driver{
 		for(Entry<String, List<RemoteServerInfo>>e:serverInfoMap.entrySet()){
 			ib.println("cluster:"+e.getKey());
 			e.getValue().forEach(rs->{
-				ib.print(rs.name,rs.name+"/"+rs.remoteHostAddress+":"+rs.remotePort);	
+				ib.print(rs.name,rs.name+"/"+rs.remoteHostAddress+":"+rs.remotePort+" ssl:"+rs.enableSSL);	
 			});
 			
 		}

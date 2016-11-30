@@ -16,8 +16,9 @@ import jazmin.test.server.rpc.TestRemoteService.TestRemoteServiceImpl;
 public class RPCServerTest {
 	//
 	public static void main(String[] args) throws Exception{
-		LoggerFactory.setLevel("INFO");
+		LoggerFactory.setLevel("OFF");
 		RpcServer rpcServer=new RpcServer();
+		rpcServer.setEnableSSL(false);
 		//rpcServer.setCredential("123");
 		Jazmin.dispatcher.setPerformanceLogFile("/tmp/test.log");
 		Jazmin.addServer(rpcServer);

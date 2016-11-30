@@ -10,8 +10,12 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.netty.handler.timeout.IdleStateHandler;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -52,7 +56,11 @@ public class RpcServer extends Server{
 	private static Logger logger=LoggerFactory.get(RpcServer.class);
 	//
 	private int port=6001;
+	private boolean enableSSL;
 	private int idleTime=60*60;//one hour
+	private String certificateFile;
+	private String privateKeyFile;
+	private String privateKeyPhrase;
 	private String credential;
 	private ServerBootstrap nettyServer;
 	private EventLoopGroup bossGroup;
@@ -67,6 +75,7 @@ public class RpcServer extends Server{
 	private NetworkTrafficStat networkTrafficStat;
 	private Set<String>acceptRemoteHosts;
 	private IOWorker ioWorker;
+	private SslContext sslContext;
 	//
 	private static ThreadLocal<RpcSession>rpcSessionThreadLocal=new ThreadLocal<RpcSession>();
 	//
@@ -84,6 +93,10 @@ public class RpcServer extends Server{
 		pushMessageCountMap=new ConcurrentHashMap<String, LongAdder>();
 		acceptRemoteHosts=Collections.synchronizedSet(new TreeSet<String>());
 		networkTrafficStat=new NetworkTrafficStat();
+		enableSSL=false;
+		certificateFile="";
+		privateKeyFile="";
+		privateKeyPhrase="";
 	}
 	//--------------------------------------------------------------------------
 	//instance
@@ -179,6 +192,10 @@ public class RpcServer extends Server{
 			=new ChannelInitializer<SocketChannel>() {
 			@Override
 			protected void initChannel(SocketChannel sc) throws Exception {
+				if(enableSSL){
+	                SslContext sslContext=createSslContext();
+	                sc.pipeline().addLast(sslContext.newHandler(sc.alloc()));	
+	            }
 				sc.pipeline().addLast("idleStateHandler",
 						new IdleStateHandler(idleTime,idleTime,0));
 				if(codec==CODEC_ZJSON){
@@ -217,6 +234,25 @@ public class RpcServer extends Server{
         .childOption(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, 8*1024)
         .childHandler(channelInitializer);
 	}
+	//
+	//
+    private SslContext createSslContext()throws Exception{
+		if(sslContext!=null){
+			return sslContext;
+		}
+		File certiFile = new File(certificateFile);
+		File keyFile = new File(privateKeyFile);
+		if (certiFile.exists() && keyFile.exists()) {
+			sslContext=SslContextBuilder.forServer(new File(certificateFile),
+					new File(privateKeyFile), privateKeyPhrase).build();
+		} else {
+			SelfSignedCertificate ssc = new SelfSignedCertificate();
+			sslContext=SslContextBuilder.forServer(ssc.certificate(),ssc.privateKey()).build();
+	
+			logger.warn("using SelfSignedCertificate.only for debug mode");
+		}
+		return sslContext;
+    }
 	//--------------------------------------------------------------------------
 	//message
 	void messageReceived(RpcSession session,RpcMessage message){
@@ -511,6 +547,43 @@ public class RpcServer extends Server{
 		}
 		this.credential = credential;
 	}
+	
+	/**
+	 * @return the certificateFile
+	 */
+	public String getCertificateFile() {
+		return certificateFile;
+	}
+	/**
+	 * @param certificateFile the certificateFile to set
+	 */
+	public void setCertificateFile(String certificateFile) {
+		this.certificateFile = certificateFile;
+	}
+	/**
+	 * @return the privateKeyFile
+	 */
+	public String getPrivateKeyFile() {
+		return privateKeyFile;
+	}
+	/**
+	 * @param privateKeyFile the privateKeyFile to set
+	 */
+	public void setPrivateKeyFile(String privateKeyFile) {
+		this.privateKeyFile = privateKeyFile;
+	}
+	/**
+	 * @return the privateKeyPhrase
+	 */
+	public String getPrivateKeyPhrase() {
+		return privateKeyPhrase;
+	}
+	/**
+	 * @param privateKeyPhrase the privateKeyPhrase to set
+	 */
+	public void setPrivateKeyPhrase(String privateKeyPhrase) {
+		this.privateKeyPhrase = privateKeyPhrase;
+	}
 	/**
 	 * return port of this server
 	 * @return the port of this server
@@ -526,8 +599,25 @@ public class RpcServer extends Server{
 		if(isInited()){
 			throw new IllegalArgumentException("set before inited");
 		}
+		if(port<0||port>65535){
+			throw new IllegalArgumentException("port should >0 and <67735");
+		}
 		this.port = port;
 	}
+	
+	/**
+	 * @return the enableSSL
+	 */
+	public boolean isEnableSSL() {
+		return enableSSL;
+	}
+	/**
+	 * @param enableSSL the enableSSL to set
+	 */
+	public void setEnableSSL(boolean enableSSL) {
+		this.enableSSL = enableSSL;
+	}
+	//
 	/**
 	 * return idle time of this server
 	 * @return the idleTime 
@@ -604,6 +694,9 @@ public class RpcServer extends Server{
 		.format("%-30s:%-30s\n")
 		.print("port",port)
 		.print("credential",credential!=null)
+		.print("enableSSL",enableSSL)
+		.print("privateKeyFile",getPrivateKeyFile())
+		.print("certificateFile",getCertificateFile())
 		.print("idleTime",idleTime+" seconds");
 		ib.section("accept hosts");
 		int index=1;

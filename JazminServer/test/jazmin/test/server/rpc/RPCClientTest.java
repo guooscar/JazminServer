@@ -20,19 +20,20 @@ public class RPCClientTest {
 		//test2();
 	}
 	private static void test2(){
-		LoggerFactory.setLevel("INFO");
+		LoggerFactory.setLevel("DEBUG");
 		JazminRpcDriver driver=new JazminRpcDriver();
-		driver.addRemoteServer("1","1", "localhost", 6001);
+		driver.addRemoteServer("1","1", "127.0.0.1", 6001,false);
 		Jazmin.addDriver(driver);
 		Jazmin.start();
 		TestRemoteService service=driver.create(TestRemoteService.class,"1");
-		service.methodA("1");
+		System.err.println(service.echo("test"));
 	}
 	//
 	public static void test1(){
-		LoggerFactory.setLevel("INFO");
+		LoggerFactory.setLevel("OFF");
+		Jazmin.setServerName(System.currentTimeMillis()+"");
 		JazminRpcDriver driver=new JazminRpcDriver();
-		driver.addRemoteServer("1","1", "localhost", 6001);
+		driver.addRemoteServer("1","1", "localhost", 6001,false);
 		Jazmin.addDriver(driver);
 		Jazmin.start();
 		TestRemoteService service=driver.create(TestRemoteService.class,"1");
@@ -43,7 +44,7 @@ public class RPCClientTest {
 					long time=RandomUtil.randomInt(5)*2*1000;
 					while(true){
 						try{
-							service.timeoutMethod(time);
+							service.echo(""+time);
 						}catch(Exception e){
 							time=1;
 							e.printStackTrace();

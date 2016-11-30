@@ -10,7 +10,6 @@
 	<classpathentry kind="lib" path="lib/gently-utils-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/josql-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/c3p0-0.9.5.jar"/>
-	<classpathentry kind="lib" path="lib/sshd-core-0.13.0.jar"/>
 	<classpathentry kind="lib" path="lib/lucene-analyzers-common-4.10.3.jar"/>
 	<classpathentry kind="lib" path="lib/lucene-core-4.10.3.jar"/>
 	<classpathentry kind="lib" path="lib/lucene-queries-4.10.3.jar"/>
@@ -38,5 +37,6 @@
 	<classpathentry kind="lib" path="lib/fastjson-1.2.12.jar"/>
 	<classpathentry kind="lib" path="lib/netty-all-5.0.0.Alpha3.jar"/>
 	<classpathentry kind="lib" path="lib/jetty93.jar"/>
+	<classpathentry kind="lib" path="lib/sshd-core-1.2.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

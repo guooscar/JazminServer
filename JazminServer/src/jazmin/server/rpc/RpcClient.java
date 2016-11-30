@@ -3,6 +3,11 @@
  */
 package jazmin.server.rpc;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -11,13 +16,10 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.util.AttributeKey;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import jazmin.core.Jazmin;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -52,6 +54,8 @@ public class RpcClient {
 	private long timeout;
 	private String principal;
 	private RpcBreaker breakerCounter;
+	private SslContext sslContext;
+	private RpcSession currentSession;
 	//
 	static class RPCLock{
 		public int id;
@@ -73,11 +77,20 @@ public class RpcClient {
 		principal=Jazmin.getServerName();
 	}
 	//
-	
+	//
+    private SslContext createSslContext()throws Exception{
+		if(sslContext!=null){
+			return sslContext;
+		}
+		sslContext=SslContextBuilder.forClient().trustManager(
+					InsecureTrustManagerFactory.INSTANCE).build();
+		return sslContext;
+    }
 	//
 	public void setPrincipal(String p){
 		this.principal=p;
 	}
+	//
 	public long getTimeout() {
 		return timeout;
 	}
@@ -121,6 +134,13 @@ public class RpcClient {
 				new ChannelInitializer<SocketChannel>() {
 			@Override
 			public void initChannel(SocketChannel sc) throws Exception {
+				if(currentSession.enableSSL){
+	                SslContext sslContext=createSslContext();
+	                sc.pipeline().addLast(
+	                		sslContext.newHandler(sc.alloc(),
+	                		currentSession.remoteHostAddress,
+	                		currentSession.remotePort));	
+	            }
 				if(RpcServer.codec==RpcServer.CODEC_ZJSON){
 					sc.pipeline().addLast(
 							new CompressedJSONEncoder(networkTrafficStat), 
@@ -159,13 +179,15 @@ public class RpcClient {
 		if(logger.isWarnEnabled()){
 			logger.warn("connect rpc server {}:{}",host,port);
 		}
-		Channel channel=bootstrap.connect(host, port).sync().channel();
-		channel.attr(SESSION_KEY).set(session);
-		session.setChannel(channel);
-		session.setPrincipal(principal);	
+		synchronized (this) {
+			currentSession=session;
+			Channel channel=bootstrap.connect(host, port).sync().channel();
+			channel.attr(SESSION_KEY).set(session);
+			session.setChannel(channel);
+			session.setPrincipal(principal);	
+		}
 		//send auth message
-		auth(session);
-		
+		auth(session);		
 	}
 	/**/
 	private void auth(RpcSession session){

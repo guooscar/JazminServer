@@ -43,12 +43,13 @@ public class JazminRpcDriverCommand extends ConsoleCommand {
    
     //
     private void showSessions(String args){
-		String format="%-5s : %-20s %-20s %-10s %-15s %-10s %-10s %-10s %-10s %-10s %-15s %-10s\n";
+		String format="%-5s : %-20s %-10 %-20s %-10s %-15s %-10s %-10s %-10s %-10s %-10s %-15s %-10s\n";
 		int i=1;
 		List<RpcSession> sessions=driver.getSessions();
 		out.println("total "+sessions.size()+" sessions");
 		out.format(format,"#",
 				"PRINCIPAL",
+				"SSL",
 				"CLUSTER",
 				"CONNECTED",
 				"HOSTADDRESS",
@@ -68,6 +69,7 @@ public class JazminRpcDriverCommand extends ConsoleCommand {
 			out.format(format,
 					i++,
 					s.getPrincipal(),
+					s.isEnableSSL(),
 					s.getCluster(),
 					s.isConnected(),
 					s.getRemoteHostAddress(),
