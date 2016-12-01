@@ -21,6 +21,8 @@ JazminServer is a Java based application/message/rpc/sip/rtmp/udp relay server.
   * LuceneDriver
   * MemcachedDriver
   * RPCDriver
+  * RedisDriver
+  * InfluxdbDriver
 * RPCServer
   * Server push message to client
   * Client proxy 
