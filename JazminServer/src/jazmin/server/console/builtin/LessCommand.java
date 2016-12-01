@@ -25,6 +25,7 @@ public class LessCommand extends ConsoleCommand {
 	@Override
 	protected void run() throws Exception {
 		if(!isPiped()){
+			printHelp();
 			return;
 		}
 		List<String>inputLines=IOUtil.getContentList(inStream);

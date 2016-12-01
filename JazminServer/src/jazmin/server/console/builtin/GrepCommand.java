@@ -23,6 +23,7 @@ public class GrepCommand extends ConsoleCommand {
 	@Override
 	protected void run() throws Exception {
 		if(!isPiped()){
+			printHelp();
 			return;
 		}
 		String args[]=cli.getArgs();

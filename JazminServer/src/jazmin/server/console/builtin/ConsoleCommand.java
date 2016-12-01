@@ -56,6 +56,7 @@ public class ConsoleCommand{
     protected String id;
     protected String desc;
     protected CommandLine cli;
+    protected String rawInput;
     private volatile boolean finished;
     private Options options;
     ConsoleServer consoleServer;
@@ -176,6 +177,7 @@ public class ConsoleCommand{
     		String line,
     		String[] args){
     	try{
+    		this.rawInput=line;
     		this.stdin=stdin;
 	    	this.inStream=in;
 	    	this.outStream=out;
@@ -197,6 +199,7 @@ public class ConsoleCommand{
 		}finally{
 			try{
 				this.out.flush();
+				this.out.close();
 			}catch(Exception e){
 				logger.catching(e);
 			}

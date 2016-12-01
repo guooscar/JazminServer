@@ -13,7 +13,7 @@ public class TailCommand extends ConsoleCommand {
 	public TailCommand() {
 		super();
 		id = "tail";
-		desc = "display last lines of strings";
+		desc = "display last line of strings";
 		addOption("n", true, "line number", null);
 		addOption("v", false, "invert select", null);	
 	}
@@ -21,6 +21,7 @@ public class TailCommand extends ConsoleCommand {
 	@Override
 	protected void run() throws Exception {
 		if(!isPiped()){
+			printHelp();
 			return;
 		}
 		List<String>inputLines=IOUtil.getContentList(inStream);

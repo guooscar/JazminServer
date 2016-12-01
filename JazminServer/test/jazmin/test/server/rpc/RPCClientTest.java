@@ -33,7 +33,7 @@ public class RPCClientTest {
 		LoggerFactory.setLevel("OFF");
 		Jazmin.setServerName(System.currentTimeMillis()+"");
 		JazminRpcDriver driver=new JazminRpcDriver();
-		driver.addRemoteServer("1","1", "localhost", 6001,false);
+		driver.addRemoteServer("1","1", "10.0.0.3", 6001,false);
 		Jazmin.addDriver(driver);
 		Jazmin.start();
 		TestRemoteService service=driver.create(TestRemoteService.class,"1");

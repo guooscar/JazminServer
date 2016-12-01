@@ -18,6 +18,7 @@ public class WcCommand extends ConsoleCommand {
 	@Override
 	protected void run() throws Exception {
 		if(!isPiped()){
+			printHelp();
 			return;
 		}
 		BufferedReader br = new BufferedReader(new InputStreamReader(inStream));
