@@ -12,7 +12,7 @@ import jazmin.server.console.builtin.ConsoleCommand;
 public class FtpServerCommand extends ConsoleCommand {
     private FtpServer ftpServer;
 	public FtpServerCommand() {
-    	super();
+    	super(true);
     	id="ftpsrv";
     	desc="ftp server ctrl command";
     	addOption("i",false,"show server information.",this::showServerInfo);

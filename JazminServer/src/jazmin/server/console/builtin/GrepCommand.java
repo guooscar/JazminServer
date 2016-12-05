@@ -13,7 +13,7 @@ import jazmin.server.console.ascii.TerminalWriter;
  */
 public class GrepCommand extends ConsoleCommand {
 	public GrepCommand() {
-		super();
+		super(false);
 		id = "grep";
 		desc = "selecting lines that match one or more patterns";
 		addOption("c", false, "hightlight matches", null);

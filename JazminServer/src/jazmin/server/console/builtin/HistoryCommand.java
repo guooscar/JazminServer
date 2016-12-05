@@ -9,7 +9,7 @@ package jazmin.server.console.builtin;
  */
 public class HistoryCommand extends ConsoleCommand {
     public HistoryCommand() {
-    	super();
+    	super(false);
     	id="history";
     	desc="show command history.";
     	addOption("c", false, "clear history",null);

@@ -27,6 +27,8 @@ import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
 import jazmin.server.console.builtin.ConsoleCommand;
+import jazmin.server.console.builtin.CutCommand;
+import jazmin.server.console.builtin.DateCommand;
 import jazmin.server.console.builtin.EchoCommand;
 import jazmin.server.console.builtin.GrepCommand;
 import jazmin.server.console.builtin.HeadCommand;
@@ -36,9 +38,12 @@ import jazmin.server.console.builtin.JazCommand;
 import jazmin.server.console.builtin.JazminCommand;
 import jazmin.server.console.builtin.LessCommand;
 import jazmin.server.console.builtin.ManCommand;
+import jazmin.server.console.builtin.NlCommand;
 import jazmin.server.console.builtin.SortCommand;
+import jazmin.server.console.builtin.TRCommand;
 import jazmin.server.console.builtin.TailCommand;
 import jazmin.server.console.builtin.UniqCommand;
+import jazmin.server.console.builtin.UpTimeCommand;
 import jazmin.server.console.builtin.VMCommand;
 import jazmin.server.console.builtin.WcCommand;
 import jazmin.server.console.builtin.WhoCommand;
@@ -129,6 +134,12 @@ public class ConsoleServer extends Server{
 		registerCommand(new LessCommand());
 		registerCommand(new UniqCommand());
 		registerCommand(new ManCommand());
+		registerCommand(new NlCommand());
+		registerCommand(new DateCommand());
+		registerCommand(new UpTimeCommand());
+		registerCommand(new CutCommand());
+		registerCommand(new TRCommand());
+		
 	}
 	//--------------------------------------------------------------------------
 	void loadCommandHistory(){

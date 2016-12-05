@@ -9,7 +9,7 @@ import jazmin.server.console.builtin.ConsoleCommand;
 public class InfluxdbDriverCommand extends ConsoleCommand {
     private InfluxdbDriver driver;
 	public InfluxdbDriverCommand() {
-    	super();
+    	super(true);
     	id="influxdb";
     	desc="influxdb driver ctrl command";
     	addOption("i",false,"show driver information.",this::showDriverInfo);

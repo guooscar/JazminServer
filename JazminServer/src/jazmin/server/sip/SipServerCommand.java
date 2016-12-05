@@ -15,7 +15,7 @@ public class SipServerCommand extends ConsoleCommand {
 	private SipServer server;
 
 	public SipServerCommand() {
-		super();
+		super(true);
 		id = "sipsrv";
 		desc = "sip server ctrl command";
 		addOption("i", false, "show server information.", this::showServerInfo);

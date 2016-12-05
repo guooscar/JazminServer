@@ -69,11 +69,13 @@ public class ConsoleCommand{
     //
     
     //
-    public ConsoleCommand() {
+    public ConsoleCommand(boolean enableLoop) {
     	finished=false;
     	options=new Options();
     	commandOptionMap=new LinkedHashMap<String,OptionDefine>();
-    	addOption("loop", false, "loop display", null);
+    	if(enableLoop){
+    		addOption("loop", false, "loop display", null);
+    	}
 	}
     /**
 	 * @return the consoleServer

@@ -17,7 +17,7 @@ import jazmin.server.rpc.RpcSession;
 public class JazminRpcDriverCommand extends ConsoleCommand {
     private JazminRpcDriver driver;
 	public JazminRpcDriverCommand() {
-    	super();
+    	super(true);
     	id="rpcdriver";
     	desc="jazmin rpc driver ctrl command";
     	addOption("i",false,"show driver information.",this::showDriverInfo);

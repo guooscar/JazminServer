@@ -12,7 +12,7 @@ import jazmin.util.IOUtil;
  */
 public class SortCommand extends ConsoleCommand {
 	public SortCommand() {
-		super();
+		super(false);
 		id = "sort";
 		desc = "sort lines of text";
 		addOption("k", true, "key column index", null);

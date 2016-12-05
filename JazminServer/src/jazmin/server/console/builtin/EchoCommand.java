@@ -9,7 +9,7 @@ package jazmin.server.console.builtin;
  */
 public class EchoCommand extends ConsoleCommand {
    public EchoCommand() {
-    	super();
+    	super(false);
     	id="echo";
     	desc="echo input string";
     }

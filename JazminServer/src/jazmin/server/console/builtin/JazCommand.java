@@ -18,7 +18,7 @@ import jazmin.server.console.ascii.TerminalWriter;
  */
 public class JazCommand extends ConsoleCommand {
    public JazCommand() {
-    	super();
+    	super(false);
     	id="jaz";
     	desc="just for fun";
     }

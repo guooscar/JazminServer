@@ -18,7 +18,7 @@ import jazmin.util.DumpUtil;
 public class MessageServerCommand extends ConsoleCommand {
     private MessageServer messageServer;
 	public MessageServerCommand() {
-    	super();
+    	super(true);
     	id="msgsrv";
     	desc="message server ctrl command";
     	addOption("i",false,"show server information.",this::showServerInfo);

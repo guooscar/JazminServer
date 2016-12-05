@@ -29,7 +29,7 @@ import jazmin.util.DumpUtil;
  */
 public class JazminCommand extends ConsoleCommand {
     public JazminCommand() {
-    	super();
+    	super(true);
     	id="jazmin";
     	desc="jazmin server ctrl command";
     	addOption("i",false,"show server information.",this::showServerInfo);

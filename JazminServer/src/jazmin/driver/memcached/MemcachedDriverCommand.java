@@ -11,7 +11,7 @@ import jazmin.util.DumpUtil;
 public class MemcachedDriverCommand extends ConsoleCommand {
     private MemcachedDriver driver;
 	public MemcachedDriverCommand() {
-    	super();
+    	super(true);
     	id="memcached";
     	desc="memcached driver ctrl command";
     	addOption("i",false,"show server information.",this::showDriverInfo);

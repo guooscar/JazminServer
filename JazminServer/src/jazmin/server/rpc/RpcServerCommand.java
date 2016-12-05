@@ -21,7 +21,7 @@ import jazmin.util.DumpUtil;
 public class RpcServerCommand extends ConsoleCommand {
     private RpcServer rpcServer;
 	public RpcServerCommand() {
-    	super();
+    	super(true);
     	id="rpcsrv";
     	desc="rpc server ctrl command";
     	addOption("i",false,"show server information.",this::showServerInfo);

@@ -28,7 +28,7 @@ public class VMCommand extends ConsoleCommand {
     private MemoryMXBean memoryMXBean;
     //
 	public VMCommand() {
-    	super();
+    	super(true);
     	id="vm";
     	desc="vm info";
     	addOption("runtime",false,"show runtime information.",this::showRuntimeInfo);

@@ -8,9 +8,9 @@ import jazmin.server.console.ConsoleServer;
  */
 public class HelpCommand extends ConsoleCommand {
     public HelpCommand() {
-    	super();
+    	super(false);
     	id="help";
-    	desc="show command list.";
+    	desc="show command list";
     }
     //
     @Override

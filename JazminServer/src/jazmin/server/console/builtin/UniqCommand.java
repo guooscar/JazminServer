@@ -11,7 +11,7 @@ import jazmin.util.IOUtil;
  */
 public class UniqCommand extends ConsoleCommand {
 	public UniqCommand() {
-		super();
+		super(false);
 		id = "uniq";
 		desc = "filter out repeated lines";
 	}

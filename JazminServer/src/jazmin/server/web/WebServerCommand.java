@@ -17,7 +17,7 @@ import jazmin.server.web.mvc.MethodStub;
 public class WebServerCommand extends ConsoleCommand {
     private WebServer webServer;
 	public WebServerCommand() {
-    	super();
+    	super(true);
     	id="websrv";
     	desc="web server ctrl command";
     	addOption("i",false,"show server information.",this::showServerInfo);

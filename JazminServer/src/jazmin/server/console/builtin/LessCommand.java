@@ -17,7 +17,7 @@ public class LessCommand extends ConsoleCommand {
 	private boolean showLineNumber;
 	//	
 	public LessCommand() {
-		super();
+		super(false);
 		id = "less";
 		desc = "simple string viewer";
 	}

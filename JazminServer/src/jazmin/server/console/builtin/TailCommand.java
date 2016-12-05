@@ -11,7 +11,7 @@ import jazmin.util.IOUtil;
  */
 public class TailCommand extends ConsoleCommand {
 	public TailCommand() {
-		super();
+		super(false);
 		id = "tail";
 		desc = "display last line of strings";
 		addOption("n", true, "line number", null);
