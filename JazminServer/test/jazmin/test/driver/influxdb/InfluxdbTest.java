@@ -34,9 +34,9 @@ public class InfluxdbTest {
 		//
 		StringBuilder cmd=new StringBuilder();
 		for(int i=0;i<50000;i++){
-			cmd.append("cpu_load_short,host=server"+i+",region=us-west1 value=0.64 1434055562000002222"+"\n");
+		//	cmd.append("cpu_load_short,host=server"+i+",region=us-west1 value=0.64 1434055562000002222"+"\n");
 		}
-		hd.write(cmd.toString());
+		//hd.write(cmd.toString());
 		//
 		System.err.println(InfluxdbResultFormatter.dump(hd.query("select * from cpu_load_short")));
 		

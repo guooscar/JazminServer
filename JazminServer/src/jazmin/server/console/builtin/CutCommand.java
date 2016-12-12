@@ -13,7 +13,7 @@ public class CutCommand extends ConsoleCommand {
 	public CutCommand() {
 		super(false);
 		id = "cut";
-		desc = " cut out selected portions of each line";
+		desc = "cut out selected portions of each line";
 		addOption("d", true, "delim char", null);
 		addOption("f", true, "the list specifies fields, separated in the input by the field delimiter character", null);
 		
