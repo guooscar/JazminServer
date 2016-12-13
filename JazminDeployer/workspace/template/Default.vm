@@ -96,7 +96,7 @@ jazmin.addDriver(db);
 #if ($dependsInstance.appId == $app.id && $dependsInstance.cluster==$instance.cluster)
 var influxdb=new InfluxdbDriver();
 influxdb.setHost('$dependsInstance.machine.privateHost');
-influxdb.setPort'$dependsInstance.port);
+influxdb.setPort($dependsInstance.port);
 influxdb.setUser('$dependsInstance.user');
 influxdb.setPassword('$dependsInstance.password');
 influxdb.setDatabase('$dependsInstance.id');
@@ -162,6 +162,7 @@ maxconn 4096
 daemon 
 nbproc 1 
 pidfile /home/appadmin/haproxy/haproxy.pid
+tune.ssl.default-dh-param 2048
 
 defaults
 log     global
