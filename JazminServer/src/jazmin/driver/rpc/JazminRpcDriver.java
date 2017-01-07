@@ -121,7 +121,7 @@ public class JazminRpcDriver extends Driver{
 	public void addRemoteServer(String uri) throws URISyntaxException{
 		URI u=new URI(uri);
 		String schema=u.getScheme();
-		if(schema==null||!schema.equals("jazmin")||!schema.equals("jazmins")){
+		if(schema==null||(!schema.equals("jazmin")&&!schema.equals("jazmins"))){
 			throw new IllegalArgumentException("schema should be jazmin");
 		}
 		String host=u.getHost();
