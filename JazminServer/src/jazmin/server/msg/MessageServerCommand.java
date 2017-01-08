@@ -142,12 +142,13 @@ public class MessageServerCommand extends ConsoleCommand {
 		int i=1;
 		List<Channel> channels=messageServer.getChannels();
 		out.println("total "+channels.size()+" channels");
-		out.format(format,"#","ID","AUTOREMOVESESSION","CREATETIME");	
+		out.format(format,"#","ID","AUTOREMOVESESSION","SESSIONCOUNT","CREATETIME");	
 		for(Channel s:channels){
 			out.format(format,
 					i++,
 					cut(s.getId(),30),
 					s.isAutoRemoveDisconnectedSession(),
+					s.getSessions().size(),
 					formatDate(new Date(s.getCreateTime())));
 		};
     }
@@ -161,7 +162,10 @@ public class MessageServerCommand extends ConsoleCommand {
 		out.printf(format,"id",channel.getId());
 		out.printf(format,"autoRemoveDisconnectedSession",channel.isAutoRemoveDisconnectedSession());
 		out.printf(format,"createTime",formatDate(new Date(channel.getCreateTime())));
-		out.printf(format,"userObject",DumpUtil.dump(channel.getUserObject()));		
+		out.printf(format,"userObject",DumpUtil.dump(channel.getUserObject()));	
+		for(Session session:channel.getSessions()){
+			out.printf(format,"session",session.getId()+"#"+session.getPrincipal());
+		}
 	}
     //
     //
