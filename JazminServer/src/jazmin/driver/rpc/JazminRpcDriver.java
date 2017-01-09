@@ -77,6 +77,7 @@ public class JazminRpcDriver extends Driver{
 		methodStats=new ConcurrentHashMap<String, InvokeStat>();
 		totalInvokeCount=new LongAdder();
 		pushCallbackMethod=PushCallback.class.getMethods()[0];
+		client=new RpcClient();
 	}
 	/**
 	 * set principal of this rpc driver
@@ -407,7 +408,7 @@ public class JazminRpcDriver extends Driver{
 	 * @param topic the topic name
 	 */
 	public void subscribe(String cluster,String topic){
-		if(isInited()){
+		if(isStarted()){
 			throw new IllegalArgumentException("set before inited");
 		}
 		Set<String>topics=topicMap.get(cluster);
@@ -476,19 +477,19 @@ public class JazminRpcDriver extends Driver{
 	//--------------------------------------------------------------------------
 	@Override
 	public void init() throws Exception {
+		
+	}
+	//
+	@Override
+	public void start() throws Exception {
 		if(principal==null){
 			principal=Jazmin.getServerName();
 		}
-		client=new RpcClient();
 		client.setPrincipal(principal);
 		client.setPushMessageCallback(this::handlePushMessage);
 		serverInfoMap.forEach((cluster,serverList)->{
 			serverList.forEach(serverInfo->connectToRemoteServer(serverInfo));
 		});
-	}
-	//
-	@Override
-	public void start() throws Exception {
 		Jazmin.scheduleAtFixedRate(
 				this::checkSessionActiveStatus, 30,30, TimeUnit.SECONDS);
 		Jazmin.scheduleAtFixedRate(
