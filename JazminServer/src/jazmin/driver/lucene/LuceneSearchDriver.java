@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -24,8 +25,6 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-
-import com.chenlb.mmseg4j.analysis.ComplexAnalyzer;
 
 import jazmin.core.Driver;
 import jazmin.log.Logger;
@@ -51,7 +50,7 @@ public class LuceneSearchDriver extends Driver{
 	//--------------------------------------------------------------------------
 	@Override
 	public void init() throws Exception {
-		analyzer=new ComplexAnalyzer();
+		analyzer=new SmartChineseAnalyzer();
 	}
 	//
 	@Override
