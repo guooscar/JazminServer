@@ -3,11 +3,15 @@
  */
 package jazmin.driver.redis;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 import jazmin.core.Driver;
 import jazmin.core.Jazmin;
+import jazmin.core.thread.DispatcherCallbackAdapter;
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
 import jazmin.server.console.ConsoleServer;
 import redis.clients.jedis.JedisPoolConfig;
@@ -19,9 +23,12 @@ import redis.clients.util.Hashing;
  *
  */
 public class RedisDriver extends Driver{
+	private static Logger logger=LoggerFactory.get(RedisDriver.class);
+	//
 	ShardedJedisPool pool;
 	JedisPoolConfig config;
 	List<JedisShardInfo>shardInfos;
+	String auth;
 	public RedisDriver() {
 		config=new JedisPoolConfig();
 		shardInfos=new ArrayList<JedisShardInfo>();
@@ -29,19 +36,27 @@ public class RedisDriver extends Driver{
 		config.setMaxTotal(1024);
 		config.setTestOnBorrow(true);
 		config.setTestOnReturn(true);
+		globalStatusHolder=new ThreadLocal<>();
 	}
 	//
-	public void addShard(String host,int port){
-		shardInfos.add(new JedisShardInfo(host, port));
+	public void addShard(String host,int port,String password){
+		JedisShardInfo info= new JedisShardInfo(host, port);
+		info.setPassword(password);
+		shardInfos.add(info);
 	}
 	//
-	public void addShard(String host,int port,String name){
-		shardInfos.add(new JedisShardInfo(host, port,name));
+	public void addShard(String host,int port,String name,String password){
+		JedisShardInfo info= new JedisShardInfo(host, port,name);
+		info.setPassword(password);
+		shardInfos.add(info);
 	}
 	//
-	public void addShard(String host,int port,int timeout){
-		shardInfos.add(new JedisShardInfo(host, port,timeout));
+	public void addShard(String host,int port,int timeout,boolean ssl,String password){
+		JedisShardInfo info= new JedisShardInfo(host, port,timeout,ssl);
+		info.setPassword(password);
+		shardInfos.add(info);
 	}
+	
 	//
 	/**
 	 * @return
@@ -171,16 +186,51 @@ public class RedisDriver extends Driver{
 		config.setTestWhileIdle(testWhileIdle);
 	}
 	//--------------------------------------------------------------------------
-	
+	private ThreadLocal<RedisConnection>globalStatusHolder;
+	//
 	public RedisConnection getConnection(){
-		RedisConnection conn=new RedisConnection();
-		conn.jedis=pool.getResource();
-		return conn;
+		RedisConnection threadConn=globalStatusHolder.get();
+		if(threadConn==null){
+			threadConn=new RedisConnection();
+			threadConn.jedis=pool.getResource();
+			globalStatusHolder.set(threadConn);
+		}
+		return threadConn;
+	}
+	//
+	private String closeThreadLoacalConnection(){
+		RedisConnection threadConn=globalStatusHolder.get();
+		if(threadConn==null){
+			return "null";
+		}
+		threadConn.jedis.close();
+		return threadConn.getName();
 	}
 	//--------------------------------------------------------------------------
+	
+	static class AutoTranscationCallback extends DispatcherCallbackAdapter{
+		RedisDriver connectionDriver;
+		public AutoTranscationCallback(RedisDriver cd) {
+			this.connectionDriver=cd;
+		}
+		//
+		@Override
+		public void end(Object instance, Method method, Object[] args,
+				Object ret, Throwable e) {
+			if(logger.isDebugEnabled()){
+				logger.debug("Close redis on method:{}",
+						method.getDeclaringClass().getSimpleName()+"."+method.getName());
+			}
+			connectionDriver.closeThreadLoacalConnection();
+		}
+	}
+
 	//
 	@Override
 	public void init() throws Exception {
+		AutoTranscationCallback ac=new AutoTranscationCallback(this);
+		Jazmin.dispatcher.addGlobalDispatcherCallback(ac);
+		//
 		pool=new ShardedJedisPool(config, shardInfos,Hashing.MURMUR_HASH);
 		//
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
