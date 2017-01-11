@@ -23,60 +23,43 @@
  */
 package jazmin.server.msg.codec.json;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
-import io.netty.channel.ChannelHandler.Sharable;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToByteEncoder;
-
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 
+import com.alibaba.fastjson.JSON;
+
+import io.netty.channel.ChannelHandler.Sharable;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.io.NetworkTrafficStat;
+import jazmin.server.msg.codec.BinaryEncoder;
 import jazmin.server.msg.codec.ResponseMessage;
 import jazmin.util.DumpUtil;
-
-import com.alibaba.fastjson.JSON;
 /**
  * 
  * @author yama
  * 26 Dec, 2014
  */
 @Sharable
-public class JSONEncoder extends MessageToByteEncoder<ResponseMessage> {
+public class JSONEncoder extends BinaryEncoder {
 	private static Logger logger=LoggerFactory.get(JSONEncoder.class);
     private Charset charset;
     NetworkTrafficStat networkTrafficStat;
 	public JSONEncoder(NetworkTrafficStat networkTrafficStat) {
+		super(networkTrafficStat);
 		charset=Charset.forName("UTF-8");
-		this.networkTrafficStat=networkTrafficStat;
 	}
 	//
-    @Override
-    protected void encode(ChannelHandlerContext ctx, ResponseMessage msg, ByteBuf out) 
-    		throws Exception {
-    	//send raw data
+	@Override
+	protected byte[] encode(ResponseMessage msg) throws Exception {
+		//send raw data
     	if(msg.rawData!=null){
-			out.writeBytes(msg.rawData);
-			return;
+			return msg.rawData;
 		}
-    	//
-    	ResponseProto bean=new ResponseProto();
-    	bean.d=(System.currentTimeMillis());
-    	bean.ri=(msg.requestId);
-    	bean.rsp=(msg.responseMessages);
-    	bean.si=(msg.serviceId);
-    	bean.sc=(msg.statusCode);
-    	bean.sm=(msg.statusMessage);
-    	String json=JSON.toJSONString(bean)+"\n";
+    	String json=JSON.toJSONString(msg.responseMessages)+"\n";
     	if(logger.isDebugEnabled()){
     		logger.debug("\nencode message--------------------------------------\n"
 						+DumpUtil.formatJSON(json));
     	}
-    	ByteBuf result=ByteBufUtil.encodeString(ctx.alloc(), CharBuffer.wrap(json), charset);
-        out.writeBytes(result);
-        networkTrafficStat.outBound(json.getBytes().length);
-    }
+		return json.getBytes(charset);
+	}
 }

@@ -80,6 +80,7 @@ public class MessageServer extends Server{
 	//
 	ServerBootstrap tcpNettyServer;
 	ServerBootstrap webSocketNettyServer;
+	ServerBootstrap udpNettyServer;
 	EventLoopGroup bossGroup;
 	EventLoopGroup workerGroup;
 	ChannelInitializer<SocketChannel> channelInitializer;
@@ -383,6 +384,20 @@ public class MessageServer extends Server{
 		tcpNettyServer=new ServerBootstrap();
 		channelInitializer=new MessageServerChannelInitializer();
 		tcpNettyServer.group(bossGroup, workerGroup)
+		.channel(NioServerSocketChannel.class)
+		.option(ChannelOption.SO_BACKLOG, 128)    
+		.option(ChannelOption.SO_REUSEADDR, true)    
+		.option(ChannelOption.SO_RCVBUF, 1024*256)   
+		.option(ChannelOption.SO_SNDBUF, 1024*256)  
+		.childOption(ChannelOption.TCP_NODELAY, true)
+        .childOption(ChannelOption.SO_KEEPALIVE, true) 
+		.childHandler(channelInitializer);
+	}
+	//
+	private void initUdpNettyServer(){
+		udpNettyServer=new ServerBootstrap();
+		channelInitializer=new MessageServerChannelInitializer();
+		udpNettyServer.group(bossGroup, workerGroup)
 		.channel(NioServerSocketChannel.class)
 		.option(ChannelOption.SO_BACKLOG, 128)    
 		.option(ChannelOption.SO_REUSEADDR, true)    
@@ -779,7 +794,7 @@ public class MessageServer extends Server{
 	//
 	private void setPrincipal0(Session session,String principal,String userAgent){
 		if(principal==null){
-			throw new IllegalArgumentException("principal can not be null.");
+			throw new IllegalArgumentException("principal can not be null");
 		}
 		if(session.principal!=null){
 			throw new IllegalStateException("principal already set to:"+
