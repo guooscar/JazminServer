@@ -21,6 +21,7 @@ public class RequestMessage {
 	public boolean isBadRequest;
 	/**
 	 */
+	public int messageType;
 	public int requestId;//requestId
 	public String serviceId;//serviceId
 	public String[]requestParameters;

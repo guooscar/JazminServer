@@ -12,7 +12,7 @@ import jazmin.server.msg.Context;
 public class TestService {
 	
 	public void testMethod(Context c,String s1,Integer s2){
-		c.put("ccc",1111);
+		c.setResponse(1111);
 	}
 
 }

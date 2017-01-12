@@ -15,10 +15,9 @@ import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.io.IOWorker;
 import jazmin.misc.io.NetworkTrafficStat;
+import jazmin.server.msg.codec.BinaryEncoder;
 import jazmin.server.msg.codec.RequestMessage;
 import jazmin.server.msg.codec.ResponseMessage;
-import jazmin.server.msg.codec.zjson.ZJSONDecoder;
-import jazmin.server.msg.codec.zjson.ZJSONEncoder;
 import jazmin.util.DumpUtil;
 
 /**
@@ -47,8 +46,8 @@ public class MessageClient {
 			@Override
 			public void initChannel(SocketChannel sc) throws Exception {
 				sc.pipeline().addLast(
-							new ZJSONEncoder(networkTrafficStat), 
-							new ZJSONDecoder(networkTrafficStat),
+							new BinaryEncoder(networkTrafficStat), 
+							new BinaryEncoder(networkTrafficStat),
 							clientHandler);
 				
 			}

@@ -1,15 +1,15 @@
 package jazmin.server.msg.codec;
 
-import jazmin.log.Logger;
-import jazmin.log.LoggerFactory;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
 /**
  * 
  * @author yama
- * 26 Dec, 2014
+ *
  */
 public class JSONRequestParser {
 	//

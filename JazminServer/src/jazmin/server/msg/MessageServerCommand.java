@@ -100,9 +100,10 @@ public class MessageServerCommand extends ConsoleCommand {
     //
     private void showSessions(String args){
     	TablePrinter tp=TablePrinter.create(out)
-    			.length(10,20,10,15,10,10,10,10,15,15,10)
+    			.length(10,32,6,10,15,10,10,10,10,15,15,10)
     			.headers("ID",
     					"PRINCIPAL",
+    					"MSGTYP",
     					"USERAGENT",
     					"HOST",
     					"PORT",
@@ -124,6 +125,7 @@ public class MessageServerCommand extends ConsoleCommand {
 			tp.print(
 					s.getId(),
 					s.getPrincipal(),
+					s.getMessageType(),
 					s.getUserAgent(),
 					s.getRemoteHostAddress(),
 					s.getRemotePort(),
@@ -146,7 +148,7 @@ public class MessageServerCommand extends ConsoleCommand {
 		for(Channel s:channels){
 			out.format(format,
 					i++,
-					cut(s.getId(),30),
+					cut(s.getId(),64),
 					s.isAutoRemoveDisconnectedSession(),
 					s.getSessions().size(),
 					formatDate(new Date(s.getCreateTime())));

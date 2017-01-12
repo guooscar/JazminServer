@@ -18,9 +18,6 @@
 */
 package jazmin.server.msg;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.msg.codec.RequestMessage;
@@ -39,7 +36,7 @@ public class Context {
 	private boolean isDisableResponse;
 	private boolean isContinuation;
 	private Session session;
-	private Map<String,Object>responseMap;
+	private Object responseObject;
 	private byte rawData[];
 	private RequestMessage requestMessage;
 	private MessageServer messageServer;
@@ -55,7 +52,6 @@ public class Context {
 		this.isDisableResponse=isDisableResponse;
 		this.isContinuation=isContinuation;
 		isFlush=false;
-		responseMap=new HashMap<String, Object>(4);
 	}
 	//--------------------------------------------------------------------------
 	//public interface
@@ -80,8 +76,8 @@ public class Context {
 	/**
 	 * put object to client side.
 	 */
-	public void put(String key,Object v){
-		responseMap.put(key, v);
+	public void setResponse(Object rsp){
+		responseObject=rsp;
 	}
 	/**
 	 * put raw byte date to client side
@@ -102,7 +98,7 @@ public class Context {
 			//write response
 			ResponseMessage rspMessage=new ResponseMessage();
 			rspMessage.requestId=requestMessage.requestId;
-			rspMessage.responseMessages=responseMap;
+			rspMessage.responseObject=responseObject;
 			rspMessage.serviceId=requestMessage.serviceId;
 			if(rawData!=null){
 				//if raw data is not null.change payload data type to raw
