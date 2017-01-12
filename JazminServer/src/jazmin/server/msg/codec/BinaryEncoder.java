@@ -128,9 +128,11 @@ public class BinaryEncoder extends MessageToByteEncoder<ResponseMessage> {
 	protected static byte[] encodeJson(ResponseMessage msg) throws Exception {
 		String json=JSON.toJSONString(msg.responseObject)+"\n";
     	if(logger.isDebugEnabled()){
-    		logger.debug("\nencode message {} {}---------------------\n{}",
+    		logger.debug("\nencode message #{}-{} [{}-{}]-------------\n{}",
 						msg.requestId,
 						msg.serviceId,
+						msg.statusCode,
+						msg.statusMessage,
     					DumpUtil.formatJSON(json));
     	}
 		return json.getBytes(charset);

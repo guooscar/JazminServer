@@ -76,7 +76,7 @@ public class Context {
 	/**
 	 * put object to client side.
 	 */
-	public void setResponse(Object rsp){
+	public void ret(Object rsp){
 		responseObject=rsp;
 	}
 	/**

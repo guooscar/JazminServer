@@ -90,7 +90,9 @@ public class MessageServer extends Server{
 	int maxSessionCount;
 	int maxChannelCount;
 	int maxSessionRequestCountPerSecond;
-
+	//
+	KcpChannelManager kcpChannelManager;
+	//
 	NetworkTrafficStat networkTrafficStat;
 	//
 	Map<String,ServiceStub>serviceMap;
@@ -383,7 +385,8 @@ public class MessageServer extends Server{
 	}
 	//
 	private void initUdpNettyServer(){
-		kcpUdpHandler=new KcpUdpHandler(this);
+		kcpChannelManager=new KcpChannelManager(this);
+		kcpUdpHandler=new KcpUdpHandler(kcpChannelManager);
 		udpNettyServer=new Bootstrap();
 		udpNettyServer.group(workerGroup)
 		.channel(NioDatagramChannel.class).handler(kcpUdpHandler);
@@ -886,6 +889,9 @@ public class MessageServer extends Server{
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
 			cs.registerCommand( MessageServerCommand.class);
+			if(kcpChannelManager!=null){
+				cs.registerCommand(KcpChannelCommand.class);
+			}
 		}
 	}
 	//

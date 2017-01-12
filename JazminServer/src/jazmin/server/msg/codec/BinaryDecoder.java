@@ -130,7 +130,7 @@ public class BinaryDecoder extends ByteToMessageDecoder {
 		JSONArray array=JSON.parseArray(s);
 		if (logger.isDebugEnabled()) {
 			logger.debug(
-					"\ndecode message #{} {} \n{} ",
+					"\ndecode message #{}-{} \n{} ",
 					msg.requestId,
 					msg.serviceId,
 					DumpUtil.formatJSON(s));

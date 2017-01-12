@@ -17,16 +17,16 @@ import jazmin.log.LoggerFactory;
  */
 public class KcpUdpHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 	private static Logger logger=LoggerFactory.get(KcpUdpHandler.class);
-	NettyKcpChannelManager kcpSessionManager;
+	KcpChannelManager kcpChannelManager;
 	
-	public KcpUdpHandler(MessageServer messageServer) {
-		kcpSessionManager=new NettyKcpChannelManager(messageServer);
+	public KcpUdpHandler(KcpChannelManager kcpChannelManager) {
+		this.kcpChannelManager=kcpChannelManager;
 	}
 	//
 	@Override
 	protected void messageReceived(ChannelHandlerContext ctx,
 			DatagramPacket pkg) throws Exception {
-		kcpSessionManager.receiveDatagramPacket(ctx.channel(),pkg);
+		kcpChannelManager.receiveDatagramPacket(ctx.channel(),pkg);
 	}
 	//
 	@Override
@@ -37,16 +37,6 @@ public class KcpUdpHandler extends SimpleChannelInboundHandler<DatagramPacket> {
     	}else{
     		logger.error("exception on channal:"+ctx.channel(),cause);	
     	}
-	}
-	//
-	@Override
-	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		logger.info("channel active :"+ctx.channel());
-	}
-	//
-	@Override
-	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		logger.info("channel inactive :"+ctx.channel());
 	}
 }
 
