@@ -33,6 +33,7 @@ JazminServer is a Java based application/message/rpc/sip/rtmp/udp relay server.
   * Oneway service
   * Invoke frequency restrict
   * AMF/json/zjson message format
+  * udp(kcp)/tcp/websocket
 * WebServer
   * Jetty based webserver
   * Simple MVC framework
@@ -104,6 +105,7 @@ JazminServer帮助开发者实现了众多的底层功能，基于JazminServer�
 	* Oneway service 无响应消息
 	* Invoke frequency restrict 调用频率限制
 	* AMF/json/zjson message format 支持AMF、JSON、ZJSON等多种消息格式
+	* udp(kcp)/tcp/websocket 支持udp模式(使用kcp保证可靠传输),tcp,websocket 连接
 * WebSocketMessageServer
 	* WebSocket message service 提供基于WebSocket的消息服务 	
 * WebServer
