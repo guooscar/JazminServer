@@ -10,7 +10,7 @@ import jazmin.util.DumpUtil;
 public class MemoryCacheDriverCommand extends ConsoleCommand {
     private MemoryCacheDriver driver;
 	public MemoryCacheDriverCommand() {
-    	super();
+    	super(true);
     	id="mcache";
     	desc="mcache driver ctrl command";
     	addOption("i",false,"show server information.",this::showDriverInfo);

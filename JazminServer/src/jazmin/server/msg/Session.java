@@ -30,10 +30,11 @@ public class Session {
 	//
 	String connectionType;
 	int id;
+	int messageType;
 	String principal;
 	String userAgent;
 	Object userObject;
-	io.netty.channel.Channel channel;
+	NetworkChannel channel;
 	long lastAccessTime;
 	String remoteHostAddress;
 	int remotePort;
@@ -46,7 +47,7 @@ public class Session {
 	RateLimiter rateLimiter;
 	private AtomicBoolean processSyncServiceState;
 	//
-	Session(io.netty.channel.Channel channel) {
+	Session(NetworkChannel channel) {
 		setChannel(channel);
 		lastAccess();
 		sentMessageCount=0;
@@ -160,7 +161,7 @@ public class Session {
 		ResponseMessage rsm=new ResponseMessage();
 		rsm.requestId=0;
 		rsm.serviceId=serviceId;
-		rsm.responseMessages.put("payload",payload);
+		rsm.responseObject=payload;
 		sendMessage(rsm);
 	}
 	//
@@ -192,11 +193,7 @@ public class Session {
 		}
 		sendError(null,ResponseMessage.SC_KICKED, message);
 		if(channel!=null){
-			try {
-				channel.close().sync();
-			} catch (InterruptedException e) {
-				logger.catching(e);
-			}	
+			channel.close();	
 		}
 	}
 	
@@ -255,12 +252,12 @@ public class Session {
 	}
 	//
 	/**/
-	void setChannel(io.netty.channel.Channel channel){
+	void setChannel(NetworkChannel channel){
 		this.channel=channel;
 		remoteHostAddress=null;
 		remotePort=0;
 		if(channel!=null){
-			SocketAddress remoteAddr=channel.remoteAddress();
+			SocketAddress remoteAddr=channel.getRemoteAddress();
 			if(remoteAddr!=null){
 				InetSocketAddress addr=(InetSocketAddress) remoteAddr;
 				InetAddress ad=addr.getAddress();
@@ -280,6 +277,14 @@ public class Session {
 		requestId=message.requestId;
 		lastAccess();
 	}
+	
+	/**
+	 * @return the messageType
+	 */
+	public int getMessageType() {
+		return messageType;
+	}
+
 	/*
 	 * @return the requestId
 	 */
@@ -298,6 +303,7 @@ public class Session {
 		rsp.requestId=(message==null)?0:message.requestId;
 		rsp.statusCode=code;
 		rsp.statusMessage=msg;
+		rsp.serviceId="jazmin.error";
 		sendMessage(rsp);
 	}
 	//
@@ -305,6 +311,10 @@ public class Session {
 		lastAccess();
 		if(channel!=null){
 			sentMessageCount++;
+			responseMessage.messageType=messageType;
+			if(responseMessage.responseObject==null){
+				responseMessage.responseObject=ResponseMessage.emptyHashMap;
+			}
 			channel.writeAndFlush(responseMessage);
 		}
 	}

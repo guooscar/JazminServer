@@ -11,7 +11,7 @@ import jazmin.util.IOUtil;
  */
 public class UniqCommand extends ConsoleCommand {
 	public UniqCommand() {
-		super();
+		super(false);
 		id = "uniq";
 		desc = "filter out repeated lines";
 	}
@@ -19,6 +19,7 @@ public class UniqCommand extends ConsoleCommand {
 	@Override
 	protected void run() throws Exception {
 		if(!isPiped()){
+			printHelp();
 			return;
 		}
 		List<String>inputLines=IOUtil.getContentList(inStream);

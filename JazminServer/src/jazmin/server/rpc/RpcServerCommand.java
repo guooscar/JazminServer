@@ -21,7 +21,7 @@ import jazmin.util.DumpUtil;
 public class RpcServerCommand extends ConsoleCommand {
     private RpcServer rpcServer;
 	public RpcServerCommand() {
-    	super();
+    	super(true);
     	id="rpcsrv";
     	desc="rpc server ctrl command";
     	addOption("i",false,"show server information.",this::showServerInfo);
@@ -63,7 +63,7 @@ public class RpcServerCommand extends ConsoleCommand {
     //
     private void showDashboard(String args)throws Exception{
     	TerminalWriter tw=new TerminalWriter(out);
-    	AsciiChart chart=new AsciiChart(200,80);
+    	AsciiChart chart=new AsciiChart(240,80);
     	lastInvokeCount=Jazmin.dispatcher.getTotalInvokeCount();
     	lastSubmitCount=Jazmin.dispatcher.getTotalSubmitCount();
     	maxInvokeTps=0;
@@ -193,7 +193,7 @@ public class RpcServerCommand extends ConsoleCommand {
     }
     //
     private void showSessions(int maxCount){
-		String format="%-5s:%-30s %-15s %-10s %-10s %-10s %-10s %-10s %-15s %-10s\n";
+		String format="%-5s:%-20s %-15s %-10s %-10s %-10s %-10s %-10s %-15s %-10s\n";
 		int i=1;
 		List<RpcSession> sessions=rpcServer.getSessions();
 		out.println("total "+sessions.size()+" sessions");

@@ -21,7 +21,7 @@ import org.jboss.netty.channel.group.ChannelGroup;
 public class RtmpServerCommand extends ConsoleCommand {
     private RtmpServer server;
 	public RtmpServerCommand() {
-    	super();
+    	super(true);
     	id="rtmpsrv";
     	desc="rtmp server ctrl command";
     	addOption("i",false,"show server information.",this::showServerInfo);

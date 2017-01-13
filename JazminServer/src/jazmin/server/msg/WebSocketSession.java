@@ -3,15 +3,14 @@
  */
 package jazmin.server.msg;
 
-import io.netty.channel.Channel;
+import com.alibaba.fastjson.JSON;
+
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.msg.codec.ResponseMessage;
-import jazmin.server.msg.codec.json.ResponseProto;
+import jazmin.server.msg.codec.ResponseProto;
 import jazmin.util.DumpUtil;
-
-import com.alibaba.fastjson.JSON;
 
 /**
  * @author yama
@@ -20,7 +19,7 @@ import com.alibaba.fastjson.JSON;
 public class WebSocketSession extends Session{
 	private static Logger logger=LoggerFactory.get(WebSocketSession.class);
 	MessageServer messageServer;
-	WebSocketSession(Channel channel,MessageServer messageServer) {
+	WebSocketSession(NetworkChannel channel,MessageServer messageServer) {
 		super(channel);
 		this.messageServer=messageServer;
 		connectionType="ws";
@@ -40,7 +39,7 @@ public class WebSocketSession extends Session{
     	ResponseProto bean=new ResponseProto();
     	bean.d=(System.currentTimeMillis());
     	bean.ri=(msg.requestId);
-    	bean.rsp=(msg.responseMessages);
+    	bean.rsp=(msg.responseObject);
     	bean.si=(msg.serviceId);
     	bean.sc=(msg.statusCode);
     	bean.sm=(msg.statusMessage);

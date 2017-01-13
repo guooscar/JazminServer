@@ -8,9 +8,9 @@ import jazmin.server.console.ConsoleServer;
  */
 public class ManCommand extends ConsoleCommand {
     public ManCommand() {
-    	super();
+    	super(false);
     	id="man";
-    	desc="format and display the manual pages.";
+    	desc="format and display the manual pages";
     }
     //
     @Override

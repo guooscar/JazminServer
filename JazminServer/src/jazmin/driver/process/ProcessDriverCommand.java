@@ -12,7 +12,7 @@ import jazmin.util.DumpUtil;
 public class ProcessDriverCommand extends ConsoleCommand {
     private ProcessDriver driver;
 	public ProcessDriverCommand() {
-    	super();
+    	super(true);
     	id="process";
     	desc="process driver ctrl command";
     	addOption("i",false,"show driver information.",this::showDriverInfo);

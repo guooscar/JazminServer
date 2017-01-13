@@ -10,7 +10,7 @@ import jazmin.util.DumpUtil;
 public class RedisDriverCommand extends ConsoleCommand {
     private RedisDriver driver;
 	public RedisDriverCommand() {
-    	super();
+    	super(true);
     	id="redis";
     	desc="redis driver ctrl command";
     	addOption("i",false,"show server information.",this::showDriverInfo);

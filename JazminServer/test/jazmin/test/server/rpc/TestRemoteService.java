@@ -15,6 +15,7 @@ import jazmin.util.RandomUtil;
 public interface TestRemoteService {
 	String methodA(String input);
 	void timeoutMethod(long sleep);
+	String echo(String input);
 	public static class TestRemoteServiceImpl implements TestRemoteService{
 			static StringBuilder sb=new StringBuilder();
 			static String s=null;
@@ -28,6 +29,11 @@ public interface TestRemoteService {
 			@Override
 			public String methodA(String input) {
 				throw new IllegalFormatCodePointException(1);
+			}
+			//
+			@Override
+			public String echo(String input) {
+				return "echo:"+input;
 			}
 			//
 			@Override

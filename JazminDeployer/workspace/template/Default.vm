@@ -76,7 +76,7 @@ jazmin.addDriver(rpcDriver);
 #if($app.type=="mysql")
 //mysql
 #foreach($dependsInstance in $instances)
-#if ($dependsInstance.appId == $app.id )
+#if ($dependsInstance.appId == $app.id && $dependsInstance.cluster==$instance.cluster)
 var db=new C3p0ConnectionDriver();
 db.setMaxPoolSize(128);
 db.setUser('$dependsInstance.user');
@@ -85,6 +85,22 @@ db.setPassword('$dependsInstance.password');
 db.setUrl("jdbc:mysql://$dependsInstance.machine.privateHost:$dependsInstance.port/$dependsInstance.id?useUnicode=true&characterEncoding=$encoding");
 db.setDriverClass("com.mysql.jdbc.Driver");
 jazmin.addDriver(db);
+#end
+#end
+#end
+
+
+#if($app.type=="influxdb")
+//influxdb
+#foreach($dependsInstance in $instances)
+#if ($dependsInstance.appId == $app.id && $dependsInstance.cluster==$instance.cluster)
+var influxdb=new InfluxdbDriver();
+influxdb.setHost('$dependsInstance.machine.privateHost');
+influxdb.setPort($dependsInstance.port);
+influxdb.setUser('$dependsInstance.user');
+influxdb.setPassword('$dependsInstance.password');
+influxdb.setDatabase('$dependsInstance.id');
+jazmin.addDriver(influxdb);
 #end
 #end
 #end
@@ -146,6 +162,7 @@ maxconn 4096
 daemon 
 nbproc 1 
 pidfile /home/appadmin/haproxy/haproxy.pid
+tune.ssl.default-dh-param 2048
 
 defaults
 log     global
@@ -237,13 +254,13 @@ use_backend server_$app.id if is_$k$app.id
 #set ($app = $applicationMap.get($i))
 #if($app.type=="jazmin-web")
 backend server_$app.id
-mode http #http
+mode http #http 模式
 balance roundrobin
 cookie         SERVER_ID insert
 option  httpclose
 rspadd Access-Control-Allow-Origin:\ *
 #foreach($dependsInstance in $instances)
-#if ($dependsInstance.appId == $app.id)
+#if ($dependsInstance.appId == $app.id && $dependsInstance.cluster==$instance.cluster )
 server $dependsInstance.id $dependsInstance.machine.privateHost:$dependsInstance.port cookie $dependsInstance.id
 #end
 #end

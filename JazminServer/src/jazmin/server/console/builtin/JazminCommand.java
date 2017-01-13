@@ -29,7 +29,7 @@ import jazmin.util.DumpUtil;
  */
 public class JazminCommand extends ConsoleCommand {
     public JazminCommand() {
-    	super();
+    	super(true);
     	id="jazmin";
     	desc="jazmin server ctrl command";
     	addOption("i",false,"show server information.",this::showServerInfo);
@@ -100,7 +100,7 @@ public class JazminCommand extends ConsoleCommand {
     //
     private void showJobs(String args)throws Exception{
     	TablePrinter tp=TablePrinter.create(out).
-    			length(40,20,15,15,10).
+    			length(50,20,15,15,10).
     			headers("NAME","CRON","LAST RUN","NEXT RUN","RUNTIMES");  	
     	List<JazminJob>jobs=Jazmin.jobStore.getJobs();
 		for(JazminJob job:jobs){
@@ -114,7 +114,7 @@ public class JazminCommand extends ConsoleCommand {
     //
     private void showTasks(String args){
     	TablePrinter tp=TablePrinter.create(out).
-    			length(40,10,20,15,15,10).
+    			length(50,10,20,15,15,10).
     			headers("NAME","INPOOL","INITDELAY","PERIOD","UNIT","RUNTIMES");  	
     	List<JazminTask>tasks=Jazmin.taskStore.getTasks();
 		for(JazminTask task:tasks){
@@ -203,7 +203,7 @@ public class JazminCommand extends ConsoleCommand {
     //
     private void showThreadPoolStats(String args){
     	TablePrinter tp=TablePrinter.create(out).
-    			length(30,10,10,10,10,10,10,10,10).
+    			length(50,10,10,10,10,10,10,10,10).
     			headers("NAME","IVC","ERR","MINT-F","MAXT-F","AVGT-F","MINT-R","MAXT-R","AVGT-R");  	
     	List<InvokeStat>stats=Jazmin.dispatcher.getInvokeStats();
 		Collections.sort(stats);
@@ -273,7 +273,7 @@ public class JazminCommand extends ConsoleCommand {
     		return;
     	}
     	TablePrinter tp=TablePrinter.create(out).
-    	length(30,10,10,10,10,10,10,10,10).
+    	length(50,10,10,10,10,10,10,10,10).
     	headers("NAME","IVC","ERR","MINT-F","MAXT-F","AVGT-F","MINT-R","MAXT-R","AVGT-R");  	
     	TerminalWriter tw=new TerminalWriter(out);
     	AsciiChart chart=new AsciiChart(200,80);

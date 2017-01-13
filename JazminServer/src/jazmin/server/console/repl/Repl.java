@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import jazmin.core.Jazmin;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.console.ConsoleServer;
@@ -138,15 +137,17 @@ public class Repl {
     		ConsoleServer consoleServer,
     		Map<String, ConsoleCommand> commands, 
     		ReadLineEnvironment environment, 
-    		String line,
+    		String cmdline,
     		InputStream stdin,
     		InputStream in,
     		OutputStream out,
     		OutputStream err){
     	 //
+    	String line=cmdline.trim();
         String[] args = line.split(" ");
         //
         ConsoleCommand command=getCommand(consoleServer,args[0].trim(), commands);
+        
         if(command==null){
         	return false;
         }
@@ -154,17 +155,21 @@ public class Repl {
         System.arraycopy(args, 1, realArgs, 0, realArgs.length);
         
         //run command in new thread
-        Jazmin.execute(()->{
-        	command.run(stdin, in, out, err, environment, line, realArgs);
-        	// last command execute finished
-			if (out instanceof TerminalOutputStream) {
-				synchronized (command) {
-					command.setFinished(true);
-					command.notifyAll();
+        Thread commandThread=new Thread(new Runnable() {
+			@Override
+			public void run() {
+				command.run(stdin, in, out, err, environment, line, realArgs);
+	        	// last command execute finished
+				if (out instanceof TerminalOutputStream) {
+					synchronized (command) {
+						command.setFinished(true);
+						command.notifyAll();
+					}
 				}
 			}
-
-        });
+		});
+        commandThread.setName("JazminCommand-"+line);
+        commandThread.start();
         //wait for last command
         if(out instanceof TerminalOutputStream){
         	try {

@@ -7,14 +7,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
-import jazmin.server.console.ConsoleServer;
-import jazmin.server.console.builtin.ConsoleCommand;
-
 import org.apache.sshd.common.Factory;
-import org.apache.sshd.common.PtyMode;
+import org.apache.sshd.common.channel.PtyMode;
 import org.apache.sshd.server.Command;
 import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.ExitCallback;
+
+import jazmin.server.console.ConsoleServer;
+import jazmin.server.console.builtin.ConsoleCommand;
 
 /**
  * @author <a href="mailto:trygvis@java.no">Trygve Laugst&oslash;l</a>

@@ -10,7 +10,7 @@ import java.io.InputStreamReader;
  */
 public class WcCommand extends ConsoleCommand {
 	public WcCommand() {
-		super();
+		super(true);
 		id = "wc";
 		desc = "line count";
 	}
@@ -18,6 +18,7 @@ public class WcCommand extends ConsoleCommand {
 	@Override
 	protected void run() throws Exception {
 		if(!isPiped()){
+			printHelp();
 			return;
 		}
 		BufferedReader br = new BufferedReader(new InputStreamReader(inStream));

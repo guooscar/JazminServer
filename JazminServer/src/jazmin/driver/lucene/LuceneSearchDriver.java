@@ -7,12 +7,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import jazmin.core.Driver;
-import jazmin.log.Logger;
-import jazmin.log.LoggerFactory;
-import jazmin.misc.InfoBuilder;
-
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -29,9 +25,11 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
 
-import com.chenlb.mmseg4j.analysis.ComplexAnalyzer;
+import jazmin.core.Driver;
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
+import jazmin.misc.InfoBuilder;
 
 /**
  * @author yama 21 Jan, 2015
@@ -52,7 +50,7 @@ public class LuceneSearchDriver extends Driver{
 	//--------------------------------------------------------------------------
 	@Override
 	public void init() throws Exception {
-		analyzer=new ComplexAnalyzer();
+		analyzer=new SmartChineseAnalyzer();
 	}
 	//
 	@Override
@@ -67,9 +65,9 @@ public class LuceneSearchDriver extends Driver{
 	//
 	public void indexDocuments(List<SearchDocument>docs) throws SearchException {
 		try{
-			Directory dir = FSDirectory.open(new File(indexPath));
+			Directory dir = FSDirectory.open(new File(indexPath).toPath());
 			// :Post-Release-Update-Version.LUCENE_XY:
-			IndexWriterConfig iwc = new IndexWriterConfig(Version.LATEST,analyzer);
+			IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
 			iwc.setOpenMode(OpenMode.CREATE_OR_APPEND);
 			IndexWriter writer = new IndexWriter(dir, iwc);
 			for(SearchDocument doc:docs){
@@ -89,9 +87,9 @@ public class LuceneSearchDriver extends Driver{
 	//
 	public void deleteDocument(String key,String id) throws SearchException {
 		try{
-			Directory dir = FSDirectory.open(new File(indexPath));
+			Directory dir = FSDirectory.open(new File(indexPath).toPath());
 			// :Post-Release-Update-Version.LUCENE_XY:
-			IndexWriterConfig iwc = new IndexWriterConfig(Version.LATEST,analyzer);
+			IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
 			iwc.setOpenMode(OpenMode.CREATE_OR_APPEND);
 			IndexWriter writer = new IndexWriter(dir, iwc);
 			writer.deleteDocuments(new Term(key,id));
@@ -118,7 +116,7 @@ public class LuceneSearchDriver extends Driver{
 		if(reader!=null){
 			reader.close();
 		}
-		reader = DirectoryReader.open(FSDirectory.open(new File(indexPath)));
+		reader = DirectoryReader.open(FSDirectory.open(new File(indexPath).toPath()));
 	}
 	//
 	public List<SearchDocument> searchDocuments(String key[],String query,int number) 
@@ -126,7 +124,7 @@ public class LuceneSearchDriver extends Driver{
 		try{
 			initReader();
 			IndexSearcher searcher = new IndexSearcher(reader);
-			TopScoreDocCollector collector = TopScoreDocCollector.create(number, true);
+			TopScoreDocCollector collector = TopScoreDocCollector.create(number);
 			MultiFieldQueryParser mqp=new MultiFieldQueryParser(key, analyzer);
 			Query q = mqp.parse(query);
 			searcher.search(q, collector);

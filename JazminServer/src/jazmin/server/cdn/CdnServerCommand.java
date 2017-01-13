@@ -16,7 +16,7 @@ public class CdnServerCommand extends ConsoleCommand {
 	private CdnServer server;
 
 	public CdnServerCommand() {
-		super();
+		super(true);
 		id = "cdnsrv";
 		desc = "cdn server ctrl command";
 		addOption("i", false, "show server information.", this::showServerInfo);

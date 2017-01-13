@@ -474,7 +474,14 @@ public class Jazmin {
 		//start application first ,because if server port binded ,user will access
 		//service but application not registered 
 		if(application!=null){
+			Lifecycle appLc=application;
+			if(appLc.lifecycleListener!=null){
+				appLc.lifecycleListener.beforeStart(appLc);
+			}
 			application.start();
+			if(appLc.lifecycleListener!=null){
+				appLc.lifecycleListener.afterStart(appLc);
+			}
 		}
 		for(Lifecycle lc:lifecycles){
 			if(lc==application){

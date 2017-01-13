@@ -4,6 +4,7 @@ import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 import static io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -148,7 +149,9 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 	//
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		WebSocketSession session = new WebSocketSession(ctx.channel(),messageServer);
+		WebSocketSession session = new WebSocketSession(
+				new NettyNetworkChannel(ctx.channel()),
+				messageServer);
 		ctx.channel().attr(SESSION_KEY).set(session);
 		messageServer.sessionCreated(session);
 	}

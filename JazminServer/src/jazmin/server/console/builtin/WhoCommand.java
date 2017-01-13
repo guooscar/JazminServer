@@ -8,7 +8,7 @@ import jazmin.server.console.ConsoleServer;
  */
 public class WhoCommand extends ConsoleCommand {
    public WhoCommand() {
-    	super();
+    	super(true);
     	id="who";
     	desc="show all login users.";
     }

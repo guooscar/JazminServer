@@ -141,12 +141,20 @@ public class Request {
 	public String contentType() {
 		return servletRequest.getContentType();
 	}
-
+	
 	/**
 	 * @return the client's IP address
 	 */
 	public String ip() {
-		return servletRequest.getRemoteAddr();
+		String ret = null;
+		ret = servletRequest.getHeader("X-Forwarded-For");
+		if (ret == null || ret.trim().isEmpty()) {
+			ret = servletRequest.getHeader("HTTP_X_FORWARDED_FOR");
+		}
+		if (ret == null || ret.trim().isEmpty()) {
+			ret = servletRequest.getRemoteAddr();
+		}
+		return ret;
 	}
 
 	/**

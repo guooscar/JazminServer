@@ -18,18 +18,6 @@
 */
 package jazmin.server.msg;
 
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
-import io.netty.handler.timeout.IdleStateHandler;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -41,6 +29,19 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.netty.bootstrap.Bootstrap;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
 import jazmin.core.app.AppException;
@@ -52,14 +53,10 @@ import jazmin.misc.InfoBuilder;
 import jazmin.misc.io.IOWorker;
 import jazmin.misc.io.NetworkTrafficStat;
 import jazmin.server.console.ConsoleServer;
+import jazmin.server.msg.codec.BinaryDecoder;
+import jazmin.server.msg.codec.BinaryEncoder;
 import jazmin.server.msg.codec.RequestMessage;
 import jazmin.server.msg.codec.ResponseMessage;
-import jazmin.server.msg.codec.amf.AMF3Decoder;
-import jazmin.server.msg.codec.amf.AMF3Encoder;
-import jazmin.server.msg.codec.json.JSONDecoder;
-import jazmin.server.msg.codec.json.JSONEncoder;
-import jazmin.server.msg.codec.zjson.ZJSONDecoder;
-import jazmin.server.msg.codec.zjson.ZJSONEncoder;
 
 /**
  * @author yama
@@ -68,10 +65,10 @@ import jazmin.server.msg.codec.zjson.ZJSONEncoder;
 public class MessageServer extends Server{
 	private static Logger logger=LoggerFactory.get(MessageServer.class);
 	//
-	public static final String MESSAGE_TYPE_JSON="json";
-	public static final String MESSAGE_TYPE_AMF3="amf3";
-	public static final String MESSAGE_TYPE_ZJSON="zjson";
-	
+	public static final int FORMAT_RAW=0;
+	public static final int FORMAT_JSON=1;
+	public static final int FORMAT_ZJSON=2;
+	public static final int FORMAT_AMF=4;
 	//
 	static final int DEFAULT_PORT=3001;
 	static final int DEFAULT_IDLE_TIME=60*10;//10 min
@@ -80,19 +77,22 @@ public class MessageServer extends Server{
 	//
 	ServerBootstrap tcpNettyServer;
 	ServerBootstrap webSocketNettyServer;
+	Bootstrap udpNettyServer;
 	EventLoopGroup bossGroup;
 	EventLoopGroup workerGroup;
-	ChannelInitializer<SocketChannel> channelInitializer;
+	ChannelInitializer<SocketChannel> tcpChannelInitializer;
 	IOWorker ioWorker;
 	int port;
 	int webSocketPort;
+	int udpPort;
 	int idleTime;
-	String messageType;
 	int sessionTimeout;
 	int maxSessionCount;
 	int maxChannelCount;
 	int maxSessionRequestCountPerSecond;
-
+	//
+	KcpChannelManager kcpChannelManager;
+	//
 	NetworkTrafficStat networkTrafficStat;
 	//
 	Map<String,ServiceStub>serviceMap;
@@ -104,8 +104,11 @@ public class MessageServer extends Server{
 	SessionLifecycleListener sessionLifecycleListener;
 	Method sessionCreatedMethod;
 	Method sessionDisconnectedMethod;
-	//
 	ServiceFilter serviceFilter;
+	//
+	WebSocketServerHandler webSocketServerHandler;
+	TcpServerHandler tcpServerHandler;
+	KcpUdpHandler kcpUdpHandler;
 	//
 	public MessageServer() {
 		super();
@@ -115,7 +118,6 @@ public class MessageServer extends Server{
 		channelMap=new ConcurrentHashMap<>();
 		sessionId=new AtomicInteger(1);
 		networkTrafficStat=new NetworkTrafficStat();
-		messageType=MESSAGE_TYPE_JSON;
 		port=DEFAULT_PORT;
 		idleTime=DEFAULT_IDLE_TIME;
 		maxSessionCount=DEFAULT_MAX_SESSION_COUNT;
@@ -129,6 +131,16 @@ public class MessageServer extends Server{
 				"sessionDisconnected",Session.class);
 		maxSessionRequestCountPerSecond=10;
 		webSocketPort=-1;
+		udpPort=-1;
+		//
+		
+	}
+	//
+	BinaryEncoder createEncoder(){
+		return new BinaryEncoder(networkTrafficStat);
+	}
+	BinaryDecoder createDecoder(){
+		return new BinaryDecoder(networkTrafficStat);
 	}
 	/**
 	 * return port of this server
@@ -143,6 +155,21 @@ public class MessageServer extends Server{
 	 */
 	public int getWebSocketPort() {
 		return webSocketPort;
+	}
+	/**
+	 * @param webSocketPort the webSocketPort to set
+	 */
+	public void setUdpPort(int udpPort) {
+		if(isInited()){
+			throw new IllegalArgumentException("set before inited");
+		}
+		this.udpPort = udpPort;
+	}
+	/**
+	 * @return the webSocketPort
+	 */
+	public int getUdpPort() {
+		return udpPort;
 	}
 	/**
 	 * @param webSocketPort the webSocketPort to set
@@ -181,30 +208,6 @@ public class MessageServer extends Server{
 			throw new IllegalArgumentException("set before inited");
 		}
 		this.idleTime = idleTime;
-	}
-
-	/**
-	 * return server message type
-	 * @return the messageType
-	 */
-	public String getMessageType() {
-		return messageType;
-	}
-
-	/**
-	 * set server message type
-	 * @param messageType the messageType to set
-	 */
-	public void setMessageType(String messageType) {
-		if(isInited()){
-			throw new IllegalArgumentException("set before inited");
-		}
-		if(!messageType.equals(MESSAGE_TYPE_AMF3)&&
-			!messageType.equals(MESSAGE_TYPE_JSON)&&
-			!messageType.equals(MESSAGE_TYPE_ZJSON)){
-			throw new IllegalArgumentException("bad message type:"+messageType);
-		}
-		this.messageType = messageType;
 	}
 	/**
 	 * return max session count 
@@ -353,35 +356,23 @@ public class MessageServer extends Server{
 		return serviceFilter;
 	}
 	//--------------------------------------------------------------------------
-	class MessageServerChannelInitializer extends ChannelInitializer<SocketChannel>{
+	class TcpServerChannelInitializer extends ChannelInitializer<SocketChannel>{
 		@Override
 		protected void initChannel(SocketChannel ch) throws Exception {
 			ch.pipeline().addLast("idleStateHandler",new IdleStateHandler(idleTime,idleTime,0));
-			if(messageType.equals(MESSAGE_TYPE_JSON)){
-				ch.pipeline().addLast(
-						new JSONEncoder(networkTrafficStat),
-						new JSONDecoder(networkTrafficStat),
-						new MessageServerHandler(MessageServer.this));
-			}
-			if(messageType.equals(MESSAGE_TYPE_AMF3)){
-				ch.pipeline().addLast(
-						new AMF3Encoder(networkTrafficStat),
-						new AMF3Decoder(networkTrafficStat),
-						new MessageServerHandler(MessageServer.this));
-			}
-			if(messageType.equals(MESSAGE_TYPE_ZJSON)){
-				ch.pipeline().addLast(
-						new ZJSONEncoder(networkTrafficStat),
-						new ZJSONDecoder(networkTrafficStat),
-						new MessageServerHandler(MessageServer.this));
-			}
+			ch.pipeline().addLast(
+					createEncoder(),
+					createDecoder(),
+					tcpServerHandler);
 			
 		}
 	}
 	//
 	private void initTcpNettyServer(){
+		tcpServerHandler=new TcpServerHandler(this);
+		//
 		tcpNettyServer=new ServerBootstrap();
-		channelInitializer=new MessageServerChannelInitializer();
+		tcpChannelInitializer=new TcpServerChannelInitializer();
 		tcpNettyServer.group(bossGroup, workerGroup)
 		.channel(NioServerSocketChannel.class)
 		.option(ChannelOption.SO_BACKLOG, 128)    
@@ -390,19 +381,29 @@ public class MessageServer extends Server{
 		.option(ChannelOption.SO_SNDBUF, 1024*256)  
 		.childOption(ChannelOption.TCP_NODELAY, true)
         .childOption(ChannelOption.SO_KEEPALIVE, true) 
-		.childHandler(channelInitializer);
+		.childHandler(tcpChannelInitializer);
+	}
+	//
+	private void initUdpNettyServer(){
+		kcpChannelManager=new KcpChannelManager(this);
+		kcpUdpHandler=new KcpUdpHandler(kcpChannelManager);
+		udpNettyServer=new Bootstrap();
+		udpNettyServer.group(workerGroup)
+		.channel(NioDatagramChannel.class).handler(kcpUdpHandler);
 	}
 	//
 	private void initWsNettyServer(){
+		webSocketServerHandler=new WebSocketServerHandler(this);
+		//
 		webSocketNettyServer=new ServerBootstrap();
-		channelInitializer=new WSMessageServerChannelInitializer();
+		tcpChannelInitializer=new WSMessageServerChannelInitializer();
 		webSocketNettyServer.group(bossGroup, workerGroup)
 		.channel(NioServerSocketChannel.class)
 		.option(ChannelOption.SO_BACKLOG, 128)    
 		.option(ChannelOption.SO_REUSEADDR, true)    
 		.childOption(ChannelOption.TCP_NODELAY, true)
         .childOption(ChannelOption.SO_KEEPALIVE, true) 
-		.childHandler(channelInitializer);
+		.childHandler(tcpChannelInitializer);
 	}
 	class WSMessageServerChannelInitializer extends ChannelInitializer<SocketChannel>{
 		@Override
@@ -411,7 +412,7 @@ public class MessageServer extends Server{
 			ch.pipeline().addLast(new HttpServerCodec());
 			ch.pipeline().addLast(new HttpObjectAggregator(65536));
 			ch.pipeline().addLast(new WebSocketServerCompressionHandler());
-			ch.pipeline().addLast(new WebSocketServerHandler(MessageServer.this));
+			ch.pipeline().addLast(webSocketServerHandler);
 		}
 	}
 	//--------------------------------------------------------------------------
@@ -483,7 +484,7 @@ public class MessageServer extends Server{
 		//1.bad message
 		if(message.isBadRequest||message.requestId<=0){
 			if(logger.isWarnEnabled()){
-				logger.warn("{} bad request",session);	
+				logger.warn("{} bad request requestId:{}",session,message.requestId);	
 			}
 			session.sendError(
 					message,ResponseMessage.SC_BAD_MESSAGE,"bad message");
@@ -649,6 +650,7 @@ public class MessageServer extends Server{
 	}
 	//message
 	void receiveMessage(Session session,RequestMessage message){
+		session.messageType=message.messageType;
 		ServiceStub ss=checkMessage(session, message);
 		if(ss==null){
 			return;
@@ -659,8 +661,16 @@ public class MessageServer extends Server{
 	//--------------------------------------------------------------------------
 	//session
 	void sessionIdle(Session session){
-		session.kick("user idle 10 minutes,last access:"+
-				new Date(session.lastAccessTime));
+		synchronized (session) {
+			session.kick("user idle last access:"+
+					new Date(session.lastAccessTime));
+		}
+	}
+	//
+	void sessionKeepAlive(Session session){
+		synchronized (session) {
+			session.lastAccess();
+		}
 	}
 	/*
 	 */
@@ -779,7 +789,7 @@ public class MessageServer extends Server{
 	//
 	private void setPrincipal0(Session session,String principal,String userAgent){
 		if(principal==null){
-			throw new IllegalArgumentException("principal can not be null.");
+			throw new IllegalArgumentException("principal can not be null");
 		}
 		if(session.principal!=null){
 			throw new IllegalStateException("principal already set to:"+
@@ -873,9 +883,15 @@ public class MessageServer extends Server{
 		if(webSocketPort>0){
 			initWsNettyServer();
 		}
+		if(udpPort>0){
+			initUdpNettyServer();
+		}
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
 			cs.registerCommand( MessageServerCommand.class);
+			if(kcpChannelManager!=null){
+				cs.registerCommand(KcpChannelCommand.class);
+			}
 		}
 	}
 	//
@@ -884,6 +900,9 @@ public class MessageServer extends Server{
 		tcpNettyServer.bind(port).sync();
 		if(webSocketNettyServer!=null){
 			webSocketNettyServer.bind(webSocketPort).sync();
+		}
+		if(udpNettyServer!=null){
+			udpNettyServer.bind(udpPort).sync();
 		}
 		startSessionChecker();
 	}
@@ -904,8 +923,8 @@ public class MessageServer extends Server{
 		.format("%-50s:%-30s\n")
 		.print("port", port)
 		.print("webSocketPort", webSocketPort)
+		.print("udpPort", udpPort)
 		.print("idleTime", idleTime+" seconds")
-		.print("messageType", messageType)
 		.print("sessionTimeout", sessionTimeout+" seconds")
 		.print("maxSessionCount", maxSessionCount)
 		.print("maxChannelCount", maxChannelCount)

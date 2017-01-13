@@ -8,6 +8,8 @@ import java.util.Map;
  * @date Jun 5, 2014
  */
 public class ResponseMessage {
+	
+	
 	/** status ok*/
 	public static final int SC_OK=0;
 	/**bad message format*/
@@ -27,14 +29,17 @@ public class ResponseMessage {
 	/**repeat attack attack*/
 	public static final int SC_REPEAT_ATTACK=0x8;
 	//
+	public int messageType;
 	public byte[] rawData;
 	public int requestId;
 	public String serviceId;
 	public int statusCode;
 	public String statusMessage;
-	public Map<String, Object>responseMessages;
+	public Object responseObject;
+	//
+	public static Map<String,String>emptyHashMap=new HashMap<>();
 	public ResponseMessage() {
-		responseMessages=new HashMap<String, Object>();
+		responseObject=emptyHashMap;
 		statusCode=SC_OK;
 	}
 }

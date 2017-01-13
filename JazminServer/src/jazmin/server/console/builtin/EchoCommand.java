@@ -9,18 +9,19 @@ package jazmin.server.console.builtin;
  */
 public class EchoCommand extends ConsoleCommand {
    public EchoCommand() {
-    	super();
+    	super(false);
     	id="echo";
     	desc="echo input string";
     }
     //
    	@Override
     public void run()throws Exception{
-   		if(!isPiped()){
-			return;
-		}
-    	while(inStream.available()>0){
-    		outStream.write(inStream.read());
-    	}
+   		if(rawInput.length()>=5){
+   			//trim command name
+   			rawInput=rawInput.substring(5,rawInput.length());
+   		}else{
+   			rawInput="";
+   		}
+   		out.println(rawInput);
     }
 }

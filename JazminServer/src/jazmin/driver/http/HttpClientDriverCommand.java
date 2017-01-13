@@ -13,7 +13,7 @@ import jazmin.server.console.builtin.ConsoleCommand;
 public class HttpClientDriverCommand extends ConsoleCommand {
     private HttpClientDriver httpDriver;
 	public HttpClientDriverCommand() {
-    	super();
+    	super(true);
     	id="http";
     	desc="http client driver ctrl command";
     	addOption("i",false,"show driver information.",this::showDriverInfo);

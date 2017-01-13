@@ -16,7 +16,7 @@ import jazmin.util.DumpUtil;
 public class RelayServerCommand extends ConsoleCommand {
     private RelayServer server;
 	public RelayServerCommand() {
-    	super();
+    	super(true);
     	id="relaysrv";
     	desc="relay server ctrl command";
     	addOption("i",false,"show server information.",this::showServerInfo);

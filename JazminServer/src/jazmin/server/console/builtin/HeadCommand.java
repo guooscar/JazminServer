@@ -11,7 +11,7 @@ import jazmin.util.IOUtil;
  */
 public class HeadCommand extends ConsoleCommand {
 	public HeadCommand() {
-		super();
+		super(false);
 		id = "head";
 		desc = "display first lines of strings";
 		addOption("n", true, "line number", null);
@@ -21,6 +21,7 @@ public class HeadCommand extends ConsoleCommand {
 	@Override
 	protected void run() throws Exception {
 		if(!isPiped()){
+			printHelp();
 			return;
 		}
 		List<String>inputLines=IOUtil.getContentList(inStream);

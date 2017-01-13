@@ -14,7 +14,7 @@ public class WebSshServerCommand extends ConsoleCommand {
 	private WebSshServer server;
 
 	public WebSshServerCommand() {
-		super();
+		super(true);
 		id = "webssh";
 		desc = "webssh server ctrl command";
 		addOption("i", false, "show server information.", this::showServerInfo);

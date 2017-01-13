@@ -59,6 +59,7 @@ public class Application{
 	public static final String TYPE_MEMCACHED="memcached";
 	public static final String TYPE_HAPROXY="haproxy";
 	public static final String TYPE_REDIS="redis";
+	public static final String TYPE_INFLUXDB="influxdb";
 	//
 	public static final String TYPE_BROSWER="broswer";
 	public static final String TYPE_CLIENT="client";
@@ -87,6 +88,8 @@ public class Application{
 		typeLayerMap.put(TYPE_MYSQL,LAYER_DB);
 		typeLayerMap.put(TYPE_JAZMIN_FILE,LAYER_DB);
 		typeLayerMap.put(TYPE_REDIS,LAYER_DB);
+		typeLayerMap.put(TYPE_INFLUXDB,LAYER_DB);
+		
 		
 		
 		typeLayerMap.put(TYPE_MEMCACHED,LAYER_CACHE);

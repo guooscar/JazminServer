@@ -23,6 +23,7 @@ import jazmin.log.LoggerFactory;
 public class RpcSession {
 	private static Logger logger=LoggerFactory.get(RpcSession.class);
 	//
+	boolean enableSSL;
 	String remoteHostAddress;
 	int remotePort;
 	String principal;
@@ -49,6 +50,24 @@ public class RpcSession {
 		totalNetworkTime=new LongAdder();
 		authed=false;
 	}
+
+
+	/**
+	 * @return the enableSSL
+	 */
+	public boolean isEnableSSL() {
+		return enableSSL;
+	}
+
+
+	/**
+	 * @param enableSSL the enableSSL to set
+	 */
+	public void setEnableSSL(boolean enableSSL) {
+		this.enableSSL = enableSSL;
+	}
+
+
 	/**
 	 * @return the cluster
 	 */
@@ -250,6 +269,6 @@ public class RpcSession {
 	//
 	@Override
 	public String toString() {
-		return "[RPCSession]"+principal+"/"+remoteHostAddress+":"+remotePort+"/auth:"+authed;
+		return "[RPCSession]"+principal+"/"+remoteHostAddress+":"+remotePort+"/auth:"+authed+"/ssl:"+enableSSL;
 	}
 }

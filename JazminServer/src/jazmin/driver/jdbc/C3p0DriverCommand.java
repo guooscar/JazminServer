@@ -13,7 +13,7 @@ import jazmin.server.console.builtin.ConsoleCommand;
 public class C3p0DriverCommand extends ConsoleCommand {
     private C3p0ConnectionDriver connectionDriver;
 	public C3p0DriverCommand() {
-    	super();
+    	super(true);
     	id="c3p0";
     	desc="cp30 connection driver ctrl command";
     	addOption("i",false,"show driver information.",this::showDriverInfo);

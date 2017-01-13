@@ -15,12 +15,20 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.sshd.common.config.keys.KeyUtils;
+import org.apache.sshd.server.SshServer;
+import org.apache.sshd.server.auth.password.PasswordAuthenticator;
+import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
+import org.apache.sshd.server.session.ServerSession;
+
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
 import jazmin.server.console.builtin.ConsoleCommand;
+import jazmin.server.console.builtin.CutCommand;
+import jazmin.server.console.builtin.DateCommand;
 import jazmin.server.console.builtin.EchoCommand;
 import jazmin.server.console.builtin.GrepCommand;
 import jazmin.server.console.builtin.HeadCommand;
@@ -30,18 +38,16 @@ import jazmin.server.console.builtin.JazCommand;
 import jazmin.server.console.builtin.JazminCommand;
 import jazmin.server.console.builtin.LessCommand;
 import jazmin.server.console.builtin.ManCommand;
+import jazmin.server.console.builtin.NlCommand;
 import jazmin.server.console.builtin.SortCommand;
+import jazmin.server.console.builtin.TRCommand;
 import jazmin.server.console.builtin.TailCommand;
 import jazmin.server.console.builtin.UniqCommand;
+import jazmin.server.console.builtin.UpTimeCommand;
 import jazmin.server.console.builtin.VMCommand;
 import jazmin.server.console.builtin.WcCommand;
 import jazmin.server.console.builtin.WhoCommand;
 import jazmin.server.console.repl.CliRunnerCommandFactory;
-
-import org.apache.sshd.SshServer;
-import org.apache.sshd.server.PasswordAuthenticator;
-import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
-import org.apache.sshd.server.session.ServerSession;
 
 /**
  * @author yama
@@ -61,10 +67,13 @@ public class ConsoleServer extends Server{
 	private void startSshServer()throws Exception {
 		maxCommandHistory=500;
 		sshServer= SshServer.setUpDefaultServer();
+		//sshServer.
 		sshServer.setNioWorkers(2);//we just need 2 nio worker for service
 		sshServer.setPort(port);
 		String jchPath=Jazmin.getServerPath()+"/"+"jch.ser";
-		sshServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(jchPath));
+		SimpleGeneratorHostKeyProvider keyProvider=new SimpleGeneratorHostKeyProvider(new File(jchPath));
+		keyProvider.setAlgorithm(KeyUtils.RSA_ALGORITHM);
+		sshServer.setKeyPairProvider(keyProvider);
 		defaultAuthenticator=new SimplePasswordAuthenticator();
 		defaultAuthenticator.setUser("jazmin", "jazmin");
 		authenticator=defaultAuthenticator;
@@ -125,6 +134,12 @@ public class ConsoleServer extends Server{
 		registerCommand(new LessCommand());
 		registerCommand(new UniqCommand());
 		registerCommand(new ManCommand());
+		registerCommand(new NlCommand());
+		registerCommand(new DateCommand());
+		registerCommand(new UpTimeCommand());
+		registerCommand(new CutCommand());
+		registerCommand(new TRCommand());
+		
 	}
 	//--------------------------------------------------------------------------
 	void loadCommandHistory(){

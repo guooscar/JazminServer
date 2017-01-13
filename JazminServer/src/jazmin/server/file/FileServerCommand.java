@@ -16,7 +16,7 @@ public class FileServerCommand extends ConsoleCommand {
 	private FileServer server;
 
 	public FileServerCommand() {
-		super();
+		super(true);
 		id = "filesrv";
 		desc = "file server ctrl command";
 		addOption("i", false, "show server information.", this::showServerInfo);
