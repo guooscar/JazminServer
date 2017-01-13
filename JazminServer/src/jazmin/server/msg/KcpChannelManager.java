@@ -34,6 +34,7 @@ public class KcpChannelManager implements Runnable{
 	private Map<Integer,KcpChannel>kcpChannelMap;
 	private Thread kcpUpdateThread;
 	private MessageServer messageServer;
+	private Channel udpChannel;
 	public KcpChannelManager(MessageServer messageServer) {
 		this.messageServer=messageServer;
 		kcpChannelId=new AtomicInteger(RandomUtil.randomInt(1000000));
@@ -61,9 +62,8 @@ public class KcpChannelManager implements Runnable{
 	
 	
 	//
-	public static void sendPongPacket(
+	private void sendPongPacket(
 			InetSocketAddress peerAddress,
-			Channel channel,
 			int convId,
 			int number,
 			int info){
@@ -76,7 +76,7 @@ public class KcpChannelManager implements Runnable{
 		bf.writeInt(convId);
 		bf.writeInt(info);
 		DatagramPacket dp=new DatagramPacket(bf, peerAddress);
-		channel.writeAndFlush(dp);
+		udpChannel.writeAndFlush(dp);
 	}
 	//
 	int nextChannelId(){
@@ -87,7 +87,72 @@ public class KcpChannelManager implements Runnable{
 		return kcpChannelId.get();
 	}
 	//
+	private boolean receivePingMessage(byte []data,Channel channel,DatagramPacket dp){
+		ByteBuffer bf=ByteBuffer.wrap(data);
+		short magic=bf.getShort();
+		short number=bf.getShort();
+		short type=bf.getShort();
+		long timestamp=bf.getLong();
+		int lag=bf.getInt();
+		int convId=bf.getInt();
+		int info=bf.getInt();
+		//
+		if(magic!=UDP_PKG_MAGIC){
+			logger.warn("bad udp message:\n"+HexDumpUtil.dumpHexString(data));
+			return false;
+		}
+		if(type==UDP_PKG_TYPE_PING){
+			if(convId==0){
+				//init packet,response next convId
+				int newConvId=nextChannelId();
+				KcpChannel newChannel=new KcpChannel(
+						newConvId,channel,dp.recipient(),dp.sender());
+				newChannel.networkTrafficStat=messageServer.networkTrafficStat;
+				kcpChannelMap.put(newConvId,newChannel);
+				if(logger.isInfoEnabled()){
+					logger.info("session create conv {} sender {}",newConvId,dp.sender());
+				}
+				//
+				sendPongPacket(
+						dp.sender(), 
+						newConvId, 
+						number,
+						info);
+				if(logger.isDebugEnabled()){
+					logger.debug("allocate new conv {}",newConvId);
+				}
+			}else{
+				//keep alive package
+				KcpChannel kcpChannel=kcpChannelMap.get(convId);
+				int rspInfo=info;
+				if(kcpChannel==null){
+					logger.warn("kcp channel not exists {}",convId);
+					rspInfo=UDP_INFO_CHANNEL_NOT_EXIST;	
+				}else{
+					kcpChannel.peerAddress=dp.sender();
+					kcpChannel.receivePing(timestamp,lag);
+					if(kcpChannel.session!=null){
+						if(logger.isDebugEnabled()){
+							logger.debug("session keep alive {}",kcpChannel);
+						}
+						messageServer.sessionKeepAlive(kcpChannel.session);
+					}
+					kcpChannel.sentPacketCount++;
+				}
+				sendPongPacket(
+						dp.sender(), 
+						convId,
+						number,
+						rspInfo);
+			}
+			return true;
+		}
+		logger.warn("bad udp message type:\n"+HexDumpUtil.dumpHexString(data));
+		return true;
+	}
+	//
 	public void receiveDatagramPacket(Channel channel,DatagramPacket dp){
+		udpChannel=channel;
 		ByteBuf buf=dp.copy().content();
 		byte data[]=new byte[buf.readableBytes()];
 		buf.readBytes(data);
@@ -106,68 +171,9 @@ public class KcpChannelManager implements Runnable{
 		//
 		//
 		if(data.length==26){
-			ByteBuffer bf=ByteBuffer.wrap(data);
-			short magic=bf.getShort();
-			short number=bf.getShort();
-			short type=bf.getShort();
-			long timestamp=bf.getLong();
-			int lag=bf.getInt();
-			int convId=bf.getInt();
-			int info=bf.getInt();
-			//
-			if(magic!=UDP_PKG_MAGIC){
-				logger.warn("bad udp message:\n"+HexDumpUtil.dumpHexString(data));
+			if(receivePingMessage(data,channel, dp)){
 				return;
 			}
-			if(type==UDP_PKG_TYPE_PING){
-				if(convId==0){
-					//init packet,response next convId
-					int newConvId=nextChannelId();
-					KcpChannel newChannel=new KcpChannel(
-							newConvId,channel,dp.recipient(),dp.sender());
-					newChannel.networkTrafficStat=messageServer.networkTrafficStat;
-					kcpChannelMap.put(newConvId,newChannel);
-					if(logger.isInfoEnabled()){
-						logger.info("session create conv {} sender {}",newConvId,dp.sender());
-					}
-					//
-					sendPongPacket(
-							dp.sender(), 
-							channel,
-							newConvId, 
-							number,
-							info);
-					if(logger.isDebugEnabled()){
-						logger.debug("allocate new conv {}",newConvId);
-					}
-				}else{
-					//keep alive package
-					KcpChannel kcpChannel=kcpChannelMap.get(convId);
-					int rspInfo=info;
-					if(kcpChannel==null){
-						logger.warn("kcp channel not exists {}",convId);
-						rspInfo=UDP_INFO_CHANNEL_NOT_EXIST;	
-					}else{
-						kcpChannel.receivePing(timestamp,lag);
-						if(kcpChannel.session!=null){
-							if(logger.isDebugEnabled()){
-								logger.debug("session keep alive {}",kcpChannel);
-							}
-							messageServer.sessionKeepAlive(kcpChannel.session);
-						}
-						kcpChannel.sentPacketCount++;
-					}
-					sendPongPacket(
-							dp.sender(), 
-							channel,
-							convId,
-							number,
-							rspInfo);
-				}
-				return;
-			}
-			logger.warn("bad udp message type:\n"+HexDumpUtil.dumpHexString(data));
-			return;
 		}
 		//
 		int conv=KCP.getConversionId(data);
@@ -175,7 +181,6 @@ public class KcpChannelManager implements Runnable{
 			logger.warn("bad conversion id {}",conv);
 			sendPongPacket(
 					dp.sender(), 
-					channel,
 					conv,
 					0,
 					UDP_INFO_BAD_CONV);
@@ -187,7 +192,6 @@ public class KcpChannelManager implements Runnable{
 			logger.warn("bad conv id: {} .maybe server restart",conv);
 			sendPongPacket(
 					dp.sender(), 
-					channel,
 					conv,
 					0,
 					UDP_INFO_CHANNEL_SERVER_CLOSED);
@@ -200,6 +204,7 @@ public class KcpChannelManager implements Runnable{
 		}
 		//
 		synchronized (kcpChannel) {
+			kcpChannel.peerAddress=dp.sender();
 			RequestMessage req=kcpChannel.receive(data);
 			if(req!=null){
 				messageServer.receiveMessage(kcpChannel.session, req);
@@ -213,13 +218,18 @@ public class KcpChannelManager implements Runnable{
 		removedChannel.clear();
 		kcpChannelMap.forEach((id,channel)->{
 			if(channel.channel==null){
+				sendPongPacket(
+						channel.peerAddress,
+						channel.getConvId(),
+						0,
+						KcpChannelManager.UDP_INFO_CHANNEL_SERVER_CLOSED);
 				removedChannel.add(id);
 				return;
 			}
 			//
 			channel.updateChannel();
-			//
-			if((now-channel.lastReceiveTime)>120*1000L){
+			//10 mins no data transfer
+			if((now-channel.lastReceiveTime)>60*10*1000L){
 				if(logger.isWarnEnabled()){
 					logger.warn("channel:"+channel+" idle");
 				}

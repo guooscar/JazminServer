@@ -133,8 +133,6 @@ public class KcpChannel extends KCP implements NetworkChannel {
 			logger.warn("channel already closed.convId"+conv);
 			return;
 		}
-		KcpChannelManager.sendPongPacket(peerAddress, channel, conv,0,
-				KcpChannelManager.UDP_INFO_CHANNEL_SERVER_CLOSED);
 		channel=null;
 	}
 
