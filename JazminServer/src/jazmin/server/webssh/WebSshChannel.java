@@ -14,10 +14,9 @@ import java.util.Date;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
+import jazmin.server.webssh.HostInfoProvider.HostInfo;
 import jazmin.util.SshUtil;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.jcraft.jsch.ChannelShell;
 import com.jcraft.jsch.JSchException;
 
@@ -44,11 +43,7 @@ public class WebSshChannel {
 	private OutputStream shellOutputStream;
 	private InputStream shellInputStream;
 	//
-	public String sshHost;
-	public String sshUser;
-	public int sshPort;
-	public String sshCmd;
-	private boolean enableInput;
+	HostInfo hostInfo;
 	//
 	public WebSshChannel() {
 		createTime=new Date();
@@ -56,25 +51,23 @@ public class WebSshChannel {
 	//
 	private static final char RECEIVE_KEY='0';
 	private static final char RECEIVE_WINDOWRESIZE='1';
-	private static final char RECEIVE_LOGIN='2';
 	//
 	//
-	private void startShell(String host,String user,int port,String pwd,String cmd){
+	public void startShell(){
 		try {
-			this.sshHost=host;
-			this.sshUser=user;
-			this.sshPort=port;
-			this.sshCmd=cmd;
-			logger.info("connection to {}@{}:{}",user,host,port);
-			shell=SshUtil.shell(host,port,user,pwd,sshConnectTimeout);
+			logger.info("connection to {}@{}:{}",hostInfo.user,hostInfo.host,hostInfo.port);
+			shell=SshUtil.shell(
+					hostInfo.host,
+					hostInfo.port,
+					hostInfo.user,
+					hostInfo.password,
+					sshConnectTimeout);
 			shellInputStream=shell.getInputStream();
 			shellOutputStream=shell.getOutputStream();
 			startInputReader();
 			//
-			enableInput=true;
-			if(cmd!=null&&!cmd.trim().isEmpty()){
-				enableInput=false;
-				shellOutputStream.write((cmd+"\r\n").getBytes());
+			if(hostInfo.cmd!=null&&!hostInfo.cmd.trim().isEmpty()){
+				shellOutputStream.write((hostInfo.cmd+"\r\n").getBytes());
 				shellOutputStream.flush();
 			}
 		} catch (Exception e) {
@@ -102,13 +95,13 @@ public class WebSshChannel {
 				logger.info("ssh connection :"+shell+" stopped");
 				channel.close();
 			}
-		},"ProcesserInputReader-"+sshUser+"@"+sshHost+":"+sshPort+"/"+sshCmd);
+		},"WebSSHInputReader-"+hostInfo.user+"@"+hostInfo.host+":"+hostInfo.port+"/"+hostInfo.cmd);
 		inputReaderThread.start();
 	}
 	//
 	public void receiveMessage(String msg){
 		char command=msg.charAt(0);
-		if(command==RECEIVE_KEY&&enableInput){
+		if(command==RECEIVE_KEY&&hostInfo.enableInput){
 			for(int i=1;i<msg.length();i++){
 				String s=msg.charAt(i)+"";
 				try {
@@ -129,18 +122,6 @@ public class WebSshChannel {
 			}
 			return;
 		}
-		//
-		if(command==RECEIVE_LOGIN){
-			String t=msg.substring(1);
-			JSONObject loginData=JSON.parseObject(t);
-			startShell(
-					loginData.getString("host"), 
-					loginData.getString("user"),
-					loginData.getIntValue("port"),
-					loginData.getString("password"),
-					loginData.getString("cmd"));
-			return;
-		}	
 	}
 	//
 	private void sendMessage(String msg){

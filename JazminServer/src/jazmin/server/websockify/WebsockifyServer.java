@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jazmin.server.webssh;
+package jazmin.server.websockify;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
@@ -32,45 +32,34 @@ import jazmin.misc.io.IOWorker;
 import jazmin.server.console.ConsoleServer;
 
 /**
- * WebSshServer is a simple proxy server that let you login ssh server via web applications.
+ * WebsockifyServer is a simple proxy server allow no vnc client connect
  * see also https://github.com/yudai/gotty
  * @author yama
- * 26 Aug, 2015
+ * 11 01, 2017
  */
-public class WebSshServer extends Server{
+public class WebsockifyServer extends Server{
 	private int port;
 	private int wssPort;
 	private boolean enableWss;
 	private  EventLoopGroup bossGroup;
 	private  EventLoopGroup workerGroup;
-	private  Map<String, WebSshChannel>channels;
+	private  Map<String, WebsockifyChannel>channels;
 	private String certificateFile;
 	private String privateKeyFile;
 	private String privateKeyPhrase;
 	private SslContext sslContext;
-	private int defaultSshConnectTimeout;
-	private HostInfoProvider hostInfoProvider;
 	//
-	public WebSshServer() {
-		channels=new ConcurrentHashMap<String, WebSshChannel>();
+	public WebsockifyServer() {
+		channels=new ConcurrentHashMap<String, WebsockifyChannel>();
 		enableWss=false;
-		port=9001;
-		wssPort=9002;
+		port=9901;
+		wssPort=9902;
 		certificateFile="";
 		privateKeyFile="";
 		privateKeyPhrase="";
-		defaultSshConnectTimeout=5000;
 	}
 	
-	 public HostInfoProvider getHostInfoProvider() {
-		return hostInfoProvider;
-	}
-
-	public void setHostInfoProvider(HostInfoProvider hostInfoProvider) {
-		this.hostInfoProvider = hostInfoProvider;
-	}
-
-	/**
+	 /**
 	 * @return the certificateFile
 	 */
 	public String getCertificateFile() {
@@ -133,19 +122,6 @@ public class WebSshServer extends Server{
 		return enableWss;
 	}
 
-	/**
-	 * @return the defaultSshConnectTimeout
-	 */
-	public int getDefaultSshConnectTimeout() {
-		return defaultSshConnectTimeout;
-	}
-
-	/**
-	 * @param defaultSshConnectTimeout the defaultSshConnectTimeout to set
-	 */
-	public void setDefaultSshConnectTimeout(int defaultSshConnectTimeout) {
-		this.defaultSshConnectTimeout = defaultSshConnectTimeout;
-	}
 
 	/**
 	 * @param enableWss the enableWss to set
@@ -171,7 +147,7 @@ public class WebSshServer extends Server{
 		return sslContext;
     }
 	//
-	void addChannel(WebSshChannel c){
+	void addChannel(WebsockifyChannel c){
 		channels.put(c.id, c);
 	}
 	//
@@ -179,8 +155,8 @@ public class WebSshServer extends Server{
 		channels.remove(id);
 	}
 	//
-	public List<WebSshChannel>getChannels(){
-		return new ArrayList<WebSshChannel>(channels.values());
+	public List<WebsockifyChannel>getChannels(){
+		return new ArrayList<WebsockifyChannel>(channels.values());
 	}
 	//
 	private void createWSListeningPoint(boolean wss)throws Exception{
@@ -199,7 +175,7 @@ public class WebSshServer extends Server{
                 pipeline.addLast(new HttpServerCodec());
                 pipeline.addLast(new HttpObjectAggregator(65536));
                 pipeline.addLast(new WebSocketServerCompressionHandler());
-                pipeline.addLast(new WebSshWebSocketHandler(WebSshServer.this,wss));
+                pipeline.addLast(new WebsockifyHandler(WebsockifyServer.this,wss));
             }
         })
         .option(ChannelOption.SO_BACKLOG, 128)
@@ -218,7 +194,7 @@ public class WebSshServer extends Server{
 	public void init() throws Exception {
 		ConsoleServer cs = Jazmin.getServer(ConsoleServer.class);
 		if (cs != null) {
-			cs.registerCommand(WebSshServerCommand.class);
+			cs.registerCommand(WebsockifyCommand.class);
 		}
 	}
 	//
@@ -250,8 +226,6 @@ public class WebSshServer extends Server{
 		.format("%-30s:%-30s\n")
 		.print("port",getPort())
 		.print("wssPort",getWssPort())
-		.print("defaultSshConnectTimeout",getDefaultSshConnectTimeout())
-		.print("hostInfoProvider",getHostInfoProvider())
 		.print("enableWss",isEnableWss())
 		.print("privateKeyFile",getPrivateKeyFile())
 		.print("certificateFile",getCertificateFile());

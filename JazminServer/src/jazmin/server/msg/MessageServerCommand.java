@@ -100,9 +100,10 @@ public class MessageServerCommand extends ConsoleCommand {
     //
     private void showSessions(String args){
     	TablePrinter tp=TablePrinter.create(out)
-    			.length(10,20,10,15,10,10,10,10,15,15,10)
+    			.length(10,32,6,10,15,10,10,10,10,15,15,10)
     			.headers("ID",
     					"PRINCIPAL",
+    					"MSGTYP",
     					"USERAGENT",
     					"HOST",
     					"PORT",
@@ -121,9 +122,20 @@ public class MessageServerCommand extends ConsoleCommand {
 		}
 		
 		for(Session s:sessions){
+			String msgType="raw";
+			if(s.getMessageType()==MessageServer.FORMAT_JSON){
+				msgType="json";
+			}
+			if(s.getMessageType()==MessageServer.FORMAT_ZJSON){
+				msgType="zjson";
+			}
+			if(s.getMessageType()==MessageServer.FORMAT_AMF){
+				msgType="amf";
+			}
 			tp.print(
 					s.getId(),
 					s.getPrincipal(),
+					msgType,
 					s.getUserAgent(),
 					s.getRemoteHostAddress(),
 					s.getRemotePort(),
@@ -142,12 +154,13 @@ public class MessageServerCommand extends ConsoleCommand {
 		int i=1;
 		List<Channel> channels=messageServer.getChannels();
 		out.println("total "+channels.size()+" channels");
-		out.format(format,"#","ID","AUTOREMOVESESSION","CREATETIME");	
+		out.format(format,"#","ID","AUTOREMOVESESSION","SESSIONCOUNT","CREATETIME");	
 		for(Channel s:channels){
 			out.format(format,
 					i++,
-					cut(s.getId(),30),
+					cut(s.getId(),64),
 					s.isAutoRemoveDisconnectedSession(),
+					s.getSessions().size(),
 					formatDate(new Date(s.getCreateTime())));
 		};
     }
@@ -161,7 +174,10 @@ public class MessageServerCommand extends ConsoleCommand {
 		out.printf(format,"id",channel.getId());
 		out.printf(format,"autoRemoveDisconnectedSession",channel.isAutoRemoveDisconnectedSession());
 		out.printf(format,"createTime",formatDate(new Date(channel.getCreateTime())));
-		out.printf(format,"userObject",DumpUtil.dump(channel.getUserObject()));		
+		out.printf(format,"userObject",DumpUtil.dump(channel.getUserObject()));	
+		for(Session session:channel.getSessions()){
+			out.printf(format,"session",session.getId()+"#"+session.getPrincipal());
+		}
 	}
     //
     //

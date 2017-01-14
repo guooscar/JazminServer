@@ -51,6 +51,8 @@
 	<classpathentry kind="lib" path="lib/sequence-library-1.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/sqljet-1.1.10.jar"/>
 	<classpathentry kind="lib" path="lib/aceeditor-0.8.13.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JazminServer"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/JazminServer"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

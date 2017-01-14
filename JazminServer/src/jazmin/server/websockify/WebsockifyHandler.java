@@ -1,15 +1,23 @@
-package jazmin.server.webssh;
+package jazmin.server.websockify;
 
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 import static io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+
+import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.base64.Base64;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
@@ -23,25 +31,21 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.util.CharsetUtil;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
-
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.server.webssh.HostInfoProvider.HostInfo;
 
 /**
  * Handles handshakes and messages
  */
-public class WebSshWebSocketHandler extends SimpleChannelInboundHandler<Object> {
+public class WebsockifyHandler extends SimpleChannelInboundHandler<Object> {
 	private static Logger logger = LoggerFactory
-			.get(WebSshWebSocketHandler.class);
+			.get(WebsockifyHandler.class);
+	private static final String WEBSOCKET_PATH = "/websockify";
 	private WebSocketServerHandshaker handshaker;
-	private WebSshServer server;
+	private WebsockifyServer server;
 	private static final int MAX_WEBSOCKET_FRAME_SIZE=10240;
 	private boolean isWss;
-	public WebSshWebSocketHandler(WebSshServer server,boolean isWss) {
+	public WebsockifyHandler(WebsockifyServer server,boolean isWss) {
 		this.server=server;
 		this.isWss=isWss;
 	}
@@ -81,37 +85,31 @@ public class WebSshWebSocketHandler extends SimpleChannelInboundHandler<Object> 
             sendHttpResponse(ctx, req, res);
             return;
         }
-		String uri=req.uri();
-		String token=null;
-		if(uri.length()>1){
-			token=uri.substring(1);
-		}
-		HostInfo hostInfo;
-		if(token==null||(hostInfo=server.getHostInfoProvider().getHostInfo(token))==null){
-			logger.error("can not find host info with token {}",token);
-			ctx.close();
-			return;
-		}
-		WebSshChannel webSshChannel=ctx.channel().attr(WebSshChannel.SESSION_KEY).get();
-		webSshChannel.hostInfo=hostInfo;
 		// Handshake
 		WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
-				getWebSocketLocation(req), "webssh", true,MAX_WEBSOCKET_FRAME_SIZE);
+				getWebSocketLocation(req), "base64", true,MAX_WEBSOCKET_FRAME_SIZE);
 		
 		handshaker = wsFactory.newHandshaker(req);
 		if (handshaker == null) {
 			WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
 		} else {
-			handshaker.handshake(ctx.channel(), req);
+			String protocol = req.headers().getAsString("WebSocket-Protocol");
+        	String secProtocol = req.headers().getAsString("Sec-WebSocket-Protocol");
+        	if(protocol != null && secProtocol == null ){
+        		req.headers().add("Sec-WebSocket-Protocol", protocol);
+        	}
+			try {
+				handshaker.handshake(ctx.channel(), req).sync();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
-		webSshChannel.startShell();
+		//
+		createProxyChannel(ctx.channel());
 	}
 
 	private void handleWebSocketFrame(ChannelHandlerContext ctx,WebSocketFrame frame) 
 			throws IOException {
-		WebSshChannel c=ctx.channel().attr(WebSshChannel.SESSION_KEY).get();
-		c.messageReceivedCount++;
-		
 		// Check for closing frame
 		if (frame instanceof CloseWebSocketFrame) {
 			handshaker.close(ctx.channel(),(CloseWebSocketFrame) frame.retain());
@@ -125,9 +123,15 @@ public class WebSshWebSocketHandler extends SimpleChannelInboundHandler<Object> 
 			throw new UnsupportedOperationException(String.format(
 					"%s frame types not supported", frame.getClass().getName()));
 		}
-		// Send the uppercase string back.
-		String content = ((TextWebSocketFrame) frame).text();
-		c.receiveMessage(content);
+		
+		WebsockifyChannel c=ctx.channel().attr(WebsockifyChannel.SESSION_KEY).get();
+		if(c!=null){
+			c.messageReceivedCount++;
+			// Send the uppercase string back.
+			ByteBuf msg = ((TextWebSocketFrame) frame).content();
+			ByteBuf decodedMsg = Base64.decode(msg);
+			c.outBoundChannel.writeAndFlush(decodedMsg);
+		}
 	}
 	//
 	private static void sendHttpResponse(ChannelHandlerContext ctx,
@@ -154,7 +158,7 @@ public class WebSshWebSocketHandler extends SimpleChannelInboundHandler<Object> 
 	}
 	//
 	private  String getWebSocketLocation(FullHttpRequest req) {
-		String location = (String) req.headers().get("Host");
+		String location = req.headers().get("Host") + WEBSOCKET_PATH;
 		return (isWss?"wss":"ws")+"://" + location;
 	}
 
@@ -162,45 +166,69 @@ public class WebSshWebSocketHandler extends SimpleChannelInboundHandler<Object> 
 	@Override
     public void channelInactive(ChannelHandlerContext ctx) 
     		throws Exception {
-		WebSshChannel c=ctx.channel().attr(WebSshChannel.SESSION_KEY).get();
+		if(logger.isDebugEnabled()){
+			logger.debug("channelInactive:"+ctx.channel());	
+		}
+		WebsockifyChannel c=ctx.channel().attr(WebsockifyChannel.SESSION_KEY).get();
 		if(c!=null){
 			server.removeChannel(c.id);
-			c.closeChannel();
-			if(logger.isDebugEnabled()){
-				logger.debug("channelInactive:"+ctx.channel());	
-			}	
+			c.outBoundChannel.close();
 		}
 	}
 	//
 	@Override
-	public void channelActive(ChannelHandlerContext ctx) 
-			throws Exception {
-		if(server.getHostInfoProvider()==null){
-			logger.error("can not find HostInfoProvider.");
-			ctx.channel().close();
-			return;
-		}
-		WebSshChannel channel=new WebSshChannel();
-		channel.channel=ctx.channel();
-		channel.sshConnectTimeout=server.getDefaultSshConnectTimeout();
-		channel.id=ctx.channel().id().asShortText();
-		InetSocketAddress sa=(InetSocketAddress) ctx.channel().localAddress();
-		//
-		sa=(InetSocketAddress) ctx.channel().remoteAddress();
-		channel.remoteAddress=sa.getAddress().getHostAddress();
-		channel.remotePort=sa.getPort();
-		server.addChannel(channel);
-		ctx.channel().attr(WebSshChannel.SESSION_KEY).set(channel);
+	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		if(logger.isDebugEnabled()){
 			logger.debug("channelActive:"+ctx.channel());	
 		}
 	}
 	//
-	@Override
-	public void userEventTriggered(ChannelHandlerContext ctx, Object evt)
-			throws Exception {
+	private void createProxyChannel(Channel channel){
+		WebsockifyChannel c=channel.attr(WebsockifyChannel.SESSION_KEY).get();
+		if(c!=null){
+			return;
+		}
+		String remoteHost = "10.0.0.24";
+		int remotePort = 5900;
+		Channel outboundChannel;
+		Channel inboundChannel = channel;
+		Bootstrap b = new Bootstrap();
+		b.group(inboundChannel.eventLoop()).channel(channel.getClass())
+				.handler(new WebsockifyBackendHandler(inboundChannel))
+				.option(ChannelOption.AUTO_READ, false);
+		ChannelFuture f = b.connect(remoteHost, remotePort);
+		outboundChannel = f.channel();
+		f.addListener(new ChannelFutureListener() {
+			@Override
+			public void operationComplete(ChannelFuture future) {
+				if (future.isSuccess()) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("connect to backend {}:{} success", remoteHost, remotePort);
+					}
+					// connection complete start to read first data
+					inboundChannel.read();
+				} else {
+					if (logger.isDebugEnabled()) {
+						logger.debug("connect to backend {}:{} error", remoteHost, remotePort);
+					}
+					// Close the connection if the connection attempt has
+					// failed.
+					inboundChannel.close();
+				}
+			}
+		});
+		WebsockifyChannel wsChannel=new WebsockifyChannel();
+		wsChannel.inBoundChannel=channel;
+		wsChannel.outBoundChannel=outboundChannel;
+		wsChannel.id=channel.id().asShortText();
+		InetSocketAddress sa=(InetSocketAddress) channel.localAddress();
+		sa=(InetSocketAddress) channel.remoteAddress();
+		wsChannel.remoteAddress=sa.getAddress().getHostAddress();
+		wsChannel.remotePort=sa.getPort();
+		server.addChannel(wsChannel);
+		channel.attr(WebsockifyChannel.SESSION_KEY).set(wsChannel);
 		if(logger.isDebugEnabled()){
-			logger.debug("userEventTriggered:"+ctx.channel()+"/"+evt);				
+			logger.debug("session created:"+wsChannel);	
 		}
 	}
 }

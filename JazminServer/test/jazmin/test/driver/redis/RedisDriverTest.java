@@ -20,7 +20,7 @@ public class RedisDriverTest {
 	 */
 	public static void main(String[] args) throws Exception {
 		RedisDriver d=new RedisDriver();
-		d.addShard("10.44.218.35", 6379);
+		d.addShard("182.254.234.222", 6379,"ititredis");
 		Jazmin.addDriver(d);
 		Jazmin.addServer(new ConsoleServer());
 		Jazmin.start();

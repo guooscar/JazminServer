@@ -31,6 +31,7 @@ import jazmin.server.web.mvc.Service;
 public class DeployController {
 	//
 	private static Logger logger=LoggerFactory.get(DeployController.class);
+
 	//
 	private boolean checkMachine(Context c,String instanceId){
 		if(c.request().session(true).getAttribute("user")!=null){
@@ -109,13 +110,13 @@ public class DeployController {
 			return;
 		}
 		Machine machine=instance.machine;
-		c.put("sshHost",machine.publicHost);
-		c.put("sshUser",machine.sshUser);
-		c.put("sshPort",machine.sshPort);
-		c.put("sshPassword",machine.sshPassword);
-		c.put("sshCmd","tail -f "+
+		c.put("token",DeployManager.createOneTimeSSHToken(
+				machine,
+				false,
+				false,
+				"tail -f "+
 				instance.machine.jazminHome+"log/"+
-				instance.id+".log");
+				instance.id+".log"));
 		c.view(new ResourceView("/jsp/webssh.jsp"));
 	}
 	//
@@ -132,11 +133,13 @@ public class DeployController {
 			return;
 		}
 		Machine machine=instance.machine;
+		Machine fakeMachine=new Machine();
 		Map<String,String>p=instance.properties;
-		c.put("sshHost",machine.publicHost);
-		c.put("sshUser",p.getOrDefault(Instance.P_JAZMIN_CONSOLE_USER, "jazmin"));
-		c.put("sshPassword",p.getOrDefault(Instance.P_JAZMIN_CONSOLE_PWD, "jazmin"));
-		c.put("sshPort",instance.port+10000);
+		fakeMachine.publicHost=machine.publicHost;
+		fakeMachine.sshUser=p.getOrDefault(Instance.P_JAZMIN_CONSOLE_USER, "jazmin");
+		fakeMachine.sshPassword=p.getOrDefault(Instance.P_JAZMIN_CONSOLE_PWD, "jazmin");
+		fakeMachine.sshPort=instance.port+10000;
+		c.put("token",DeployManager.createOneTimeSSHToken(fakeMachine,false,true,null));
 		c.view(new ResourceView("/jsp/webssh.jsp"));
 	}
 	//
@@ -152,10 +155,7 @@ public class DeployController {
 			c.view(new ErrorView(404));
 			return;
 		}
-		c.put("sshHost",machine.publicHost);
-		c.put("sshUser",machine.sshUser);
-		c.put("sshPort",machine.sshPort);
-		c.put("sshPassword",machine.sshPassword);
+		c.put("token",DeployManager.createOneTimeSSHToken(machine,false,true,null));
 		c.view(new ResourceView("/jsp/webssh.jsp"));
 	}
 	//
@@ -171,10 +171,7 @@ public class DeployController {
 			c.view(new ErrorView(404));
 			return;
 		}
-		c.put("sshHost",machine.publicHost);
-		c.put("sshUser","root");
-		c.put("sshPort",machine.sshPort);
-		c.put("sshPassword",machine.rootSshPassword);
+		c.put("token",DeployManager.createOneTimeSSHToken(machine,true,true,null));
 		c.view(new ResourceView("/jsp/webssh.jsp"));
 	}
 	//

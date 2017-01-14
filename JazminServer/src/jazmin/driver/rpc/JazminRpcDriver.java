@@ -77,6 +77,7 @@ public class JazminRpcDriver extends Driver{
 		methodStats=new ConcurrentHashMap<String, InvokeStat>();
 		totalInvokeCount=new LongAdder();
 		pushCallbackMethod=PushCallback.class.getMethods()[0];
+		client=new RpcClient();
 	}
 	/**
 	 * set principal of this rpc driver
@@ -122,7 +123,7 @@ public class JazminRpcDriver extends Driver{
 		URI u=new URI(uri);
 		String schema=u.getScheme();
 		if(schema==null||(!schema.equals("jazmin")&&!schema.equals("jazmins"))){
-			throw new IllegalArgumentException("schema should be jazmin");
+			throw new IllegalArgumentException("schema should be jazmin or jazmins");
 		}
 		String host=u.getHost();
 		int port=u.getPort();

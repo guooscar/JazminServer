@@ -22,10 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
-import org.tmatesoft.svn.core.SVNException;
-
 import jazmin.core.Jazmin;
 import jazmin.deploy.DeployStartServlet;
 import jazmin.deploy.domain.AppPackage;
@@ -45,12 +41,19 @@ import jazmin.deploy.util.DateUtil;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.web.WebServer;
+import jazmin.server.webssh.HostInfoProvider;
+import jazmin.server.webssh.HostInfoProvider.HostInfo;
+import jazmin.server.webssh.WebSshServer;
 import jazmin.util.BeanUtil;
 import jazmin.util.FileUtil;
 import jazmin.util.IOUtil;
 import jazmin.util.JSONUtil;
 import jazmin.util.JSONUtil.JSONPropertyFilter;
 import jazmin.util.SshUtil;
+
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
+import org.tmatesoft.svn.core.SVNException;
 
 /**
  * @author yama
@@ -67,6 +70,7 @@ public class DeployManager {
 	private static List<PackageDownloadInfo>downloadInfos;
 	private static GraphVizRenderer graphVizRenderer;
 	private static StringBuffer errorMessage;
+	private static Map<String, HostInfo>oneTimeHostInfoMap=new ConcurrentHashMap<>();
 	//
 	static{
 		instanceMap=new ConcurrentHashMap<String, Instance>();
@@ -100,6 +104,30 @@ public class DeployManager {
 		}
 		checkWorkspace();
 		Velocity.init();
+		//
+		WebSshServer server=Jazmin.getServer(WebSshServer.class);
+		if(server!=null){
+			server.setHostInfoProvider(DeployManager::getOneTimeHostInfo);
+		}
+	}
+	//
+	public static String createOneTimeSSHToken(Machine machine,boolean root,boolean enableInput,String cmd){
+		HostInfo info=new HostInfo();
+		info.host=machine.publicHost;
+		info.port=machine.sshPort;
+		info.user=root?"root":machine.sshUser;
+		info.password=root?machine.rootSshPassword:machine.sshPassword;
+		info.enableInput=enableInput;
+		info.cmd=cmd;
+		String uuid=UUID.randomUUID().toString();
+		oneTimeHostInfoMap.put(uuid,info);
+		return uuid;
+	}
+	//
+	public static HostInfo getOneTimeHostInfo(String token){
+		HostInfo info=oneTimeHostInfoMap.get(token);
+		oneTimeHostInfoMap.remove(token);
+		return info;
 	}
 	//
 	public static String getErrorMessage(){

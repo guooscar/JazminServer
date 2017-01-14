@@ -3,6 +3,7 @@ package jazmin.test.server.webssh;
 import jazmin.core.Jazmin;
 import jazmin.log.LoggerFactory;
 import jazmin.server.console.ConsoleServer;
+import jazmin.server.webssh.HostInfoProvider;
 import jazmin.server.webssh.WebSshServer;
 
 /**
@@ -15,9 +16,20 @@ public class TestWebSshServer {
 	public static void main(String[] args) {
 		LoggerFactory.setLevel("DEBUG");
 		WebSshServer server=new WebSshServer();
-		server.setEnableWss(true);
-		server.setCertificateFile("/Users/yama/Desktop/itit.io.crt");
-		server.setPrivateKeyFile("/Users/yama/Desktop/itit.io.key");
+		server.setHostInfoProvider(new HostInfoProvider(){
+			@Override
+			public HostInfo getHostInfo(String token) {
+				System.err.println(token);
+				HostInfo localhost=new HostInfo();
+				localhost.host="localhost";
+				localhost.port=22;
+				localhost.user="yama";
+				localhost.password="77585211";
+				localhost.enableInput=true;
+				return localhost;
+			}
+		});
+		server.setPort(9999);
 		Jazmin.addServer(server);
 		Jazmin.addServer(new ConsoleServer());
 		Jazmin.start();

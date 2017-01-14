@@ -1,4 +1,4 @@
-package jazmin.server.webssh;
+package jazmin.server.websockify;
 
 import java.util.List;
 
@@ -10,17 +10,17 @@ import jazmin.server.console.builtin.ConsoleCommand;
  * 
  * @author yama 26 Dec, 2014
  */
-public class WebSshServerCommand extends ConsoleCommand {
-	private WebSshServer server;
+public class WebsockifyCommand extends ConsoleCommand {
+	private WebsockifyServer server;
 
-	public WebSshServerCommand() {
+	public WebsockifyCommand() {
 		super(true);
-		id = "webssh";
-		desc = "webssh server ctrl command";
+		id = "websockify";
+		desc = "websockify server ctrl command";
 		addOption("i", false, "show server information.", this::showServerInfo);
 		addOption("c", false, "show server channels.", this::showChannels);
 		//
-		server = Jazmin.getServer(WebSshServer.class);
+		server = Jazmin.getServer(WebsockifyServer.class);
 	}
 	//
 	@Override
@@ -49,17 +49,15 @@ public class WebSshServerCommand extends ConsoleCommand {
 		    			"RECECNT",
 		    			"CREATETIME",
 		    			"CMD");
-    	List<WebSshChannel>channels=server.getChannels();
-    	for(WebSshChannel s:channels){
+    	List<WebsockifyChannel>channels=server.getChannels();
+    	for(WebsockifyChannel s:channels){
     		tp.print(
         			s.id,
         			s.remoteAddress,
         			s.remotePort,
-        			s.hostInfo.user+"@"+s.hostInfo.host+":"+s.hostInfo.port,
         			s.messageSentCount,
         			s.messageReceivedCount,
-        			formatDate(s.createTime),
-        			s.hostInfo.cmd);
+        			formatDate(s.createTime));
     	}
     }
 }

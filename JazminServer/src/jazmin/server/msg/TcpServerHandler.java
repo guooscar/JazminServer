@@ -1,13 +1,12 @@
 package jazmin.server.msg;
 
+import java.io.IOException;
+
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AttributeKey;
-
-import java.io.IOException;
-
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.msg.codec.RequestMessage;
@@ -17,12 +16,12 @@ import jazmin.server.msg.codec.RequestMessage;
  * 26 Dec, 2014
  */
 @Sharable
-public class MessageServerHandler extends ChannelHandlerAdapter{
-	private static Logger logger=LoggerFactory.get(MessageServerHandler.class);
+public class TcpServerHandler extends ChannelHandlerAdapter{
+	private static Logger logger=LoggerFactory.get(TcpServerHandler.class);
 	private static final AttributeKey<Session> SESSION_KEY=
 								AttributeKey.valueOf("s");
 	private MessageServer messageServer;
-	public MessageServerHandler(MessageServer messageServer) {
+	public TcpServerHandler(MessageServer messageServer) {
 		this.messageServer=messageServer;
 	}
 	//
@@ -36,6 +35,7 @@ public class MessageServerHandler extends ChannelHandlerAdapter{
 	@Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) 
     		throws Exception {
+		//
 		RequestMessage reqMessage=(RequestMessage) msg;
 		Session session=ctx.channel().attr(SESSION_KEY).get();
 		messageServer.receiveMessage(session, reqMessage);
@@ -44,7 +44,7 @@ public class MessageServerHandler extends ChannelHandlerAdapter{
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) 
 			throws Exception {
-		Session session=new Session(ctx.channel());
+		Session session=new Session(new NettyNetworkChannel(ctx.channel()));
 		ctx.channel().attr(SESSION_KEY).set(session);
 		messageServer.sessionCreated(session);
 	}

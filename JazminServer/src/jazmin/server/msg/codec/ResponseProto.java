@@ -1,6 +1,4 @@
-package jazmin.server.msg.codec.json;
-
-import java.util.Map;
+package jazmin.server.msg.codec;
 
 /**
  * @author yama
@@ -12,5 +10,5 @@ public class ResponseProto {
 	public long d;
 	public int sc;
 	public String sm;
-	public Map<String,Object>rsp;
+	public Object rsp;
 }

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import redis.clients.jedis.BinaryClient.LIST_POSITION;
 import redis.clients.jedis.Jedis;
@@ -24,8 +25,18 @@ import redis.clients.util.Pool;
  *
  */
 public class RedisConnection {
+	private static AtomicLong connectCounter=new AtomicLong();
 	ShardedJedis jedis;
-
+	String name="";
+	public RedisConnection() {
+		name="RedisConnection-"+connectCounter.incrementAndGet();
+	}
+	//
+	public String getName(){
+		return name;
+	}
+	//
+	//
 	/**
 	 * @param key
 	 * @param value
@@ -650,17 +661,6 @@ public class RedisConnection {
 	 * @param key
 	 * @param cursor
 	 * @return
-	 * @deprecated
-	 * @see redis.clients.jedis.ShardedJedis#hscan(java.lang.String, int)
-	 */
-	public ScanResult<Entry<String, String>> hscan(String key, int cursor) {
-		return jedis.hscan(key, cursor);
-	}
-
-	/**
-	 * @param key
-	 * @param cursor
-	 * @return
 	 * @see redis.clients.jedis.ShardedJedis#hscan(java.lang.String, java.lang.String)
 	 */
 	public ScanResult<Entry<String, String>> hscan(String key, String cursor) {
@@ -1148,15 +1148,7 @@ public class RedisConnection {
 		return jedis.pipelined();
 	}
 
-	/**
-	 * @param shardedJedisPipeline
-	 * @return
-	 * @deprecated
-	 * @see redis.clients.jedis.BinaryShardedJedis#pipelined(redis.clients.jedis.ShardedJedisPipeline)
-	 */
-	public List<Object> pipelined(ShardedJedisPipeline shardedJedisPipeline) {
-		return jedis.pipelined(shardedJedisPipeline);
-	}
+	
 
 	/**
 	 * 
@@ -1598,16 +1590,7 @@ public class RedisConnection {
 		return jedis.srem(key, members);
 	}
 
-	/**
-	 * @param key
-	 * @param cursor
-	 * @return
-	 * @deprecated
-	 * @see redis.clients.jedis.ShardedJedis#sscan(java.lang.String, int)
-	 */
-	public ScanResult<String> sscan(String key, int cursor) {
-		return jedis.sscan(key, cursor);
-	}
+
 
 	/**
 	 * @param key
@@ -2591,16 +2574,7 @@ public class RedisConnection {
 		return jedis.zrevrank(key, member);
 	}
 
-	/**
-	 * @param key
-	 * @param cursor
-	 * @return
-	 * @deprecated
-	 * @see redis.clients.jedis.ShardedJedis#zscan(java.lang.String, int)
-	 */
-	public ScanResult<Tuple> zscan(String key, int cursor) {
-		return jedis.zscan(key, cursor);
-	}
+	
 
 	/**
 	 * @param key
