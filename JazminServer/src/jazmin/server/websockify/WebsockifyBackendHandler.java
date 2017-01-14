@@ -8,8 +8,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.base64.Base64;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 /**
@@ -32,8 +31,7 @@ public class WebsockifyBackendHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelRead(final ChannelHandlerContext ctx, Object msg) {
-    	ByteBuf base64Msg=Base64.encode((ByteBuf) msg,false);
-    	TextWebSocketFrame frame=new TextWebSocketFrame(base64Msg);
+    	BinaryWebSocketFrame frame=new BinaryWebSocketFrame(((ByteBuf) msg).retain());
     	inboundChannel.writeAndFlush(frame).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) {

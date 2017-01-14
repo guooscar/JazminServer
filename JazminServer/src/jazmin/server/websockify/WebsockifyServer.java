@@ -48,18 +48,27 @@ public class WebsockifyServer extends Server{
 	private String privateKeyFile;
 	private String privateKeyPhrase;
 	private SslContext sslContext;
+	private HostInfoProvider hostInfoProvider;
 	//
 	public WebsockifyServer() {
 		channels=new ConcurrentHashMap<String, WebsockifyChannel>();
 		enableWss=false;
-		port=9901;
-		wssPort=9902;
+		port=9801;
+		wssPort=9802;
 		certificateFile="";
 		privateKeyFile="";
 		privateKeyPhrase="";
 	}
 	
-	 /**
+	public HostInfoProvider getHostInfoProvider() {
+		return hostInfoProvider;
+	}
+
+	public void setHostInfoProvider(HostInfoProvider hostInfoProvider) {
+		this.hostInfoProvider = hostInfoProvider;
+	}
+
+	/**
 	 * @return the certificateFile
 	 */
 	public String getCertificateFile() {

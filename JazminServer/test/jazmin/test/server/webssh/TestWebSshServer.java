@@ -23,8 +23,8 @@ public class TestWebSshServer {
 				HostInfo localhost=new HostInfo();
 				localhost.host="localhost";
 				localhost.port=22;
-				localhost.user="yama";
-				localhost.password="77585211";
+				localhost.user="user";
+				localhost.password="password";
 				localhost.enableInput=true;
 				return localhost;
 			}

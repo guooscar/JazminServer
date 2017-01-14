@@ -4,10 +4,6 @@ import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 import static io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
-
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -17,22 +13,26 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.base64.Base64;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.util.CharsetUtil;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
+import jazmin.server.websockify.HostInfoProvider.HostInfo;
 
 /**
  * Handles handshakes and messages
@@ -40,7 +40,6 @@ import jazmin.log.LoggerFactory;
 public class WebsockifyHandler extends SimpleChannelInboundHandler<Object> {
 	private static Logger logger = LoggerFactory
 			.get(WebsockifyHandler.class);
-	private static final String WEBSOCKET_PATH = "/websockify";
 	private WebSocketServerHandshaker handshaker;
 	private WebsockifyServer server;
 	private static final int MAX_WEBSOCKET_FRAME_SIZE=10240;
@@ -51,7 +50,7 @@ public class WebsockifyHandler extends SimpleChannelInboundHandler<Object> {
 	}
 
 	@Override
-	public void messageReceived(ChannelHandlerContext ctx, Object msg) throws IOException {
+	public void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception{
 		if (msg instanceof FullHttpRequest) {
 			handleHttpRequest(ctx, (FullHttpRequest) msg);
 		} else if (msg instanceof WebSocketFrame) {
@@ -66,7 +65,7 @@ public class WebsockifyHandler extends SimpleChannelInboundHandler<Object> {
 
 	private void handleHttpRequest(
 			ChannelHandlerContext ctx,
-			FullHttpRequest req) {
+			FullHttpRequest req) throws Exception {
 		// Handle a bad request.
 		if (!req.decoderResult().isSuccess()) {
 			sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1,
@@ -85,9 +84,22 @@ public class WebsockifyHandler extends SimpleChannelInboundHandler<Object> {
             sendHttpResponse(ctx, req, res);
             return;
         }
+		//
+		String uri=req.uri();
+		String token=null;
+		if(uri.length()>1){
+			token=uri.substring(1);
+		}
+		HostInfo hostInfo;
+		if(token==null||(hostInfo=server.getHostInfoProvider().getHostInfo(token))==null){
+			logger.error("can not find host info with token {}",token);
+			ctx.close();
+			return;
+		}
+		//
 		// Handshake
 		WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
-				getWebSocketLocation(req), "base64", true,MAX_WEBSOCKET_FRAME_SIZE);
+				getWebSocketLocation(req), "binary", true,MAX_WEBSOCKET_FRAME_SIZE);
 		
 		handshaker = wsFactory.newHandshaker(req);
 		if (handshaker == null) {
@@ -98,14 +110,10 @@ public class WebsockifyHandler extends SimpleChannelInboundHandler<Object> {
         	if(protocol != null && secProtocol == null ){
         		req.headers().add("Sec-WebSocket-Protocol", protocol);
         	}
-			try {
-				handshaker.handshake(ctx.channel(), req).sync();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			handshaker.handshake(ctx.channel(), req).sync();
 		}
 		//
-		createProxyChannel(ctx.channel());
+		createProxyChannel(ctx.channel(),hostInfo);
 	}
 
 	private void handleWebSocketFrame(ChannelHandlerContext ctx,WebSocketFrame frame) 
@@ -119,18 +127,16 @@ public class WebsockifyHandler extends SimpleChannelInboundHandler<Object> {
 			ctx.channel().write(new PongWebSocketFrame(frame.content().retain()));
 			return;
 		}
-		if (!(frame instanceof TextWebSocketFrame)) {
+		if (!(frame instanceof BinaryWebSocketFrame)) {
 			throw new UnsupportedOperationException(String.format(
 					"%s frame types not supported", frame.getClass().getName()));
 		}
-		
+	
 		WebsockifyChannel c=ctx.channel().attr(WebsockifyChannel.SESSION_KEY).get();
 		if(c!=null){
 			c.messageReceivedCount++;
-			// Send the uppercase string back.
-			ByteBuf msg = ((TextWebSocketFrame) frame).content();
-			ByteBuf decodedMsg = Base64.decode(msg);
-			c.outBoundChannel.writeAndFlush(decodedMsg);
+			ByteBuf msg = ((BinaryWebSocketFrame) frame).content().retain();
+			c.outBoundChannel.writeAndFlush(msg);
 		}
 	}
 	//
@@ -158,7 +164,7 @@ public class WebsockifyHandler extends SimpleChannelInboundHandler<Object> {
 	}
 	//
 	private  String getWebSocketLocation(FullHttpRequest req) {
-		String location = req.headers().get("Host") + WEBSOCKET_PATH;
+		String location = req.headers().get("Host") + "";
 		return (isWss?"wss":"ws")+"://" + location;
 	}
 
@@ -181,35 +187,38 @@ public class WebsockifyHandler extends SimpleChannelInboundHandler<Object> {
 		if(logger.isDebugEnabled()){
 			logger.debug("channelActive:"+ctx.channel());	
 		}
+		if(server.getHostInfoProvider()==null){
+			logger.error("can not find HostInfoProvider.");
+			ctx.channel().close();
+			return;
+		}
 	}
 	//
-	private void createProxyChannel(Channel channel){
+	private void createProxyChannel(Channel channel,HostInfo hostInfo){
 		WebsockifyChannel c=channel.attr(WebsockifyChannel.SESSION_KEY).get();
 		if(c!=null){
 			return;
 		}
-		String remoteHost = "10.0.0.24";
-		int remotePort = 5900;
 		Channel outboundChannel;
 		Channel inboundChannel = channel;
 		Bootstrap b = new Bootstrap();
 		b.group(inboundChannel.eventLoop()).channel(channel.getClass())
 				.handler(new WebsockifyBackendHandler(inboundChannel))
 				.option(ChannelOption.AUTO_READ, false);
-		ChannelFuture f = b.connect(remoteHost, remotePort);
+		ChannelFuture f = b.connect(hostInfo.host, hostInfo.port);
 		outboundChannel = f.channel();
 		f.addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture future) {
 				if (future.isSuccess()) {
 					if (logger.isDebugEnabled()) {
-						logger.debug("connect to backend {}:{} success", remoteHost, remotePort);
+						logger.debug("connect to backend {}:{} success", hostInfo.host, hostInfo.port);
 					}
 					// connection complete start to read first data
 					inboundChannel.read();
 				} else {
 					if (logger.isDebugEnabled()) {
-						logger.debug("connect to backend {}:{} error", remoteHost, remotePort);
+						logger.debug("connect to backend {}:{} error", hostInfo.host, hostInfo.port);
 					}
 					// Close the connection if the connection attempt has
 					// failed.
