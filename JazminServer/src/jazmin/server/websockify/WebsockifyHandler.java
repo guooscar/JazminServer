@@ -28,7 +28,6 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.util.CharsetUtil;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -195,18 +194,17 @@ public class WebsockifyHandler extends SimpleChannelInboundHandler<Object> {
 	}
 	//
 	private void createProxyChannel(Channel channel,HostInfo hostInfo){
-		WebsockifyChannel c=channel.attr(WebsockifyChannel.SESSION_KEY).get();
-		if(c!=null){
-			return;
-		}
+		WebsockifyChannel wsChannel=new WebsockifyChannel();
 		Channel outboundChannel;
 		Channel inboundChannel = channel;
+		wsChannel.inBoundChannel=channel;
 		Bootstrap b = new Bootstrap();
 		b.group(inboundChannel.eventLoop()).channel(channel.getClass())
-				.handler(new WebsockifyBackendHandler(inboundChannel))
+				.handler(new WebsockifyBackendHandler(wsChannel))
 				.option(ChannelOption.AUTO_READ, false);
 		ChannelFuture f = b.connect(hostInfo.host, hostInfo.port);
 		outboundChannel = f.channel();
+		wsChannel.outBoundChannel=outboundChannel;
 		f.addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture future) {
@@ -226,14 +224,8 @@ public class WebsockifyHandler extends SimpleChannelInboundHandler<Object> {
 				}
 			}
 		});
-		WebsockifyChannel wsChannel=new WebsockifyChannel();
-		wsChannel.inBoundChannel=channel;
-		wsChannel.outBoundChannel=outboundChannel;
-		wsChannel.id=channel.id().asShortText();
-		InetSocketAddress sa=(InetSocketAddress) channel.localAddress();
-		sa=(InetSocketAddress) channel.remoteAddress();
-		wsChannel.remoteAddress=sa.getAddress().getHostAddress();
-		wsChannel.remotePort=sa.getPort();
+		wsChannel.remoteAddress=hostInfo.host;
+		wsChannel.remotePort=hostInfo.port;
 		server.addChannel(wsChannel);
 		channel.attr(WebsockifyChannel.SESSION_KEY).set(wsChannel);
 		if(logger.isDebugEnabled()){

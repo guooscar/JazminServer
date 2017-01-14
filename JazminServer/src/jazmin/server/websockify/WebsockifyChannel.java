@@ -17,8 +17,7 @@ public class WebsockifyChannel {
 	//
 	public static final AttributeKey<WebsockifyChannel> SESSION_KEY=
 			AttributeKey.valueOf("s");
-	
-	public String id;
+	public int id;
 	public String remoteAddress;
 	public int remotePort;
 	public Date createTime;

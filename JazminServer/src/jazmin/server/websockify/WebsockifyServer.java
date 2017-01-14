@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
@@ -43,15 +44,17 @@ public class WebsockifyServer extends Server{
 	private boolean enableWss;
 	private  EventLoopGroup bossGroup;
 	private  EventLoopGroup workerGroup;
-	private  Map<String, WebsockifyChannel>channels;
+	private  Map<Integer, WebsockifyChannel>channels;
 	private String certificateFile;
 	private String privateKeyFile;
 	private String privateKeyPhrase;
 	private SslContext sslContext;
 	private HostInfoProvider hostInfoProvider;
+	private AtomicInteger channelCounter;
 	//
 	public WebsockifyServer() {
-		channels=new ConcurrentHashMap<String, WebsockifyChannel>();
+		channelCounter=new AtomicInteger();
+		channels=new ConcurrentHashMap<>();
 		enableWss=false;
 		port=9801;
 		wssPort=9802;
@@ -157,10 +160,11 @@ public class WebsockifyServer extends Server{
     }
 	//
 	void addChannel(WebsockifyChannel c){
+		c.id=channelCounter.incrementAndGet();
 		channels.put(c.id, c);
 	}
 	//
-	void removeChannel(String id){
+	void removeChannel(int id){
 		channels.remove(id);
 	}
 	//
@@ -236,6 +240,7 @@ public class WebsockifyServer extends Server{
 		.print("port",getPort())
 		.print("wssPort",getWssPort())
 		.print("enableWss",isEnableWss())
+		.print("hostInfoProvider",getHostInfoProvider())
 		.print("privateKeyFile",getPrivateKeyFile())
 		.print("certificateFile",getCertificateFile());
 		return ib.toString();

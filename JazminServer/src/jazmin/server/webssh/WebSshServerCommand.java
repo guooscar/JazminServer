@@ -26,7 +26,7 @@ public class WebSshServerCommand extends ConsoleCommand {
 	@Override
 	public void run() throws Exception {
 		if (server == null) {
-			out.println("can not find SipServer.");
+			out.println("can not find WebSshServer.");
 
 			return;
 		}

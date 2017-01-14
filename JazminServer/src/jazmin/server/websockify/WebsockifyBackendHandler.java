@@ -3,7 +3,6 @@ package jazmin.server.websockify;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerAdapter;
@@ -18,9 +17,9 @@ import jazmin.log.LoggerFactory;
  */
 public class WebsockifyBackendHandler extends ChannelHandlerAdapter {
 	private static Logger logger=LoggerFactory.get(WebsockifyBackendHandler.class);
-    private final Channel inboundChannel;
-    public WebsockifyBackendHandler(Channel inboundChannel) {
-        this.inboundChannel = inboundChannel;
+    private final WebsockifyChannel websockifyChannel;
+    public WebsockifyBackendHandler(WebsockifyChannel websockifyChannel) {
+        this.websockifyChannel = websockifyChannel;
     }
 
     @Override
@@ -31,8 +30,9 @@ public class WebsockifyBackendHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelRead(final ChannelHandlerContext ctx, Object msg) {
-    	BinaryWebSocketFrame frame=new BinaryWebSocketFrame(((ByteBuf) msg).retain());
-    	inboundChannel.writeAndFlush(frame).addListener(new ChannelFutureListener() {
+    	BinaryWebSocketFrame frame=new BinaryWebSocketFrame(((ByteBuf) msg));
+    	websockifyChannel.messageReceivedCount++;
+    	websockifyChannel.inBoundChannel.writeAndFlush(frame).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) {
                 if (future.isSuccess()) {
@@ -46,7 +46,7 @@ public class WebsockifyBackendHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-    	 inboundChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(
+    	websockifyChannel.inBoundChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(
     			 ChannelFutureListener.CLOSE);
     }
 
