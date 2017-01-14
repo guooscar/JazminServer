@@ -393,8 +393,6 @@ public class MessageServer extends Server{
 	}
 	//
 	private void initWsNettyServer(){
-		webSocketServerHandler=new WebSocketServerHandler(this);
-		//
 		webSocketNettyServer=new ServerBootstrap();
 		tcpChannelInitializer=new WSMessageServerChannelInitializer();
 		webSocketNettyServer.group(bossGroup, workerGroup)
@@ -412,7 +410,7 @@ public class MessageServer extends Server{
 			ch.pipeline().addLast(new HttpServerCodec());
 			ch.pipeline().addLast(new HttpObjectAggregator(65536));
 			ch.pipeline().addLast(new WebSocketServerCompressionHandler());
-			ch.pipeline().addLast(webSocketServerHandler);
+			ch.pipeline().addLast(new WebSocketServerHandler(MessageServer.this));
 		}
 	}
 	//--------------------------------------------------------------------------

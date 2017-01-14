@@ -38,6 +38,7 @@ public class KcpChannel extends KCP implements NetworkChannel {
 	long receivePacketCount;
 	long sentPacketCount;
 	//
+	long lastPingTime;
 	long peerTimestamp;
 	long nextUpdateTime;
 	boolean needUpdate;
@@ -73,6 +74,7 @@ public class KcpChannel extends KCP implements NetworkChannel {
 		createTime = System.currentTimeMillis();
 		lastReceiveTime = System.currentTimeMillis();
 		lastSentTime = System.currentTimeMillis();
+		lastPingTime=System.currentTimeMillis();
 	}
 
 	//
@@ -88,6 +90,7 @@ public class KcpChannel extends KCP implements NetworkChannel {
 	}
 	//
 	void receivePing(long timestamp,int lag){
+		lastPingTime=System.currentTimeMillis();
 		peerTimestamp=timestamp;
 		receivePacketCount++;
 		this.lag=lag;

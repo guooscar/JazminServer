@@ -143,7 +143,7 @@ public class BinaryDecoder extends ByteToMessageDecoder {
 	}
 	//
 	protected static void  decodeZJson(RequestMessage msg,byte[]payload)throws Exception{
-		decodeJson(msg,IOUtil.decompress(payload));
+		decodeJson(msg,IOUtil.gzipDecompress(payload));
 	}
 	
 }

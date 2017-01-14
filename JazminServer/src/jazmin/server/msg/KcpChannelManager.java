@@ -189,7 +189,7 @@ public class KcpChannelManager implements Runnable{
 		//
 		KcpChannel kcpChannel=kcpChannelMap.get(conv);
 		if(kcpChannel==null){
-			logger.warn("bad conv id: {} .maybe server restart",conv);
+			logger.warn("bad conv id: {} . maybe server restart",conv);
 			sendPongPacket(
 					dp.sender(), 
 					conv,
@@ -224,6 +224,9 @@ public class KcpChannelManager implements Runnable{
 						0,
 						KcpChannelManager.UDP_INFO_CHANNEL_SERVER_CLOSED);
 				removedChannel.add(id);
+				if(channel.session!=null){
+					messageServer.sessionDisconnected(channel.session);
+				}
 				return;
 			}
 			//
@@ -233,10 +236,19 @@ public class KcpChannelManager implements Runnable{
 				if(logger.isWarnEnabled()){
 					logger.warn("channel:"+channel+" idle");
 				}
-				removedChannel.add(id);
 				if(channel.session!=null){
 					messageServer.sessionIdle(channel.session);
 				}
+				return;
+			}
+			//
+			//2 mins no ping receive
+			if((now-channel.lastPingTime)>60*2*1000L){
+				if(logger.isWarnEnabled()){
+					logger.warn("channel:"+channel+" 2 mins no ping receive");
+				}
+				channel.close();
+				return;
 			}
 		});
 		for(int id:removedChannel){

@@ -122,10 +122,20 @@ public class MessageServerCommand extends ConsoleCommand {
 		}
 		
 		for(Session s:sessions){
+			String msgType="raw";
+			if(s.getMessageType()==1){
+				msgType="json";
+			}
+			if(s.getMessageType()==1){
+				msgType="zjson";
+			}
+			if(s.getMessageType()==1){
+				msgType="amf";
+			}
 			tp.print(
 					s.getId(),
 					s.getPrincipal(),
-					s.getMessageType(),
+					msgType,
 					s.getUserAgent(),
 					s.getRemoteHostAddress(),
 					s.getRemotePort(),

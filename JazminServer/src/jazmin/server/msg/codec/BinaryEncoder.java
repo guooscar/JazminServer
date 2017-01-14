@@ -139,6 +139,6 @@ public class BinaryEncoder extends MessageToByteEncoder<ResponseMessage> {
 	}
 	//
 	protected static byte[] encodeZJson(ResponseMessage msg) throws Exception {
-		return IOUtil.compress(encodeJson(msg));
+		return IOUtil.gzipCompress(encodeJson(msg));
 	}
 }
