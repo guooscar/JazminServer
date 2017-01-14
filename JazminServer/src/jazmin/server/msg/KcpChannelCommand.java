@@ -35,7 +35,7 @@ public class KcpChannelCommand extends ConsoleCommand {
 	}
 	private void showSessions(String args){
     	TablePrinter tp=TablePrinter.create(out)
-    			.length(12,10,7,7,10,15,15,15,15,15)
+    			.length(12,16,7,7,10,15,15,15,15,15)
     			.headers("CONVID",
     					"HOST",
     					"PORT",
