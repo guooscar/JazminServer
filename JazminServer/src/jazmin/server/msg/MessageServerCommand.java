@@ -123,13 +123,13 @@ public class MessageServerCommand extends ConsoleCommand {
 		
 		for(Session s:sessions){
 			String msgType="raw";
-			if(s.getMessageType()==1){
+			if(s.getMessageType()==MessageServer.FORMAT_JSON){
 				msgType="json";
 			}
-			if(s.getMessageType()==1){
+			if(s.getMessageType()==MessageServer.FORMAT_ZJSON){
 				msgType="zjson";
 			}
-			if(s.getMessageType()==1){
+			if(s.getMessageType()==MessageServer.FORMAT_AMF){
 				msgType="amf";
 			}
 			tp.print(
