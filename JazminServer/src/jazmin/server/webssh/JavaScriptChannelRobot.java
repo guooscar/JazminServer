@@ -4,7 +4,6 @@
 package jazmin.server.webssh;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,23 +27,20 @@ import jazmin.util.IOUtil;
  */
 public class JavaScriptChannelRobot extends ChannelRobot implements ScriptChannelContext{
 	private static Logger logger=LoggerFactory.get(JavaScriptChannelRobot.class);
-	static class ExpectionCallbackHolder{
-		String regex;
-		ExpectCallback callback;
-	}
+	
 	//
 	TicketCallback ticketCallback;
 	ActionCallback openCallback;
 	ActionCallback closeCallback;
-	Map<String,List<ExpectionCallbackHolder>>expectCallbacks;
+	Map<String,ExpectCallback>expectCallbacks;
 	WebSshChannel webSshChannel;
 	Map<Long,List<ActionCallback>>afterTicketCallbacks;
-	String state;
+
 	//
 	public JavaScriptChannelRobot(String source) throws ScriptException {
 		expectCallbacks=new HashMap<>();
 		afterTicketCallbacks=new ConcurrentHashMap<>();
-		state="";
+	
 		loadJavaScript(source);
 	}
 	//----------------------------------------------------------------------
@@ -115,32 +111,19 @@ public class JavaScriptChannelRobot extends ChannelRobot implements ScriptChanne
 	public void ticket(TicketCallback callback) {
 		this.ticketCallback=callback;
 	}
-	//
-	public String state(){
-		return state;
-	}
-	//
-	public void state(String state){
-		if(state==null){
-			throw new IllegalArgumentException("state can not be null");
-		}
-		if(state=="all"){
-			throw new IllegalArgumentException("state can not be all");
-		}
-		this.state=state;
-	}
+	
 	//
 	@Override
-	public void expect(String state,String regex, ExpectCallback callback) {
-		List<ExpectionCallbackHolder>list=expectCallbacks.get(state);
-		if(list==null){
-			list=new LinkedList<>();
-			this.expectCallbacks.put(state, list);
+	public void expect(String regex, ExpectCallback callback) {
+		synchronized (expectCallbacks) {
+			expectCallbacks.put(regex, callback);
 		}
-		ExpectionCallbackHolder holder=new ExpectionCallbackHolder();
-		holder.regex=regex;
-		holder.callback=callback;
-		list.add(holder);
+	}
+	@Override
+	public void expectClear() {
+		synchronized (expectCallbacks) {
+			expectCallbacks.clear();
+		}
 	}
 	//
 	@Override
@@ -218,16 +201,9 @@ public class JavaScriptChannelRobot extends ChannelRobot implements ScriptChanne
 		if(line.trim().isEmpty()){
 			return;
 		}
-		List<ExpectionCallbackHolder>allHolders=new ArrayList<>();
-		if(expectCallbacks.containsKey("all")){
-			allHolders.addAll(expectCallbacks.get("all"));
-		}
-		if(expectCallbacks.containsKey(state)){
-			allHolders.addAll(expectCallbacks.get(state));
-		}
-		allHolders.forEach(h->{
-			if(Pattern.matches(h.regex, line)){
-				h.callback.invoke(line);
+		expectCallbacks.forEach((regex,callback)->{
+			if(Pattern.matches(regex, line)){
+				callback.invoke(line);
 			}
 		});
 	}

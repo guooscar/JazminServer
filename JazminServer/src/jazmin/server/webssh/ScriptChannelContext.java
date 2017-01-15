@@ -72,16 +72,13 @@ public interface ScriptChannelContext{
 	
 	long setTimeout(int ticket,ActionCallback callback);
 	void clearTimeout(long ticket);
-	
-	String state();
-	void state(String newState);
 	/**
 	 * check every line of server response if reponse string match regex the callback will be invoked
 	 * @param regex the regex pattern
 	 * @param callback the callback
 	 */
-	void expect(String state,String regex,ExpectCallback callback);
-	
+	void expect(String regex,ExpectCallback callback);
+	void expectClear();
 	/**
 	 * the callback will be invoked after connection opend
 	 * @param callback

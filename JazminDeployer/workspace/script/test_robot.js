@@ -61,17 +61,10 @@ robot.close(function(){
 });
 //
 robot.ticket(function(ticket){
-	//robot.log("currentState:"+robot.state());
+	
 });
-//
-robot.expect("wait_confirm",".*yesido$",function(msg){
-    robot.enableInput(false);
-    runStepPingBaidu();
-});
-//
-robot.expect("step_ssh_appadmin",".*password:$",function(msg){
-    robot.sends("password\n");
-});
+
+
 //-----------------------------------------------------------
 //
 function printWelcome(){
@@ -100,12 +93,15 @@ function userConfirmRun(){
 	"PLEASE TYPE echo yesido \r\n"+
 	"============================================\r\n"
     );
-    robot.state("wait_confirm");
     robot.enableInput(true);
+    robot.expectClear();
+    robot.expect(".*yesido$",function(msg){
+        robot.enableInput(false);
+        runStepPingBaidu();
+    });
 }
 //
 function runStepPingBaidu(){
-    robot.state("step_ping_baidu");
     robot.sends("ping www.baidu.com\n");
     robot.setTimeout(5,function(){
        robot.sends("\003\n"); 
@@ -114,7 +110,10 @@ function runStepPingBaidu(){
 }
 
 function runSshAppadmin(){
-    robot.state("step_ssh_appadmin");
+	robot.expectClear();
+    robot.expect(".*password:$",function(msg){
+        robot.sends("password\n");
+    });
     robot.sends("ssh user@host\n");
 }
 

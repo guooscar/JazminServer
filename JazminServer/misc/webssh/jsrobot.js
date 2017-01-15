@@ -24,6 +24,6 @@ robot.ticket(function(ticket){
 	//robot.log("ticket:"+ticket);
 });
 //
-robot.expect("all",".*",function(fullmsg){
+robot.expect(".*",function(fullmsg){
 	robot.log("match all:"+fullmsg);
 });
