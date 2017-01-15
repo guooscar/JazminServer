@@ -3,22 +3,20 @@
  */
 package jazmin.server.webssh;
 
-import io.netty.channel.Channel;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.util.AttributeKey;
-
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
 
-import jazmin.log.Logger;
-import jazmin.log.LoggerFactory;
-import jazmin.server.webssh.HostInfoProvider.HostInfo;
-import jazmin.util.SshUtil;
-
 import com.jcraft.jsch.ChannelShell;
 import com.jcraft.jsch.JSchException;
+
+import io.netty.channel.Channel;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.util.AttributeKey;
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
+import jazmin.server.webssh.ConnectionInfoProvider.ConnectionInfo;
+import jazmin.util.SshUtil;
 
 
 /**
@@ -42,11 +40,12 @@ public class WebSshChannel {
 	private ChannelShell shell;
 	private OutputStream shellOutputStream;
 	private InputStream shellInputStream;
-	//
-	HostInfo hostInfo;
+	ConnectionInfo connectionInfo;
+	long ticket;
 	//
 	public WebSshChannel() {
 		createTime=new Date();
+		ticket=0;
 	}
 	//
 	private static final char RECEIVE_KEY='0';
@@ -55,20 +54,18 @@ public class WebSshChannel {
 	//
 	public void startShell(){
 		try {
-			logger.info("connection to {}@{}:{}",hostInfo.user,hostInfo.host,hostInfo.port);
+			logger.info("connection to {}@{}:{}",connectionInfo.user,connectionInfo.host,connectionInfo.port);
 			shell=SshUtil.shell(
-					hostInfo.host,
-					hostInfo.port,
-					hostInfo.user,
-					hostInfo.password,
+					connectionInfo.host,
+					connectionInfo.port,
+					connectionInfo.user,
+					connectionInfo.password,
 					sshConnectTimeout);
 			shellInputStream=shell.getInputStream();
 			shellOutputStream=shell.getOutputStream();
 			startInputReader();
-			//
-			if(hostInfo.cmd!=null&&!hostInfo.cmd.trim().isEmpty()){
-				shellOutputStream.write((hostInfo.cmd+"\r\n").getBytes());
-				shellOutputStream.flush();
+			if(connectionInfo.channelListener!=null){
+				connectionInfo.channelListener.onOpen(this);
 			}
 		} catch (Exception e) {
 			logger.catching(e);
@@ -76,17 +73,24 @@ public class WebSshChannel {
 		}
 	}
 	//
+	void updateTicket(){
+		ticket++;
+		if(connectionInfo!=null&&connectionInfo.channelListener!=null){
+			connectionInfo.channelListener.onTicket(this, ticket);
+		}
+	}
+	//
 	private void startInputReader(){
 		Thread inputReaderThread=new Thread(new Runnable() {
 			@Override
 			public void run() {
-				while(!shell.isClosed()){
+				while(shell!=null&&!shell.isClosed()){
 					try {
 						int n = 0;
 			            byte[] buffer = new byte[4096];
 			            while (-1 != (n = shellInputStream.read(buffer))) {
 			            	String s=new String(buffer,0,n);
-			            	sendMessage(s);	
+			            	receiveServerMessage(s);
 			            }
 					} catch (Exception e) {
 						logger.catching(e);
@@ -95,19 +99,26 @@ public class WebSshChannel {
 				logger.info("ssh connection :"+shell+" stopped");
 				channel.close();
 			}
-		},"WebSSHInputReader-"+hostInfo.user+"@"+hostInfo.host+":"+hostInfo.port+"/"+hostInfo.cmd);
+		},"WebSSHInputReader-"+connectionInfo.user+"@"+connectionInfo.host
+				+":"+connectionInfo.port);
 		inputReaderThread.start();
+	}
+	//
+	private void receiveServerMessage(String s){
+		if(connectionInfo.channelListener!=null){
+    		connectionInfo.channelListener.onMessage(WebSshChannel.this,s);
+    	}
+    	sendMessageToClient(s);	
 	}
 	//
 	public void receiveMessage(String msg){
 		char command=msg.charAt(0);
-		if(command==RECEIVE_KEY&&hostInfo.enableInput){
+		if(command==RECEIVE_KEY&&connectionInfo.enableInput){
 			for(int i=1;i<msg.length();i++){
 				String s=msg.charAt(i)+"";
 				try {
-					shellOutputStream.write(s.getBytes());
-					shellOutputStream.flush();
-				} catch (IOException e) {
+					sendMessageToServer(s);
+				} catch (Exception e) {
 					logger.catching(e);
 				}			
 			}
@@ -124,13 +135,25 @@ public class WebSshChannel {
 		}
 	}
 	//
-	private void sendMessage(String msg){
+	public void sendMessageToServer(String cmd){
+		try{
+			shellOutputStream.write((cmd).getBytes());
+			shellOutputStream.flush();
+		}catch (Exception e) {
+			logger.catching(e);
+		}
+	}
+	//
+	public void sendMessageToClient(String msg){
 		messageSentCount++;
 		TextWebSocketFrame frame=new TextWebSocketFrame(msg);
 		channel.writeAndFlush(frame);
 	}
 	//
 	public void closeChannel(){
+		if(connectionInfo!=null&&connectionInfo.channelListener!=null){
+			connectionInfo.channelListener.onClose(this);
+		}
 		if(shell!=null&&shell.isConnected()){
 			shell.disconnect();
 		}
@@ -143,4 +166,5 @@ public class WebSshChannel {
 		}
 		shell=null;
 	}
+	
 }

@@ -25,8 +25,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
 import jazmin.misc.io.IOWorker;
 import jazmin.server.console.ConsoleServer;
@@ -38,6 +41,8 @@ import jazmin.server.console.ConsoleServer;
  * 26 Aug, 2015
  */
 public class WebSshServer extends Server{
+	private static Logger logger=LoggerFactory.get(WebSshServer.class);
+	//
 	private int port;
 	private int wssPort;
 	private boolean enableWss;
@@ -49,7 +54,7 @@ public class WebSshServer extends Server{
 	private String privateKeyPhrase;
 	private SslContext sslContext;
 	private int defaultSshConnectTimeout;
-	private HostInfoProvider hostInfoProvider;
+	private ConnectionInfoProvider connectionInfoProvider;
 	//
 	public WebSshServer() {
 		channels=new ConcurrentHashMap<String, WebSshChannel>();
@@ -61,15 +66,14 @@ public class WebSshServer extends Server{
 		privateKeyPhrase="";
 		defaultSshConnectTimeout=5000;
 	}
-	
-	 public HostInfoProvider getHostInfoProvider() {
-		return hostInfoProvider;
+	//
+	public ConnectionInfoProvider getConnectionInfoProvider() {
+		return connectionInfoProvider;
 	}
-
-	public void setHostInfoProvider(HostInfoProvider hostInfoProvider) {
-		this.hostInfoProvider = hostInfoProvider;
+	//
+	public void setConnectionInfoProvider(ConnectionInfoProvider hostInfoProvider) {
+		this.connectionInfoProvider = hostInfoProvider;
 	}
-
 	/**
 	 * @return the certificateFile
 	 */
@@ -213,6 +217,23 @@ public class WebSshServer extends Server{
             b.bind(port).sync();    	
         }
     }
+	//
+	void updateChannelTicket(){
+		while(true){
+			channels.forEach((id,channel)->{
+				try{
+					channel.updateTicket();
+				}catch(Exception e){
+					logger.catching(e);
+				}
+			});
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				logger.catching(e);
+			}
+		}
+	}
 	//--------------------------------------------------------------------------
 	@Override
 	public void init() throws Exception {
@@ -232,6 +253,9 @@ public class WebSshServer extends Server{
 		if(enableWss){
 			createWSListeningPoint(true);	
 		}
+		Thread ticketThread=new Thread(this::updateChannelTicket);
+		ticketThread.setName("WebSshServerTicket");
+		ticketThread.start();
 	}
 	@Override
 	public void stop() throws Exception {
@@ -251,7 +275,7 @@ public class WebSshServer extends Server{
 		.print("port",getPort())
 		.print("wssPort",getWssPort())
 		.print("defaultSshConnectTimeout",getDefaultSshConnectTimeout())
-		.print("hostInfoProvider",getHostInfoProvider())
+		.print("connectionInfoProvider",getConnectionInfoProvider())
 		.print("enableWss",isEnableWss())
 		.print("privateKeyFile",getPrivateKeyFile())
 		.print("certificateFile",getCertificateFile());

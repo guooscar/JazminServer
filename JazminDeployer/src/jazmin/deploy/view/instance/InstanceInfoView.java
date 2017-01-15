@@ -10,20 +10,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import jazmin.core.Jazmin;
-import jazmin.deploy.DeploySystemUI;
-import jazmin.deploy.domain.Application;
-import jazmin.deploy.domain.Instance;
-import jazmin.deploy.domain.monitor.MonitorInfo;
-import jazmin.deploy.manager.DeployManager;
-import jazmin.deploy.manager.MonitorManager;
-import jazmin.deploy.ui.BeanTable;
-import jazmin.deploy.view.main.CodeEditorCallback;
-import jazmin.deploy.view.main.CodeEditorWindow;
-import jazmin.deploy.view.main.DeployBaseView;
-import jazmin.deploy.view.main.InputWindow;
-import jazmin.deploy.view.main.TaskProgressWindow;
-
 import org.vaadin.aceeditor.AceMode;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
@@ -38,6 +24,22 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.themes.ValoTheme;
+
+import jazmin.core.Jazmin;
+import jazmin.deploy.DeploySystemUI;
+import jazmin.deploy.domain.Application;
+import jazmin.deploy.domain.Instance;
+import jazmin.deploy.domain.Machine;
+import jazmin.deploy.domain.monitor.MonitorInfo;
+import jazmin.deploy.manager.DeployManager;
+import jazmin.deploy.manager.MonitorManager;
+import jazmin.deploy.ui.BeanTable;
+import jazmin.deploy.view.main.CodeEditorCallback;
+import jazmin.deploy.view.main.CodeEditorWindow;
+import jazmin.deploy.view.main.DeployBaseView;
+import jazmin.deploy.view.main.InputWindow;
+import jazmin.deploy.view.main.TaskProgressWindow;
+import jazmin.deploy.view.main.WebSshWindow;
 
 /**
  * @author yama 6 Jan, 2015
@@ -185,7 +187,16 @@ public class InstanceInfoView extends DeployBaseView {
 			}
 			//
 			if (instance.application.type.startsWith("jazmin")) {
-				InstanceWebSshWindow bfw = new InstanceWebSshWindow(instance);
+				Machine machine=instance.machine;
+				Machine fakeMachine=new Machine();
+				Map<String,String>p=instance.properties;
+				fakeMachine.publicHost=machine.publicHost;
+				fakeMachine.sshUser=p.getOrDefault(Instance.P_JAZMIN_CONSOLE_USER, "jazmin");
+				fakeMachine.sshPassword=p.getOrDefault(Instance.P_JAZMIN_CONSOLE_PWD, "jazmin");
+				fakeMachine.sshPort=instance.port+10000;
+				String token=DeployManager.createOneTimeSSHToken(fakeMachine,false,true,null);
+				WebSshWindow bfw = new WebSshWindow(token);
+				bfw.setCaption("jazmin@"+instance.id);
 				UI.getCurrent().addWindow(bfw);
 				bfw.focus();
 				return;
@@ -244,7 +255,15 @@ public class InstanceInfoView extends DeployBaseView {
 		if (instance == null) {
 			DeploySystemUI.showNotificationInfo("Info", "Please choose which instance to view.");
 		} else {
-			InstanceTailLogWindow bfw = new InstanceTailLogWindow(instance);
+			String token=DeployManager.createOneTimeSSHToken(
+					instance.machine,
+					false,
+					false,
+					"tail -f "+
+					instance.machine.jazminHome+"log/"+
+					instance.id+".log");
+			WebSshWindow bfw=new WebSshWindow(token);
+			bfw.setCaption(instance.id+"-log");
 			UI.getCurrent().addWindow(bfw);
 			bfw.focus();
 		}

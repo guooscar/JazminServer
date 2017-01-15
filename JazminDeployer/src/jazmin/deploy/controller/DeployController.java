@@ -5,13 +5,11 @@ package jazmin.deploy.controller;
 
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
 import jazmin.core.Jazmin;
 import jazmin.deploy.domain.Instance;
-import jazmin.deploy.domain.Machine;
 import jazmin.deploy.manager.DeployManager;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -97,81 +95,14 @@ public class DeployController {
 		}
 	}
 	//--------------------------------------------------------------------------
-	@Service(id="instance_taillog",queryCount=3)
-	public void instanceTailLog(Context c){
-		if(!checkMachine(c,"")){
-			return;
-		}
-		List<String>querys=c.request().querys();
-		String instanceId=querys.get(2);
-		Instance instance=DeployManager.getInstance(instanceId);
-		if(instance==null){
-			c.view(new ErrorView(404));
-			return;
-		}
-		Machine machine=instance.machine;
-		c.put("token",DeployManager.createOneTimeSSHToken(
-				machine,
-				false,
-				false,
-				"tail -f "+
-				instance.machine.jazminHome+"log/"+
-				instance.id+".log"));
-		c.view(new ResourceView("/jsp/webssh.jsp"));
-	}
+
 	//
-	@Service(id="instance_webssh",queryCount=3)
-	public void instanceWebssh(Context c){
-		if(!checkMachine(c,"")){
-			return;
-		}
-		List<String>querys=c.request().querys();
-		String instanceId=querys.get(2);
-		Instance instance=DeployManager.getInstance(instanceId);
-		if(instance==null){
-			c.view(new ErrorView(404));
-			return;
-		}
-		Machine machine=instance.machine;
-		Machine fakeMachine=new Machine();
-		Map<String,String>p=instance.properties;
-		fakeMachine.publicHost=machine.publicHost;
-		fakeMachine.sshUser=p.getOrDefault(Instance.P_JAZMIN_CONSOLE_USER, "jazmin");
-		fakeMachine.sshPassword=p.getOrDefault(Instance.P_JAZMIN_CONSOLE_PWD, "jazmin");
-		fakeMachine.sshPort=instance.port+10000;
-		c.put("token",DeployManager.createOneTimeSSHToken(fakeMachine,false,true,null));
-		c.view(new ResourceView("/jsp/webssh.jsp"));
-	}
-	//
-	@Service(id="webssh",queryCount=3)
+	@Service(id="webssh")
 	public void webssh(Context c){
 		if(!checkMachine(c,"")){
 			return;
 		}
-		List<String>querys=c.request().querys();
-		String machineId=querys.get(2);
-		Machine machine=DeployManager.getMachine(machineId);
-		if(machine==null){
-			c.view(new ErrorView(404));
-			return;
-		}
-		c.put("token",DeployManager.createOneTimeSSHToken(machine,false,true,null));
-		c.view(new ResourceView("/jsp/webssh.jsp"));
-	}
-	//
-	@Service(id="rootwebssh",queryCount=3)
-	public void rootwebssh(Context c){
-		if(!checkMachine(c,"")){
-			return;
-		}
-		List<String>querys=c.request().querys();
-		String machineId=querys.get(2);
-		Machine machine=DeployManager.getMachine(machineId);
-		if(machine==null){
-			c.view(new ErrorView(404));
-			return;
-		}
-		c.put("token",DeployManager.createOneTimeSSHToken(machine,true,true,null));
+		c.put("token",c.getString("token", true));
 		c.view(new ResourceView("/jsp/webssh.jsp"));
 	}
 	//

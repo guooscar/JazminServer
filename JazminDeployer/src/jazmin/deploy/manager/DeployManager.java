@@ -22,6 +22,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
+import org.tmatesoft.svn.core.SVNException;
+
 import jazmin.core.Jazmin;
 import jazmin.deploy.DeployStartServlet;
 import jazmin.deploy.domain.AppPackage;
@@ -32,7 +36,7 @@ import jazmin.deploy.domain.Machine;
 import jazmin.deploy.domain.OutputListener;
 import jazmin.deploy.domain.PackageDownloadInfo;
 import jazmin.deploy.domain.RepoItem;
-import jazmin.deploy.domain.Script;
+import jazmin.deploy.domain.RobotScript;
 import jazmin.deploy.domain.TopSearch;
 import jazmin.deploy.domain.User;
 import jazmin.deploy.domain.ant.AntManager;
@@ -41,8 +45,9 @@ import jazmin.deploy.util.DateUtil;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.web.WebServer;
-import jazmin.server.webssh.HostInfoProvider;
-import jazmin.server.webssh.HostInfoProvider.HostInfo;
+import jazmin.server.webssh.ConnectionInfoProvider.ConnectionInfo;
+import jazmin.server.webssh.JavaScriptChannelRobot;
+import jazmin.server.webssh.SendCommandChannelRobot;
 import jazmin.server.webssh.WebSshServer;
 import jazmin.util.BeanUtil;
 import jazmin.util.FileUtil;
@@ -50,10 +55,6 @@ import jazmin.util.IOUtil;
 import jazmin.util.JSONUtil;
 import jazmin.util.JSONUtil.JSONPropertyFilter;
 import jazmin.util.SshUtil;
-
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
-import org.tmatesoft.svn.core.SVNException;
 
 /**
  * @author yama
@@ -70,7 +71,7 @@ public class DeployManager {
 	private static List<PackageDownloadInfo>downloadInfos;
 	private static GraphVizRenderer graphVizRenderer;
 	private static StringBuffer errorMessage;
-	private static Map<String, HostInfo>oneTimeHostInfoMap=new ConcurrentHashMap<>();
+	private static Map<String, ConnectionInfo>oneTimeHostInfoMap=new ConcurrentHashMap<>();
 	//
 	static{
 		instanceMap=new ConcurrentHashMap<String, Instance>();
@@ -107,25 +108,46 @@ public class DeployManager {
 		//
 		WebSshServer server=Jazmin.getServer(WebSshServer.class);
 		if(server!=null){
-			server.setHostInfoProvider(DeployManager::getOneTimeHostInfo);
+			server.setConnectionInfoProvider(DeployManager::getOneTimeHostInfo);
 		}
 	}
 	//
-	public static String createOneTimeSSHToken(Machine machine,boolean root,boolean enableInput,String cmd){
-		HostInfo info=new HostInfo();
+	public static String createOneTimeSSHToken(
+			Machine machine,
+			boolean root,
+			boolean enableInput,
+			String cmd){
+		ConnectionInfo info=new ConnectionInfo();
 		info.host=machine.publicHost;
 		info.port=machine.sshPort;
 		info.user=root?"root":machine.sshUser;
 		info.password=root?machine.rootSshPassword:machine.sshPassword;
 		info.enableInput=enableInput;
-		info.cmd=cmd;
+		if(cmd!=null){
+			info.channelListener=new SendCommandChannelRobot(cmd);
+		}
 		String uuid=UUID.randomUUID().toString();
 		oneTimeHostInfoMap.put(uuid,info);
 		return uuid;
 	}
 	//
-	public static HostInfo getOneTimeHostInfo(String token){
-		HostInfo info=oneTimeHostInfoMap.get(token);
+	public static String createOneTimeRobotToken(
+			Machine machine,
+			boolean root,
+			String robot)throws Exception{
+		ConnectionInfo info=new ConnectionInfo();
+		info.host=machine.publicHost;
+		info.port=machine.sshPort;
+		info.user=root?"root":machine.sshUser;
+		info.password=root?machine.rootSshPassword:machine.sshPassword;
+		info.channelListener=new JavaScriptChannelRobot(getRobotScript(robot));
+		String uuid=UUID.randomUUID().toString();
+		oneTimeHostInfoMap.put(uuid,info);
+		return uuid;
+	}
+	//
+	public static ConnectionInfo getOneTimeHostInfo(String token){
+		ConnectionInfo info=oneTimeHostInfoMap.get(token);
 		oneTimeHostInfoMap.remove(token);
 		return info;
 	}
@@ -169,13 +191,13 @@ public class DeployManager {
 		}
 	}
 	//
-	public static List<Script>getScripts(){
+	public static List<RobotScript>getRobotScripts(){
 		String configDir=workSpaceDir+"script";
 		File dir=new File(configDir);
-		List<Script>result=new ArrayList<Script>();
+		List<RobotScript>result=new ArrayList<RobotScript>();
 		for(File f:dir.listFiles()){
 			if(f.isFile()){
-				Script s=new Script();
+				RobotScript s=new RobotScript();
 				s.name=f.getName();
 				s.lastModifiedTime=new Date(f.lastModified());
 				result.add(s);
@@ -189,17 +211,17 @@ public class DeployManager {
 		scriptFile.delete();
 	}
 	//
-	public static boolean existsScript(String name){
+	public static boolean existsRobotScript(String name){
 		File scriptFile=new File(workSpaceDir+"script/"+name);
 		return scriptFile.exists();
 	}
 	//
-	public static String getScript(String name) throws IOException{
+	public static String getRobotScript(String name) throws IOException{
 		File scriptFile=new File(workSpaceDir+"script/"+name);
 		return FileUtil.getContent(scriptFile);
 	}
 	//
-	public static void saveScript(String name,String content) throws IOException{
+	public static void saveRobotScript(String name,String content) throws IOException{
 		File scriptFile=new File(workSpaceDir+"script/"+name);
 		if(!scriptFile.exists()){
 			scriptFile.createNewFile();
@@ -731,32 +753,7 @@ public class DeployManager {
 		}
 		return sb.toString();
 	}
-	//
-	public static String runScriptOnMachine(Machine m,boolean root,String script){
-		StringBuilder sb=new StringBuilder();
-		try{
-			String shellFile=script;
-			shellFile=shellFile.replaceAll("'","\\'").replaceAll("\"","\\\\\"");
-			String uuid=UUID.randomUUID().toString().replaceAll("-","");
-			SshUtil.execute(
-					m.publicHost,
-					m.sshPort,
-					root?"root":m.sshUser,
-					root?m.rootSshPassword:m.sshPassword,
-					"echo \""+shellFile+"\" > "+"/tmp/"+uuid+";chmod +x /tmp/"+uuid+";/tmp/"+uuid,
-					m.getSshTimeout(),
-					(out,err)->{
-						sb.append(out+"\n");
-						if(err!=null&&!err.isEmpty()){
-							sb.append(err+"\n");			
-						}
-					});
-		}catch(Exception e){
-			e.printStackTrace();
-			sb.append(e.getMessage()+"\n");
-		}
-		return sb.toString();
-	}
+	
 	//
 	private static boolean pingHost(String host){
 		try {

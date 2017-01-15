@@ -1,9 +1,7 @@
 /**
  * 
  */
-package jazmin.deploy.view.machine;
-
-import jazmin.deploy.domain.Machine;
+package jazmin.deploy.view.main;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.ExternalResource;
@@ -17,15 +15,10 @@ import com.vaadin.ui.Window;
  * 6 Jan, 2015
  */
 @SuppressWarnings("serial")
-public class MachineWebSshWindow extends Window{
+public class WebSshWindow extends Window{
 	//
-	public MachineWebSshWindow(Machine machine,boolean root) {
+	public WebSshWindow(String token) {
         Responsive.makeResponsive(this);
-        if(root){
-        	 setCaption("root@"+machine.id);
-        }else{
-       	 setCaption(machine.sshUser+"@"+machine.id);
-        }
         setWidth(90.0f, Unit.PERCENTAGE);
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);
@@ -36,13 +29,9 @@ public class MachineWebSshWindow extends Window{
         content.setSizeFull();
         setContent(content);
         content.setImmediate(false);
-        String url="/srv/deploy/webssh/"+machine.id;
-        if(root){
-        	url="/srv/deploy/rootwebssh/"+machine.id;
-        }
+        String url="/srv/deploy/webssh?token="+token;
         BrowserFrame frame=new BrowserFrame(null,
         		new ExternalResource(url));
-        //
         //
         frame.setSizeFull();
         content.addComponent(frame);

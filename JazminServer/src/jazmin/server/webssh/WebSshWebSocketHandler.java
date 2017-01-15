@@ -29,7 +29,7 @@ import java.net.InetSocketAddress;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.server.webssh.HostInfoProvider.HostInfo;
+import jazmin.server.webssh.ConnectionInfoProvider.ConnectionInfo;
 
 /**
  * Handles handshakes and messages
@@ -86,14 +86,14 @@ public class WebSshWebSocketHandler extends SimpleChannelInboundHandler<Object> 
 		if(uri.length()>1){
 			token=uri.substring(1);
 		}
-		HostInfo hostInfo;
-		if(token==null||(hostInfo=server.getHostInfoProvider().getHostInfo(token))==null){
-			logger.error("can not find host info with token {}",token);
+		ConnectionInfo hostInfo;
+		if(token==null||(hostInfo=server.getConnectionInfoProvider().getConnectionInfo(token))==null){
+			logger.error("can not find connection info with token {}",token);
 			ctx.close();
 			return;
 		}
 		WebSshChannel webSshChannel=ctx.channel().attr(WebSshChannel.SESSION_KEY).get();
-		webSshChannel.hostInfo=hostInfo;
+		webSshChannel.connectionInfo=hostInfo;
 		// Handshake
 		WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
 				getWebSocketLocation(req), "webssh", true,MAX_WEBSOCKET_FRAME_SIZE);
@@ -175,7 +175,7 @@ public class WebSshWebSocketHandler extends SimpleChannelInboundHandler<Object> 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) 
 			throws Exception {
-		if(server.getHostInfoProvider()==null){
+		if(server.getConnectionInfoProvider()==null){
 			logger.error("can not find HostInfoProvider.");
 			ctx.channel().close();
 			return;

@@ -6,7 +6,7 @@ package jazmin.deploy.view.machine;
 import java.io.IOException;
 
 import jazmin.deploy.DeploySystemUI;
-import jazmin.deploy.domain.Script;
+import jazmin.deploy.domain.RobotScript;
 import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.ui.BeanTable;
 import jazmin.deploy.view.main.InputWindow;
@@ -34,15 +34,15 @@ import com.vaadin.ui.themes.ValoTheme;
  * 6 Jan, 2015
  */
 @SuppressWarnings("serial")
-public class MachineScriptWindow extends Window{
+public class MachineRobotWindow extends Window{
 
-	BeanTable<Script> table;
+	BeanTable<RobotScript> table;
 	AceEditor editor ;
-	Script currentScript;
+	RobotScript currentScript;
 	//
-	public MachineScriptWindow() {
+	public MachineRobotWindow() {
 		Responsive.makeResponsive(this);
-		setCaption("Scripts");
+		setCaption("Robots");
         setWidth(90.0f, Unit.PERCENTAGE);
         setHeight(90.0f, Unit.PERCENTAGE);
         center();
@@ -53,12 +53,11 @@ public class MachineScriptWindow extends Window{
         VerticalLayout content = new VerticalLayout();
         content.setSizeFull();
         setContent(content);
-        table = new BeanTable<Script>("",Script.class);
+        table = new BeanTable<RobotScript>(null,RobotScript.class);
 		content.addComponent(table);
-		table.setWidth("100%");
-		table.setHeight("200px");
-        content.addComponent(table);
-        //
+		table.setWidth("300px");
+		table.setHeight("100%");
+		//
         editor= new AceEditor();
 		editor.setThemePath("/ace");
 		editor.setModePath("/ace");
@@ -67,11 +66,13 @@ public class MachineScriptWindow extends Window{
 		editor.setShowPrintMargin(false);
 		editor.setUseWorker(true);
 		editor.setTheme(AceTheme.eclipse);
-		editor.setSizeFull();
-		content.addComponent(editor);
-        //
-        content.setExpandRatio(editor, 1f);
-     
+		editor.setWidth("100%");
+		editor.setHeight("100%");
+		HorizontalLayout topLayout=new HorizontalLayout(table,editor);
+		topLayout.setExpandRatio(editor,1);
+		topLayout.setSizeFull();
+		content.addComponent(topLayout);
+        content.setExpandRatio(topLayout, 1f);
         HorizontalLayout footer = new HorizontalLayout();
         footer.setSpacing(true);
         footer.addStyleName(ValoTheme.WINDOW_BOTTOM_TOOLBAR);
@@ -108,7 +109,7 @@ public class MachineScriptWindow extends Window{
         table.addItemClickListener(new ItemClickListener() {
 			@Override
 			public void itemClick(ItemClickEvent event) {
-				Script script=table.getItemValue(event.getItem());
+				RobotScript script=table.getItemValue(event.getItem());
 				showScriptContent(script);
 			}
 		});
@@ -116,23 +117,23 @@ public class MachineScriptWindow extends Window{
         loadData();
     }
 	//
-	private void showScriptContent(Script script){
+	private void showScriptContent(RobotScript script){
 		try {
 			currentScript=script;
-			editor.setValue(DeployManager.getScript(script.name));
+			editor.setValue(DeployManager.getRobotScript(script.name));
 		} catch(Exception e) {
 			DeploySystemUI.showNotificationInfo("ERROR", e.getMessage());
 		}
 	}
 	//
 	private void loadData(){
-		table.setBeanData(DeployManager.getScripts());
+		table.setBeanData(DeployManager.getRobotScripts());
 	}
 	//
 	private void deleteScript(){
-		Script script=table.getSelectValue();
+		RobotScript script=table.getSelectValue();
 		if(script==null){
-			DeploySystemUI.showNotificationInfo("INFO", "Choose script to delete");
+			DeploySystemUI.showNotificationInfo("INFO", "Choose robot to delete");
 			return;
 		}
 		DeployManager.deleteScript(script.name);
@@ -143,7 +144,7 @@ public class MachineScriptWindow extends Window{
 		final InputWindow sw=new InputWindow(window->{
 			String name=window.getInputValue();
 			try {
-				DeployManager.saveScript(name,"");
+				DeployManager.saveRobotScript(name,"");
 				DeploySystemUI.showNotificationInfo("INFO", "Create complete");
 				loadData();
 				window.close();
@@ -151,8 +152,8 @@ public class MachineScriptWindow extends Window{
 				DeploySystemUI.showNotificationInfo("ERROR", e.getMessage());
 			}
 		});
-		sw.setCaption("Input script name");
-		sw.setInfo("Input script name");
+		sw.setCaption("Create new robot");
+		sw.setInfo("input robot name");
 		UI.getCurrent().addWindow(sw);
 	}
 	//
@@ -161,7 +162,7 @@ public class MachineScriptWindow extends Window{
 			return;
 		}
 		try {
-			DeployManager.saveScript(currentScript.name,editor.getValue());
+			DeployManager.saveRobotScript(currentScript.name,editor.getValue());
 			DeploySystemUI.showNotificationInfo("INFO", "Save complete");
 		} catch (IOException e) {
 			DeploySystemUI.showNotificationInfo("ERROR", e.getMessage());

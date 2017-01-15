@@ -58,10 +58,10 @@
         	document.getElementById('infolabel').innerHTML="Connection error"; 	
         }
     }
-
     openWs();
 })()
     </script>
+   
     <div id="infolabel" style="font-size:30px;font-weight:700;margin: auto;width: 40%;border:1px solid #ccc; padding: 10px;text-align:center;margin-top:300px;">
     Connecting...
     </div>
