@@ -79,7 +79,7 @@ public class DeploySystemUI extends UI {
 	}
 	//
 	public static void showNotificationInfo(String caption,String description){
-		showInfo(caption+":"+description);
+		showInfo(caption.toLowerCase()+":"+description);
 	}
 	
 	/**
@@ -97,8 +97,8 @@ public class DeploySystemUI extends UI {
 		Notification success = new Notification(content);
 		success.setHtmlContentAllowed(true);
         success.setDelayMsec(2000);
-        success.setStyleName("bar success small");
-        success.setPosition(Position.TOP_CENTER);
+        success.setStyleName("warning system");
+        success.setPosition(Position.MIDDLE_CENTER);
         success.show(Page.getCurrent());
 	}
 	//
@@ -108,11 +108,11 @@ public class DeploySystemUI extends UI {
 		UI.getCurrent().setErrorHandler(new DefaultErrorHandler() {
 		    @Override
 		    public void error(com.vaadin.server.ErrorEvent event) {
-		        String cause = "<b>ERROR:</b><br/>";
+		        String cause = "";
 		        for (Throwable t = event.getThrowable(); t != null;
 		             t = t.getCause()){
 		            if (t.getCause() == null) {
-		                cause += t.getClass().getName() + "<br/>";
+		                cause += t.getMessage() + "<br/>";
 				        showInfo(cause);
 				        t.printStackTrace();	
 				            	

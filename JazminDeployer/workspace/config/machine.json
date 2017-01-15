@@ -7,6 +7,8 @@
 		"sshUser":"yama",
 		"sshPassword":"77585211",
 		"sshPort":22,
+		"vncPort":5900,
+		"vncPassword":"123456",
 		"jazminHome":"/home/appadmin/jazmin_server/",
 		"memcachedHome":"/home/appadmin/memcached/",
 		"haproxyHome":"/home/appadmin/haproxy/"		

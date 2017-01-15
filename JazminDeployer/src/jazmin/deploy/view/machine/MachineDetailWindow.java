@@ -35,7 +35,8 @@ public class MachineDetailWindow extends Window{
         content.setSizeFull();
         setContent(content);
         StaticBeanForm<Machine>beanForm=new StaticBeanForm<Machine>(
-        		 machine, 1,"sshPassword","rootSshPassword");
+        		 machine, 1,"sshPassword","rootSshPassword","vncPassword");
+        
         beanForm.setSizeFull();
         content.addComponent(beanForm);
         content.setExpandRatio(beanForm, 1f);

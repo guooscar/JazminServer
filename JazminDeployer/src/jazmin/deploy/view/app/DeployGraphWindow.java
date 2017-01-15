@@ -26,12 +26,12 @@ public class DeployGraphWindow extends Window{
 	public DeployGraphWindow(String type,String systemId,String clusterName) {
         Responsive.makeResponsive(this);
         setCaption(systemId+" deploy graph");
-        setWidth(90.0f, Unit.PERCENTAGE);
+        setHeight("700px");
+        setWidth("1250px");
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);
         setResizable(true);
         setClosable(true);
-        setHeight(90.0f, Unit.PERCENTAGE);
         VerticalLayout content = new VerticalLayout();
         content.setSizeFull();
         setContent(content);

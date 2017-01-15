@@ -120,7 +120,7 @@ public class MachineRobotWindow extends Window{
 	private void showScriptContent(RobotScript script){
 		try {
 			currentScript=script;
-			editor.setValue(DeployManager.getRobotScript(script.name));
+			editor.setValue(DeployManager.getRobotScriptContent(script.name));
 		} catch(Exception e) {
 			DeploySystemUI.showNotificationInfo("ERROR", e.getMessage());
 		}
@@ -147,6 +147,7 @@ public class MachineRobotWindow extends Window{
 				DeployManager.saveRobotScript(name,"");
 				DeploySystemUI.showNotificationInfo("INFO", "Create complete");
 				loadData();
+				currentScript=DeployManager.getRobotScript(name);
 				window.close();
 			} catch (Exception e) {
 				DeploySystemUI.showNotificationInfo("ERROR", e.getMessage());

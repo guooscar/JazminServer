@@ -104,7 +104,12 @@ public class WebSshWebSocketHandler extends SimpleChannelInboundHandler<Object> 
 		} else {
 			handshaker.handshake(ctx.channel(), req);
 		}
-		webSshChannel.startShell();
+		try {
+			webSshChannel.startShell();
+		} catch (Exception e) {
+			logger.catching(e);
+			ctx.close();
+		}
 	}
 
 	private void handleWebSocketFrame(ChannelHandlerContext ctx,WebSocketFrame frame) 

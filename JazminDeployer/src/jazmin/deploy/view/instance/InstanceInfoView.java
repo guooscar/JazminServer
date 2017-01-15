@@ -533,10 +533,10 @@ public class InstanceInfoView extends DeployBaseView {
 				DeployManager.setPackageVersion(getOptInstances(), version);
 				DeployManager.saveInstanceConfig();
 			} catch (Exception e) {
-				DeploySystemUI.showNotificationInfo("Error", e.getMessage());
+				DeploySystemUI.showNotificationInfo("error", e.getMessage());
 			}
 			window.close();
-			DeploySystemUI.showNotificationInfo("Info", "Package version set to " + version);
+			DeploySystemUI.showNotificationInfo("info", "Package version set to " + version);
 			loadData();
 		});
 		sw.setCaption("Change instance package version");

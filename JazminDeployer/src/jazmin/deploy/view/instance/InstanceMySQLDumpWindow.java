@@ -65,7 +65,7 @@ public class InstanceMySQLDumpWindow extends Window{
 	    getBtn.addClickListener(e->{
 	    	String from=fromField.getValue();
 	    	if(from==null||from.trim().isEmpty()){
-	    		DeploySystemUI.showNotificationInfo("ERROR","Dump file can not be null.");
+	    		DeploySystemUI.showNotificationInfo("error","Dump file can not be null.");
 	    		return;
 	    	}
 	    	dump(from);

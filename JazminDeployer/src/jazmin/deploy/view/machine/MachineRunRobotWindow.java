@@ -88,9 +88,9 @@ public class MachineRunRobotWindow extends Window{
         });
         //
         StringBuilder machineList=new StringBuilder();
-        machines.forEach(m->machineList.append(m.id+"<br>"));
+        machines.forEach(m->machineList.append(m.id+" "));
         //
-        infoLabel.setValue("<div style='font-size:16px;font-weight:700;color:red'>Confirm run robot in <br>"+machineList+"</div>");
+        infoLabel.setValue("<div style='font-size:16px;font-weight:700;color:red'>confirm run robot in <br>"+machineList+"</div>");
         infoLabel.setContentMode(ContentMode.HTML);
 	}
 	//
@@ -111,7 +111,7 @@ public class MachineRunRobotWindow extends Window{
 				sw.setHeight("500px");
 				sw.setCaption(robot+"#"+(isRunAsRoot?"root":machine.sshUser)+"@"+machine.id);
 				sw.center();
-				sw.setPositionX(sw.getPositionX()+(idx++)*50);
+				sw.setPositionX(sw.getPositionX()+(idx++)*100);
 				UI.getCurrent().addWindow(sw);
 				sw.focus();
 			

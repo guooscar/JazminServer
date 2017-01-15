@@ -106,6 +106,15 @@ public class DeployController {
 		c.view(new ResourceView("/jsp/webssh.jsp"));
 	}
 	//
+	@Service(id="webvnc")
+	public void webvnc(Context c){
+		if(!checkMachine(c,"")){
+			return;
+		}
+		c.put("token",c.getString("token", true));
+		c.view(new ResourceView("/jsp/webvnc.jsp"));
+	}
+	//
 	@Service(id="sysgraph")
 	public void getSystemGraph(Context c){
 		if(!checkMachine(c,"")){

@@ -32,13 +32,9 @@ import com.ibm.icu.text.SimpleDateFormat;
 public class MonitorManager implements Runnable {
 	//
 	private static Logger logger = LoggerFactory.get(MonitorManager.class);
-	//
 	private static final String LOG_PATH = "log" + File.separator + "monitor";
-	
 	private static final String SUFFIX=".log";
-	//
 	private static MonitorManager instance;
-	//
 	private Queue<MonitorInfo> queue;
 	//
 	public static MonitorManager get() {

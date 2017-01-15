@@ -45,6 +45,8 @@ import jazmin.deploy.util.DateUtil;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.web.WebServer;
+import jazmin.server.websockify.HostInfoProvider.HostInfo;
+import jazmin.server.websockify.WebsockifyServer;
 import jazmin.server.webssh.ConnectionInfoProvider.ConnectionInfo;
 import jazmin.server.webssh.JavaScriptChannelRobot;
 import jazmin.server.webssh.SendCommandChannelRobot;
@@ -71,7 +73,8 @@ public class DeployManager {
 	private static List<PackageDownloadInfo>downloadInfos;
 	private static GraphVizRenderer graphVizRenderer;
 	private static StringBuffer errorMessage;
-	private static Map<String, ConnectionInfo>oneTimeHostInfoMap=new ConcurrentHashMap<>();
+	private static Map<String, ConnectionInfo>oneTimeSSHConnectionMap=new ConcurrentHashMap<>();
+	private static Map<String, HostInfo>oneTimeVncHostInfoMap=new ConcurrentHashMap<>();
 	//
 	static{
 		instanceMap=new ConcurrentHashMap<String, Instance>();
@@ -110,6 +113,28 @@ public class DeployManager {
 		if(server!=null){
 			server.setConnectionInfoProvider(DeployManager::getOneTimeHostInfo);
 		}
+		WebsockifyServer websockifyServer=Jazmin.getServer(WebsockifyServer.class);
+		if(websockifyServer!=null){
+			websockifyServer.setHostInfoProvider(DeployManager::getOneTimeVncInfo);
+		}
+	}
+	//
+	public static String createOneVncToken(Machine machine){
+		if(machine.vncPort==0){
+			throw new IllegalArgumentException("vnc info not set");
+		}
+		HostInfo info=new HostInfo();
+		info.host=machine.publicHost;
+		info.port=machine.vncPort;
+		String uuid=UUID.randomUUID().toString();
+		oneTimeVncHostInfoMap.put(uuid,info);
+		return uuid;
+	}
+	//
+	public static HostInfo getOneTimeVncInfo(String token){
+		HostInfo info=oneTimeVncHostInfoMap.get(token);
+		oneTimeVncHostInfoMap.remove(token);
+		return info;
 	}
 	//
 	public static String createOneTimeSSHToken(
@@ -117,6 +142,11 @@ public class DeployManager {
 			boolean root,
 			boolean enableInput,
 			String cmd){
+		if(machine.sshPort==0||
+				machine.sshUser==null||
+				machine.sshUser.isEmpty()){
+			throw new IllegalArgumentException("ssh info not set");
+		}
 		ConnectionInfo info=new ConnectionInfo();
 		info.host=machine.publicHost;
 		info.port=machine.sshPort;
@@ -127,7 +157,7 @@ public class DeployManager {
 			info.channelListener=new SendCommandChannelRobot(cmd);
 		}
 		String uuid=UUID.randomUUID().toString();
-		oneTimeHostInfoMap.put(uuid,info);
+		oneTimeSSHConnectionMap.put(uuid,info);
 		return uuid;
 	}
 	//
@@ -135,20 +165,25 @@ public class DeployManager {
 			Machine machine,
 			boolean root,
 			String robot)throws Exception{
+		if(machine.sshPort==0||
+				machine.sshUser==null||
+				machine.sshUser.isEmpty()){
+			throw new IllegalArgumentException("ssh info not set");
+		}
 		ConnectionInfo info=new ConnectionInfo();
 		info.host=machine.publicHost;
 		info.port=machine.sshPort;
 		info.user=root?"root":machine.sshUser;
 		info.password=root?machine.rootSshPassword:machine.sshPassword;
-		info.channelListener=new JavaScriptChannelRobot(getRobotScript(robot));
+		info.channelListener=new JavaScriptChannelRobot(getRobotScriptContent(robot));
 		String uuid=UUID.randomUUID().toString();
-		oneTimeHostInfoMap.put(uuid,info);
+		oneTimeSSHConnectionMap.put(uuid,info);
 		return uuid;
 	}
 	//
 	public static ConnectionInfo getOneTimeHostInfo(String token){
-		ConnectionInfo info=oneTimeHostInfoMap.get(token);
-		oneTimeHostInfoMap.remove(token);
+		ConnectionInfo info=oneTimeSSHConnectionMap.get(token);
+		oneTimeSSHConnectionMap.remove(token);
 		return info;
 	}
 	//
@@ -216,9 +251,25 @@ public class DeployManager {
 		return scriptFile.exists();
 	}
 	//
-	public static String getRobotScript(String name) throws IOException{
+	public static String getRobotScriptContent(String name) throws IOException{
 		File scriptFile=new File(workSpaceDir+"script/"+name);
 		return FileUtil.getContent(scriptFile);
+	}
+	//
+	public static RobotScript getRobotScript(String name) throws IOException{
+		String configDir=workSpaceDir+"script";
+		File dir=new File(configDir);
+		for(File f:dir.listFiles()){
+			if(f.isFile()){
+				if(f.getName().equals(name)){
+					RobotScript s=new RobotScript();
+					s.name=f.getName();
+					s.lastModifiedTime=new Date(f.lastModified());
+					return s;
+				};
+			}
+		}
+		return null;
 	}
 	//
 	public static void saveRobotScript(String name,String content) throws IOException{

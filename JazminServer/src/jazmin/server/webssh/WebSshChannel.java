@@ -52,25 +52,20 @@ public class WebSshChannel {
 	private static final char RECEIVE_WINDOWRESIZE='1';
 	//
 	//
-	public void startShell(){
-		try {
-			logger.info("connection to {}@{}:{}",connectionInfo.user,connectionInfo.host,connectionInfo.port);
-			shell=SshUtil.shell(
-					connectionInfo.host,
-					connectionInfo.port,
-					connectionInfo.user,
-					connectionInfo.password,
-					sshConnectTimeout);
-			shellInputStream=shell.getInputStream();
-			shellOutputStream=shell.getOutputStream();
-			startInputReader();
-			if(connectionInfo.channelListener!=null){
-				connectionInfo.channelListener.onOpen(this);
-			}
-		} catch (Exception e) {
-			logger.catching(e);
-			channel.close();
+	public void startShell()throws Exception{
+
+		logger.info("connection to {}@{}:{}", connectionInfo.user,
+				connectionInfo.host, connectionInfo.port);
+		shell = SshUtil.shell(connectionInfo.host, connectionInfo.port,
+						connectionInfo.user, connectionInfo.password,
+						sshConnectTimeout);
+		shellInputStream = shell.getInputStream();
+		shellOutputStream = shell.getOutputStream();
+		startInputReader();
+		if (connectionInfo.channelListener != null) {
+			connectionInfo.channelListener.onOpen(this);
 		}
+		
 	}
 	//
 	void updateTicket(){

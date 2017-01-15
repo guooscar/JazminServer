@@ -23,7 +23,7 @@
         return document.getElementById(id).innerHTML;
       }
       
-      function example(id, format, engine) {
+      function gen(id, format, engine) {
         var result;
         try {
           result = Viz(src(id), format, engine);
@@ -35,7 +35,7 @@
           return inspect(e.toString());
         }
       }
-      var ss= example("cluster", "svg");
+      var ss= gen("cluster", "svg");
       document.getElementById("graph").innerHTML =ss;
       //
       window.onload = function() {
@@ -47,8 +47,8 @@
           center: true,
           viewportSelector: document.getElementById('graph').querySelector('#graph0')
         });
-       	zoomSvg.zoom(0.3)
-        zoomSvg.pan({x: 50, y: 650})
+       	zoomSvg.zoom(0.2)
+        zoomSvg.pan({x: 20, y: 500})
       };
       //
     </script>
