@@ -7,6 +7,7 @@ package jazmin.server.webssh;
  */
 public interface ConnectionInfoProvider {
 	public static class ConnectionInfo{
+		public String name;
 		public String host;
 		public int port;
 		public String user;

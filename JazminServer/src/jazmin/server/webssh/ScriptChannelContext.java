@@ -36,6 +36,7 @@ public interface ScriptChannelContext{
 	public static interface HttpCallback{
 		void invoke(String response,String error);
 	}
+	String name();
 	/**
 	 * @return get ssh server address
 	 */

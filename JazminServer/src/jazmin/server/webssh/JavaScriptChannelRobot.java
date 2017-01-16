@@ -4,7 +4,6 @@
 package jazmin.server.webssh;
 
 import java.net.URL;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +38,7 @@ public class JavaScriptChannelRobot extends ChannelRobot implements ScriptChanne
 
 	//
 	public JavaScriptChannelRobot(String source) throws ScriptException {
-		expectCallbacks=new HashMap<>();
+		expectCallbacks=new ConcurrentHashMap<>();
 		afterTicketCallbacks=new ConcurrentHashMap<>();
 	
 		loadJavaScript(source);
@@ -56,6 +55,13 @@ public class JavaScriptChannelRobot extends ChannelRobot implements ScriptChanne
 		engine.eval(commonScript+source, ssc); 
 	}
 	//----------------------------------------------------------------------
+	@Override
+	public String name() {
+		if(webSshChannel!=null){
+			return webSshChannel.connectionInfo.name+"";
+		}
+		return "undefined";
+	}
 	@Override
 	public long setTimeout(int ticket, ActionCallback callback) {
 		long targetTicket=webSshChannel.ticket+ticket;
@@ -188,22 +194,17 @@ public class JavaScriptChannelRobot extends ChannelRobot implements ScriptChanne
 			this.openCallback.invoke();
 		}
 	}
-	StringBuilder inputBuffer=new StringBuilder();
 	//
 	@Override
-	public boolean onInput(WebSshChannel channel, String message) {
+	public void onInput(WebSshChannel channel, String message) {
 		if(hookInputCallback!=null){
-			synchronized (inputBuffer) {
-				for(char c:message.toCharArray()){
-					inputBuffer.append(c);
-					if(c=='\n'||c=='\r'){
-						hookInputCallback.invoke(inputBuffer.toString().trim());
-						inputBuffer.delete(0, inputBuffer.length());
-					}
-				}
-			}
+			hookInputCallback.invoke(message);
 		}
-		return false;
+	}
+	//
+	@Override
+	public boolean inputSendToServer() {
+		return hookInputCallback==null?true:false;
 	}
 	//
 	StringBuilder messageBuffer=new StringBuilder();

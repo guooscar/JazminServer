@@ -27,8 +27,14 @@ public class ChannelRobot implements ChannelListener{
 	public void onTicket(WebSshChannel channel, long ticket) {
 		
 	}
+	//
 	@Override
-	public boolean onInput(WebSshChannel channel, String message) {
+	public void onInput(WebSshChannel channel, String message) {
+		
+	}
+	//
+	@Override
+	public boolean inputSendToServer() {
 		return true;
 	}
 }

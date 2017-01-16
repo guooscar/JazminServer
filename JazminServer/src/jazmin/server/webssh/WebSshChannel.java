@@ -70,8 +70,13 @@ public class WebSshChannel {
 	//
 	void updateTicket(){
 		ticket++;
-		if(connectionInfo!=null&&connectionInfo.channelListener!=null){
-			connectionInfo.channelListener.onTicket(this, ticket);
+		try{
+			if(connectionInfo!=null&&connectionInfo.channelListener!=null){
+				connectionInfo.channelListener.onTicket(this, ticket);
+			}
+		}catch (Exception e) {
+			sendError(e.getMessage());
+			logger.catching(e);
 		}
 	}
 	//
@@ -88,6 +93,7 @@ public class WebSshChannel {
 			            	receiveServerMessage(s);
 			            }
 					} catch (Exception e) {
+						sendError(e.getMessage());
 						logger.catching(e);
 					}
 				}
@@ -99,6 +105,15 @@ public class WebSshChannel {
 		inputReaderThread.start();
 	}
 	//
+	public void sendError(String error){
+		//show red alert info to client
+		String rsp=
+				"\033[31m\n\r**************************************************\n\r"+
+				"\n\rerror:"+error+"\n\r"+
+				"\n\r**************************************************\n\r\033[0m";
+		sendMessageToClient(rsp);
+	}
+	//
 	private void receiveServerMessage(String s){
 		if(connectionInfo.channelListener!=null){
     		connectionInfo.channelListener.onMessage(WebSshChannel.this,s);
@@ -106,24 +121,49 @@ public class WebSshChannel {
     	sendMessageToClient(s);	
 	}
 	//
+	StringBuilder inputBuffer=new StringBuilder();
+	//
 	public void receiveMessage(String msg){
+		try{
+			receiveMessage0(msg);
+		}catch (Exception e) {
+			logger.catching(e);
+			sendError(e.getMessage());
+		}
+	}
+	private void receiveMessage0(String msg){
 		char command=msg.charAt(0);
 		if(command==RECEIVE_KEY&&connectionInfo.enableInput){
 			boolean sendToServer=true;
 			if(connectionInfo.channelListener!=null){
-				sendToServer=connectionInfo.channelListener.onInput(this, msg.substring(1));
+				sendToServer=connectionInfo.channelListener.inputSendToServer();
 			}
 			if(sendToServer){
 				for(int i=1;i<msg.length();i++){
 					sendMessageToServer(msg.charAt(i)+"");
 				}
 			}else{
+				//hook input mode
 				//ECHO 
 				for(int i=1;i<msg.length();i++){
 					char c=msg.charAt(i);
 					sendMessageToClient(c+"");
-					if(c=='\r'){
+					switch (c) {
+					case 127://del
+						if(inputBuffer.length()>0){
+							sendMessageToClient(((char)0x08)+"\033[J");//BS
+							inputBuffer.deleteCharAt(inputBuffer.length()-1);		
+						}
+						break;
+					case '\r':
 						sendMessageToClient("\n");
+						if(connectionInfo.channelListener!=null){
+							connectionInfo.channelListener.onInput(this, inputBuffer.toString().trim());
+						}
+						inputBuffer.delete(0,inputBuffer.length());
+					default:
+						inputBuffer.append(c);
+						break;
 					}
 				}	
 			}

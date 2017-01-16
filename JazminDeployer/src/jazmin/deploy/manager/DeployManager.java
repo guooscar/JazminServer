@@ -148,6 +148,7 @@ public class DeployManager {
 			throw new IllegalArgumentException("ssh info not set");
 		}
 		ConnectionInfo info=new ConnectionInfo();
+		info.name=machine.id;
 		info.host=machine.publicHost;
 		info.port=machine.sshPort;
 		info.user=root?"root":machine.sshUser;
@@ -171,6 +172,7 @@ public class DeployManager {
 			throw new IllegalArgumentException("ssh info not set");
 		}
 		ConnectionInfo info=new ConnectionInfo();
+		info.name=machine.id;
 		info.host=machine.publicHost;
 		info.port=machine.sshPort;
 		info.user=root?"root":machine.sshUser;

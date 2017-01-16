@@ -19,16 +19,23 @@ public class TestWebSshServer {
 		//
 		LoggerFactory.setLevel("DEBUG");
 		WebSshServer server=new WebSshServer();
-		JavaScriptChannelRobot robot=new JavaScriptChannelRobot(
-				FileUtil.getContent("misc/webssh/jsrobot.js"));
+		
 		server.setConnectionInfoProvider(new ConnectionInfoProvider(){
 			@Override
 			public ConnectionInfo getConnectionInfo(String token) {
+				JavaScriptChannelRobot robot=null;
+				try {
+					robot = new JavaScriptChannelRobot(
+							FileUtil.getContent("misc/webssh/demo.js"));
+				} catch (Exception e) {
+					e.printStackTrace();
+				} 
 				ConnectionInfo localhost=new ConnectionInfo();
+				localhost.name="gskj";
 				localhost.host="localhost";
 				localhost.port=22;
-				localhost.user="yama";
-				localhost.password="77585211";
+				localhost.user="root";
+				localhost.password="password";
 				localhost.enableInput=true;
 				localhost.channelListener=robot;
 				return localhost;
