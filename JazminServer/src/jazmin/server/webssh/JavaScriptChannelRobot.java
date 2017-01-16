@@ -29,6 +29,7 @@ public class JavaScriptChannelRobot extends ChannelRobot implements ScriptChanne
 	private static Logger logger=LoggerFactory.get(JavaScriptChannelRobot.class);
 	
 	//
+	HookInputCallback hookInputCallback;
 	TicketCallback ticketCallback;
 	ActionCallback openCallback;
 	ActionCallback closeCallback;
@@ -125,6 +126,11 @@ public class JavaScriptChannelRobot extends ChannelRobot implements ScriptChanne
 			expectCallbacks.clear();
 		}
 	}
+	@Override
+	public void hookin(HookInputCallback callback) {
+		this.hookInputCallback=callback;
+		enableInput(callback!=null);
+	}
 	//
 	@Override
 	public void open(ActionCallback callback) {
@@ -182,6 +188,24 @@ public class JavaScriptChannelRobot extends ChannelRobot implements ScriptChanne
 			this.openCallback.invoke();
 		}
 	}
+	StringBuilder inputBuffer=new StringBuilder();
+	//
+	@Override
+	public boolean onInput(WebSshChannel channel, String message) {
+		if(hookInputCallback!=null){
+			synchronized (inputBuffer) {
+				for(char c:message.toCharArray()){
+					inputBuffer.append(c);
+					if(c=='\n'||c=='\r'){
+						hookInputCallback.invoke(inputBuffer.toString().trim());
+						inputBuffer.delete(0, inputBuffer.length());
+					}
+				}
+			}
+		}
+		return false;
+	}
+	//
 	StringBuilder messageBuffer=new StringBuilder();
 	//
 	@Override

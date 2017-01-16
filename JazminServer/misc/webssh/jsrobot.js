@@ -15,6 +15,9 @@ robot.open(function(){
 	robot.sendc("ticket"+robot.ticket()+"\r\n");
 	robot.sends("1234567\r\n");
 });
+robot.hookin(function(msg){
+	robot.log("hookin:"+msg);
+});
 //
 robot.close(function(){
 	robot.log("channel closed");

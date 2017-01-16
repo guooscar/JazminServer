@@ -109,14 +109,25 @@ public class WebSshChannel {
 	public void receiveMessage(String msg){
 		char command=msg.charAt(0);
 		if(command==RECEIVE_KEY&&connectionInfo.enableInput){
-			for(int i=1;i<msg.length();i++){
-				String s=msg.charAt(i)+"";
-				try {
-					sendMessageToServer(s);
-				} catch (Exception e) {
-					logger.catching(e);
-				}			
+			boolean sendToServer=true;
+			if(connectionInfo.channelListener!=null){
+				sendToServer=connectionInfo.channelListener.onInput(this, msg.substring(1));
 			}
+			if(sendToServer){
+				for(int i=1;i<msg.length();i++){
+					sendMessageToServer(msg.charAt(i)+"");
+				}
+			}else{
+				//ECHO 
+				for(int i=1;i<msg.length();i++){
+					char c=msg.charAt(i);
+					sendMessageToClient(c+"");
+					if(c=='\r'){
+						sendMessageToClient("\n");
+					}
+				}	
+			}
+			
 			return;
 		}
 		//

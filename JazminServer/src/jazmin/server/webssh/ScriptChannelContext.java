@@ -13,6 +13,12 @@ public interface ScriptChannelContext{
 		void invoke(String input);
 	}
 	/**
+	 * except callback
+	 */
+	public static interface HookInputCallback{
+		void invoke(String input);
+	}
+	/**
 	 * ticket callback
 	 */
 	public static interface TicketCallback{
@@ -79,6 +85,7 @@ public interface ScriptChannelContext{
 	 */
 	void expect(String regex,ExpectCallback callback);
 	void expectClear();
+	void hookin(HookInputCallback callback);
 	/**
 	 * the callback will be invoked after connection opend
 	 * @param callback
