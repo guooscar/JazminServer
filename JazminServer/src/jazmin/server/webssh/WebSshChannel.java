@@ -62,8 +62,13 @@ public class WebSshChannel {
 		shellInputStream = shell.getInputStream();
 		shellOutputStream = shell.getOutputStream();
 		startInputReader();
-		if (connectionInfo.channelListener != null) {
-			connectionInfo.channelListener.onOpen(this);
+		try{
+			if (connectionInfo.channelListener != null) {
+				connectionInfo.channelListener.onOpen(this);
+			}
+		}catch (Exception e) {
+			logger.catching(e);
+			sendError(e.getMessage());
 		}
 		
 	}

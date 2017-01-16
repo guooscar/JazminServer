@@ -3,8 +3,10 @@
  */
 package jazmin.deploy.manager;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -177,7 +179,7 @@ public class DeployManager {
 		info.port=machine.sshPort;
 		info.user=root?"root":machine.sshUser;
 		info.password=root?machine.rootSshPassword:machine.sshPassword;
-		info.channelListener=new JavaScriptChannelRobot(getRobotScriptContent(robot));
+		info.channelListener=new JavaScriptChannelRobot(getRobotScriptRunContent(robot));
 		String uuid=UUID.randomUUID().toString();
 		oneTimeSSHConnectionMap.put(uuid,info);
 		return uuid;
@@ -256,6 +258,24 @@ public class DeployManager {
 	public static String getRobotScriptContent(String name) throws IOException{
 		File scriptFile=new File(workSpaceDir+"script/"+name);
 		return FileUtil.getContent(scriptFile);
+	}
+	//
+	public static String getRobotScriptRunContent(String name)throws IOException{
+		String fileContent=getRobotScriptContent(name);
+		StringBuilder result=new StringBuilder();
+		StringReader sr=new StringReader(fileContent);
+		BufferedReader br=new BufferedReader(sr);
+		String line=null;
+		while((line=br.readLine())!=null){
+			line=line.trim();
+			if(line.startsWith("//include")){
+				String includeName=line.substring(10);
+				includeName=includeName.trim();
+				result.append("\n"+getRobotScriptContent(includeName)+"\n");
+			}
+		}
+		result.append(fileContent);
+		return result.toString();
 	}
 	//
 	public static RobotScript getRobotScript(String name) throws IOException{
