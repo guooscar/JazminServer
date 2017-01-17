@@ -35,12 +35,17 @@ public class JavaScriptChannelRobot extends ChannelRobot implements ScriptChanne
 	Map<String,ExpectCallback>expectCallbacks;
 	WebSshChannel webSshChannel;
 	Map<Long,List<ActionCallback>>afterTicketCallbacks;
-
+	Map<String,Object>context;
 	//
 	public JavaScriptChannelRobot(String source) throws ScriptException {
+		this(source,null);
+	}
+	//
+	public JavaScriptChannelRobot(String source,Map<String,Object>context)
+			throws ScriptException {
+		this.context=context;
 		expectCallbacks=new ConcurrentHashMap<>();
 		afterTicketCallbacks=new ConcurrentHashMap<>();
-	
 		loadJavaScript(source);
 	}
 	//----------------------------------------------------------------------
@@ -49,6 +54,9 @@ public class JavaScriptChannelRobot extends ChannelRobot implements ScriptChanne
 		ScriptEngine engine = engineManager.getEngineByName("nashorn");
 		SimpleScriptContext ssc=new SimpleScriptContext();
 		ssc.setAttribute("robot",this, ScriptContext.ENGINE_SCOPE);
+		if(context!=null){
+			context.forEach((name,object)->{ssc.setAttribute(name,object, ScriptContext.ENGINE_SCOPE);});
+		}
 		String commonScript=
 					"load('nashorn:mozilla_compat.js');"+
 					"importPackage(Packages.jazmin.server.webssh);\n";
