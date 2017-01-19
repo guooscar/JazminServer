@@ -26,13 +26,17 @@ import jazmin.util.IOUtil;
  */
 public class JavaScriptChannelRobot extends ChannelRobot implements ScriptChannelContext{
 	private static Logger logger=LoggerFactory.get(JavaScriptChannelRobot.class);
-	
+	static class ExpectHolder{
+		String regex;
+		boolean once;
+		ExpectCallback callback;
+	}
 	//
 	HookInputCallback hookInputCallback;
 	TicketCallback ticketCallback;
 	ActionCallback openCallback;
 	ActionCallback closeCallback;
-	Map<String,ExpectCallback>expectCallbacks;
+	Map<String,ExpectHolder>expectCallbacks;
 	WebSshChannel webSshChannel;
 	Map<Long,List<ActionCallback>>afterTicketCallbacks;
 	Map<String,Object>context;
@@ -126,13 +130,24 @@ public class JavaScriptChannelRobot extends ChannelRobot implements ScriptChanne
 	public void ticket(TicketCallback callback) {
 		this.ticketCallback=callback;
 	}
-	
+	//
+	private void expect0(String regex,boolean once,ExpectCallback callback){
+		synchronized (expectCallbacks) {
+			ExpectHolder holder=new ExpectHolder();
+			holder.callback=callback;
+			holder.once=once;
+			holder.regex=regex;
+			expectCallbacks.put(regex, holder);
+		}
+	}
 	//
 	@Override
 	public void expect(String regex, ExpectCallback callback) {
-		synchronized (expectCallbacks) {
-			expectCallbacks.put(regex, callback);
-		}
+		expect0(regex,false,callback);
+	}
+	@Override
+	public void expectOnce(String regex,ExpectCallback callback){
+		expect0(regex,true,callback);
 	}
 	@Override
 	public void expectClear() {
@@ -234,11 +249,18 @@ public class JavaScriptChannelRobot extends ChannelRobot implements ScriptChanne
 		if(line.trim().isEmpty()){
 			return;
 		}
-		expectCallbacks.forEach((regex,callback)->{
+		List<String>removedCallbacks=new LinkedList<>();
+		expectCallbacks.forEach((regex,holder)->{
 			if(Pattern.matches(regex, line)){
-				callback.invoke(line);
+				holder.callback.invoke(line);
+				if(holder.once){
+					removedCallbacks.add(holder.regex);
+				}
 			}
 		});
+		for(String s:removedCallbacks){
+			expectCallbacks.remove(s);
+		}
 	}
 	//
 	@Override

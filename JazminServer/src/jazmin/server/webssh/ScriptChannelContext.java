@@ -85,6 +85,7 @@ public interface ScriptChannelContext{
 	 * @param callback the callback
 	 */
 	void expect(String regex,ExpectCallback callback);
+	void expectOnce(String regex,ExpectCallback callback);
 	void expectClear();
 	void hookin(HookInputCallback callback);
 	/**
