@@ -99,7 +99,8 @@ public final class MainMenu extends CustomComponent {
             settingsItem.addItem("Machine Config", (selectedItem)->showConfig("machine.json"));
             settingsItem.addItem("Application Config", (selectedItem)->showConfig("application.json"));
             settingsItem.addItem("Instance Config", (selectedItem)->showConfig("instance.json"));
-            settingsItem.addItem("Iptables Config", (selectedItem)->showConfig("iptables.rule"));	
+            settingsItem.addItem("Iptables Config", (selectedItem)->showConfig("iptables.rule"));
+            settingsItem.addItem("Job Config", (selectedItem)->showConfig("job.json"));
             settingsItem.addSeparator();
         }
         settingsItem.addItem("Sign Out", (selectedItem)->{

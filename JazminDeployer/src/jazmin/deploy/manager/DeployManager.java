@@ -5,6 +5,8 @@ package jazmin.deploy.manager;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -29,12 +31,14 @@ import org.apache.velocity.app.Velocity;
 import org.tmatesoft.svn.core.SVNException;
 
 import jazmin.core.Jazmin;
+import jazmin.core.job.CronExpression;
 import jazmin.deploy.DeployStartServlet;
 import jazmin.deploy.domain.AppPackage;
 import jazmin.deploy.domain.Application;
 import jazmin.deploy.domain.GraphVizRenderer;
 import jazmin.deploy.domain.Instance;
 import jazmin.deploy.domain.Machine;
+import jazmin.deploy.domain.MachineJob;
 import jazmin.deploy.domain.OutputListener;
 import jazmin.deploy.domain.PackageDownloadInfo;
 import jazmin.deploy.domain.RepoItem;
@@ -51,7 +55,9 @@ import jazmin.server.websockify.HostInfoProvider.HostInfo;
 import jazmin.server.websockify.WebsockifyServer;
 import jazmin.server.webssh.ConnectionInfoProvider.ConnectionInfo;
 import jazmin.server.webssh.JavaScriptChannelRobot;
+import jazmin.server.webssh.OutputStreamEndpoint;
 import jazmin.server.webssh.SendCommandChannelRobot;
+import jazmin.server.webssh.WebSshChannel;
 import jazmin.server.webssh.WebSshServer;
 import jazmin.util.BeanUtil;
 import jazmin.util.FileUtil;
@@ -72,6 +78,7 @@ public class DeployManager {
 	private static Map<String,Machine>machineMap;
 	private static Map<String,AppPackage>packageMap;
 	private static Map<String,Application>applicationMap;
+	private static Map<String,MachineJob>jobMap;
 	private static List<PackageDownloadInfo>downloadInfos;
 	private static GraphVizRenderer graphVizRenderer;
 	private static StringBuffer errorMessage;
@@ -84,6 +91,7 @@ public class DeployManager {
 		packageMap=new ConcurrentHashMap<String, AppPackage>();
 		applicationMap=new ConcurrentHashMap<String, Application>();
 		userMap=new ConcurrentHashMap<String, User>();
+		jobMap=new ConcurrentHashMap<String, MachineJob>();
 		downloadInfos=Collections.synchronizedList(new LinkedList<PackageDownloadInfo>());
 		graphVizRenderer=new GraphVizRenderer();
 	}
@@ -111,14 +119,104 @@ public class DeployManager {
 		checkWorkspace();
 		Velocity.init();
 		//
-		WebSshServer server=Jazmin.getServer(WebSshServer.class);
-		if(server!=null){
-			server.setConnectionInfoProvider(DeployManager::getOneTimeHostInfo);
+		WebSshServer webSshServer=Jazmin.getServer(WebSshServer.class);
+		if(webSshServer!=null){
+			webSshServer.setConnectionInfoProvider(DeployManager::getOneTimeHostInfo);
 		}
 		WebsockifyServer websockifyServer=Jazmin.getServer(WebsockifyServer.class);
 		if(websockifyServer!=null){
 			websockifyServer.setHostInfoProvider(DeployManager::getOneTimeVncInfo);
 		}
+		//
+		startJobCronThread();
+	}
+	//
+	private static void startJobCronThread(){
+		Thread jobThead=new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while(true){
+					checkJob();
+					try {
+						Thread.sleep(10000);
+					} catch (InterruptedException e) {
+						logger.catching(e);
+					}
+				}
+			}
+		});
+		jobThead.setName("DeployManager-CronJob");
+		jobThead.start();
+	}
+	//
+	private static void checkJob(){
+		jobMap.values().forEach((job)->{
+			try {
+				if(job.lastRunTime==null){
+					job.lastRunTime=new Date();
+				}
+				CronExpression ce=new CronExpression(job.cron);
+				Date nextRunTime=ce.getNextValidTimeAfter(job.lastRunTime);
+				job.nextRunTime=nextRunTime;
+				Date now=new Date();
+				if(nextRunTime!=null&&nextRunTime.before(now)){
+					runJob(job,null);
+				}
+			} catch (Exception e) {
+				logger.error(e);
+				job.errorMessage=e.getMessage();
+			}
+			
+		});
+	}
+	//
+	private static class FileOutputStreamWrapper extends FileOutputStream{
+		OutputListener ol;
+		public FileOutputStreamWrapper(String path,OutputListener ol) throws FileNotFoundException {
+			super(path);
+			this.ol=ol;
+		}
+		@Override
+		public void write(byte[] b) throws IOException {
+			super.write(b);
+			if(ol!=null){
+				ol.onOutput(new String(b));
+			}
+		}
+	}
+	//
+	public static void runJob(MachineJob job,OutputListener ol)throws Exception{
+		job.runTimes++;
+		job.lastRunTime=new Date();
+		WebSshServer webSshServer=Jazmin.getServer(WebSshServer.class);
+		SimpleDateFormat sdf=new SimpleDateFormat("yyyyMMddHHmmss");
+		File outputFile=new File(workSpaceDir+"joblog/"+job.id,job.id+"_"+sdf.format(new Date())+".log");
+		if(!outputFile.getParentFile().exists()){
+			outputFile.getParentFile().mkdirs();
+		}
+		FileOutputStreamWrapper fos=new FileOutputStreamWrapper(outputFile.getAbsolutePath(),ol);
+		OutputStreamEndpoint fe=new OutputStreamEndpoint(fos);
+		WebSshChannel channel=new WebSshChannel(webSshServer);
+		channel.endpoint=fe;
+		Machine machine=machineMap.get(job.machine);
+		if(machine==null){
+			throw new IllegalArgumentException("can not find machine:"+job.machine);
+		}
+		if(machine.sshPort==0||
+				machine.sshUser==null||
+				machine.sshUser.isEmpty()){
+			throw new IllegalArgumentException("ssh info not set");
+		}
+		ConnectionInfo info=new ConnectionInfo();
+		info.name=machine.id;
+		info.host=machine.publicHost;
+		info.port=machine.sshPort;
+		info.user=job.root?"root":machine.sshUser;
+		info.password=job.root?machine.rootSshPassword:machine.sshPassword;
+		info.channelListener=new JavaScriptChannelRobot(getRobotScriptRunContent(job.script));
+		channel.setConnectionInfo(info);
+		channel.startShell();
+		webSshServer.addChannel(channel);
 	}
 	//
 	public static String createOneVncToken(Machine machine){
@@ -208,6 +306,7 @@ public class DeployManager {
 			reloadMachineConfig(configDir);
 			reloadInstanceConfig(configDir);
 			reloadUserConfig(configDir);
+			reloadJobConfig(configDir);
 			setInstancePrioriy();
 			reloadPackage();
 		}catch(Exception e){
@@ -458,6 +557,23 @@ public class DeployManager {
 		return BeanUtil.query(getApplications(),sql);
 	}
 	//
+	//
+	public static List<MachineJob>getJobs(String search){
+		if(search==null||search.trim().isEmpty()){
+			return new ArrayList<MachineJob>();
+		}
+		
+		String queryBegin="select * from "+MachineJob.class.getName()+" where";
+		String sql=queryBegin;
+		sql+=" 1=1 and ";
+		sql+=search;
+		return BeanUtil.query(getJobs(),sql);
+	}
+	//
+	public static List<MachineJob>getJobs(){
+		return new ArrayList<MachineJob>(jobMap.values());
+	}
+	//
 	public static List<Application>getApplications(){
 		return new ArrayList<Application>(applicationMap.values());
 	}
@@ -633,6 +749,7 @@ public class DeployManager {
 			logErrorMessage("can not find :"+configFile);
 		}
 	}
+	//
 	private static void reloadUserConfig(String configDir)throws Exception{
 		File configFile=new File(configDir,"user.json");
 		if(configFile.exists()){
@@ -642,6 +759,21 @@ public class DeployManager {
 			List<User>apps= JSONUtil.fromJsonList(ss,User.class);
 			apps.forEach(in->{
 				userMap.put(in.id,in);
+			});
+		}else{
+			logErrorMessage("can not find :"+configFile);
+		}
+	}
+	//
+	private static void reloadJobConfig(String configDir)throws Exception{
+		File configFile=new File(configDir,"job.json");
+		if(configFile.exists()){
+			jobMap.clear();
+			logger.info("load job from:"+configFile.getAbsolutePath());
+			String ss=FileUtil.getContent(configFile);
+			List<MachineJob>jobs= JSONUtil.fromJsonList(ss,MachineJob.class);
+			jobs.forEach(in->{
+				jobMap.put(in.id,in);
 			});
 		}else{
 			logErrorMessage("can not find :"+configFile);

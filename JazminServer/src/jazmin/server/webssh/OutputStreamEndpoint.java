@@ -31,7 +31,6 @@ public class OutputStreamEndpoint implements PeerEndpoint{
 
 	@Override
 	public void write(String msg) {
-		System.err.println(msg);
 		try {
 			os.write(msg.getBytes("UTF-8"));
 		} catch (IOException e) {
