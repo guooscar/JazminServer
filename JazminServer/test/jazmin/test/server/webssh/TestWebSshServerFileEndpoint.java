@@ -1,10 +1,14 @@
 package jazmin.test.server.webssh;
 
+import java.io.FileOutputStream;
+
 import jazmin.core.Jazmin;
 import jazmin.log.LoggerFactory;
 import jazmin.server.console.ConsoleServer;
 import jazmin.server.webssh.ConnectionInfoProvider;
+import jazmin.server.webssh.OutputStreamEndpoint;
 import jazmin.server.webssh.JavaScriptChannelRobot;
+import jazmin.server.webssh.WebSshChannel;
 import jazmin.server.webssh.WebSshServer;
 import jazmin.util.FileUtil;
 
@@ -13,7 +17,7 @@ import jazmin.util.FileUtil;
  * @author yama
  *
  */
-public class TestWebSshServer {
+public class TestWebSshServerFileEndpoint {
 	//
 	public static void main(String[] args)throws Exception {
 		//
@@ -45,5 +49,13 @@ public class TestWebSshServer {
 		Jazmin.addServer(server);
 		Jazmin.addServer(new ConsoleServer());
 		Jazmin.start();
+		//
+		FileOutputStream fos=new FileOutputStream("/tmp/test.log",false);
+		OutputStreamEndpoint fe=new OutputStreamEndpoint(fos);
+		WebSshChannel channel=new WebSshChannel(server);
+		channel.endpoint=fe;
+		channel.setConnectionInfo(server.getConnectionInfoProvider().getConnectionInfo("localhost"));
+		channel.startShell();
+		server.addChannel(channel);
 	}
 }

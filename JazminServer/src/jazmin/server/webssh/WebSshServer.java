@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
+import java.util.concurrent.atomic.AtomicLong;
 
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
@@ -55,8 +55,10 @@ public class WebSshServer extends Server{
 	private SslContext sslContext;
 	private int defaultSshConnectTimeout;
 	private ConnectionInfoProvider connectionInfoProvider;
+	private AtomicLong channelCounter;
 	//
 	public WebSshServer() {
+		channelCounter=new AtomicLong();
 		channels=new ConcurrentHashMap<String, WebSshChannel>();
 		enableWss=false;
 		port=9001;
@@ -175,7 +177,11 @@ public class WebSshServer extends Server{
 		return sslContext;
     }
 	//
-	void addChannel(WebSshChannel c){
+	public void addChannel(WebSshChannel c){
+		if(c.endpoint==null){
+			throw new IllegalArgumentException("endpoint can not be null");
+		}
+		c.id=channelCounter.incrementAndGet()+"";
 		channels.put(c.id, c);
 	}
 	//

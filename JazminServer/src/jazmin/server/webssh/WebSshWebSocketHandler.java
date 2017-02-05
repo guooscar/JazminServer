@@ -4,6 +4,9 @@ import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 import static io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+
+import java.io.IOException;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -22,11 +25,8 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
+import io.netty.util.AttributeKey;
 import io.netty.util.CharsetUtil;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
-
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.webssh.ConnectionInfoProvider.ConnectionInfo;
@@ -37,6 +37,10 @@ import jazmin.server.webssh.ConnectionInfoProvider.ConnectionInfo;
 public class WebSshWebSocketHandler extends SimpleChannelInboundHandler<Object> {
 	private static Logger logger = LoggerFactory
 			.get(WebSshWebSocketHandler.class);
+	//
+	public static final AttributeKey<WebSshChannel> SESSION_KEY=
+			AttributeKey.valueOf("s");
+	//
 	private WebSocketServerHandshaker handshaker;
 	private WebSshServer server;
 	private static final int MAX_WEBSOCKET_FRAME_SIZE=10240;
@@ -92,7 +96,7 @@ public class WebSshWebSocketHandler extends SimpleChannelInboundHandler<Object> 
 			ctx.close();
 			return;
 		}
-		WebSshChannel webSshChannel=ctx.channel().attr(WebSshChannel.SESSION_KEY).get();
+		WebSshChannel webSshChannel=ctx.channel().attr(SESSION_KEY).get();
 		webSshChannel.connectionInfo=hostInfo;
 		// Handshake
 		WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
@@ -114,8 +118,7 @@ public class WebSshWebSocketHandler extends SimpleChannelInboundHandler<Object> 
 
 	private void handleWebSocketFrame(ChannelHandlerContext ctx,WebSocketFrame frame) 
 			throws IOException {
-		WebSshChannel c=ctx.channel().attr(WebSshChannel.SESSION_KEY).get();
-		c.messageReceivedCount++;
+		WebSshChannel c=ctx.channel().attr(SESSION_KEY).get();
 		
 		// Check for closing frame
 		if (frame instanceof CloseWebSocketFrame) {
@@ -167,7 +170,7 @@ public class WebSshWebSocketHandler extends SimpleChannelInboundHandler<Object> 
 	@Override
     public void channelInactive(ChannelHandlerContext ctx) 
     		throws Exception {
-		WebSshChannel c=ctx.channel().attr(WebSshChannel.SESSION_KEY).get();
+		WebSshChannel c=ctx.channel().attr(SESSION_KEY).get();
 		if(c!=null){
 			server.removeChannel(c.id);
 			c.closeChannel();
@@ -181,21 +184,14 @@ public class WebSshWebSocketHandler extends SimpleChannelInboundHandler<Object> 
 	public void channelActive(ChannelHandlerContext ctx) 
 			throws Exception {
 		if(server.getConnectionInfoProvider()==null){
-			logger.error("can not find HostInfoProvider.");
+			logger.error("can not find ConnectionInfoProvider.");
 			ctx.channel().close();
 			return;
 		}
-		WebSshChannel channel=new WebSshChannel();
-		channel.channel=ctx.channel();
-		channel.sshConnectTimeout=server.getDefaultSshConnectTimeout();
-		channel.id=ctx.channel().id().asShortText();
-		InetSocketAddress sa=(InetSocketAddress) ctx.channel().localAddress();
-		//
-		sa=(InetSocketAddress) ctx.channel().remoteAddress();
-		channel.remoteAddress=sa.getAddress().getHostAddress();
-		channel.remotePort=sa.getPort();
+		WebSshChannel channel=new WebSshChannel(server);
+		channel.endpoint=new WebSocketEndpoint(ctx.channel());
 		server.addChannel(channel);
-		ctx.channel().attr(WebSshChannel.SESSION_KEY).set(channel);
+		ctx.channel().attr(SESSION_KEY).set(channel);
 		if(logger.isDebugEnabled()){
 			logger.debug("channelActive:"+ctx.channel());	
 		}

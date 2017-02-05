@@ -24,7 +24,9 @@ robot.close(function(){
 });
 //
 robot.ticket(function(ticket){
-	//robot.log("ticket:"+ticket);
+	if(ticket>10){
+		robot.close();
+	}
 });
 //
 robot.expect(".*",function(fullmsg){

@@ -10,9 +10,6 @@ import java.util.Date;
 import com.jcraft.jsch.ChannelShell;
 import com.jcraft.jsch.JSchException;
 
-import io.netty.channel.Channel;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.util.AttributeKey;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.webssh.ConnectionInfoProvider.ConnectionInfo;
@@ -26,24 +23,21 @@ import jazmin.util.SshUtil;
 public class WebSshChannel {
 	private static Logger logger=LoggerFactory.get(WebSshChannel.class);
 	//
-	public static final AttributeKey<WebSshChannel> SESSION_KEY=
-			AttributeKey.valueOf("s");
-	
+
 	public String id;
-	public int sshConnectTimeout;
-	public String remoteAddress;
-	public int remotePort;
 	public Date createTime;
-	public long messageReceivedCount=0;
-	public long messageSentCount=0;
-	public Channel channel;
+	long messageReceivedCount=0;
+	long messageSentCount=0;
+	public PeerEndpoint endpoint;
 	private ChannelShell shell;
 	private OutputStream shellOutputStream;
 	private InputStream shellInputStream;
 	ConnectionInfo connectionInfo;
 	long ticket;
+	WebSshServer webSshServer;
 	//
-	public WebSshChannel() {
+	public WebSshChannel(WebSshServer webSshServer) {
+		this.webSshServer=webSshServer;
 		createTime=new Date();
 		ticket=0;
 	}
@@ -51,6 +45,7 @@ public class WebSshChannel {
 	private static final char RECEIVE_KEY='0';
 	private static final char RECEIVE_WINDOWRESIZE='1';
 	//
+	
 	//
 	public void startShell()throws Exception{
 
@@ -58,7 +53,7 @@ public class WebSshChannel {
 				connectionInfo.host, connectionInfo.port);
 		shell = SshUtil.shell(connectionInfo.host, connectionInfo.port,
 						connectionInfo.user, connectionInfo.password,
-						sshConnectTimeout);
+						webSshServer.getDefaultSshConnectTimeout());
 		shellInputStream = shell.getInputStream();
 		shellOutputStream = shell.getOutputStream();
 		startInputReader();
@@ -71,6 +66,18 @@ public class WebSshChannel {
 			sendError(e.getMessage());
 		}
 		
+	}
+	/**
+	 * @return the connectionInfo
+	 */
+	public ConnectionInfo getConnectionInfo() {
+		return connectionInfo;
+	}
+	/**
+	 * @param connectionInfo the connectionInfo to set
+	 */
+	public void setConnectionInfo(ConnectionInfo connectionInfo) {
+		this.connectionInfo = connectionInfo;
 	}
 	//
 	void updateTicket(){
@@ -103,7 +110,9 @@ public class WebSshChannel {
 					}
 				}
 				logger.info("ssh connection :"+shell+" stopped");
-				channel.close();
+				webSshServer.removeChannel(id);
+				endpoint.close();
+				
 			}
 		},"WebSSHInputReader-"+connectionInfo.user+"@"+connectionInfo.host
 				+":"+connectionInfo.port);
@@ -129,6 +138,7 @@ public class WebSshChannel {
 	StringBuilder inputBuffer=new StringBuilder();
 	//
 	public void receiveMessage(String msg){
+		messageReceivedCount++;
 		try{
 			receiveMessage0(msg);
 		}catch (Exception e) {
@@ -197,8 +207,7 @@ public class WebSshChannel {
 	//
 	public void sendMessageToClient(String msg){
 		messageSentCount++;
-		TextWebSocketFrame frame=new TextWebSocketFrame(msg);
-		channel.writeAndFlush(frame);
+		endpoint.write(msg);
 	}
 	//
 	public void closeChannel(){
@@ -215,6 +224,7 @@ public class WebSshChannel {
 		} catch (JSchException e) {
 			logger.catching(e);
 		}
+		webSshServer.removeChannel(id);
 		shell=null;
 	}
 	
