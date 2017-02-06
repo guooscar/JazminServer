@@ -172,7 +172,6 @@ public class WebSshWebSocketHandler extends SimpleChannelInboundHandler<Object> 
     		throws Exception {
 		WebSshChannel c=ctx.channel().attr(SESSION_KEY).get();
 		if(c!=null){
-			server.removeChannel(c.id);
 			c.closeChannel();
 			if(logger.isDebugEnabled()){
 				logger.debug("channelInactive:"+ctx.channel());	

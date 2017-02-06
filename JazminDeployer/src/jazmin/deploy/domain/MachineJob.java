@@ -12,7 +12,7 @@ import java.util.Date;
 public class MachineJob {
 	public String id;
 	public String machine;
-	public String script;
+	public String robot;
 	public String cron;
 	public boolean root;
 	public int runTimes;
@@ -47,13 +47,13 @@ public class MachineJob {
 	 * @return the script
 	 */
 	public String getScript() {
-		return script;
+		return robot;
 	}
 	/**
 	 * @param script the script to set
 	 */
 	public void setScript(String script) {
-		this.script = script;
+		this.robot = script;
 	}
 	/**
 	 * @return the cron

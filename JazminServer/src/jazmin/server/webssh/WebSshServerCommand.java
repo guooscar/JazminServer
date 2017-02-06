@@ -51,7 +51,7 @@ public class WebSshServerCommand extends ConsoleCommand {
     	List<WebSshChannel>channels=server.getChannels();
     	for(WebSshChannel s:channels){
     		tp.print(
-        			s.id,
+        			s.getId(),
         			s.connectionInfo.user+"@"+s.connectionInfo.host+":"+s.connectionInfo.port,
         			s.messageSentCount,
         			s.messageReceivedCount,

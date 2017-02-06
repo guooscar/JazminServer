@@ -2,7 +2,7 @@
 	{
 		"id":"test",
 		"machine":"demo",
-		"script":"test_job.js",
+		"robot":"test_job.js",
 		"cron":"0/10 * * * * ? "
 	}
 ]

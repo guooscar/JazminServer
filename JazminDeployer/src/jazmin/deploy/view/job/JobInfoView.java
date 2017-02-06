@@ -108,6 +108,7 @@ public class JobInfoView extends DeployBaseView{
 	//
 	private void initUI(){
 		addOptButton("View Detail",null, (e)->viewDetail());
+		addOptButton("View Logs",null, (e)->viewLogs());
 		//
 		addOptButton("Run",ValoTheme.BUTTON_PRIMARY, (e)->runJob());
 	}
@@ -125,6 +126,18 @@ public class JobInfoView extends DeployBaseView{
 		}
 	}
 	
+	//
+	private void viewLogs(){
+		MachineJob job=table.getSelectValue();
+		if(job==null){
+			DeploySystemUI.showNotificationInfo("Info",
+					"Please choose which job to view.");
+		}else{
+			JobLogWindow bfw=new JobLogWindow(job.id);
+			UI.getCurrent().addWindow(bfw);
+			bfw.focus();
+		}
+	}
 	//
 	public void runJob(){
 		TaskProgressWindow optWindow=new TaskProgressWindow(window->{
@@ -171,6 +184,7 @@ public class JobInfoView extends DeployBaseView{
 				result.append(e.getMessage());
 			}
 			window.getUI().access(()->{
+				window.updateTask(app.id, "complete");
 				window.updateTask(app.id, result.toString());
 			});
 			

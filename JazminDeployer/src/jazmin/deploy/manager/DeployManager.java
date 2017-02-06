@@ -47,6 +47,7 @@ import jazmin.deploy.domain.TopSearch;
 import jazmin.deploy.domain.User;
 import jazmin.deploy.domain.ant.AntManager;
 import jazmin.deploy.domain.svn.WorkingCopy;
+import jazmin.deploy.manager.RobotDeployManagerContext.RobotDeployManagerContextImpl;
 import jazmin.deploy.util.DateUtil;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -185,6 +186,25 @@ public class DeployManager {
 		}
 	}
 	//
+	public static List<String> getJobLogNames(String jobId){
+		List<String>result=new ArrayList<>();
+		File dir=new File(workSpaceDir+"joblog/"+jobId);
+		for(File f:dir.listFiles(f->f.getName().endsWith("log"))){
+			result.add(f.getName());
+		}
+		return result;
+	}
+	//
+	public static void deleteJobLog(String jobId, String name) {
+		File file=new File(workSpaceDir+"joblog/"+jobId,name);
+		file.delete();	
+	}
+	//
+	public static String getJobLog(String jobId,String logName) throws IOException{
+		File file=new File(workSpaceDir+"joblog/"+jobId,logName);
+		return FileUtil.getContent(file);
+	}
+	//
 	public static void runJob(MachineJob job,OutputListener ol)throws Exception{
 		job.runTimes++;
 		job.lastRunTime=new Date();
@@ -213,10 +233,12 @@ public class DeployManager {
 		info.port=machine.sshPort;
 		info.user=job.root?"root":machine.sshUser;
 		info.password=job.root?machine.rootSshPassword:machine.sshPassword;
-		info.channelListener=new JavaScriptChannelRobot(getRobotScriptRunContent(job.script));
+		Map<String,Object>context=new HashMap<>();
+		context.put("deployer", new RobotDeployManagerContextImpl(machine));
+		info.channelListener=new JavaScriptChannelRobot(getRobotScriptRunContent(job.robot),context);
 		channel.setConnectionInfo(info);
-		channel.startShell();
 		webSshServer.addChannel(channel);
+		channel.startShell();
 	}
 	//
 	public static String createOneVncToken(Machine machine){
@@ -277,7 +299,9 @@ public class DeployManager {
 		info.port=machine.sshPort;
 		info.user=root?"root":machine.sshUser;
 		info.password=root?machine.rootSshPassword:machine.sshPassword;
-		info.channelListener=new JavaScriptChannelRobot(getRobotScriptRunContent(robot));
+		Map<String,Object>context=new HashMap<>();
+		context.put("deployer", new RobotDeployManagerContextImpl(machine));
+		info.channelListener=new JavaScriptChannelRobot(getRobotScriptRunContent(robot),context);
 		String uuid=UUID.randomUUID().toString();
 		oneTimeSSHConnectionMap.put(uuid,info);
 		return uuid;
@@ -1205,5 +1229,6 @@ public class DeployManager {
 		}
 		return -1;
 	}
+	
 	
 }

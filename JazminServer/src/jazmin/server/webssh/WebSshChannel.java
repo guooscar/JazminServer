@@ -24,8 +24,8 @@ public class WebSshChannel {
 	private static Logger logger=LoggerFactory.get(WebSshChannel.class);
 	//
 
-	public String id;
-	public Date createTime;
+	String id;
+	Date createTime;
 	long messageReceivedCount=0;
 	long messageSentCount=0;
 	public PeerEndpoint endpoint;
@@ -42,7 +42,16 @@ public class WebSshChannel {
 		ticket=0;
 	}
 	//
+	
+	//
 	private static final char RECEIVE_KEY='0';
+	/**
+	 * @return the id
+	 */
+	public String getId() {
+		return id;
+	}
+
 	private static final char RECEIVE_WINDOWRESIZE='1';
 	//
 	
