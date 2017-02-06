@@ -62,7 +62,7 @@ public class JobLogWindow extends Window{
         setContent(content);
         table = new BeanTable<JobLogName>(null,JobLogName.class);
 		content.addComponent(table);
-		table.setWidth("200px");
+		table.setWidth("300px");
 		table.setHeight("100%");
 		//
         editor= new AceEditor();
