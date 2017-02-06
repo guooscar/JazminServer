@@ -137,7 +137,6 @@ public class MachineInfoView extends DeployBaseView{
 		addOptButton("View Detail",null, (e)->viewDetail());
 		addOptButton("View Stat",null, (e)->viewStat());
 		addOptButton("View Instances",null, (e)->viewInstances());
-		addOptButton("Robots",null, (e)->showScripts());
 		addOptButton("Test Machine",null, (e)->checkMachine());
 		addOptButton("Copy Files",ValoTheme.BUTTON_PRIMARY, (e)->copyFiles());
 		addOptButton("Root SSH",ValoTheme.BUTTON_DANGER, (e)->rootSshLogin());
@@ -160,12 +159,7 @@ public class MachineInfoView extends DeployBaseView{
 		}
 	}
 	//
-	//
-	private void showScripts() {
-		MachineRobotWindow bfw = new MachineRobotWindow();
-		UI.getCurrent().addWindow(bfw);
-		bfw.focus();
-	}
+	
 	//
 	private void viewStat(){
 		Machine machine=table.getSelectValue();
