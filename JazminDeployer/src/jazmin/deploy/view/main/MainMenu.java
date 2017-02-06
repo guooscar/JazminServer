@@ -96,6 +96,7 @@ public final class MainMenu extends CustomComponent {
           			bfw.focus();
                 }
             });
+        	settingsItem.addSeparator();
             //
             settingsItem.addItem("Machine Config", (selectedItem)->showConfig("machine.json"));
             settingsItem.addItem("Application Config", (selectedItem)->showConfig("application.json"));
