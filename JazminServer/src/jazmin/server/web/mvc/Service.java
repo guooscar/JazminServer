@@ -21,8 +21,8 @@ import java.lang.annotation.Target;
 @Documented
 @Inherited  
 public @interface Service{
-	String id();
-	HttpMethod method() default HttpMethod.GET;
+	String id() default "";
+	HttpMethod method() default HttpMethod.ALL;
 	boolean index() default false;
 	int queryCount() default -1;
 	boolean syncOnSession() default false;
