@@ -102,7 +102,11 @@ public class ProxyController {
 			ctx.view(makeResultView(ret, exception));
 		}
 	}
-	//
+	/*
+	 * response format 2 line plain text
+	 * 1.return value json string 
+	 * 2.exception string if has
+	 */
 	private PlainTextView makeResultView(Object result,Throwable e){
 		StringBuilder sb=new StringBuilder();
 		if(result!=null){
@@ -111,11 +115,12 @@ public class ProxyController {
 			sb.append("\n");
 		}
 		if(e!=null){
+			sb.append(e.getClass().getSimpleName());
 			if(e instanceof AppException){
 				AppException ae=(AppException)e;
-				sb.append(ae.getCode()+","+ae.getMessage());
+				sb.append(","+ae.getCode()+","+ae.getMessage());
 			}else{
-				sb.append(e.getMessage()+"\n");
+				sb.append(",,"+e.getMessage()+"\n");
 			}
 		}
 		return new PlainTextView(sb.toString());
