@@ -106,7 +106,11 @@ public class KcpChannelManager implements Runnable{
 				//init packet,response next convId
 				int newConvId=nextChannelId();
 				KcpChannel newChannel=new KcpChannel(
-						newConvId,channel,dp.recipient(),dp.sender());
+						messageServer,
+						newConvId,
+						channel,
+						dp.recipient(),
+						dp.sender());
 				newChannel.networkTrafficStat=messageServer.networkTrafficStat;
 				kcpChannelMap.put(newConvId,newChannel);
 				if(logger.isInfoEnabled()){

@@ -27,7 +27,6 @@ import io.netty.util.AttributeKey;
 import io.netty.util.CharsetUtil;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.server.msg.codec.BinaryDecoder;
 import jazmin.server.msg.codec.RequestMessage;
 
 /**
@@ -171,7 +170,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 	//
 	//--------------------------------------------------------------------------
 	private RequestMessage decodeMessage(ByteBuf receiveBuffer)throws Exception{
-		RequestMessage req = BinaryDecoder.decode0(receiveBuffer, messageServer.networkTrafficStat);
+		RequestMessage req = messageServer.codecFactory.decode(receiveBuffer, messageServer.networkTrafficStat);
 		return req;
 	}
 	

@@ -8,6 +8,7 @@ import jazmin.server.console.ascii.AsciiChart;
 import jazmin.server.console.ascii.TablePrinter;
 import jazmin.server.console.ascii.TerminalWriter;
 import jazmin.server.console.builtin.ConsoleCommand;
+import jazmin.server.msg.codec.DefaultCodecFactory;
 import jazmin.util.BeanUtil;
 import jazmin.util.DumpUtil;
 /**
@@ -122,14 +123,12 @@ public class MessageServerCommand extends ConsoleCommand {
 		}
 		
 		for(Session s:sessions){
-			String msgType="raw";
-			if(s.getMessageType()==MessageServer.FORMAT_JSON){
+			String msgType="raw-"+s.getMessageType();
+			if(s.getMessageType()==DefaultCodecFactory.FORMAT_JSON){
 				msgType="json";
-			}
-			if(s.getMessageType()==MessageServer.FORMAT_ZJSON){
+			}else if(s.getMessageType()==DefaultCodecFactory.FORMAT_ZJSON){
 				msgType="zjson";
-			}
-			if(s.getMessageType()==MessageServer.FORMAT_AMF){
+			}else if(s.getMessageType()==DefaultCodecFactory.FORMAT_AMF){
 				msgType="amf";
 			}
 			tp.print(

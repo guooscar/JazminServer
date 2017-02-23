@@ -15,7 +15,9 @@ import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.io.IOWorker;
 import jazmin.misc.io.NetworkTrafficStat;
-import jazmin.server.msg.codec.BinaryEncoder;
+import jazmin.server.msg.codec.MessageEncoder;
+import jazmin.server.msg.CodecFactory;
+import jazmin.server.msg.codec.DefaultCodecFactory;
 import jazmin.server.msg.codec.RequestMessage;
 import jazmin.server.msg.codec.ResponseMessage;
 import jazmin.util.DumpUtil;
@@ -30,9 +32,11 @@ public class MessageClient {
 	private Bootstrap bootstrap;
 	private NetworkTrafficStat networkTrafficStat;
 	private Channel channel;
+	private CodecFactory codecFactory;
 	//
 	public MessageClient() {
 		networkTrafficStat=new NetworkTrafficStat();
+		codecFactory=new DefaultCodecFactory();
 		initNettyConnector();
 	}
 	//
@@ -46,8 +50,8 @@ public class MessageClient {
 			@Override
 			public void initChannel(SocketChannel sc) throws Exception {
 				sc.pipeline().addLast(
-							new BinaryEncoder(networkTrafficStat), 
-							new BinaryEncoder(networkTrafficStat),
+							new MessageEncoder(codecFactory,networkTrafficStat), 
+							new MessageEncoder(codecFactory,networkTrafficStat),
 							clientHandler);
 				
 			}
