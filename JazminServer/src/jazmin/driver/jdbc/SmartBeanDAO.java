@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Blob;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import jazmin.util.IOUtil;
+import jazmin.util.JSONUtil;
 
 /**
  * @author yama
@@ -80,6 +82,20 @@ public class SmartBeanDAO<T> extends JazminDAO {
 		}
 	}
 	//
+	private static final TreeSet<Class<?>> WRAP_TYPES=new TreeSet<>();
+	static{
+		WRAP_TYPES.add(Boolean.class);
+		WRAP_TYPES.add(Character.class);
+		WRAP_TYPES.add(Byte.class);
+		WRAP_TYPES.add(Short.class);
+		WRAP_TYPES.add(Integer.class);
+		WRAP_TYPES.add(Long.class);
+		WRAP_TYPES.add(BigDecimal.class);
+		WRAP_TYPES.add(BigInteger.class);
+		WRAP_TYPES.add(Double.class);
+		WRAP_TYPES.add(Float.class);
+		WRAP_TYPES.add(String.class);
+	}
 	//
 	protected int update(T bean,
 			boolean excludeNull,
@@ -110,7 +126,11 @@ public class SmartBeanDAO<T> extends JazminDAO {
 				if(excludeNull&&fieldValue==null){
 					continue;
 				}
-				fieldList.add(f.get(bean));
+				if(fieldValue!=null&&!WRAP_TYPES.contains(fieldValue.getClass())){
+					fieldList.add(JSONUtil.toJson(fieldValue));
+				}else{
+					fieldList.add(fieldValue);
+				}
 			} catch (Exception e) {
 				throw new ConnectionException(e);
 			}
@@ -252,7 +272,12 @@ public class SmartBeanDAO<T> extends JazminDAO {
 				continue;
 			}
 			try {
-				fieldList.add(f.get(o));
+				Object fieldValue=f.get(o);
+				if(fieldValue!=null&&!WRAP_TYPES.contains(fieldValue.getClass())){
+					fieldList.add(JSONUtil.toJson(fieldValue));
+				}else{
+					fieldList.add(fieldValue);
+				}
 			} catch (Exception e) {
 				throw new ConnectionException(e);
 			}
@@ -333,7 +358,7 @@ public class SmartBeanDAO<T> extends JazminDAO {
 				value = rs.getBoolean(fieldName);
 			} else if (fieldType.equals(BigDecimal.class)) {
 				value = rs.getBigDecimal(fieldName);
-			} else if (fieldType.equals(byte[].class)) {
+			}  else if (fieldType.equals(byte[].class)) {
 				Blob bb = rs.getBlob(fieldName);
 				if (bb != null) {
 					ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -341,8 +366,10 @@ public class SmartBeanDAO<T> extends JazminDAO {
 					value = bos.toByteArray();
 				}
 			} else {
-				throw new IllegalArgumentException("bad field type:"
-						+ fieldName + "/" + fieldType);
+				String strValue=rs.getString(fieldName);
+				if(strValue!=null){
+					value=JSONUtil.fromJson(strValue,fieldType);
+				}
 			}
 			f.setAccessible(true);
 			if (value != null) {
