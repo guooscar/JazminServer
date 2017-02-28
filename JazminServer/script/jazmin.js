@@ -3,10 +3,10 @@
  * jazmin server. 
  */
 $.setLogLevel('ALL');
-$.setLogFile('./log/'+$.serverName()+".log",true);
+$.setLogFile('./log/'+$.getServerName()+".log",true);
 //$.disableConsoleLog();
 //
 $.addServer(new MessageServer());
-$.addServer(new RPCServer());
+$.addServer(new RpcServer());
 $.addServer(new ConsoleServer());
 $.addServer(new WebServer());
