@@ -23,6 +23,19 @@ public class HttpRequest {
 		this.requestBuilder=builder;
 		this.driver=driver;
 	}
+	
+	/**
+	 * @param part
+	 * @return
+	 */
+	public HttpRequest addBodyPart(HttpFilePart part) {
+		 requestBuilder.addBodyPart(part.part);
+		 return this;
+	}
+	public HttpRequest addBodyPart(HttpByteArrayPart part) {
+		 requestBuilder.addBodyPart(part.part);
+		 return this;
+	}
 	//
 	/**
 	 */
