@@ -102,9 +102,6 @@ public class DeployManager {
 	public static String repoPath="";
 	public static String antPath="";
 	public static String antCommonLibPath="";
-	
-	
-	public static int deployHostport=80;
 	//
 	public static void setup() throws Exception {
 		workSpaceDir=Jazmin.environment.getString("deploy.workspace","./workspace/");
@@ -113,10 +110,6 @@ public class DeployManager {
 		antPath=Jazmin.environment.getString("deploy.ant","ant");
 		antCommonLibPath=Jazmin.environment.getString("deploy.ant.lib","./lib");
 		
-		WebServer ws=Jazmin.getServer(WebServer.class);
-		if(ws!=null){
-			deployHostport=ws.getPort();
-		}
 		checkWorkspace();
 		Velocity.init();
 		//
@@ -1032,7 +1025,7 @@ public class DeployManager {
 			sb.append(exec(instance,false,
 					"mkdir "+instanceDir)+"");
 			//
-			String hostname=deployHostname+":"+deployHostport;
+			String hostname=deployHostname;
 			String jsFile="jazmin.include('http://"+hostname+"/srv/deploy/boot/'+jazmin.getServerName());";
 			jsFile=jsFile.replaceAll("'","\\'").replaceAll("\"","\\\\\"");
 			//
