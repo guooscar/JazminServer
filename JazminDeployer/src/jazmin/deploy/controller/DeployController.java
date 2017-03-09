@@ -6,6 +6,7 @@ package jazmin.deploy.controller;
 import java.io.File;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import jazmin.core.Jazmin;
@@ -42,7 +43,7 @@ public class DeployController {
 		if(instance.getProperties().containsKey(Instance.P_NO_CHECK_IP)){
 			return true;
 		}
-		String remoteAddr=c.request().raw().getRemoteAddr();
+		String remoteAddr=getAddress(c.request().raw());
 		if(!instance.machine.publicHost.equals(remoteAddr)
 				&&!instance.machine.privateHost.equals(remoteAddr)){
 			logger.warn("addr check {} - {} - {}",
@@ -53,6 +54,18 @@ public class DeployController {
 			return false;
 		}
 		return true;
+	}
+	//
+	public static String getAddress(HttpServletRequest request){
+		String ret=null;
+		ret=request.getHeader("X-Forwarded-For");
+		if(ret==null||ret.trim().isEmpty()){
+			ret=request.getHeader("HTTP_X_FORWARDED_FOR");
+		}
+		if(ret==null||ret.trim().isEmpty()){
+			ret=request.getRemoteAddr();
+		}
+		return ret;
 	}
 	//
 	/**
