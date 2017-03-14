@@ -101,7 +101,7 @@ public class MessageServerCommand extends ConsoleCommand {
     //
     private void showSessions(String args){
     	TablePrinter tp=TablePrinter.create(out)
-    			.length(10,32,6,10,15,10,10,10,10,15,15,10)
+    			.length(6,48,6,10,15,10,10,10,10,15,15,10)
     			.headers("ID",
     					"PRINCIPAL",
     					"MSGTYP",

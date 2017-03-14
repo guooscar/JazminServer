@@ -87,6 +87,7 @@ public class MessageServer extends Server{
 	int maxSessionCount;
 	int maxChannelCount;
 	int maxSessionRequestCountPerSecond;
+	boolean checkRequestId;
 	//
 	KcpChannelManager kcpChannelManager;
 	//
@@ -131,6 +132,7 @@ public class MessageServer extends Server{
 		webSocketPort=-1;
 		udpPort=-1;
 		//
+		checkRequestId=true;
 	}
 	//
 	
@@ -138,6 +140,20 @@ public class MessageServer extends Server{
 	MessageEncoder createEncoder(){
 		return new MessageEncoder(codecFactory,networkTrafficStat);
 	}
+	/**
+	 * @return the checkRequestId
+	 */
+	public boolean isCheckRequestId() {
+		return checkRequestId;
+	}
+
+	/**
+	 * @param checkRequestId the checkRequestId to set
+	 */
+	public void setCheckRequestId(boolean checkRequestId) {
+		this.checkRequestId = checkRequestId;
+	}
+
 	//
 	MessageDecoder createDecoder(){
 		return new MessageDecoder(codecFactory,networkTrafficStat);
@@ -490,7 +506,7 @@ public class MessageServer extends Server{
 			}
 			ss.instance=instance;
 			ss.method=m;
-			serviceMap.put(methodName, ss);
+			serviceMap.put(ss.serviceId, ss);
 		}
 	}
 	//
@@ -508,7 +524,7 @@ public class MessageServer extends Server{
 			return null;
 		}
 		//2.replay attack
-		if(message.requestId<=session.getRequestId()){
+		if(checkRequestId&&message.requestId<=session.getRequestId()){
 			if(logger.isWarnEnabled()){
 				logger.warn("{} same request id",session);	
 			}

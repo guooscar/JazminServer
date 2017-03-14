@@ -4,6 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
 import jazmin.misc.io.NetworkTrafficStat;
 import jazmin.server.msg.CodecFactory;
 /**
@@ -13,6 +15,8 @@ import jazmin.server.msg.CodecFactory;
  */
 @Sharable
 public class MessageEncoder extends MessageToByteEncoder<ResponseMessage> {
+	private static Logger logger=LoggerFactory.get(MessageEncoder.class);
+	//
 	private CodecFactory codecFactory;
 	NetworkTrafficStat networkTrafficStat;
 	
@@ -27,6 +31,10 @@ public class MessageEncoder extends MessageToByteEncoder<ResponseMessage> {
 			ChannelHandlerContext ctx, 
 			ResponseMessage msg,
 			ByteBuf out) throws Exception {
-		codecFactory.encode(msg, out, networkTrafficStat);
+		try{
+			codecFactory.encode(msg, out, networkTrafficStat);				
+		}catch (Exception e) {
+			logger.catching(e);
+		}
 	}
 }

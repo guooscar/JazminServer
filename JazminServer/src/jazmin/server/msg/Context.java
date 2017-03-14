@@ -107,11 +107,11 @@ public class Context {
 			session.sendMessage(rspMessage);
 		}
 	}
-	//--------------------------------------------------------------------------
 	//private method
-	byte [] getRawBytes(){
+	public byte [] getRawBytes(){
 		return requestMessage.rawData;
 	}
+	//--------------------------------------------------------------------------
 	//
 	Boolean  getBoolean(int idx){
 		String ss=requestMessage.requestParameters[idx];
