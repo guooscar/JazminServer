@@ -13,6 +13,7 @@ import java.sql.Blob;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -82,7 +83,7 @@ public class SmartBeanDAO<T> extends JazminDAO {
 		}
 	}
 	//
-	private static final TreeSet<Class<?>> WRAP_TYPES=new TreeSet<>();
+	private static final HashSet<Class<?>> WRAP_TYPES=new HashSet<>();
 	static{
 		WRAP_TYPES.add(Boolean.class);
 		WRAP_TYPES.add(Character.class);
