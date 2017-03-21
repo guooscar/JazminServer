@@ -89,12 +89,12 @@ public class Context {
 	/**
 	 * flush context.
 	 */
-	public void flush(){
+	public void flush(boolean error){
 		if(isFlush){
 			throw new IllegalStateException("context already flushed");
 		}
 		isFlush=true;
-		if(!isDisableResponse){
+		if(!isDisableResponse&&!error){
 			//write response
 			ResponseMessage rspMessage=new ResponseMessage();
 			rspMessage.requestId=requestMessage.requestId;
@@ -142,9 +142,9 @@ public class Context {
 		return ss==null?null:Double.valueOf(ss);
 	}
 	//
-	void close(){
+	void close(boolean error){
 		if(!isContinuation){
-			flush();
+			flush(error);
 		}
 	}
 	//

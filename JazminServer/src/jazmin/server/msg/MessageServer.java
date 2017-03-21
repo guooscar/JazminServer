@@ -678,7 +678,7 @@ public class MessageServer extends Server{
 							e.getMessage());			
 				}	
 			}
-			context.close();	
+			context.close(e!=null);	
 		}	
 	}
 	//message
