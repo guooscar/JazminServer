@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Blob;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -96,6 +97,18 @@ public class SmartBeanDAO<T> extends JazminDAO {
 		WRAP_TYPES.add(Double.class);
 		WRAP_TYPES.add(Float.class);
 		WRAP_TYPES.add(String.class);
+		WRAP_TYPES.add(Date.class);
+		WRAP_TYPES.add(Timestamp.class);
+		WRAP_TYPES.add(java.sql.Date.class);
+		WRAP_TYPES.add(int.class);
+		WRAP_TYPES.add(boolean.class);
+		WRAP_TYPES.add(char.class);
+		WRAP_TYPES.add(byte.class);
+		WRAP_TYPES.add(short.class);
+		WRAP_TYPES.add(int.class);
+		WRAP_TYPES.add(long.class);
+		WRAP_TYPES.add(float.class);
+		WRAP_TYPES.add(double.class);
 	}
 	//
 	protected int update(T bean,
