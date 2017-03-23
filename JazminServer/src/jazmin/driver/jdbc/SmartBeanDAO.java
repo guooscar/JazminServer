@@ -100,6 +100,8 @@ public class SmartBeanDAO<T> extends JazminDAO {
 		WRAP_TYPES.add(Date.class);
 		WRAP_TYPES.add(Timestamp.class);
 		WRAP_TYPES.add(java.sql.Date.class);
+		WRAP_TYPES.add(Byte[].class);
+		WRAP_TYPES.add(byte[].class);
 		WRAP_TYPES.add(int.class);
 		WRAP_TYPES.add(boolean.class);
 		WRAP_TYPES.add(char.class);
