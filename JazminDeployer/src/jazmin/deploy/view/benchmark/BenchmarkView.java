@@ -68,6 +68,7 @@ public class BenchmarkView extends VerticalLayout{
 					return null;
 				}
 			};
+			frame.setSource(new ExternalResource("/srv/benchmark/graph?id="+session.id));
 			showConsole();
 			session.addCompleteHandler(this::sessionComplete);
 			session.start(info.script,rf, info.userCount, info.loopCount, info.rampUpPeriod);

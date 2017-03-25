@@ -45,8 +45,9 @@ public class BenchmarkMessageServer {
 	public ResponseMessage invoke(
 			String serviceId,
 			String[] args){
-		return (ResponseMessage) sample(serviceId, ()->{
-			return client.invokeSync(serviceId, args);
-		});
+		//return (ResponseMessage) sample(serviceId, ()->{
+		//	return client.invokeSync(serviceId, args);
+		//});
+		return null;
 	}
 }

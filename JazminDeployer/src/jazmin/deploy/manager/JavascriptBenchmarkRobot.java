@@ -64,6 +64,9 @@ public class JavascriptBenchmarkRobot implements BenchmarkRobot{
 		SimpleScriptContext ssc=new SimpleScriptContext();
 		ssc.setAttribute("benchmark",this, ScriptContext.ENGINE_SCOPE);
 		ssc.setAttribute("http",new BenchmarkHttp(session), ScriptContext.ENGINE_SCOPE);
+		ssc.setAttribute("rpc",new BenchmarkRpcServer(session), ScriptContext.ENGINE_SCOPE);
+		ssc.setAttribute("msg",new BenchmarkMessageServer(session), ScriptContext.ENGINE_SCOPE);
+		
 		String commonScript=
 					"load('nashorn:mozilla_compat.js');"+
 					"importPackage(Packages.jazmin.deploy.manager);\n";
