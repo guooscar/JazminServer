@@ -14,6 +14,8 @@ import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.ui.BeanTable;
 import jazmin.deploy.view.main.DeployBaseView;
 import jazmin.deploy.view.main.TaskProgressWindow;
+import jazmin.deploy.view.main.WebSshWindow;
+import jazmin.deploy.view.main.WebVncWindow;
 import jazmin.util.DumpUtil;
 import jazmin.util.SshUtil;
 
@@ -108,6 +110,7 @@ public class MachineInfoView extends DeployBaseView{
 		table= new BeanTable<Machine>(null, Machine.class,
 				"sshPassword",
 				"rootSshPassword",
+				"vncPassword",
 				"jazminHome",
 				"memcachedHome",
 				"haproxyHome");
@@ -134,14 +137,14 @@ public class MachineInfoView extends DeployBaseView{
 		addOptButton("View Detail",null, (e)->viewDetail());
 		addOptButton("View Stat",null, (e)->viewStat());
 		addOptButton("View Instances",null, (e)->viewInstances());
-		addOptButton("View Scripts",null, (e)->showScripts());
 		addOptButton("Test Machine",null, (e)->checkMachine());
 		addOptButton("Copy Files",ValoTheme.BUTTON_PRIMARY, (e)->copyFiles());
 		addOptButton("Root SSH",ValoTheme.BUTTON_DANGER, (e)->rootSshLogin());
 		addOptButton("SSH",ValoTheme.BUTTON_PRIMARY, (e)->sshLogin());
+		addOptButton("VNC",ValoTheme.BUTTON_PRIMARY, (e)->vncLogin());
 		addOptButton("Iptables",ValoTheme.BUTTON_DANGER, (e)->viewIptables());
-		
 		addOptButton("Run Command",ValoTheme.BUTTON_DANGER, (e)->runCmd());
+		addOptButton("Run Robot",ValoTheme.BUTTON_DANGER, (e)->runRobot());
 	}
 	//
 	private void viewDetail(){
@@ -156,12 +159,7 @@ public class MachineInfoView extends DeployBaseView{
 		}
 	}
 	//
-	//
-	private void showScripts() {
-		MachineScriptWindow bfw = new MachineScriptWindow();
-		UI.getCurrent().addWindow(bfw);
-		bfw.focus();
-	}
+	
 	//
 	private void viewStat(){
 		Machine machine=table.getSelectValue();
@@ -193,7 +191,23 @@ public class MachineInfoView extends DeployBaseView{
 			DeploySystemUI.showNotificationInfo("Info",
 					"Please choose which machine to login.");
 		}else{
-			MachineWebSshWindow bfw=new MachineWebSshWindow(machine,false);
+			String token=DeployManager.createOneTimeSSHToken(machine,false,true,null);
+			WebSshWindow bfw=new WebSshWindow(token);
+			bfw.setCaption(machine.sshUser+"@"+machine.id);
+			UI.getCurrent().addWindow(bfw);
+			bfw.focus();
+		}
+	}
+	//
+	private void vncLogin(){
+		Machine machine=table.getSelectValue();
+		if(machine==null){
+			DeploySystemUI.showNotificationInfo("Info",
+					"Please choose which machine to login.");
+		}else{
+			String token=DeployManager.createOneVncToken(machine);
+			WebVncWindow bfw=new WebVncWindow(token,machine.vncPassword);
+			bfw.setCaption("vnc-"+machine.id);
 			UI.getCurrent().addWindow(bfw);
 			bfw.focus();
 		}
@@ -205,7 +219,9 @@ public class MachineInfoView extends DeployBaseView{
 			DeploySystemUI.showNotificationInfo("Info",
 					"Please choose which machine to login.");
 		}else{
-			MachineWebSshWindow bfw=new MachineWebSshWindow(machine,true);
+			String token=DeployManager.createOneTimeSSHToken(machine,true,true,null);
+			WebSshWindow bfw=new WebSshWindow(token);
+			bfw.setCaption("root@"+machine.id);
 			UI.getCurrent().addWindow(bfw);
 			bfw.focus();
 		}
@@ -329,7 +345,17 @@ public class MachineInfoView extends DeployBaseView{
 			DeploySystemUI.showNotificationInfo("INFO","Choose machine first.");	
 			return;
 		}
-		MachineRunCmdWindow bfw=new MachineRunCmdWindow(machines);
+		MachineRunCmdWindow bfw=new MachineRunCmdWindow(getOptMachines());
+		UI.getCurrent().addWindow(bfw);
+		bfw.focus();
+	}
+	//
+	private void runRobot(){
+		if(machines.isEmpty()){
+			DeploySystemUI.showNotificationInfo("INFO","Choose machine first.");	
+			return;
+		}
+		MachineRunRobotWindow bfw=new MachineRunRobotWindow(getOptMachines());
 		UI.getCurrent().addWindow(bfw);
 		bfw.focus();
 	}

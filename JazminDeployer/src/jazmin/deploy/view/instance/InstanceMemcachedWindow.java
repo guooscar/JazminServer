@@ -149,7 +149,7 @@ public class InstanceMemcachedWindow extends Window{
 		editor.setReadOnly(true);
 		String key=keyField.getValue();
 		if(key==null||key.trim().isEmpty()){
-			DeploySystemUI.showNotificationInfo("ERROR","Key can not be null.");
+			DeploySystemUI.showNotificationInfo("error","Key can not be null.");
 			return;
 		}
 		key=key.trim();
@@ -157,7 +157,7 @@ public class InstanceMemcachedWindow extends Window{
 			if(opt==OPT_GET){
 				String v=MemcachedUtil.get(instance.machine.publicHost,instance.port, key);
 				if(v==null){
-					DeploySystemUI.showNotificationInfo("ERROR","value not found.");
+					DeploySystemUI.showNotificationInfo("error","value not found.");
 					return;
 				}
 				editor.setReadOnly(false);
@@ -171,7 +171,7 @@ public class InstanceMemcachedWindow extends Window{
 			if(opt==OPT_ADD){
 				String value=valueField.getValue();
 				if(value==null||value.trim().isEmpty()){
-					DeploySystemUI.showNotificationInfo("ERROR","Value can not be null.");
+					DeploySystemUI.showNotificationInfo("error","Value can not be null.");
 					return;
 				}
 				value=value.trim();
@@ -181,7 +181,7 @@ public class InstanceMemcachedWindow extends Window{
 			if(opt==OPT_REPLACE){
 				String value=valueField.getValue();
 				if(value==null||value.trim().isEmpty()){
-					DeploySystemUI.showNotificationInfo("ERROR","Value can not be null.");
+					DeploySystemUI.showNotificationInfo("error","Value can not be null.");
 					return;
 				}
 				value=value.trim();
@@ -191,7 +191,7 @@ public class InstanceMemcachedWindow extends Window{
 		} catch (Exception e) {
 			e.printStackTrace();
 			label.setValue("");
-			DeploySystemUI.showNotificationInfo("ERROR",e.getMessage());
+			DeploySystemUI.showNotificationInfo("error",e.getMessage());
 		}
 	}
 	

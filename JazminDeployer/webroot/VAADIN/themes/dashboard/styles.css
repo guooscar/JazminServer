@@ -945,7 +945,7 @@
  */
 
 .v-vaadin-version:after {
-	content: "7.4.6";
+	content: "7.5.3";
 }
 
 .v-widget {
@@ -2548,6 +2548,23 @@ div.v-layout.v-horizontal.v-widget {
 	background: transparent;
 }
 
+.dashboard .v-checkbox.v-readonly  > label, .dashboard .v-checkbox.v-readonly  > .v-icon {
+	cursor: default;
+}
+
+.dashboard .v-checkbox.v-readonly  > label > .v-icon {
+	cursor: default;
+}
+
+:root .dashboard .v-checkbox.v-readonly > input:active ~ label:after {
+	background: transparent;
+}
+
+:root .dashboard .v-checkbox.v-readonly > input ~ label:after {
+	opacity: 0.5;
+	filter: alpha(opacity=50) ;
+}
+
 .dashboard .v-checkbox-small {
 	position: relative;
 	line-height: 16px;
@@ -2661,6 +2678,23 @@ div.v-layout.v-horizontal.v-widget {
 	background: transparent;
 }
 
+.dashboard .v-checkbox-small.v-readonly  > label, .dashboard .v-checkbox-small.v-readonly  > .v-icon {
+	cursor: default;
+}
+
+.dashboard .v-checkbox-small.v-readonly  > label > .v-icon {
+	cursor: default;
+}
+
+:root .dashboard .v-checkbox-small.v-readonly > input:active ~ label:after {
+	background: transparent;
+}
+
+:root .dashboard .v-checkbox-small.v-readonly > input ~ label:after {
+	opacity: 0.5;
+	filter: alpha(opacity=50) ;
+}
+
 .dashboard .v-checkbox-large {
 	position: relative;
 	line-height: 22px;
@@ -2772,6 +2806,23 @@ div.v-layout.v-horizontal.v-widget {
 
 :root .dashboard .v-checkbox-large.v-disabled > input:active ~ label:after {
 	background: transparent;
+}
+
+.dashboard .v-checkbox-large.v-readonly  > label, .dashboard .v-checkbox-large.v-readonly  > .v-icon {
+	cursor: default;
+}
+
+.dashboard .v-checkbox-large.v-readonly  > label > .v-icon {
+	cursor: default;
+}
+
+:root .dashboard .v-checkbox-large.v-readonly > input:active ~ label:after {
+	background: transparent;
+}
+
+:root .dashboard .v-checkbox-large.v-readonly > input ~ label:after {
+	opacity: 0.5;
+	filter: alpha(opacity=50) ;
 }
 
 .dashboard .v-filterselect {
@@ -4534,16 +4585,16 @@ div.v-layout.v-horizontal.v-widget {
 	-ms-user-select: text;
 	user-select: text;
 	margin: 0;
-	font: "Consolas, Monaco, monospace";
-	font-size:14px;
-	font-weight: 200;
-	line-height: 1.6;
+	font: inherit;
+	
+	font-weight: 400;
+	line-height: normal;
 	height: 37px;
 	border-radius: 4px;
 	padding: 6px;
 	border: 1px solid #c5c5c5;
 	background: white;
-	color: #000;
+	color: #474747;
 	-webkit-box-shadow: inset 0 1px 0 #f7f7f7, 0 1px 0 rgba(255, 255, 255, 0.1);
 	box-shadow: inset 0 1px 0 #f7f7f7, 0 1px 0 rgba(255, 255, 255, 0.1);
 	-webkit-transition: box-shadow 180ms, border 180ms;
@@ -6680,6 +6731,23 @@ div.v-layout.v-horizontal.v-widget {
 	background: transparent;
 }
 
+.dashboard .v-radiobutton.v-readonly  > label, .dashboard .v-radiobutton.v-readonly  > .v-icon {
+	cursor: default;
+}
+
+.dashboard .v-radiobutton.v-readonly  > label > .v-icon {
+	cursor: default;
+}
+
+:root .dashboard .v-radiobutton.v-readonly > input:active ~ label:after {
+	background: transparent;
+}
+
+:root .dashboard .v-radiobutton.v-readonly > input ~ label:after {
+	opacity: 0.5;
+	filter: alpha(opacity=50) ;
+}
+
 :root .dashboard .v-radiobutton > input:checked ~ label:after {
 	width: 7px;
 	height: 7px;
@@ -6826,6 +6894,23 @@ div.v-layout.v-horizontal.v-widget {
 	background: transparent;
 }
 
+.dashboard .v-select-optiongroup-small .v-checkbox.v-readonly  > label, .dashboard .v-select-optiongroup-small .v-checkbox.v-readonly  > .v-icon {
+	cursor: default;
+}
+
+.dashboard .v-select-optiongroup-small .v-checkbox.v-readonly  > label > .v-icon {
+	cursor: default;
+}
+
+:root .dashboard .v-select-optiongroup-small .v-checkbox.v-readonly > input:active ~ label:after {
+	background: transparent;
+}
+
+:root .dashboard .v-select-optiongroup-small .v-checkbox.v-readonly > input ~ label:after {
+	opacity: 0.5;
+	filter: alpha(opacity=50) ;
+}
+
 .dashboard .v-select-optiongroup-small .v-radiobutton {
 	position: relative;
 	line-height: 16px;
@@ -6936,6 +7021,23 @@ div.v-layout.v-horizontal.v-widget {
 
 :root .dashboard .v-select-optiongroup-small .v-radiobutton.v-disabled > input:active ~ label:after {
 	background: transparent;
+}
+
+.dashboard .v-select-optiongroup-small .v-radiobutton.v-readonly  > label, .dashboard .v-select-optiongroup-small .v-radiobutton.v-readonly  > .v-icon {
+	cursor: default;
+}
+
+.dashboard .v-select-optiongroup-small .v-radiobutton.v-readonly  > label > .v-icon {
+	cursor: default;
+}
+
+:root .dashboard .v-select-optiongroup-small .v-radiobutton.v-readonly > input:active ~ label:after {
+	background: transparent;
+}
+
+:root .dashboard .v-select-optiongroup-small .v-radiobutton.v-readonly > input ~ label:after {
+	opacity: 0.5;
+	filter: alpha(opacity=50) ;
 }
 
 :root .dashboard .v-select-optiongroup-small .v-radiobutton > input:checked ~ label:after {
@@ -7084,6 +7186,23 @@ div.v-layout.v-horizontal.v-widget {
 	background: transparent;
 }
 
+.dashboard .v-select-optiongroup-large .v-checkbox.v-readonly  > label, .dashboard .v-select-optiongroup-large .v-checkbox.v-readonly  > .v-icon {
+	cursor: default;
+}
+
+.dashboard .v-select-optiongroup-large .v-checkbox.v-readonly  > label > .v-icon {
+	cursor: default;
+}
+
+:root .dashboard .v-select-optiongroup-large .v-checkbox.v-readonly > input:active ~ label:after {
+	background: transparent;
+}
+
+:root .dashboard .v-select-optiongroup-large .v-checkbox.v-readonly > input ~ label:after {
+	opacity: 0.5;
+	filter: alpha(opacity=50) ;
+}
+
 .dashboard .v-select-optiongroup-large .v-radiobutton {
 	position: relative;
 	line-height: 22px;
@@ -7194,6 +7313,23 @@ div.v-layout.v-horizontal.v-widget {
 
 :root .dashboard .v-select-optiongroup-large .v-radiobutton.v-disabled > input:active ~ label:after {
 	background: transparent;
+}
+
+.dashboard .v-select-optiongroup-large .v-radiobutton.v-readonly  > label, .dashboard .v-select-optiongroup-large .v-radiobutton.v-readonly  > .v-icon {
+	cursor: default;
+}
+
+.dashboard .v-select-optiongroup-large .v-radiobutton.v-readonly  > label > .v-icon {
+	cursor: default;
+}
+
+:root .dashboard .v-select-optiongroup-large .v-radiobutton.v-readonly > input:active ~ label:after {
+	background: transparent;
+}
+
+:root .dashboard .v-select-optiongroup-large .v-radiobutton.v-readonly > input ~ label:after {
+	opacity: 0.5;
+	filter: alpha(opacity=50) ;
 }
 
 :root .dashboard .v-select-optiongroup-large .v-radiobutton > input:checked ~ label:after {
@@ -7334,9 +7470,9 @@ div.v-layout.v-horizontal.v-widget {
 	background-image: radial-gradient(  circle at 50% 50%, #222, #0e0e0e);
 	opacity: 0.72;
 	filter: alpha(opacity=72) ;
-	-webkit-animation: valo-animate-in-fade 400ms 100ms;
-	-moz-animation: valo-animate-in-fade 400ms 100ms;
-	animation: valo-animate-in-fade 400ms 100ms;
+	-webkit-animation: valo-animate-in-fade 400ms 100ms backwards;
+	-moz-animation: valo-animate-in-fade 400ms 100ms backwards;
+	animation: valo-animate-in-fade 400ms 100ms backwards;
 }
 
 .v-op12 .dashboard .v-window-modalitycurtain {
@@ -7783,10 +7919,16 @@ div.v-layout.v-horizontal.v-widget {
 
 .dashboard .v-table-row {
 	background-color: white;
+	cursor: pointer;
 }
 
 .dashboard .v-table-row-odd {
 	background-color: #f5f5f5;
+	cursor: pointer;
+}
+
+.dashboard .v-table-body-noselection .v-table-row, .dashboard .v-table-body-noselection .v-table-row-odd {
+	cursor: default;
 }
 
 .dashboard .v-table [class*="-row"].v-selected {
@@ -8403,9 +8545,9 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .dashboard .v-tabsheet-tabsheetpanel > .v-scrollable > .v-widget {
-	-webkit-animation: valo-animate-in-fade 300ms;
-	-moz-animation: valo-animate-in-fade 300ms;
-	animation: valo-animate-in-fade 300ms;
+	-webkit-animation: valo-animate-in-fade 300ms backwards;
+	-moz-animation: valo-animate-in-fade 300ms backwards;
+	animation: valo-animate-in-fade 300ms backwards;
 }
 
 .dashboard .v-tabsheet-deco {
@@ -9227,6 +9369,10 @@ div.v-layout.v-horizontal.v-widget {
 	margin-top: 16px;
 }
 
+.dashboard .v-verticallayout > .v-slot:first-child .v-formlayout-contentcell h1, .dashboard .v-verticallayout > .v-slot:first-child .v-formlayout-contentcell .v-label-h1, .dashboard .v-verticallayout > .v-slot:first-child .v-formlayout-contentcell h2, .dashboard .v-verticallayout > .v-slot:first-child .v-formlayout-contentcell .v-label-h2, .dashboard .v-verticallayout > .v-slot:first-child .v-formlayout-contentcell h3, .dashboard .v-verticallayout > .v-slot:first-child .v-formlayout-contentcell .v-label-h3, .dashboard .v-verticallayout > .v-slot:first-child .v-formlayout-contentcell h4, .dashboard .v-verticallayout > .v-slot:first-child .v-formlayout-contentcell .v-label-h4, .dashboard .v-verticallayout > div > .v-slot:first-child .v-formlayout-contentcell h1, .dashboard .v-verticallayout > div > .v-slot:first-child .v-formlayout-contentcell .v-label-h1, .dashboard .v-verticallayout > div > .v-slot:first-child .v-formlayout-contentcell h2, .dashboard .v-verticallayout > div > .v-slot:first-child .v-formlayout-contentcell .v-label-h2, .dashboard .v-verticallayout > div > .v-slot:first-child .v-formlayout-contentcell h3, .dashboard .v-verticallayout > div > .v-slot:first-child .v-formlayout-contentcell .v-label-h3, .dashboard .v-verticallayout > div > .v-slot:first-child .v-formlayout-contentcell h4, .dashboard .v-verticallayout > div > .v-slot:first-child .v-formlayout-contentcell .v-label-h4 {
+	margin-top: -0.5em;
+}
+
 .dashboard h1.no-margin, .dashboard .v-label-h1.no-margin, .dashboard h2.no-margin, .dashboard .v-label-h2.no-margin, .dashboard h3.no-margin, .dashboard .v-label-h3.no-margin, .dashboard h4.no-margin, .dashboard .v-label-h4.no-margin {
 	margin: 0 !important;
 }
@@ -9711,7 +9857,17 @@ div.v-layout.v-horizontal.v-widget {
 	padding: 19px 22px;
 }
 
-.dashboard .v-Notification h1 {
+.dashboard .v-Notification .v-Notification-caption {
+	color: #197de1;
+	font-size: 19px;
+	line-height: 1;
+}
+
+.dashboard .v-Notification .v-Notification-description {
+	line-height: 1.4;
+}
+
+.dashboard .v-Notification-caption {
 	margin: 0;
 	display: inline-block;
 	text-align: left;
@@ -9721,7 +9877,7 @@ div.v-layout.v-horizontal.v-widget {
 	letter-spacing: 0;
 }
 
-.dashboard .v-Notification p {
+.dashboard .v-Notification-description, .dashboard .v-Notification-details {
 	margin: 0;
 	display: inline-block;
 	vertical-align: middle;
@@ -9731,22 +9887,12 @@ div.v-layout.v-horizontal.v-widget {
 	overflow: auto;
 }
 
-.dashboard .v-Notification h1 ~ p {
+.dashboard .v-Notification-caption ~ .v-Notification-description, .dashboard .v-Notification-caption ~ .v-Notification-details {
 	margin-left: 24px;
 }
 
-.dashboard .v-Notification .v-icon + h1 {
+.dashboard .v-icon + .v-Notification-caption {
 	margin-left: 16px;
-}
-
-.dashboard .v-Notification h1 {
-	color: #197de1;
-	font-size: 19px;
-	line-height: 1;
-}
-
-.dashboard .v-Notification p {
-	line-height: 1.4;
 }
 
 .dashboard .v-Notification-system {
@@ -9764,7 +9910,7 @@ div.v-layout.v-horizontal.v-widget {
 	line-height: 22px;
 }
 
-.dashboard .v-Notification-system p {
+.dashboard .v-Notification-system .v-Notification-description, .dashboard .v-Notification-system .v-Notification-details {
 	max-width: 50em;
 }
 
@@ -9800,12 +9946,12 @@ div.v-layout.v-horizontal.v-widget {
 	animation: valo-animate-out-slide-down 200ms;
 }
 
-.dashboard .v-Notification-system h1 {
+.dashboard .v-Notification-system .v-Notification-caption {
 	color: #fff;
 	vertical-align: middle;
 }
 
-.dashboard .v-Notification-system p {
+.dashboard .v-Notification-system .v-Notification-description, .dashboard .v-Notification-system .v-Notification-details {
 	color: #e6e6e6;
 }
 
@@ -9817,7 +9963,7 @@ div.v-layout.v-horizontal.v-widget {
 	text-align: left;
 }
 
-.dashboard .v-Notification.tray h1 + p {
+.dashboard .v-Notification.tray .v-Notification-caption + .v-Notification-description {
 	display: block;
 	margin: 0.5em 0 0;
 }
@@ -9826,11 +9972,11 @@ div.v-layout.v-horizontal.v-widget {
 	background: #FFF3D2;
 }
 
-.dashboard .v-Notification.warning h1 {
+.dashboard .v-Notification.warning .v-Notification-caption {
 	color: #AC7C00;
 }
 
-.dashboard .v-Notification.warning p {
+.dashboard .v-Notification.warning .v-Notification-description {
 	color: #9D874D;
 }
 
@@ -9841,11 +9987,11 @@ div.v-layout.v-horizontal.v-widget {
 	box-shadow: 0px 5px 15px 0px rgba(0, 0, 0, 0.25);
 }
 
-.dashboard .v-Notification.error h1 {
+.dashboard .v-Notification.error .v-Notification-caption {
 	color: white;
 }
 
-.dashboard .v-Notification.error p {
+.dashboard .v-Notification.error .v-Notification-description {
 	color: #f4e0df;
 }
 
@@ -9856,12 +10002,12 @@ div.v-layout.v-horizontal.v-widget {
 	line-height: 22px;
 }
 
-.dashboard .v-Notification.dark h1 {
+.dashboard .v-Notification.dark .v-Notification-caption {
 	color: #fff;
 	vertical-align: middle;
 }
 
-.dashboard .v-Notification.dark p {
+.dashboard .v-Notification.dark .v-Notification-description, .dashboard .v-Notification.dark .v-Notification-details {
 	color: #e6e6e6;
 }
 
@@ -9876,7 +10022,7 @@ div.v-layout.v-horizontal.v-widget {
 	padding: 12px 15px;
 }
 
-.dashboard .v-Notification.bar p {
+.dashboard .v-Notification.bar .v-Notification-description, .dashboard .v-Notification.bar .v-Notification-details {
 	max-width: 50em;
 }
 
@@ -9916,11 +10062,11 @@ div.v-layout.v-horizontal.v-widget {
 	padding: 11px 13px;
 }
 
-.dashboard .v-Notification.small h1 {
+.dashboard .v-Notification.small .v-Notification-caption {
 	font-size: 16px;
 }
 
-.dashboard .v-Notification.small p {
+.dashboard .v-Notification.small .v-Notification-description {
 	font-size: 14px;
 }
 
@@ -9990,12 +10136,12 @@ div.v-layout.v-horizontal.v-widget {
 	border: 2px solid #2c9720;
 }
 
-.dashboard .v-Notification.success h1, .dashboard .v-Notification.failure h1 {
+.dashboard .v-Notification.success .v-Notification-caption, .dashboard .v-Notification.failure .v-Notification-caption {
 	color: #2c9720;
 	font-weight: 400;
 }
 
-.dashboard .v-Notification.success h1:before, .dashboard .v-Notification.failure h1:before {
+.dashboard .v-Notification.success .v-Notification-caption:before, .dashboard .v-Notification.failure .v-Notification-caption:before {
 	font-family: FontAwesome;
 	content: "\f00c";
 	margin-right: 0.5em;
@@ -10009,11 +10155,11 @@ div.v-layout.v-horizontal.v-widget {
 	border-color: #ed473b;
 }
 
-.dashboard .v-Notification.failure h1 {
+.dashboard .v-Notification.failure .v-Notification-caption {
 	color: #ed473b;
 }
 
-.dashboard .v-Notification.failure h1:before {
+.dashboard .v-Notification.failure .v-Notification-caption:before {
 	content: "\f05e";
 }
 
@@ -11605,31 +11751,4 @@ div.v-layout.v-horizontal.v-widget {
 
 .dashboard .reports .transaction .seats {
 	left: 60%;
-}
-
-.dashboard .v-caption-section-label{
-	border-bottom:1px solid #ddd;	
-	color:#197de1;
-	margin-top:20px;
-	
-}
-
-.dashboard .toggle-btn {
-	font-size: 12px;
-	padding: 0px 6px;
-	cursor: pointer;
-	margin-left: 10px;
-}
-
-.dashboard .toggle-btn .v-panel-captionwrap{
-	transition:transform,-o-transform,-moz-transform,-webkit-transform 300ms ease-in-out;
-	-moz-transition:transform,-o-transform,-moz-transform,-webkit-transform 300ms ease-in-out;
-	-webkit-transition:transform,-o-transform,-moz-transform,-webkit-transform 300ms ease-in-out;
-	-o-transition:transform,-o-transform,-moz-transform,-webkit-transform 300ms ease-in-out;
-}
-.dashboard .toggle-btn.rotate-180 .v-panel-captionwrap{
-	-webkit-transform: rotate(180deg);
-	-moz-transform: rotate(180deg);
-	-o-transform: rotate(180deg);
-	transform: rotate(180deg);
 }

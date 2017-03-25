@@ -6,6 +6,7 @@ import java.util.List;
 import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.User;
 import jazmin.deploy.manager.DeployManager;
+import jazmin.deploy.view.machine.MachineRobotWindow;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 
@@ -95,13 +96,23 @@ public final class MainMenu extends CustomComponent {
           			bfw.focus();
                 }
             });
+        	settingsItem.addSeparator();
             //
             settingsItem.addItem("Machine Config", (selectedItem)->showConfig("machine.json"));
             settingsItem.addItem("Application Config", (selectedItem)->showConfig("application.json"));
             settingsItem.addItem("Instance Config", (selectedItem)->showConfig("instance.json"));
-            settingsItem.addItem("Iptables Config", (selectedItem)->showConfig("iptables.rule"));	
+            settingsItem.addItem("Iptables Config", (selectedItem)->showConfig("iptables.rule"));
+            settingsItem.addItem("Job Config", (selectedItem)->showConfig("job.json"));
             settingsItem.addSeparator();
         }
+        settingsItem.addItem("Robots", (selectedItem)->{
+        	MachineRobotWindow bfw = new MachineRobotWindow();
+      		UI.getCurrent().addWindow(bfw);
+      		bfw.focus();
+        });
+      
+        settingsItem.addSeparator();
+        //
         settingsItem.addItem("Sign Out", (selectedItem)->{
         	DeploySystemUI.setUser(null);
         	DeploySystemUI.get().showLoginView();

@@ -8,7 +8,7 @@ $instance.application.type=="jazmin-web")
 #set($performanceLogFile 	=	$properties.getOrDefault("jazmin.log.file","./log/"))
 
 try {
-jazmin.getMonitor().setMonitorUrl("http://itit.io:8888/srv/monitor/report");
+jazmin.getMonitor().setMonitorUrl("http://monitorhost/srv/monitor/report");
 } catch (e) {}
 
 #foreach($param in ${properties.keySet()})  
@@ -27,8 +27,16 @@ jazmin.addDriver(httpClientDriver);
 //server
 #if($instance.application.type=="jazmin-msg")
 //message server 
-messageServer=new IMMessageServer();
+messageServer=new MessageServer();
 messageServer.setPort($instance.port);
+#set($udpPort 	=	$properties.getOrDefault("udp.port","0"))
+#if($udpPort!="0")
+messageServer.setUdpPort($udpPort);
+#end
+#set($webSocketPort 	=	$properties.getOrDefault("websocket.port","0"))
+#if($webSocketPort!="0")
+messageServer.setWebSocketPort($webSocketPort);
+#end
 jazmin.addServer(messageServer);
 #end
 //
@@ -140,7 +148,7 @@ jazmin.addServer(consoleServer);
 var targetApp="./instance/$instance.id/$instance.appId"+".war"
 #set($loadPackage=$instance.application.properties.getOrDefault("loadPackage","false"))
 #if($loadPackage=="true")
-jazmin.copyFile("http://itit.io:8888/srv/deploy/pkg/"+jazmin.getServerName(),targetApp)
+jazmin.copyFile("http://monitorhost/srv/deploy/pkg/"+jazmin.getServerName(),targetApp)
 #end
 webServer.addWar("/",targetApp);
 #end
@@ -149,7 +157,7 @@ webServer.addWar("/",targetApp);
 var targetApp="./instance/$instance.id/$instance.appId"+".jaz"
 #set($loadPackage=$instance.application.properties.getOrDefault("loadPackage","false"))
 #if($loadPackage=="true")
-jazmin.copyFile("http://itit.io:8888/srv/deploy/pkg/"+jazmin.getServerName(),targetApp)
+jazmin.copyFile("http://monitorhost/srv/deploy/pkg/"+jazmin.getServerName(),targetApp)
 #end
 jazmin.loadApplication(targetApp);
 #end
@@ -163,6 +171,8 @@ daemon
 nbproc 1 
 pidfile /home/appadmin/haproxy/haproxy.pid
 tune.ssl.default-dh-param 2048
+ssl-default-bind-ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA
+ssl-default-server-ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA
 
 defaults
 log     global
@@ -178,7 +188,10 @@ timeout client          1m
 timeout server          1m
 timeout http-keep-alive 10s
 timeout check           10s
-maxconn                 3000
+maxconn                 30000
+
+
+
 #set($stat_url	=	$properties.getOrDefault("haproxy.staturl","haproxy"))
 stats   uri  /$stat_url
 stats   hide-version
@@ -254,7 +267,7 @@ use_backend server_$app.id if is_$k$app.id
 #set ($app = $applicationMap.get($i))
 #if($app.type=="jazmin-web")
 backend server_$app.id
-mode http #http 模式
+mode http #http 
 balance roundrobin
 cookie         SERVER_ID insert
 option  httpclose

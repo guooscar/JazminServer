@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.servlet.Servlet;
@@ -67,12 +68,19 @@ public class WebServer extends jazmin.core.Server{
 	private boolean dirAllowed=false;
 	private String hostname;
 	private AtomicLong totalSessionCounter;
+	private Map<String, Object>serverAttributes;
 	static{
 		System.getProperties().put("org.eclipse.jetty.util.log.class",JettyLogger.class.getName());
 	}
 	public WebServer() {
 		totalSessionCounter=new AtomicLong();
+		serverAttributes=new HashMap<>();
 	}
+	//
+	public void setServerAttribute(String key,Object value){
+		serverAttributes.put(key, value);
+	}
+	//
 	/**
 	 * set jetty logger enable flag
 	 * @param enabled jetty logger enable flag
@@ -332,7 +340,7 @@ public class WebServer extends jazmin.core.Server{
 	    		new DefaultHandler(),
 	    		contextHandler,
 	    		requestLogHandler});
-	    //
+	    //  
 	    if(webAppContext!=null){
 			contextHandler.addHandler(webAppContext);
 		}
@@ -371,8 +379,11 @@ public class WebServer extends jazmin.core.Server{
 		//
 		server.setConnectors(connectors.toArray(new Connector[connectors.size()]));		
         server.setHandler(handlers);
+        for(Entry<String, Object> e :serverAttributes.entrySet()){
+			server.setAttribute(e.getKey(), e.getValue());
+		}
         server.start();
-      if(webAppContext!=null){
+        if(webAppContext!=null){
 			Jazmin.setAppClassLoader(webAppContext.getClassLoader());
 		}
 		//
@@ -461,6 +472,9 @@ public class WebServer extends jazmin.core.Server{
 			info.put("idleTimeout",idleTimeout+"");
 			info.put("dirAllowed",dirAllowed+"");
 			info.put("webAppContext",webAppContext+"");
+			for(Entry<String, Object> e :serverAttributes.entrySet()){
+				info.put("serverAttribute-"+e.getKey(),e.getValue()+"");
+			}
 			monitor.sample("WebServer.Info",Monitor.CATEGORY_TYPE_KV,info);
 		}
 	}

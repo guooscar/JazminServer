@@ -26,7 +26,7 @@ public class WebSshServerCommand extends ConsoleCommand {
 	@Override
 	public void run() throws Exception {
 		if (server == null) {
-			out.println("can not find SipServer.");
+			out.println("can not find WebSshServer.");
 
 			return;
 		}
@@ -40,26 +40,24 @@ public class WebSshServerCommand extends ConsoleCommand {
 	//
 	private void showChannels(String args){
 		TablePrinter tp=TablePrinter.create(out)
-				.length(15,20,15,40,10,15,10,10)
+				.length(15,40,10,15,10,70,20)
 				.headers("ID",
-						"REMOTEADDRESS",
-		    			"REMOTEPORT",
-		    			"SSHINFO",
+						"SSHINFO",
 		    			"SENTCNT",
 		    			"RECECNT",
 		    			"CREATETIME",
-		    			"CMD");
+		    			"CONNECTION",
+		    			"ENDPOINT");
     	List<WebSshChannel>channels=server.getChannels();
     	for(WebSshChannel s:channels){
     		tp.print(
-        			s.id,
-        			s.remoteAddress,
-        			s.remotePort,
-        			s.sshUser+"@"+s.sshHost+":"+s.sshPort,
+        			s.getId(),
+        			s.connectionInfo.user+"@"+s.connectionInfo.host+":"+s.connectionInfo.port,
         			s.messageSentCount,
         			s.messageReceivedCount,
         			formatDate(s.createTime),
-        			s.sshCmd);
+        			s.connectionInfo,
+        			s.endpoint);
     	}
     }
 }

@@ -8,6 +8,7 @@ import jazmin.server.console.ascii.AsciiChart;
 import jazmin.server.console.ascii.TablePrinter;
 import jazmin.server.console.ascii.TerminalWriter;
 import jazmin.server.console.builtin.ConsoleCommand;
+import jazmin.server.msg.codec.DefaultCodecFactory;
 import jazmin.util.BeanUtil;
 import jazmin.util.DumpUtil;
 /**
@@ -100,7 +101,7 @@ public class MessageServerCommand extends ConsoleCommand {
     //
     private void showSessions(String args){
     	TablePrinter tp=TablePrinter.create(out)
-    			.length(10,32,6,10,15,10,10,10,10,15,15,10)
+    			.length(6,48,6,10,15,10,10,10,10,15,15,10)
     			.headers("ID",
     					"PRINCIPAL",
     					"MSGTYP",
@@ -122,10 +123,18 @@ public class MessageServerCommand extends ConsoleCommand {
 		}
 		
 		for(Session s:sessions){
+			String msgType="raw-"+s.getMessageType();
+			if(s.getMessageType()==DefaultCodecFactory.FORMAT_JSON){
+				msgType="json";
+			}else if(s.getMessageType()==DefaultCodecFactory.FORMAT_ZJSON){
+				msgType="zjson";
+			}else if(s.getMessageType()==DefaultCodecFactory.FORMAT_AMF){
+				msgType="amf";
+			}
 			tp.print(
 					s.getId(),
 					s.getPrincipal(),
-					s.getMessageType(),
+					msgType,
 					s.getUserAgent(),
 					s.getRemoteHostAddress(),
 					s.getRemotePort(),

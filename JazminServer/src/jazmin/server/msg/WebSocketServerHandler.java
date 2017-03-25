@@ -15,10 +15,10 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
@@ -27,9 +27,7 @@ import io.netty.util.AttributeKey;
 import io.netty.util.CharsetUtil;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.server.msg.codec.JSONRequestParser;
 import jazmin.server.msg.codec.RequestMessage;
-import jazmin.util.DumpUtil;
 
 /**
  * Handles handshakes and messages
@@ -100,15 +98,19 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 		if (frame instanceof PongWebSocketFrame) {
 			return;
 		}
-		if (!(frame instanceof TextWebSocketFrame)) {
+		if (!(frame instanceof BinaryWebSocketFrame)) {
 			throw new UnsupportedOperationException(String.format(
 					"%s frame types not supported", frame.getClass().getName()));
 		}
-		// Send the uppercase string back.
-		String request = ((TextWebSocketFrame) frame).text();
-		RequestMessage message=decodeMessage(request.trim());
-		Session session = ctx.channel().attr(SESSION_KEY).get();
-		messageServer.receiveMessage(session, message);
+		ByteBuf content = ((BinaryWebSocketFrame) frame).content();
+		RequestMessage message;
+		try {
+			message = decodeMessage(content);
+			Session session = ctx.channel().attr(SESSION_KEY).get();
+			messageServer.receiveMessage(session, message);
+		} catch (Exception e) {
+			logger.catching(e);
+		}
 	}
 	//
 	private static void sendHttpResponse(ChannelHandlerContext ctx,
@@ -167,14 +169,9 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 	}
 	//
 	//--------------------------------------------------------------------------
-	private RequestMessage decodeMessage(String s){
-		RequestMessage reqMessage=JSONRequestParser.createRequestMessage(s);
-     	if(logger.isDebugEnabled()){
-     		logger.debug("\ndecode message--------------------------------------\n"
-     						+DumpUtil.formatJSON(s));
-     	}
-    	messageServer.networkTrafficStat.inBound(s.getBytes().length);
-     	return reqMessage;
+	private RequestMessage decodeMessage(ByteBuf receiveBuffer)throws Exception{
+		RequestMessage req = messageServer.codecFactory.decode(receiveBuffer, messageServer.networkTrafficStat);
+		return req;
 	}
 	
 }

@@ -42,12 +42,9 @@ public class ControllerStub implements Comparable<ControllerStub>{
 				!m.getParameterTypes()[0].equals(Context.class)){
 			throw new IllegalArgumentException("parameter must be Context.");		
 		}
-		if(srv.id()==null){
-			throw new IllegalArgumentException("service id can not be null.");	
-		}
 		MethodStub ms=new MethodStub();
 		ms.controllerId=id;
-		ms.id=srv.id();
+		ms.id=srv.id()==null?m.getName():srv.id();
 		ms.queryCount=srv.queryCount();
 		ms.method=srv.method().toString();
 		ms.invokeMethod=m;

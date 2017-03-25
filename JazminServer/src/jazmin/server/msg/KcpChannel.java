@@ -12,8 +12,6 @@ import io.netty.channel.socket.DatagramPacket;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.io.NetworkTrafficStat;
-import jazmin.server.msg.codec.BinaryDecoder;
-import jazmin.server.msg.codec.BinaryEncoder;
 import jazmin.server.msg.codec.RequestMessage;
 import jazmin.server.msg.codec.ResponseMessage;
 import jazmin.server.msg.kcp.KCP;
@@ -38,6 +36,7 @@ public class KcpChannel extends KCP implements NetworkChannel {
 	long receivePacketCount;
 	long sentPacketCount;
 	//
+	long lastPingTime;
 	long peerTimestamp;
 	long nextUpdateTime;
 	boolean needUpdate;
@@ -61,9 +60,16 @@ public class KcpChannel extends KCP implements NetworkChannel {
 	 * 
 	 * 
 	 */
+	private MessageServer messageServer;
 	//
-	public KcpChannel(int conv, Channel channel, InetSocketAddress localAddress, InetSocketAddress peerAddress) {
+	public KcpChannel(
+			MessageServer messageServer,
+			int conv,
+			Channel channel, 
+			InetSocketAddress localAddress, 
+			InetSocketAddress peerAddress) {
 		super(conv);
+		this.messageServer=messageServer;
 		//极速模式
 		noDelay(1, 10, 2, 1);
 		this.channel = channel;
@@ -73,6 +79,7 @@ public class KcpChannel extends KCP implements NetworkChannel {
 		createTime = System.currentTimeMillis();
 		lastReceiveTime = System.currentTimeMillis();
 		lastSentTime = System.currentTimeMillis();
+		lastPingTime=System.currentTimeMillis();
 	}
 
 	//
@@ -88,6 +95,7 @@ public class KcpChannel extends KCP implements NetworkChannel {
 	}
 	//
 	void receivePing(long timestamp,int lag){
+		lastPingTime=System.currentTimeMillis();
 		peerTimestamp=timestamp;
 		receivePacketCount++;
 		this.lag=lag;
@@ -112,7 +120,7 @@ public class KcpChannel extends KCP implements NetworkChannel {
 		}
 		//
 		try {
-			RequestMessage req = BinaryDecoder.decode0(receiveBuffer, networkTrafficStat);
+			RequestMessage req = messageServer.codecFactory.decode(receiveBuffer, networkTrafficStat);
 			return req;
 		} catch (Exception e) {
 			logger.catching(e);
@@ -144,7 +152,7 @@ public class KcpChannel extends KCP implements NetworkChannel {
 		ResponseMessage msg = (ResponseMessage) obj;
 		ByteBuf out = Unpooled.buffer(256);
 		try {
-			BinaryEncoder.encode0(msg, out, networkTrafficStat);
+			messageServer.codecFactory.encode(msg, out, networkTrafficStat);
 			byte content[] = new byte[out.readableBytes()];
 			out.readBytes(content);
 			send(content);

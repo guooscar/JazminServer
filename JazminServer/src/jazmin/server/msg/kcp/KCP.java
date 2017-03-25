@@ -140,15 +140,15 @@ public abstract class KCP {
     protected int conv = 0;
     //int user = user;
     int sndUna = 0;
-    int snd_nxt = 0;
+    int sndNxt = 0;
     int rcvnxt = 0;
-    long ts_recent = 0;
-    long ts_lastack = 0;
-    long ts_probe = 0;
-    int probe_wait = 0;
-    int snd_wnd = IKCP_WND_SND;
+    long tsRecent = 0;
+    long tsLastack = 0;
+    long tsProbe = 0;
+    int probeWait = 0;
+    int sndWnd = IKCP_WND_SND;
     int rcvWnd = IKCP_WND_RCV;
-    int rmt_wnd = IKCP_WND_RCV;
+    int rmtWnd = IKCP_WND_RCV;
     int cwnd = 0;
     int incr = 0;
     int probe = 0;
@@ -215,25 +215,20 @@ public abstract class KCP {
     // user/upper level recv: returns size, returns below zero for EAGAIN
     // 将接收队列中的数据传递给上层引用
     public int recv(byte[] buffer) {
-
         if (0 == nrcvque.size()) {
             return -1;
         }
-
         int peekSize = peekSize();
         if (0 > peekSize) {
             return -2;
         }
-
         if (peekSize > buffer.length) {
             return -3;
         }
-
         boolean fastrecover = false;
         if (nrcvque.size() >= rcvWnd) {
             fastrecover = true;
         }
-
         // merge fragment.
         int count = 0;
         int n = 0;
@@ -245,11 +240,9 @@ public abstract class KCP {
                 break;
             }
         }
-
         if (0 < count) {
             slice(nrcvque, count, nrcvque.size());
         }
-
         // move available data from rcv_buf -> nrcv_que
         count = 0;
         for (Segment seg : nrcvbuf) {
@@ -261,40 +254,33 @@ public abstract class KCP {
                 break;
             }
         }
-
         if (0 < count) {
             slice(nrcvbuf, count, nrcvbuf.size());
         }
-
         // fast recover
         if (nrcvque.size() < rcvWnd && fastrecover) {
             // ready to send back IKCP_CMD_WINS in ikcp_flush
             // tell remote my window size
             probe |= IKCP_ASK_TELL;
         }
-
         return n;
     }
-
     // user/upper level send, returns below zero for error
     // 上层要发送的数据丢给发送队列，发送队列会根据mtu大小分片
     public int send(byte[] buffer) {
         if (0 == buffer.length) {
             return -1;
         }
-
         int count;
         if (buffer.length < mss) {
             count = 1;
         } else {
             count = (int) (buffer.length + mss - 1) / mss;
         }
-
         if (count > 255 ) {
             //return -2;
             throw new IllegalArgumentException("buffer is two long >255 mss");
         }
-
         if (count == 0 ) {
             count = 1;
         }
@@ -340,13 +326,13 @@ public abstract class KCP {
         if (nsndBuf.size() > 0) {
             sndUna = nsndBuf.get(0).sn;
         } else {
-            sndUna = snd_nxt;
+            sndUna = sndNxt;
         }
     }
 
     // 对端返回的ack, 确认发送成功时，对应包从发送缓存中移除
     void parseAck(int sn) {
-        if (itimediff(sn, sndUna) < 0 || itimediff(sn, snd_nxt) >= 0) {
+        if (itimediff(sn, sndUna) < 0 || itimediff(sn, sndNxt) >= 0) {
             return;
         }
 
@@ -493,7 +479,7 @@ public abstract class KCP {
                 return -3;
             }
 
-            rmt_wnd =  wnd;
+            rmtWnd =  wnd;
             parseUna(una);
             shrinkBuf();
 
@@ -537,7 +523,7 @@ public abstract class KCP {
         }
 
         if (itimediff(sndUna, s_una) > 0) {
-            if (cwnd < rmt_wnd) {
+            if (cwnd < rmtWnd) {
                 int mss_ = mss;
                 if (cwnd < ssthresh) {
                     cwnd++;
@@ -551,9 +537,9 @@ public abstract class KCP {
                         cwnd++;
                     }
                 }
-                if (cwnd > rmt_wnd) {
-                    cwnd = rmt_wnd;
-                    incr = rmt_wnd * mss_;
+                if (cwnd > rmtWnd) {
+                    cwnd = rmtWnd;
+                    incr = rmtWnd * mss_;
                 }
             }
         }
@@ -562,7 +548,7 @@ public abstract class KCP {
     }
 
     // 接收窗口可用大小
-    int wnd_unused() {
+    int wndUnused() {
         if (nrcvque.size() < rcvWnd) {
             return (int) (int) rcvWnd - nrcvque.size();
         }
@@ -582,7 +568,7 @@ public abstract class KCP {
         Segment seg = new Segment(0);
         seg.conv = conv;
         seg.cmd = IKCP_CMD_ACK;
-        seg.wnd =  wnd_unused();
+        seg.wnd =  wndUnused();
         seg.una = rcvnxt;
 
         // flush acknowledges
@@ -601,26 +587,26 @@ public abstract class KCP {
         acklist.clear();
 
         // probe window size (if remote window size equals zero)
-        if (0 == rmt_wnd) {
-            if (0 == probe_wait) {
-                probe_wait = IKCP_PROBE_INIT;
-                ts_probe = current + probe_wait;
+        if (0 == rmtWnd) {
+            if (0 == probeWait) {
+                probeWait = IKCP_PROBE_INIT;
+                tsProbe = current + probeWait;
             } else {
-                if (itimediff(current, ts_probe) >= 0) {
-                    if (probe_wait < IKCP_PROBE_INIT) {
-                        probe_wait = IKCP_PROBE_INIT;
+                if (itimediff(current, tsProbe) >= 0) {
+                    if (probeWait < IKCP_PROBE_INIT) {
+                        probeWait = IKCP_PROBE_INIT;
                     }
-                    probe_wait += probe_wait / 2;
-                    if (probe_wait > IKCP_PROBE_LIMIT) {
-                        probe_wait = IKCP_PROBE_LIMIT;
+                    probeWait += probeWait / 2;
+                    if (probeWait > IKCP_PROBE_LIMIT) {
+                        probeWait = IKCP_PROBE_LIMIT;
                     }
-                    ts_probe = current + probe_wait;
+                    tsProbe = current + probeWait;
                     probe |= IKCP_ASK_SEND;
                 }
             }
         } else {
-            ts_probe = 0;
-            probe_wait = 0;
+            tsProbe = 0;
+            probeWait = 0;
         }
 
         // flush window probing commands
@@ -646,14 +632,14 @@ public abstract class KCP {
         probe = 0;
 
         // calculate window size
-        int cwnd_ = imin(snd_wnd, rmt_wnd);
+        int cwnd_ = imin(sndWnd, rmtWnd);
         if (0 == nocwnd) {
             cwnd_ = imin(cwnd, cwnd_);
         }
 
         count = 0;
         for (Segment nsnd_que1 : nsndque) {
-            if (itimediff(snd_nxt, sndUna + cwnd_) >= 0) {
+            if (itimediff(sndNxt, sndUna + cwnd_) >= 0) {
                 break;
             }
             Segment newseg = nsnd_que1;
@@ -661,14 +647,14 @@ public abstract class KCP {
             newseg.cmd = IKCP_CMD_PUSH;
             newseg.wnd = seg.wnd;
             newseg.ts = current_;
-            newseg.sn = snd_nxt;
+            newseg.sn = sndNxt;
             newseg.una = rcvnxt;
             newseg.resendts = current_;
             newseg.rto = rxrto;
             newseg.fastack = 0;
             newseg.xmit = 0;
             nsndBuf.add(newseg);
-            snd_nxt++;
+            sndNxt++;
             count++;
         }
 
@@ -737,7 +723,7 @@ public abstract class KCP {
 
         // update ssthresh
         if (change != 0) {
-        	int inflight = snd_nxt - sndUna;
+        	int inflight = sndNxt - sndUna;
             ssthresh = inflight / 2;
             if (ssthresh < IKCP_THRESH_MIN) {
                 ssthresh = IKCP_THRESH_MIN;
@@ -895,7 +881,7 @@ public abstract class KCP {
     // set maximum window size: sndwnd=32, rcvwnd=32 by default
     public int wndSize(int sndwnd, int rcvwnd) {
         if (sndwnd > 0) {
-            snd_wnd = (int) sndwnd;
+            sndWnd = (int) sndwnd;
         }
 
         if (rcvwnd > 0) {

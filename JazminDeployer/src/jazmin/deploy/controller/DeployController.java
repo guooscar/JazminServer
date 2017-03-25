@@ -5,13 +5,12 @@ package jazmin.deploy.controller;
 
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import jazmin.core.Jazmin;
 import jazmin.deploy.domain.Instance;
-import jazmin.deploy.domain.Machine;
 import jazmin.deploy.manager.DeployManager;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -31,6 +30,7 @@ import jazmin.server.web.mvc.Service;
 public class DeployController {
 	//
 	private static Logger logger=LoggerFactory.get(DeployController.class);
+
 	//
 	private boolean checkMachine(Context c,String instanceId){
 		if(c.request().session(true).getAttribute("user")!=null){
@@ -43,7 +43,7 @@ public class DeployController {
 		if(instance.getProperties().containsKey(Instance.P_NO_CHECK_IP)){
 			return true;
 		}
-		String remoteAddr=c.request().raw().getRemoteAddr();
+		String remoteAddr=getAddress(c.request().raw());
 		if(!instance.machine.publicHost.equals(remoteAddr)
 				&&!instance.machine.privateHost.equals(remoteAddr)){
 			logger.warn("addr check {} - {} - {}",
@@ -54,6 +54,18 @@ public class DeployController {
 			return false;
 		}
 		return true;
+	}
+	//
+	public static String getAddress(HttpServletRequest request){
+		String ret=null;
+		ret=request.getHeader("X-Forwarded-For");
+		if(ret==null||ret.trim().isEmpty()){
+			ret=request.getHeader("HTTP_X_FORWARDED_FOR");
+		}
+		if(ret==null||ret.trim().isEmpty()){
+			ret=request.getRemoteAddr();
+		}
+		return ret;
 	}
 	//
 	/**
@@ -96,86 +108,24 @@ public class DeployController {
 		}
 	}
 	//--------------------------------------------------------------------------
-	@Service(id="instance_taillog",queryCount=3)
-	public void instanceTailLog(Context c){
-		if(!checkMachine(c,"")){
-			return;
-		}
-		List<String>querys=c.request().querys();
-		String instanceId=querys.get(2);
-		Instance instance=DeployManager.getInstance(instanceId);
-		if(instance==null){
-			c.view(new ErrorView(404));
-			return;
-		}
-		Machine machine=instance.machine;
-		c.put("sshHost",machine.publicHost);
-		c.put("sshUser",machine.sshUser);
-		c.put("sshPort",machine.sshPort);
-		c.put("sshPassword",machine.sshPassword);
-		c.put("sshCmd","tail -f "+
-				instance.machine.jazminHome+"log/"+
-				instance.id+".log");
-		c.view(new ResourceView("/jsp/webssh.jsp"));
-	}
+
 	//
-	@Service(id="instance_webssh",queryCount=3)
-	public void instanceWebssh(Context c){
-		if(!checkMachine(c,"")){
-			return;
-		}
-		List<String>querys=c.request().querys();
-		String instanceId=querys.get(2);
-		Instance instance=DeployManager.getInstance(instanceId);
-		if(instance==null){
-			c.view(new ErrorView(404));
-			return;
-		}
-		Machine machine=instance.machine;
-		Map<String,String>p=instance.properties;
-		c.put("sshHost",machine.publicHost);
-		c.put("sshUser",p.getOrDefault(Instance.P_JAZMIN_CONSOLE_USER, "jazmin"));
-		c.put("sshPassword",p.getOrDefault(Instance.P_JAZMIN_CONSOLE_PWD, "jazmin"));
-		c.put("sshPort",instance.port+10000);
-		c.view(new ResourceView("/jsp/webssh.jsp"));
-	}
-	//
-	@Service(id="webssh",queryCount=3)
+	@Service(id="webssh")
 	public void webssh(Context c){
 		if(!checkMachine(c,"")){
 			return;
 		}
-		List<String>querys=c.request().querys();
-		String machineId=querys.get(2);
-		Machine machine=DeployManager.getMachine(machineId);
-		if(machine==null){
-			c.view(new ErrorView(404));
-			return;
-		}
-		c.put("sshHost",machine.publicHost);
-		c.put("sshUser",machine.sshUser);
-		c.put("sshPort",machine.sshPort);
-		c.put("sshPassword",machine.sshPassword);
+		c.put("token",c.getString("token", true));
 		c.view(new ResourceView("/jsp/webssh.jsp"));
 	}
 	//
-	@Service(id="rootwebssh",queryCount=3)
-	public void rootwebssh(Context c){
+	@Service(id="webvnc")
+	public void webvnc(Context c){
 		if(!checkMachine(c,"")){
 			return;
 		}
-		List<String>querys=c.request().querys();
-		String machineId=querys.get(2);
-		Machine machine=DeployManager.getMachine(machineId);
-		if(machine==null){
-			c.view(new ErrorView(404));
-			return;
-		}
-		c.put("sshHost",machine.publicHost);
-		c.put("sshUser","root");
-		c.put("sshPort",machine.sshPort);
-		c.put("sshPassword",machine.rootSshPassword);
-		c.view(new ResourceView("/jsp/webssh.jsp"));
+		c.put("token",c.getString("token", true));
+		c.view(new ResourceView("/jsp/webvnc.jsp"));
 	}
 	//
 	@Service(id="sysgraph")

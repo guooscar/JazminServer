@@ -8,6 +8,7 @@ import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.view.app.ApplicationInfoView;
 import jazmin.deploy.view.console.ConsoleView;
 import jazmin.deploy.view.instance.InstanceInfoView;
+import jazmin.deploy.view.job.JobInfoView;
 import jazmin.deploy.view.machine.MachineInfoView;
 import jazmin.deploy.view.pkg.PackageInfoView;
 import jazmin.deploy.view.repo.RepoInfoView;
@@ -77,7 +78,9 @@ public class MainView extends HorizontalLayout {
         	menuView.addMenuItem("Repos", FontAwesome.CLOUD_UPLOAD,new RepoInfoView());
         	consoleView=new ConsoleView();
     	}
-     	menuView.addMenuItem("Consoles", FontAwesome.CODE,consoleView);		
+     	menuView.addMenuItem("Consoles", FontAwesome.CODE,consoleView);
+    	menuView.addMenuItem("Jobs", FontAwesome.CUBES,new JobInfoView());	
+        
     }
     //
     public ConsoleView getConsoleView(){

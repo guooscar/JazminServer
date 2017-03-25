@@ -6,6 +6,7 @@ package jazmin.util;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,9 +27,12 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import com.jcraft.jzlib.GZIPOutputStream;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -64,8 +68,32 @@ public class IOUtil {
 		}
 		return outputs;
 	}
-
 	//
+	public static byte[] gzipCompress(byte[] inputs)throws Exception {
+		if (inputs.length == 0) {
+			return inputs;
+		}
+		try(ByteArrayOutputStream bos=new ByteArrayOutputStream();
+				GZIPOutputStream is=new GZIPOutputStream(bos);){
+			is.write(inputs);
+			is.close();
+			return bos.toByteArray();
+		}
+	}
+	//
+	public static byte[] gzipDecompress(byte[] inputs)throws Exception {
+		if (inputs.length == 0) {
+			return inputs;
+		}
+		try(ByteArrayInputStream bos=new ByteArrayInputStream(inputs);
+				GZIPInputStream	in=new GZIPInputStream(bos);){
+			ByteArrayOutputStream out=new ByteArrayOutputStream();
+			IOUtil.copy(in, out);
+			IOUtil.closeQuietly(in);
+			IOUtil.closeQuietly(out);
+			return out.toByteArray();
+		}
+	}
 	//
 	public static byte[] decompress(byte[] input) {
 		if (input.length == 0) {

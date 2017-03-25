@@ -3,14 +3,12 @@
  */
 package jazmin.server.msg;
 
-import com.alibaba.fastjson.JSON;
-
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.msg.codec.ResponseMessage;
-import jazmin.server.msg.codec.ResponseProto;
-import jazmin.util.DumpUtil;
 
 /**
  * @author yama
@@ -25,30 +23,22 @@ public class WebSocketSession extends Session{
 		connectionType="ws";
 	}
 	//
-	void sendMessage(ResponseMessage responseMessage){
+	void sendMessage(ResponseMessage msg){
 		lastAccess();
 		if(channel!=null){
-			TextWebSocketFrame frame=new TextWebSocketFrame(
-					encodeMessage(responseMessage));
-			channel.writeAndFlush(frame);
+			sentMessageCount++;
+			msg.messageType=messageType;
+			if(msg.responseObject==null){
+				msg.responseObject=ResponseMessage.emptyHashMap;
+			}
+			ByteBuf out=Unpooled.buffer(256);
+			try {
+				messageServer.codecFactory.encode(msg, out, messageServer.networkTrafficStat);
+				BinaryWebSocketFrame frame=new BinaryWebSocketFrame(out);
+				channel.writeAndFlush(frame);
+			} catch (Exception e) {
+				logger.catching(e);
+			}
 		}
-	}
-	//
-	private String encodeMessage(ResponseMessage msg){
-		//
-    	ResponseProto bean=new ResponseProto();
-    	bean.d=(System.currentTimeMillis());
-    	bean.ri=(msg.requestId);
-    	bean.rsp=(msg.responseObject);
-    	bean.si=(msg.serviceId);
-    	bean.sc=(msg.statusCode);
-    	bean.sm=(msg.statusMessage);
-    	String json=JSON.toJSONString(bean)+"\n";
-    	if(logger.isDebugEnabled()){
-    		logger.debug("\nencode message--------------------------------------\n"
-						+DumpUtil.formatJSON(json));
-    	}
-    	messageServer.networkTrafficStat.outBound(json.getBytes().length);
-    	return json;
 	}
 }

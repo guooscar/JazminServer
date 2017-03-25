@@ -1,0 +1,20 @@
+<html> 
+<head> 
+<title> ProxyController Test </title>
+</head>
+<body bgcolor="white" text="blue">
+<h1> ProxyController Test </h1>
+
+</body>
+
+<script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript" src="proxy.js"></script>
+<script type="text/javascript">
+	ProxyClient.invoke("SimpleObject.add",[{x:1,y:1},{x:2,y:2}],
+			function(ret,exception){
+					console.log("ret:"+JSON.stringify(ret));
+					console.log("exception:"+JSON.stringify(exception));
+			}
+	);
+</script>
+</html>

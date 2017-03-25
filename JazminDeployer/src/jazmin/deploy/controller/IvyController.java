@@ -26,7 +26,6 @@ public class IvyController {
 	@Service(id="config")
 	public void getIvyConfig(Context c){
 		String host = DeployManager.deployHostname;
-		int port = DeployManager.deployHostport;
 		StringBuilder result=new StringBuilder();
 		result.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>"+
 		"<ivysettings>"+ 
@@ -34,7 +33,7 @@ public class IvyController {
 		  "<resolvers> "+
 		    "<chain name=\"chained\" returnFirst=\"true\"> "+
 		      "<url name=\"integratebutton\"> "+
-		        "<artifact pattern=\"http://"+host+":"+port+"/srv/ivy/repo/[artifact]-[revision].[ext]\" /> "+
+		        "<artifact pattern=\"http://"+host+"/srv/ivy/repo/[artifact]-[revision].[ext]\" /> "+
 		      "</url> "+
 		    "</chain> "+
 		  "</resolvers> "+

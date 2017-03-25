@@ -53,8 +53,9 @@ import jazmin.misc.InfoBuilder;
 import jazmin.misc.io.IOWorker;
 import jazmin.misc.io.NetworkTrafficStat;
 import jazmin.server.console.ConsoleServer;
-import jazmin.server.msg.codec.BinaryDecoder;
-import jazmin.server.msg.codec.BinaryEncoder;
+import jazmin.server.msg.codec.MessageDecoder;
+import jazmin.server.msg.codec.MessageEncoder;
+import jazmin.server.msg.codec.DefaultCodecFactory;
 import jazmin.server.msg.codec.RequestMessage;
 import jazmin.server.msg.codec.ResponseMessage;
 
@@ -64,11 +65,6 @@ import jazmin.server.msg.codec.ResponseMessage;
  */
 public class MessageServer extends Server{
 	private static Logger logger=LoggerFactory.get(MessageServer.class);
-	//
-	public static final int FORMAT_RAW=0;
-	public static final int FORMAT_JSON=1;
-	public static final int FORMAT_ZJSON=2;
-	public static final int FORMAT_AMF=4;
 	//
 	static final int DEFAULT_PORT=3001;
 	static final int DEFAULT_IDLE_TIME=60*10;//10 min
@@ -81,6 +77,7 @@ public class MessageServer extends Server{
 	EventLoopGroup bossGroup;
 	EventLoopGroup workerGroup;
 	ChannelInitializer<SocketChannel> tcpChannelInitializer;
+	CodecFactory codecFactory;
 	IOWorker ioWorker;
 	int port;
 	int webSocketPort;
@@ -90,6 +87,7 @@ public class MessageServer extends Server{
 	int maxSessionCount;
 	int maxChannelCount;
 	int maxSessionRequestCountPerSecond;
+	boolean checkRequestId;
 	//
 	KcpChannelManager kcpChannelManager;
 	//
@@ -118,6 +116,7 @@ public class MessageServer extends Server{
 		channelMap=new ConcurrentHashMap<>();
 		sessionId=new AtomicInteger(1);
 		networkTrafficStat=new NetworkTrafficStat();
+		codecFactory=new DefaultCodecFactory();
 		port=DEFAULT_PORT;
 		idleTime=DEFAULT_IDLE_TIME;
 		maxSessionCount=DEFAULT_MAX_SESSION_COUNT;
@@ -133,14 +132,47 @@ public class MessageServer extends Server{
 		webSocketPort=-1;
 		udpPort=-1;
 		//
-		
+		checkRequestId=true;
 	}
 	//
-	BinaryEncoder createEncoder(){
-		return new BinaryEncoder(networkTrafficStat);
+	
+	//
+	MessageEncoder createEncoder(){
+		return new MessageEncoder(codecFactory,networkTrafficStat);
 	}
-	BinaryDecoder createDecoder(){
-		return new BinaryDecoder(networkTrafficStat);
+	/**
+	 * @return the checkRequestId
+	 */
+	public boolean isCheckRequestId() {
+		return checkRequestId;
+	}
+
+	/**
+	 * @param checkRequestId the checkRequestId to set
+	 */
+	public void setCheckRequestId(boolean checkRequestId) {
+		this.checkRequestId = checkRequestId;
+	}
+
+	//
+	MessageDecoder createDecoder(){
+		return new MessageDecoder(codecFactory,networkTrafficStat);
+	}
+	/**
+	 * @return the codecFactory
+	 */
+	public CodecFactory getCodecFactory() {
+		return codecFactory;
+	}
+
+	/**
+	 * @param codecFactory the codecFactory to set
+	 */
+	public void setCodecFactory(CodecFactory codecFactory) {
+		if(codecFactory==null){
+			throw new IllegalArgumentException("codecFactory can not be null");
+		}
+		this.codecFactory = codecFactory;
 	}
 	/**
 	 * return port of this server
@@ -393,8 +425,6 @@ public class MessageServer extends Server{
 	}
 	//
 	private void initWsNettyServer(){
-		webSocketServerHandler=new WebSocketServerHandler(this);
-		//
 		webSocketNettyServer=new ServerBootstrap();
 		tcpChannelInitializer=new WSMessageServerChannelInitializer();
 		webSocketNettyServer.group(bossGroup, workerGroup)
@@ -412,7 +442,7 @@ public class MessageServer extends Server{
 			ch.pipeline().addLast(new HttpServerCodec());
 			ch.pipeline().addLast(new HttpObjectAggregator(65536));
 			ch.pipeline().addLast(new WebSocketServerCompressionHandler());
-			ch.pipeline().addLast(webSocketServerHandler);
+			ch.pipeline().addLast(new WebSocketServerHandler(MessageServer.this));
 		}
 	}
 	//--------------------------------------------------------------------------
@@ -466,6 +496,9 @@ public class MessageServer extends Server{
 				ss.isSyncOnSessionService=srvAnnotation.syncOnSession();
 				ss.isContinuationService=srvAnnotation.continuation();
 				ss.isDisableResponseService=srvAnnotation.disableResponse();
+				if(srvAnnotation.id().trim().length()>0){
+					ss.serviceId=srvAnnotation.id().trim();
+				}
 			}else{
 				ss.isSyncOnSessionService=false;
 				ss.isContinuationService=false;
@@ -473,7 +506,7 @@ public class MessageServer extends Server{
 			}
 			ss.instance=instance;
 			ss.method=m;
-			serviceMap.put(methodName, ss);
+			serviceMap.put(ss.serviceId, ss);
 		}
 	}
 	//
@@ -491,7 +524,7 @@ public class MessageServer extends Server{
 			return null;
 		}
 		//2.replay attack
-		if(message.requestId<=session.getRequestId()){
+		if(checkRequestId&&message.requestId<=session.getRequestId()){
 			if(logger.isWarnEnabled()){
 				logger.warn("{} same request id",session);	
 			}
@@ -645,7 +678,7 @@ public class MessageServer extends Server{
 							e.getMessage());			
 				}	
 			}
-			context.close();	
+			context.close(e!=null);	
 		}	
 	}
 	//message
@@ -925,6 +958,7 @@ public class MessageServer extends Server{
 		.print("webSocketPort", webSocketPort)
 		.print("udpPort", udpPort)
 		.print("idleTime", idleTime+" seconds")
+		.print("codecFactory", codecFactory+"")
 		.print("sessionTimeout", sessionTimeout+" seconds")
 		.print("maxSessionCount", maxSessionCount)
 		.print("maxChannelCount", maxChannelCount)

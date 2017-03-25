@@ -42,7 +42,8 @@ public class FileChannelReader implements BufferReader {
         this(new File(path));
     }
 
-    public FileChannelReader(final File file) {
+    @SuppressWarnings("resource")
+	public FileChannelReader(final File file) {
         absolutePath = file.getAbsolutePath();
         try {
             in = new FileInputStream(file).getChannel();

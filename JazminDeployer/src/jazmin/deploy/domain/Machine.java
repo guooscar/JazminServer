@@ -20,6 +20,10 @@ public class Machine{
 	public String rootSshPassword;
 	public int sshTimeout;
 	public int sshPort;
+	//
+	public int vncPort;
+	public String vncPassword;
+	//
 	public String jazminHome;
 	public String memcachedHome;
 	public String haproxyHome;
@@ -143,6 +147,18 @@ public class Machine{
 	 */
 	public void setHaproxyHome(String haproxyHome) {
 		this.haproxyHome = haproxyHome;
+	}
+	public int getVncPort() {
+		return vncPort;
+	}
+	public void setVncPort(int vncPort) {
+		this.vncPort = vncPort;
+	}
+	public String getVncPassword() {
+		return vncPassword;
+	}
+	public void setVncPassword(String vncPassword) {
+		this.vncPassword = vncPassword;
 	}
 	
 }

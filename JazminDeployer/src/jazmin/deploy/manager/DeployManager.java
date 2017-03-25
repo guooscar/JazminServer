@@ -3,8 +3,12 @@
  */
 package jazmin.deploy.manager;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -27,24 +31,35 @@ import org.apache.velocity.app.Velocity;
 import org.tmatesoft.svn.core.SVNException;
 
 import jazmin.core.Jazmin;
+import jazmin.core.job.CronExpression;
 import jazmin.deploy.DeployStartServlet;
 import jazmin.deploy.domain.AppPackage;
 import jazmin.deploy.domain.Application;
 import jazmin.deploy.domain.GraphVizRenderer;
 import jazmin.deploy.domain.Instance;
 import jazmin.deploy.domain.Machine;
+import jazmin.deploy.domain.MachineJob;
 import jazmin.deploy.domain.OutputListener;
 import jazmin.deploy.domain.PackageDownloadInfo;
 import jazmin.deploy.domain.RepoItem;
-import jazmin.deploy.domain.Script;
+import jazmin.deploy.domain.RobotScript;
 import jazmin.deploy.domain.TopSearch;
 import jazmin.deploy.domain.User;
 import jazmin.deploy.domain.ant.AntManager;
 import jazmin.deploy.domain.svn.WorkingCopy;
+import jazmin.deploy.manager.RobotDeployManagerContext.RobotDeployManagerContextImpl;
 import jazmin.deploy.util.DateUtil;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.web.WebServer;
+import jazmin.server.websockify.HostInfoProvider.HostInfo;
+import jazmin.server.websockify.WebsockifyServer;
+import jazmin.server.webssh.ConnectionInfoProvider.ConnectionInfo;
+import jazmin.server.webssh.JavaScriptChannelRobot;
+import jazmin.server.webssh.OutputStreamEndpoint;
+import jazmin.server.webssh.SendCommandChannelRobot;
+import jazmin.server.webssh.WebSshChannel;
+import jazmin.server.webssh.WebSshServer;
 import jazmin.util.BeanUtil;
 import jazmin.util.FileUtil;
 import jazmin.util.IOUtil;
@@ -64,9 +79,12 @@ public class DeployManager {
 	private static Map<String,Machine>machineMap;
 	private static Map<String,AppPackage>packageMap;
 	private static Map<String,Application>applicationMap;
+	private static Map<String,MachineJob>jobMap;
 	private static List<PackageDownloadInfo>downloadInfos;
 	private static GraphVizRenderer graphVizRenderer;
 	private static StringBuffer errorMessage;
+	private static Map<String, ConnectionInfo>oneTimeSSHConnectionMap=new ConcurrentHashMap<>();
+	private static Map<String, HostInfo>oneTimeVncHostInfoMap=new ConcurrentHashMap<>();
 	//
 	static{
 		instanceMap=new ConcurrentHashMap<String, Instance>();
@@ -74,6 +92,7 @@ public class DeployManager {
 		packageMap=new ConcurrentHashMap<String, AppPackage>();
 		applicationMap=new ConcurrentHashMap<String, Application>();
 		userMap=new ConcurrentHashMap<String, User>();
+		jobMap=new ConcurrentHashMap<String, MachineJob>();
 		downloadInfos=Collections.synchronizedList(new LinkedList<PackageDownloadInfo>());
 		graphVizRenderer=new GraphVizRenderer();
 	}
@@ -83,9 +102,6 @@ public class DeployManager {
 	public static String repoPath="";
 	public static String antPath="";
 	public static String antCommonLibPath="";
-	
-	
-	public static int deployHostport=80;
 	//
 	public static void setup() throws Exception {
 		workSpaceDir=Jazmin.environment.getString("deploy.workspace","./workspace/");
@@ -94,12 +110,200 @@ public class DeployManager {
 		antPath=Jazmin.environment.getString("deploy.ant","ant");
 		antCommonLibPath=Jazmin.environment.getString("deploy.ant.lib","./lib");
 		
-		WebServer ws=Jazmin.getServer(WebServer.class);
-		if(ws!=null){
-			deployHostport=ws.getPort();
-		}
 		checkWorkspace();
 		Velocity.init();
+		//
+		WebSshServer webSshServer=Jazmin.getServer(WebSshServer.class);
+		if(webSshServer!=null){
+			webSshServer.setConnectionInfoProvider(DeployManager::getOneTimeHostInfo);
+		}
+		WebsockifyServer websockifyServer=Jazmin.getServer(WebsockifyServer.class);
+		if(websockifyServer!=null){
+			websockifyServer.setHostInfoProvider(DeployManager::getOneTimeVncInfo);
+		}
+		//
+		startJobCronThread();
+	}
+	//
+	private static void startJobCronThread(){
+		Thread jobThead=new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while(true){
+					checkJob();
+					try {
+						Thread.sleep(10000);
+					} catch (InterruptedException e) {
+						logger.catching(e);
+					}
+				}
+			}
+		});
+		jobThead.setName("DeployManager-CronJob");
+		jobThead.start();
+	}
+	//
+	private static void checkJob(){
+		jobMap.values().forEach((job)->{
+			try {
+				if(job.lastRunTime==null){
+					job.lastRunTime=new Date();
+				}
+				CronExpression ce=new CronExpression(job.cron);
+				Date nextRunTime=ce.getNextValidTimeAfter(job.lastRunTime);
+				job.nextRunTime=nextRunTime;
+				Date now=new Date();
+				if(nextRunTime!=null&&nextRunTime.before(now)){
+					runJob(job,null);
+				}
+			} catch (Exception e) {
+				logger.error(e);
+				job.errorMessage=e.getMessage();
+			}
+			
+		});
+	}
+	//
+	private static class FileOutputStreamWrapper extends FileOutputStream{
+		OutputListener ol;
+		public FileOutputStreamWrapper(String path,OutputListener ol) throws FileNotFoundException {
+			super(path);
+			this.ol=ol;
+		}
+		@Override
+		public void write(byte[] b) throws IOException {
+			super.write(b);
+			if(ol!=null){
+				ol.onOutput(new String(b));
+			}
+		}
+	}
+	//
+	public static List<String> getJobLogNames(String jobId){
+		List<String>result=new ArrayList<>();
+		File dir=new File(workSpaceDir+"joblog/"+jobId);
+		for(File f:dir.listFiles(f->f.getName().endsWith("log"))){
+			result.add(f.getName());
+		}
+		return result;
+	}
+	//
+	public static void deleteJobLog(String jobId, String name) {
+		File file=new File(workSpaceDir+"joblog/"+jobId,name);
+		file.delete();	
+	}
+	//
+	public static String getJobLog(String jobId,String logName) throws IOException{
+		File file=new File(workSpaceDir+"joblog/"+jobId,logName);
+		return FileUtil.getContent(file);
+	}
+	//
+	public static void runJob(MachineJob job,OutputListener ol)throws Exception{
+		job.runTimes++;
+		job.lastRunTime=new Date();
+		WebSshServer webSshServer=Jazmin.getServer(WebSshServer.class);
+		SimpleDateFormat sdf=new SimpleDateFormat("yyyyMMddHHmmss");
+		File outputFile=new File(workSpaceDir+"joblog/"+job.id,job.id+"_"+sdf.format(new Date())+".log");
+		if(!outputFile.getParentFile().exists()){
+			outputFile.getParentFile().mkdirs();
+		}
+		FileOutputStreamWrapper fos=new FileOutputStreamWrapper(outputFile.getAbsolutePath(),ol);
+		OutputStreamEndpoint fe=new OutputStreamEndpoint(fos);
+		WebSshChannel channel=new WebSshChannel(webSshServer);
+		channel.endpoint=fe;
+		Machine machine=machineMap.get(job.machine);
+		if(machine==null){
+			throw new IllegalArgumentException("can not find machine:"+job.machine);
+		}
+		if(machine.sshPort==0||
+				machine.sshUser==null||
+				machine.sshUser.isEmpty()){
+			throw new IllegalArgumentException("ssh info not set");
+		}
+		ConnectionInfo info=new ConnectionInfo();
+		info.name=machine.id;
+		info.host=machine.publicHost;
+		info.port=machine.sshPort;
+		info.user=job.root?"root":machine.sshUser;
+		info.password=job.root?machine.rootSshPassword:machine.sshPassword;
+		Map<String,Object>context=new HashMap<>();
+		context.put("deployer", new RobotDeployManagerContextImpl(machine));
+		info.channelListener=new JavaScriptChannelRobot(getRobotScriptRunContent(job.robot),context);
+		channel.setConnectionInfo(info);
+		webSshServer.addChannel(channel);
+		channel.startShell();
+	}
+	//
+	public static String createOneVncToken(Machine machine){
+		if(machine.vncPort==0){
+			throw new IllegalArgumentException("vnc info not set");
+		}
+		HostInfo info=new HostInfo();
+		info.host=machine.publicHost;
+		info.port=machine.vncPort;
+		String uuid=UUID.randomUUID().toString();
+		oneTimeVncHostInfoMap.put(uuid,info);
+		return uuid;
+	}
+	//
+	public static HostInfo getOneTimeVncInfo(String token){
+		HostInfo info=oneTimeVncHostInfoMap.get(token);
+		oneTimeVncHostInfoMap.remove(token);
+		return info;
+	}
+	//
+	public static String createOneTimeSSHToken(
+			Machine machine,
+			boolean root,
+			boolean enableInput,
+			String cmd){
+		if(machine.sshPort==0||
+				machine.sshUser==null||
+				machine.sshUser.isEmpty()){
+			throw new IllegalArgumentException("ssh info not set");
+		}
+		ConnectionInfo info=new ConnectionInfo();
+		info.name=machine.id;
+		info.host=machine.publicHost;
+		info.port=machine.sshPort;
+		info.user=root?"root":machine.sshUser;
+		info.password=root?machine.rootSshPassword:machine.sshPassword;
+		info.enableInput=enableInput;
+		if(cmd!=null){
+			info.channelListener=new SendCommandChannelRobot(cmd);
+		}
+		String uuid=UUID.randomUUID().toString();
+		oneTimeSSHConnectionMap.put(uuid,info);
+		return uuid;
+	}
+	//
+	public static String createOneTimeRobotToken(
+			Machine machine,
+			boolean root,
+			String robot)throws Exception{
+		if(machine.sshPort==0||
+				machine.sshUser==null||
+				machine.sshUser.isEmpty()){
+			throw new IllegalArgumentException("ssh info not set");
+		}
+		ConnectionInfo info=new ConnectionInfo();
+		info.name=machine.id;
+		info.host=machine.publicHost;
+		info.port=machine.sshPort;
+		info.user=root?"root":machine.sshUser;
+		info.password=root?machine.rootSshPassword:machine.sshPassword;
+		Map<String,Object>context=new HashMap<>();
+		context.put("deployer", new RobotDeployManagerContextImpl(machine));
+		info.channelListener=new JavaScriptChannelRobot(getRobotScriptRunContent(robot),context);
+		String uuid=UUID.randomUUID().toString();
+		oneTimeSSHConnectionMap.put(uuid,info);
+		return uuid;
+	}
+	//
+	public static ConnectionInfo getOneTimeHostInfo(String token){
+		ConnectionInfo info=oneTimeSSHConnectionMap.get(token);
+		oneTimeSSHConnectionMap.remove(token);
+		return info;
 	}
 	//
 	public static String getErrorMessage(){
@@ -119,6 +323,7 @@ public class DeployManager {
 			reloadMachineConfig(configDir);
 			reloadInstanceConfig(configDir);
 			reloadUserConfig(configDir);
+			reloadJobConfig(configDir);
 			setInstancePrioriy();
 			reloadPackage();
 		}catch(Exception e){
@@ -141,13 +346,13 @@ public class DeployManager {
 		}
 	}
 	//
-	public static List<Script>getScripts(){
+	public static List<RobotScript>getRobotScripts(){
 		String configDir=workSpaceDir+"script";
 		File dir=new File(configDir);
-		List<Script>result=new ArrayList<Script>();
+		List<RobotScript>result=new ArrayList<RobotScript>();
 		for(File f:dir.listFiles()){
 			if(f.isFile()){
-				Script s=new Script();
+				RobotScript s=new RobotScript();
 				s.name=f.getName();
 				s.lastModifiedTime=new Date(f.lastModified());
 				result.add(s);
@@ -161,17 +366,51 @@ public class DeployManager {
 		scriptFile.delete();
 	}
 	//
-	public static boolean existsScript(String name){
+	public static boolean existsRobotScript(String name){
 		File scriptFile=new File(workSpaceDir+"script/"+name);
 		return scriptFile.exists();
 	}
 	//
-	public static String getScript(String name) throws IOException{
+	public static String getRobotScriptContent(String name) throws IOException{
 		File scriptFile=new File(workSpaceDir+"script/"+name);
 		return FileUtil.getContent(scriptFile);
 	}
 	//
-	public static void saveScript(String name,String content) throws IOException{
+	public static String getRobotScriptRunContent(String name)throws IOException{
+		String fileContent=getRobotScriptContent(name);
+		StringBuilder result=new StringBuilder();
+		StringReader sr=new StringReader(fileContent);
+		BufferedReader br=new BufferedReader(sr);
+		String line=null;
+		while((line=br.readLine())!=null){
+			line=line.trim();
+			if(line.startsWith("//include")){
+				String includeName=line.substring(10);
+				includeName=includeName.trim();
+				result.append("\n"+getRobotScriptContent(includeName)+"\n");
+			}
+		}
+		result.append(fileContent);
+		return result.toString();
+	}
+	//
+	public static RobotScript getRobotScript(String name) throws IOException{
+		String configDir=workSpaceDir+"script";
+		File dir=new File(configDir);
+		for(File f:dir.listFiles()){
+			if(f.isFile()){
+				if(f.getName().equals(name)){
+					RobotScript s=new RobotScript();
+					s.name=f.getName();
+					s.lastModifiedTime=new Date(f.lastModified());
+					return s;
+				};
+			}
+		}
+		return null;
+	}
+	//
+	public static void saveRobotScript(String name,String content) throws IOException{
 		File scriptFile=new File(workSpaceDir+"script/"+name);
 		if(!scriptFile.exists()){
 			scriptFile.createNewFile();
@@ -333,6 +572,23 @@ public class DeployManager {
 		}
 		sql+=search;
 		return BeanUtil.query(getApplications(),sql);
+	}
+	//
+	//
+	public static List<MachineJob>getJobs(String search){
+		if(search==null||search.trim().isEmpty()){
+			return new ArrayList<MachineJob>();
+		}
+		
+		String queryBegin="select * from "+MachineJob.class.getName()+" where";
+		String sql=queryBegin;
+		sql+=" 1=1 and ";
+		sql+=search;
+		return BeanUtil.query(getJobs(),sql);
+	}
+	//
+	public static List<MachineJob>getJobs(){
+		return new ArrayList<MachineJob>(jobMap.values());
 	}
 	//
 	public static List<Application>getApplications(){
@@ -510,6 +766,7 @@ public class DeployManager {
 			logErrorMessage("can not find :"+configFile);
 		}
 	}
+	//
 	private static void reloadUserConfig(String configDir)throws Exception{
 		File configFile=new File(configDir,"user.json");
 		if(configFile.exists()){
@@ -519,6 +776,21 @@ public class DeployManager {
 			List<User>apps= JSONUtil.fromJsonList(ss,User.class);
 			apps.forEach(in->{
 				userMap.put(in.id,in);
+			});
+		}else{
+			logErrorMessage("can not find :"+configFile);
+		}
+	}
+	//
+	private static void reloadJobConfig(String configDir)throws Exception{
+		File configFile=new File(configDir,"job.json");
+		if(configFile.exists()){
+			jobMap.clear();
+			logger.info("load job from:"+configFile.getAbsolutePath());
+			String ss=FileUtil.getContent(configFile);
+			List<MachineJob>jobs= JSONUtil.fromJsonList(ss,MachineJob.class);
+			jobs.forEach(in->{
+				jobMap.put(in.id,in);
 			});
 		}else{
 			logErrorMessage("can not find :"+configFile);
@@ -703,32 +975,7 @@ public class DeployManager {
 		}
 		return sb.toString();
 	}
-	//
-	public static String runScriptOnMachine(Machine m,boolean root,String script){
-		StringBuilder sb=new StringBuilder();
-		try{
-			String shellFile=script;
-			shellFile=shellFile.replaceAll("'","\\'").replaceAll("\"","\\\\\"");
-			String uuid=UUID.randomUUID().toString().replaceAll("-","");
-			SshUtil.execute(
-					m.publicHost,
-					m.sshPort,
-					root?"root":m.sshUser,
-					root?m.rootSshPassword:m.sshPassword,
-					"echo \""+shellFile+"\" > "+"/tmp/"+uuid+";chmod +x /tmp/"+uuid+";/tmp/"+uuid,
-					m.getSshTimeout(),
-					(out,err)->{
-						sb.append(out+"\n");
-						if(err!=null&&!err.isEmpty()){
-							sb.append(err+"\n");			
-						}
-					});
-		}catch(Exception e){
-			e.printStackTrace();
-			sb.append(e.getMessage()+"\n");
-		}
-		return sb.toString();
-	}
+	
 	//
 	private static boolean pingHost(String host){
 		try {
@@ -778,7 +1025,7 @@ public class DeployManager {
 			sb.append(exec(instance,false,
 					"mkdir "+instanceDir)+"");
 			//
-			String hostname=deployHostname+":"+deployHostport;
+			String hostname=deployHostname;
 			String jsFile="jazmin.include('http://"+hostname+"/srv/deploy/boot/'+jazmin.getServerName());";
 			jsFile=jsFile.replaceAll("'","\\'").replaceAll("\"","\\\\\"");
 			//
@@ -975,5 +1222,6 @@ public class DeployManager {
 		}
 		return -1;
 	}
+	
 	
 }

@@ -3,14 +3,9 @@
  */
 package jazmin.deploy.view.machine;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import jazmin.deploy.DeploySystemUI;
-import jazmin.deploy.domain.Machine;
-import jazmin.deploy.manager.DeployManager;
 
 import org.vaadin.aceeditor.AceEditor;
 import org.vaadin.aceeditor.AceMode;
@@ -29,6 +24,10 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
+import jazmin.deploy.DeploySystemUI;
+import jazmin.deploy.domain.Machine;
+import jazmin.deploy.manager.DeployManager;
+
 /**
  * @author yama
  * 6 Jan, 2015
@@ -36,10 +35,8 @@ import com.vaadin.ui.themes.ValoTheme;
 @SuppressWarnings("serial")
 public class MachineRunCmdWindow extends Window{
 	TextField cmdField;
-	TextField scriptField;
 	List<Machine>machines;
 	CheckBox cmdRootCheckBox;
-	CheckBox scriptRootCheckBox;
 	Map<String,AceEditor>editorMap;
 	TabSheet tabsheet;
 	//
@@ -59,11 +56,7 @@ public class MachineRunCmdWindow extends Window{
         cmdField.setIcon(FontAwesome.ANCHOR);
         cmdField.setWidth(100.0f, Unit.PERCENTAGE);
         cmdField.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
-        scriptField=new TextField("Script");
-        scriptField.setWidth("100%");
-        scriptField.setIcon(FontAwesome.ADJUST);
-        scriptField.setWidth(100.0f, Unit.PERCENTAGE);
-        scriptField.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
+        
         Button cmdBtn = new Button("Run");
         cmdBtn.addStyleName(ValoTheme.BUTTON_SMALL);
         cmdBtn.addStyleName(ValoTheme.BUTTON_DANGER);
@@ -76,20 +69,7 @@ public class MachineRunCmdWindow extends Window{
         cmdLayout.setComponentAlignment(cmdBtn, Alignment.BOTTOM_RIGHT);
         //
         cmdBtn.addClickListener((e)->runCmd());
-        //
-        Button scriptBtn = new Button("Run");
-        scriptBtn.addStyleName(ValoTheme.BUTTON_SMALL);
-        scriptBtn.addStyleName(ValoTheme.BUTTON_DANGER);
-        scriptBtn.addClickListener((e)->runScript());
-        scriptRootCheckBox=new CheckBox("Root");
-        HorizontalLayout scriptLayout=new HorizontalLayout(scriptField,scriptRootCheckBox,scriptBtn);
-        scriptLayout.setExpandRatio(scriptField,1);
-        scriptLayout.setSpacing(true);
-        scriptLayout.setWidth("100%");
-        scriptLayout.setComponentAlignment(scriptRootCheckBox, Alignment.BOTTOM_LEFT);
-        scriptLayout.setComponentAlignment(scriptBtn, Alignment.BOTTOM_RIGHT);
-        
-        VerticalLayout inputLayout=new VerticalLayout(cmdLayout,scriptLayout);
+        VerticalLayout inputLayout=new VerticalLayout(cmdLayout);
         inputLayout.setSpacing(true);
         inputLayout.addStyleName(ValoTheme.WINDOW_TOP_TOOLBAR);
         inputLayout.setWidth(100.0f, Unit.PERCENTAGE);
@@ -131,39 +111,6 @@ public class MachineRunCmdWindow extends Window{
 				tabsheet.setSelectedTab(editor);
 			});
 			String result=DeployManager.runCmdOnMachine(machine,isRoot,cmd);
-			getUI().access(()->{
-				editor.setReadOnly(false);
-				editor.setValue(result);
-				editor.setReadOnly(true);
-			});
-			
-		}
-	}
-	//
-	private void runScript(){
-		String script=scriptField.getValue();
-		if(script==null||script.trim().isEmpty()){
-			DeploySystemUI.showNotificationInfo("INFO","script can not be null");
-			return;
-		}
-		boolean isRoot=scriptRootCheckBox.getValue();
-		if(!DeployManager.existsScript(script)){
-			DeploySystemUI.showNotificationInfo("INFO","can not find script:"+script);
-			return;
-		}
-		for(Machine machine:machines){
-			AceEditor editor=editorMap.get(machine.id);
-			getUI().access(()->{
-				tabsheet.setSelectedTab(editor);
-			});
-			String cmd;
-			try {
-				cmd = DeployManager.getScript(script);
-			} catch (IOException e) {
-				DeploySystemUI.showNotificationInfo("ERROR",e.getMessage());
-				continue;
-			}
-			String result=DeployManager.runScriptOnMachine(machine,isRoot,cmd);
 			getUI().access(()->{
 				editor.setReadOnly(false);
 				editor.setValue(result);

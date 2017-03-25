@@ -205,7 +205,7 @@ public class ApplicationInfoView extends DeployBaseView{
 						UI.getCurrent().addWindow(bfw);
 						bfw.focus();	
 					}else{
-						DeploySystemUI.showNotificationInfo("Info",
+						DeploySystemUI.showNotificationInfo("info",
 								"Please input cluster name.");
 					}
 				}
@@ -292,7 +292,7 @@ public class ApplicationInfoView extends DeployBaseView{
 			}
 			table.setBeanData(applications);
     	} catch (Throwable e1) {
-    		DeploySystemUI.showNotificationInfo("Error",e1.getMessage());
+    		DeploySystemUI.showNotificationInfo("error",e1.getMessage());
 		}
 	}
 	//
