@@ -3,6 +3,9 @@
  */
 package jazmin.deploy.manager;
 
+import jazmin.server.msg.codec.ResponseMessage;
+import jazmin.util.DumpUtil;
+
 /**
  * @author yama
  *
@@ -11,12 +14,14 @@ public class BenchmarkManager {
 	//
 	public BenchmarkSession startSession(){
 		BenchmarkSession session=new BenchmarkSession();
-		BenchmarkRpc rpc=new BenchmarkRpc(session);
+		//BenchmarkRpcServer rpc=new BenchmarkRpcServer(session);
+		BenchmarkMessageServer messageServer=new BenchmarkMessageServer(session);
 		session.start(new BenchmarkRobot() {
 			@Override
 			public void start() throws Exception {
 				System.out.println("start-"+Thread.currentThread().getName());
-				rpc.connect("uat.itit.io", 8601, "ZjhBizSystem");
+				messageServer.connect("uat.itit.io", 8602);
+				messageServer.invoke("ZjhService.loginByPassword",new String[]{"90","57c23484a8b8991e8eb05371cb39792d","127.0.1.1","Robot"});
 			}
 			@Override
 			public String name() {
@@ -30,8 +35,12 @@ public class BenchmarkManager {
 //				System.out.println("loop-"+Thread.currentThread().getName());
 //				Thread.sleep(1000);
 				//
-				rpc.invoke("ZjhAction.loginByPassword",new Object[]{90,"57c23484a8b8991e8eb05371cb39792d","127.0.1.1","Robot"});
-				System.out.println("loop-"+Thread.currentThread().getName());
+//				rpc.invoke("ZjhAction.loginByPassword",new Object[]{90,"57c23484a8b8991e8eb05371cb39792d","127.0.1.1","Robot"});
+//				System.out.println("loop-"+Thread.currentThread().getName());
+//				Thread.sleep(1000);
+				//
+				ResponseMessage rsp=messageServer.invoke("ZjhService.getTableInfo",null);
+				System.out.println("loop-"+Thread.currentThread().getName()+"/"+DumpUtil.dump(rsp));
 				Thread.sleep(1000);
 			}
 			//

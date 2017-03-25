@@ -12,24 +12,24 @@ import jazmin.server.rpc.RpcSession;
  * @author icecooly
  *
  */
-public class BenchmarkRpc {
+public class BenchmarkRpcServer {
 	static interface SampleAction{
 		Object run()throws Exception;
 	}
 	//
 	BenchmarkSession session;
-	private static final String DEFAULT_PRINCIPAL="JazminDeployer RpcRobot";
+	private static final String DEFAULT_PRINCIPAL="JazminDeployer RpcServerRobot";
 	RpcClient client;
 	RpcSession rpcSession;
 	//
-	public BenchmarkRpc(BenchmarkSession session) {
+	public BenchmarkRpcServer(BenchmarkSession session) {
 		this.session=session;
 		client=new RpcClient();
 		client.setPrincipal(DEFAULT_PRINCIPAL);
 	}
 	//
-	public void connect(String host,int port,String cluster) throws Exception{
-		connect(host, port, cluster, null, false);
+	public void connect(String host,int port) throws Exception{
+		connect(host, port, null, null, false);
 	}
 	//
 	public void connect(String host,int port,String cluster,String credential,
