@@ -9,7 +9,7 @@ package jazmin.deploy.manager;
  */
 public interface BenchmarkRobot {
 	void start()throws Exception;
-	void loop()throws Exception;
+	void loop(int count)throws Exception;
 	void end()throws Exception;
 	String name();
 }

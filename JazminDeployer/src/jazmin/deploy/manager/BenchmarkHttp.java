@@ -22,16 +22,18 @@ public class BenchmarkHttp {
 	//
 	BenchmarkSession session;
 	private static final String DEFAULT_UA="JazminDeployer HttpRobot";
-	AsyncHttpClientConfig.Builder clientConfigBuilder;
-	AsyncHttpClientConfig clientConfig;
-	AsyncHttpClient asyncHttpClient;
-	//
-	public BenchmarkHttp(BenchmarkSession session) {
-		this.session=session;
+	static AsyncHttpClientConfig.Builder clientConfigBuilder;
+	static AsyncHttpClientConfig clientConfig;
+	static AsyncHttpClient asyncHttpClient;
+	static{
 		clientConfigBuilder=new Builder();
 		clientConfigBuilder.setUserAgent(DEFAULT_UA);
 		clientConfig=clientConfigBuilder.build();
-		asyncHttpClient = new AsyncHttpClient(new NettyAsyncHttpProvider(clientConfig),clientConfig);
+		asyncHttpClient = new AsyncHttpClient(new NettyAsyncHttpProvider(clientConfig),clientConfig);		
+	}
+	//
+	public BenchmarkHttp(BenchmarkSession session) {
+		this.session=session;
 	}
 	//
 	private Object sample(String name,SampleAction action){
@@ -44,7 +46,7 @@ public class BenchmarkHttp {
 			error=true;
 			return null;
 		}finally {
-			session.sample(name,System.currentTimeMillis()-start, error);
+			session.sample("[http]"+name,System.currentTimeMillis()-start, error);
 		}
 	}
 	//
@@ -73,8 +75,13 @@ public class BenchmarkHttp {
 					 builder.addFormParam(k, v);
 				 });
 			 }
+			 session.log("[post]"+url);
 			 return builder.execute().get().getResponseBody();
 		});
+	}
+	//
+	public String get(String url){
+		return get(url,null,null);
 	}
 	//
 	public String get(String url,
@@ -92,6 +99,7 @@ public class BenchmarkHttp {
 					 builder.addQueryParam(k, v);
 				 });
 			 }
+			 session.log("[get]"+url);
 			 return builder.execute().get().getResponseBody();
 		});
 	}

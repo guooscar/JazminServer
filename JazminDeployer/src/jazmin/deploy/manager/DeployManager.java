@@ -42,7 +42,7 @@ import jazmin.deploy.domain.MachineJob;
 import jazmin.deploy.domain.OutputListener;
 import jazmin.deploy.domain.PackageDownloadInfo;
 import jazmin.deploy.domain.RepoItem;
-import jazmin.deploy.domain.RobotScript;
+import jazmin.deploy.domain.JavaScriptSource;
 import jazmin.deploy.domain.TopSearch;
 import jazmin.deploy.domain.User;
 import jazmin.deploy.domain.ant.AntManager;
@@ -85,6 +85,8 @@ public class DeployManager {
 	private static StringBuffer errorMessage;
 	private static Map<String, ConnectionInfo>oneTimeSSHConnectionMap=new ConcurrentHashMap<>();
 	private static Map<String, HostInfo>oneTimeVncHostInfoMap=new ConcurrentHashMap<>();
+	//
+	private static Map<String, BenchmarkSession>benchmarkSessions=new ConcurrentHashMap<>();
 	//
 	static{
 		instanceMap=new ConcurrentHashMap<String, Instance>();
@@ -177,6 +179,20 @@ public class DeployManager {
 				ol.onOutput(new String(b));
 			}
 		}
+	}
+	//
+	public static BenchmarkSession addBenchmarkSession(){
+		BenchmarkSession session=new BenchmarkSession();
+		session.id=UUID.randomUUID().toString();
+		benchmarkSessions.put(session.id, session);
+		session.addCompleteHandler(()->{
+			benchmarkSessions.remove(session.id);
+		});
+		return session;
+	}
+	//
+	public static BenchmarkSession getBenchmarkSession(String id){
+		return benchmarkSessions.get(id);
 	}
 	//
 	public static List<String> getJobLogNames(String jobId){
@@ -346,13 +362,21 @@ public class DeployManager {
 		}
 	}
 	//
-	public static List<RobotScript>getRobotScripts(){
-		String configDir=workSpaceDir+"script";
+	public static List<JavaScriptSource>getRobotScripts(){
+		return getScripts0("script");
+	}
+	//
+	public static List<JavaScriptSource>getBenchmarkScripts(){
+		return getScripts0("benchmark");
+	}
+	//
+	private static List<JavaScriptSource>getScripts0(String dirName){
+		String configDir=workSpaceDir+dirName;
 		File dir=new File(configDir);
-		List<RobotScript>result=new ArrayList<RobotScript>();
+		List<JavaScriptSource>result=new ArrayList<JavaScriptSource>();
 		for(File f:dir.listFiles()){
 			if(f.isFile()){
-				RobotScript s=new RobotScript();
+				JavaScriptSource s=new JavaScriptSource();
 				s.name=f.getName();
 				s.lastModifiedTime=new Date(f.lastModified());
 				result.add(s);
@@ -375,6 +399,10 @@ public class DeployManager {
 		File scriptFile=new File(workSpaceDir+"script/"+name);
 		return FileUtil.getContent(scriptFile);
 	}
+	public static String getBenchmarkScriptContent(String name) throws IOException{
+		File scriptFile=new File(workSpaceDir+"benchmark/"+name);
+		return FileUtil.getContent(scriptFile);
+	}
 	//
 	public static String getRobotScriptRunContent(String name)throws IOException{
 		String fileContent=getRobotScriptContent(name);
@@ -394,13 +422,20 @@ public class DeployManager {
 		return result.toString();
 	}
 	//
-	public static RobotScript getRobotScript(String name) throws IOException{
-		String configDir=workSpaceDir+"script";
+	public static JavaScriptSource getRobotScript(String name) throws IOException{
+		return getScript0("script",name);
+	}
+	//
+	public static JavaScriptSource getBenchmarkScript(String name) throws IOException{
+		return getScript0("benchmark",name);
+	}
+	public static JavaScriptSource getScript0(String dirName,String name) throws IOException{
+		String configDir=workSpaceDir+dirName;
 		File dir=new File(configDir);
 		for(File f:dir.listFiles()){
 			if(f.isFile()){
 				if(f.getName().equals(name)){
-					RobotScript s=new RobotScript();
+					JavaScriptSource s=new JavaScriptSource();
 					s.name=f.getName();
 					s.lastModifiedTime=new Date(f.lastModified());
 					return s;
@@ -411,7 +446,15 @@ public class DeployManager {
 	}
 	//
 	public static void saveRobotScript(String name,String content) throws IOException{
-		File scriptFile=new File(workSpaceDir+"script/"+name);
+		saveScript0("script",name,content);
+	}
+	//
+	public static void saveBenhmarkScript(String name,String content) throws IOException{
+		saveScript0("benchmark",name,content);
+	}
+	//
+	private static void saveScript0(String dir,String name,String content) throws IOException{
+		File scriptFile=new File(workSpaceDir+dir+"/"+name);
 		if(!scriptFile.exists()){
 			scriptFile.createNewFile();
 		}
