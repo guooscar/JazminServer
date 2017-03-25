@@ -6,6 +6,7 @@ import java.util.List;
 import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.User;
 import jazmin.deploy.manager.DeployManager;
+import jazmin.deploy.view.benchmark.BenchmarkRobotWindow;
 import jazmin.deploy.view.machine.MachineRobotWindow;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -110,7 +111,13 @@ public final class MainMenu extends CustomComponent {
       		UI.getCurrent().addWindow(bfw);
       		bfw.focus();
         });
-      
+        //
+        settingsItem.addItem("Benchmarks", (selectedItem)->{
+        	BenchmarkRobotWindow bfw = new BenchmarkRobotWindow();
+      		UI.getCurrent().addWindow(bfw);
+      		bfw.focus();
+        });
+        //
         settingsItem.addSeparator();
         //
         settingsItem.addItem("Sign Out", (selectedItem)->{

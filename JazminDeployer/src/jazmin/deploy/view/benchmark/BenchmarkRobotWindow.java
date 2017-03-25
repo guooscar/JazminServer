@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jazmin.deploy.view.machine;
+package jazmin.deploy.view.benchmark;
 
 import java.io.IOException;
 
@@ -34,15 +34,15 @@ import com.vaadin.ui.themes.ValoTheme;
  * 6 Jan, 2015
  */
 @SuppressWarnings("serial")
-public class MachineRobotWindow extends Window{
+public class BenchmarkRobotWindow extends Window{
 
 	BeanTable<JavaScriptSource> table;
 	AceEditor editor ;
 	JavaScriptSource currentScript;
 	//
-	public MachineRobotWindow() {
+	public BenchmarkRobotWindow() {
 		Responsive.makeResponsive(this);
-		setCaption("Robots");
+		setCaption("Benchmarks");
         setWidth(90.0f, Unit.PERCENTAGE);
         setHeight(90.0f, Unit.PERCENTAGE);
         center();
@@ -120,14 +120,14 @@ public class MachineRobotWindow extends Window{
 	private void showScriptContent(JavaScriptSource script){
 		try {
 			currentScript=script;
-			editor.setValue(DeployManager.getRobotScriptContent(script.name));
+			editor.setValue(DeployManager.getBenchmarkScriptContent(script.name));
 		} catch(Exception e) {
 			DeploySystemUI.showNotificationInfo("ERROR", e.getMessage());
 		}
 	}
 	//
 	private void loadData(){
-		table.setBeanData(DeployManager.getRobotScripts());
+		table.setBeanData(DeployManager.getBenchmarkScripts());
 	}
 	//
 	private void deleteScript(){
@@ -144,17 +144,17 @@ public class MachineRobotWindow extends Window{
 		final InputWindow sw=new InputWindow(window->{
 			String name=window.getInputValue();
 			try {
-				DeployManager.saveRobotScript(name,"");
+				DeployManager.saveBenhmarkScript(name,"");
 				DeploySystemUI.showNotificationInfo("INFO", "Create complete");
 				loadData();
-				currentScript=DeployManager.getRobotScript(name);
+				currentScript=DeployManager.getBenchmarkScript(name);
 				window.close();
 			} catch (Exception e) {
 				DeploySystemUI.showNotificationInfo("ERROR", e.getMessage());
 			}
 		});
-		sw.setCaption("Create new robot");
-		sw.setInfo("input robot name");
+		sw.setCaption("Create new benchmark");
+		sw.setInfo("input benchmark name");
 		UI.getCurrent().addWindow(sw);
 	}
 	//
@@ -163,7 +163,7 @@ public class MachineRobotWindow extends Window{
 			return;
 		}
 		try {
-			DeployManager.saveRobotScript(currentScript.name,editor.getValue());
+			DeployManager.saveBenhmarkScript(currentScript.name,editor.getValue());
 			DeploySystemUI.showNotificationInfo("INFO", "Save complete");
 		} catch (IOException e) {
 			DeploySystemUI.showNotificationInfo("ERROR", e.getMessage());

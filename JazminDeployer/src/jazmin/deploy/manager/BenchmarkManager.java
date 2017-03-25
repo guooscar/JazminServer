@@ -3,43 +3,38 @@
  */
 package jazmin.deploy.manager;
 
+import java.io.File;
+import java.nio.file.Files;
+
+import javax.script.ScriptException;
+
+import jazmin.deploy.manager.BenchmarkSession.RobotFactory;
+
 /**
  * @author yama
  *
  */
 public class BenchmarkManager {
 	//
-	public BenchmarkSession startSession(){
+	public BenchmarkSession startSession()throws Exception{
+		String file=new String(Files.readAllBytes(new File("workspace/benchmark/test_benchmark.js").toPath()));
 		BenchmarkSession session=new BenchmarkSession();
-		session.start(new BenchmarkRobot() {
-			@Override
-			public void start() throws Exception {
-				System.out.println("start-"+Thread.currentThread().getName());
-				
+		RobotFactory rf=()->{
+			try {
+				return new JavascriptBenchmarkRobot(
+						session,
+						"test",
+						file);
+			} catch (ScriptException e) {
+				e.printStackTrace();
+				return null;
 			}
-			@Override
-			public String name() {
-				return "Test";
-			}
-			//
-			@Override
-			public void loop() throws Exception {
-				BenchmarkHttp http=new BenchmarkHttp(session);
-				http.post("http://www.baidu.com");
-				System.out.println("loop-"+Thread.currentThread().getName());
-				Thread.sleep(1000);
-			}
-			//
-			@Override
-			public void end() throws Exception {
-				System.out.println("end-"+Thread.currentThread().getName());
-				
-			}
-		}, 10, 10, 10);
+		};
+		session.start("jsrobot",rf, 10, 10, 0);
 		return session;
 	}
 	//
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception{
 		BenchmarkManager manager=new BenchmarkManager();
 		manager.startSession();
 	}
