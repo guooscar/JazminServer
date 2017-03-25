@@ -3,9 +3,12 @@
  */
 package jazmin.deploy.manager;
 
+import jazmin.core.app.AppException;
 import jazmin.server.rpc.RpcClient;
+import jazmin.server.rpc.RpcException;
 import jazmin.server.rpc.RpcMessage;
 import jazmin.server.rpc.RpcSession;
+import jazmin.server.rpc.RpcMessage.AppExceptionMessage;
 
 /**
  * 
@@ -18,27 +21,26 @@ public class BenchmarkRpcServer {
 	}
 	//
 	BenchmarkSession session;
-	private static final String DEFAULT_PRINCIPAL="JazminDeployer RpcServerRobot";
 	RpcClient client;
 	RpcSession rpcSession;
 	//
 	public BenchmarkRpcServer(BenchmarkSession session) {
 		this.session=session;
 		client=new RpcClient();
-		client.setPrincipal(DEFAULT_PRINCIPAL);
 	}
 	//
-	public void connect(String host,int port) throws Exception{
-		connect(host, port, null, null, false);
+	public void connect(String host,int port,String principal) throws Exception{
+		connect(host, port,principal,null, null, false);
+		session.log("connect host:"+host+",port:"+port);
 	}
 	//
-	public void connect(String host,int port,String cluster,String credential,
+	public void connect(String host,int port,String principal,String cluster,String credential,
 		boolean enableSSL) throws Exception{
 		rpcSession=new RpcSession();
 		rpcSession.setRemoteHostAddress(host);
 		rpcSession.setRemotePort(port);
 		rpcSession.setCluster(cluster);
-		rpcSession.setPrincipal(DEFAULT_PRINCIPAL);
+		rpcSession.setPrincipal(principal);
 		rpcSession.setCredential(credential);
 		rpcSession.setEnableSSL(enableSSL);
 		client.connect(rpcSession);
@@ -58,11 +60,33 @@ public class BenchmarkRpcServer {
 		}
 	}
 	//
-	public RpcMessage invoke(
+	public Object invoke(
 			String serviceId,
-			Object[] args){
-		return (RpcMessage) sample(serviceId, ()->{
+			Object[] args) throws Throwable{
+		RpcMessage message=(RpcMessage) sample(serviceId, ()->{
 			return client.invokeSync(rpcSession, serviceId, args);
 		});
+		if(message==null||message.payloads==null||message.payloads.length==0){
+			return null;
+		}
+		Throwable e=null;
+		if(message.payloads[1]!=null){
+			Object oo=message.payloads[1];
+			if(oo instanceof Throwable){
+				e=(Throwable)oo;
+			}
+			if(oo instanceof AppExceptionMessage){
+				AppExceptionMessage aem=(AppExceptionMessage)oo;
+				AppException ae=new AppException(aem.code,aem.message);
+				e= ae;
+			}
+		}
+		if(e!=null){
+			if(e instanceof RpcException){
+				throw new RpcException(e.getMessage());
+			}
+			throw e;
+		}
+		return message.payloads[0];
 	}
 }

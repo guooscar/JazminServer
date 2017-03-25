@@ -42,12 +42,18 @@ public class BenchmarkMessageServer {
 		}
 	}
 	//
-	public ResponseMessage invoke(
+	public Object invoke(
 			String serviceId,
 			String[] args){
-		//return (ResponseMessage) sample(serviceId, ()->{
-		//	return client.invokeSync(serviceId, args);
-		//});
-		return null;
+		ResponseMessage rsp=(ResponseMessage) sample(serviceId, ()->{
+			return client.invokeSync(serviceId, args);
+		});
+		if(rsp==null||rsp.responseObject==null){
+			return null;
+		}
+		if(rsp.statusCode!=0){
+			throw new IllegalArgumentException(rsp.statusMessage);
+		}
+		return rsp.responseObject;
 	}
 }
