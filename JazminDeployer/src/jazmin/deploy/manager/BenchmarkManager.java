@@ -24,8 +24,15 @@ public class BenchmarkManager {
 			//
 			@Override
 			public void loop() throws Exception {
-				BenchmarkHttp http=new BenchmarkHttp(session);
-				http.post("http://www.baidu.com");
+//				BenchmarkHttp http=new BenchmarkHttp(session);
+//				http.post("http://www.baidu.com");
+//				System.out.println("loop-"+Thread.currentThread().getName());
+//				Thread.sleep(1000);
+				//
+				BenchmarkRpc rpc=new BenchmarkRpc(session);
+				rpc.url="http://139.199.176.211/Sztsg/Invoke";
+				rpc.token="07a6cbb6bb864d2ca22940faf04fd596";
+				rpc.invoke("GetUserMoneyLogs", "{'PageIndex':0,'PageSize':10}");
 				System.out.println("loop-"+Thread.currentThread().getName());
 				Thread.sleep(1000);
 			}
