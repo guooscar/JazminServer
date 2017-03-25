@@ -3,12 +3,14 @@
  */
 package jazmin.deploy.manager;
 
+
 import java.io.File;
 import java.nio.file.Files;
 
 import javax.script.ScriptException;
 
 import jazmin.deploy.manager.BenchmarkSession.RobotFactory;
+
 
 /**
  * @author yama
@@ -19,16 +21,6 @@ public class BenchmarkManager {
 	public BenchmarkSession startSession()throws Exception{
 		String file=new String(Files.readAllBytes(new File("workspace/benchmark/test_benchmark.js").toPath()));
 		BenchmarkSession session=new BenchmarkSession();
-		RobotFactory rf=()->{
-			try {
-				return new JavascriptBenchmarkRobot(
-						session,
-						"test",
-						file);
-			} catch (ScriptException e) {
-				e.printStackTrace();
-				return null;
-			}
 		};
 		session.start("jsrobot",rf, 10, 10, 0);
 		return session;

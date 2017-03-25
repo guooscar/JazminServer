@@ -28,6 +28,29 @@ public class BenchmarkSession {
 	public static class BenchmarkRequestStat{
 		public String name;
 		public int noOfSamples;
+
+		public int total;
+		public int average;
+		public int throughtput;	
+		public int errorCount;
+		public Date startTime;
+		public List<Long> times;
+		public BenchmarkRequestStat() {
+			startTime=new Date();
+			times=new ArrayList<>();
+		}
+		//
+		private int getDeviation(){
+			if(noOfSamples<=1){
+				return average;
+			}
+			long stander=0;
+			for (long time : times) {
+				stander+=Math.pow((time-average), 2);
+			}
+			stander=stander/(noOfSamples-1);
+			return (int) Math.sqrt(stander);
+
 		public int noOfUsers;
 		public long total;
 		public long max;
@@ -44,6 +67,7 @@ public class BenchmarkSession {
 			endTime=new Date();
 			max=0;
 			min=Integer.MAX_VALUE;
+
 		}
 		//
 		public void sample(long time,boolean isError){
@@ -53,6 +77,9 @@ public class BenchmarkSession {
 				errorCount++;
 			}
 			total+=time;
+
+			times.add(time);
+
 			if(max<time){
 				max=time;
 			}
@@ -158,7 +185,6 @@ public class BenchmarkSession {
 			BenchmarkRequestStat stat=new BenchmarkRequestStat();
 			stat.startTime=new Date();
 			stat.average=totalStat.average;
-			stat.deviation=totalStat.deviation;
 			stat.errorCount=totalStat.errorCount;
 			stat.noOfSamples=totalStat.noOfSamples;
 			stat.throughtput=totalStat.throughtput;
@@ -192,9 +218,9 @@ public class BenchmarkSession {
 					count++,
 					st.noOfSamples,
 					st.average,
+					st.getDeviation(),
 					st.max,
 					st.min,
-					st.deviation,
 					st.errorCount,
 					st.throughtput,
 					sf.format(st.startTime),
@@ -207,9 +233,9 @@ public class BenchmarkSession {
 		format="%-30s %-30s\n";
 		sb.append(String.format(format,"noOfSamples",totalStat.noOfSamples));
 		sb.append(String.format(format,"average",totalStat.average));
+		sb.append(String.format(format,"deviation",totalStat.getDeviation()));
 		sb.append(String.format(format,"max",totalStat.max));
 		sb.append(String.format(format,"min",totalStat.min));
-		sb.append(String.format(format,"deviation",totalStat.deviation));
 		sb.append(String.format(format,"errorCount",totalStat.errorCount));
 		sb.append(String.format(format,"throughtput",totalStat.throughtput));
 		//
