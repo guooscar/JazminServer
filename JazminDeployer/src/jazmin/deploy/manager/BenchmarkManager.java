@@ -11,11 +11,12 @@ public class BenchmarkManager {
 	//
 	public BenchmarkSession startSession(){
 		BenchmarkSession session=new BenchmarkSession();
+		BenchmarkRpc rpc=new BenchmarkRpc(session);
 		session.start(new BenchmarkRobot() {
 			@Override
 			public void start() throws Exception {
 				System.out.println("start-"+Thread.currentThread().getName());
-				
+				rpc.connect("uat.itit.io", 8601, "ZjhBizSystem");
 			}
 			@Override
 			public String name() {
@@ -29,10 +30,7 @@ public class BenchmarkManager {
 //				System.out.println("loop-"+Thread.currentThread().getName());
 //				Thread.sleep(1000);
 				//
-				BenchmarkRpc rpc=new BenchmarkRpc(session);
-				rpc.url="http://139.199.176.211/Sztsg/Invoke";
-				rpc.token="07a6cbb6bb864d2ca22940faf04fd596";
-				rpc.invoke("GetUserMoneyLogs", "{'PageIndex':0,'PageSize':10}");
+				rpc.invoke("ZjhAction.loginByPassword",new Object[]{90,"57c23484a8b8991e8eb05371cb39792d","127.0.1.1","Robot"});
 				System.out.println("loop-"+Thread.currentThread().getName());
 				Thread.sleep(1000);
 			}

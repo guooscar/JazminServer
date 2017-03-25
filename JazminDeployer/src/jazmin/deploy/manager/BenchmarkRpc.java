@@ -3,11 +3,9 @@
  */
 package jazmin.deploy.manager;
 
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
-import com.ning.http.client.AsyncHttpClientConfig;
-import com.ning.http.client.AsyncHttpClientConfig.Builder;
-import com.ning.http.client.providers.netty.NettyAsyncHttpProvider;
+import jazmin.server.rpc.RpcClient;
+import jazmin.server.rpc.RpcMessage;
+import jazmin.server.rpc.RpcSession;
 
 /**
  * 
@@ -20,17 +18,30 @@ public class BenchmarkRpc {
 	}
 	//
 	BenchmarkSession session;
-	private static final String DEFAULT_UA="JazminDeployer RpcRobot";
-	static AsyncHttpClientConfig.Builder clientConfigBuilder=new Builder();
-	static AsyncHttpClientConfig clientConfig=clientConfigBuilder.build();
-	static AsyncHttpClient asyncHttpClient=new AsyncHttpClient(new NettyAsyncHttpProvider(clientConfig),clientConfig);
-	//
-	public String url;
-	public String token;
+	private static final String DEFAULT_PRINCIPAL="JazminDeployer RpcRobot";
+	RpcClient client;
+	RpcSession rpcSession;
 	//
 	public BenchmarkRpc(BenchmarkSession session) {
 		this.session=session;
-		clientConfigBuilder.setUserAgent(DEFAULT_UA);
+		client=new RpcClient();
+		client.setPrincipal(DEFAULT_PRINCIPAL);
+	}
+	//
+	public void connect(String host,int port,String cluster) throws Exception{
+		connect(host, port, cluster, null, false);
+	}
+	//
+	public void connect(String host,int port,String cluster,String credential,
+		boolean enableSSL) throws Exception{
+		rpcSession=new RpcSession();
+		rpcSession.setRemoteHostAddress(host);
+		rpcSession.setRemotePort(port);
+		rpcSession.setCluster(cluster);
+		rpcSession.setPrincipal(DEFAULT_PRINCIPAL);
+		rpcSession.setCredential(credential);
+		rpcSession.setEnableSSL(enableSSL);
+		client.connect(rpcSession);
 	}
 	//
 	private Object sample(String name,SampleAction action){
@@ -47,19 +58,11 @@ public class BenchmarkRpc {
 		}
 	}
 	//
-	public String invoke(
-			String func,
-			String ... args){
-		return (String) sample(url,()->{
-			 BoundRequestBuilder builder=asyncHttpClient.preparePost(url);
-			 builder.addFormParam("Func", func);
-			 builder.addFormParam("Token", token);
-			 if(args!=null){
-				 for(int i=0;i<args.length;i++){
-					 builder.addQueryParam("Arg"+i, args[i]);
-				 }
-			 }
-			 return builder.execute().get().getResponseBody();
+	public RpcMessage invoke(
+			String serviceId,
+			Object[] args){
+		return (RpcMessage) sample(serviceId, ()->{
+			return client.invokeSync(rpcSession, serviceId, args);
 		});
 	}
 }
