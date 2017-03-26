@@ -19,11 +19,11 @@ import jazmin.util.DumpUtil;
  *
  */
 public class JavascriptBenchmarkRobot implements BenchmarkRobot{
-	Runnable startCallback;
+	IntConsumer startCallback;
 	Runnable endCallback;
 	IntConsumer loopCallback;
 	//
-	public void start(Runnable startCallback){
+	public void start(IntConsumer startCallback){
 		this.startCallback=startCallback;
 	}
 	//
@@ -97,9 +97,9 @@ public class JavascriptBenchmarkRobot implements BenchmarkRobot{
 	}
 	//
 	@Override
-	public void start() throws Exception {
+	public void start(int idx) throws Exception {
 		if(startCallback!=null){
-			startCallback.run();
+			startCallback.accept(idx);
 		}
 	}
 	

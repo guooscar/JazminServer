@@ -149,6 +149,7 @@ public class BenchmarkSession {
 			UserThread ut=new UserThread();
 			ut.robot=robotFactory.create();
 			ut.setName(name+"-"+i);
+			ut.idx=i;
 			userThreads.add(ut);
 			ut.start();
 			try {
@@ -283,6 +284,7 @@ public class BenchmarkSession {
 	class UserThread extends Thread{
 		boolean abort;
 		BenchmarkRobot robot;
+		int idx;
 		//
 		public void abort(){
 			abort=true;
@@ -290,7 +292,7 @@ public class BenchmarkSession {
 		//
 		private void runTest(){
 			try{
-				robot.start();	
+				robot.start(idx);	
 			}catch (Exception e) {
 				log(robot.name()+"-"+e.getMessage());
 				logger.catching(e);

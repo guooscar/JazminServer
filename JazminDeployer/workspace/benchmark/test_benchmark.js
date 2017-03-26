@@ -1,9 +1,9 @@
-benchmark.start(function(){	
-	benchmark.log(" start");
+benchmark.start(function(idx){	
+	benchmark.log("start:"+idx);
 });
 //
 benchmark.end(function(){
-	benchmark.log(" end");
+	benchmark.log("end");
 });
 //
 benchmark.loop(function(count){
