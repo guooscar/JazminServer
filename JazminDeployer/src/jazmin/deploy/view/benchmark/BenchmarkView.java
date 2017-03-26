@@ -101,9 +101,11 @@ public class BenchmarkView extends VerticalLayout{
 	}
 	//
 	private void sessionComplete(){
-		stopButton.setEnabled(false);
-		startButton.setEnabled(true);
-		updateLabel();
+		getUI().access(()->{
+			stopButton.setEnabled(false);
+			startButton.setEnabled(true);
+			updateLabel();			
+		});
 	}
 	//
 	private void stopBenchmark(ClickEvent e){
