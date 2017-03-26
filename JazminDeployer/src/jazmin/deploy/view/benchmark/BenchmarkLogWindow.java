@@ -62,6 +62,9 @@ public class BenchmarkLogWindow extends Window implements LogHandler{
 	//
 	@Override
 	public void log(String log) {
+		if(getUI()==null){
+			return;
+		}
 		getUI().access(()->{
 			appendLog(log+"\n");			
 		});

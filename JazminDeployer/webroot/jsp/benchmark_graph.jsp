@@ -198,7 +198,6 @@
         }
         var _len = data.length;
         var _throughtput = [];
-        var _noOfSamples = [];
         var _noOfUsers = [];
         var _average = [];
         for (var i = 0; i < _len; i++) {
@@ -207,7 +206,6 @@
                 continue;
             }
             _throughtput.push([_temp.startTime, _temp.throughtput]);
-            _noOfSamples.push([_temp.startTime, _temp.noOfSamples]);
             _noOfUsers.push([_temp.startTime, _temp.noOfUsers]);
             _average.push([_temp.startTime, _temp.average]);
         }
@@ -217,10 +215,6 @@
                 {
                     id: "throughtput",
                     data: _throughtput
-                },
-                {
-                    id: "noOfSamples",
-                    data: _noOfSamples
                 },
                 {
                     id: "noOfUsers",
@@ -314,21 +308,7 @@
                     },
                     visible: false
                 },
-                {
-                    title: {
-                        text: "No Of Samples",
-                        style: {
-                            color: "#79A701"
-                        }
-                    },
-                    labels: {
-                        format: "{value}",
-                        style: {
-                            color: "#79A701"
-                        }
-                    },
-                    visible: false
-                },
+                
                 {
                     title: {
                         text: "No Of Users",
@@ -394,26 +374,13 @@
                         valueSuffix: ""
                     }
                 },
-                {
-                    id: "noOfSamples",
-                    name: "No Of Samples",
-                    type: "spline",
-                    color: "#79A701",
-                    yAxis: 1,
-                    data: [],
-                    marker: {
-                        enabled: false
-                    },
-                    tooltip: {
-                        valueSuffix: ""
-                    }
-                },
+                
                 {
                     id: "noOfUsers",
                     name: "No Of Users",
                     type: "spline",
                     color: "#35CE8D",
-                    yAxis: 2,
+                    yAxis: 1,
                     data: [],
                     marker: {
                         enabled: false
@@ -428,7 +395,7 @@
                     name: "Average",
                     type: "spline",
                     color: "#051181",
-                    yAxis: 3,
+                    yAxis: 2,
                     data: [],
                     marker: {
                         enabled: false
