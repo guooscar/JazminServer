@@ -43,6 +43,9 @@ public class BenchmarkView extends VerticalLayout{
 		//
 		startButton=addOptButton("Start", ValoTheme.BUTTON_PRIMARY,this::startBenchmark);
 		stopButton=addOptButton("Stop", ValoTheme.BUTTON_PRIMARY,this::stopBenchmark);
+		addOptButton("Console", ValoTheme.BUTTON_PRIMARY,(e)->{
+			showConsole();
+		});
 		//
 		stopButton.setEnabled(false);
 	}
@@ -69,7 +72,9 @@ public class BenchmarkView extends VerticalLayout{
 				}
 			};
 			frame.setSource(new ExternalResource("/srv/benchmark/graph?id="+session.id));
-			showConsole();
+			if(info.showConsole){
+				showConsole();
+			}
 			session.addCompleteHandler(this::sessionComplete);
 			session.start(info.script,rf, info.userCount, info.loopCount, info.rampUpPeriod);
 			updateLabel();
@@ -79,6 +84,7 @@ public class BenchmarkView extends VerticalLayout{
 			DeploySystemUI.showInfo("Open Failed:"+e.getMessage());
 		}	
 	}
+	
 	//
 	private void updateLabel(){
 		if(session==null){
@@ -110,6 +116,9 @@ public class BenchmarkView extends VerticalLayout{
 		BenchmarkLogWindow logWindow=new BenchmarkLogWindow();
 		UI.getCurrent().addWindow(logWindow);
 		logWindow.focus();
+		logWindow.addCloseListener((e)->{
+			session.setLogHandler(null);
+		});
 		if(session!=null){
 			session.setLogHandler(logWindow);
 		}

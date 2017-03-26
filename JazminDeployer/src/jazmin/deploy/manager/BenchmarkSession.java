@@ -11,8 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import jazmin.core.Jazmin;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 
@@ -144,22 +146,23 @@ public class BenchmarkSession {
 		//
 		int sleepMils=(rampUpPeriod*1000)/userCount;
 		finishCount=new AtomicInteger(0);
-		//
-		for(int i=0;i<userCount;i++){
-			UserThread ut=new UserThread();
-			ut.robot=robotFactory.create();
-			ut.setName(name+"-"+i);
-			ut.idx=i;
-			userThreads.add(ut);
-			ut.start();
-			try {
-				if(sleepMils>0){
-					Thread.sleep(sleepMils);
+		Jazmin.schedule(()->{
+			for(int i=0;i<userCount;i++){
+				UserThread ut=new UserThread();
+				ut.robot=robotFactory.create();
+				ut.setName(name+"-"+i);
+				ut.idx=i;
+				userThreads.add(ut);
+				ut.start();
+				try {
+					if(sleepMils>0){
+						Thread.sleep(sleepMils);
+					}
+				} catch (InterruptedException e) {
+					logger.catching(e);
 				}
-			} catch (InterruptedException e) {
-				logger.catching(e);
 			}
-		}
+		}, 0, TimeUnit.SECONDS);
 		Thread t=new Thread(this::addSampleLog);
 		t.setName(name+"_addSampleData");
 		t.start();
@@ -263,11 +266,11 @@ public class BenchmarkSession {
 		BenchmarkRequestStat stat=getStat(name);
 		synchronized (stat) {
 			stat.sample(time, isError);
-			stat.noOfUsers=userThreads.size();
+			stat.noOfUsers=userCount-finishCount.get();
 		}
 		synchronized (totalStat) {
 			totalStat.sample(time, isError);
-			totalStat.noOfUsers=userThreads.size();
+			totalStat.noOfUsers=userCount-finishCount.get();
 		}
 	}
 	//
@@ -328,7 +331,7 @@ public class BenchmarkSession {
 				log("Robot is null");
 			}
 			userThreads.remove(this);
-			if(finishCount.incrementAndGet()==userCount){
+			if(finishCount.incrementAndGet()>=userCount){
 				finishBenchmark();
 			}
 		}

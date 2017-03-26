@@ -34,6 +34,7 @@ public class StartBenchmarkWindow extends Window{
 	TextField loopCountTf;
 	TextField rampUpPeriodTf;
 	CheckBox haltOnExceptionCb;
+	CheckBox showConsoleCb;
 	//
 	public static class BenchmarkInfo{
 		public String script;
@@ -41,6 +42,7 @@ public class StartBenchmarkWindow extends Window{
 		public int loopCount;
 		public int rampUpPeriod;
 		public boolean haltOnException;
+		public boolean showConsole;
 	}
 	//
 	public StartBenchmarkWindow(Consumer<BenchmarkInfo>callback){
@@ -58,7 +60,6 @@ public class StartBenchmarkWindow extends Window{
         content.setSpacing(true);
         setContent(content);
         scriptCombox=new ComboBox("Benchmark");
-        scriptCombox.setWidth("100%");
         scriptCombox.setNewItemsAllowed(false);
         scriptCombox.setNullSelectionAllowed(false);
         scriptCombox.setInvalidAllowed(false);
@@ -70,6 +71,7 @@ public class StartBenchmarkWindow extends Window{
         rampUpPeriodTf=createTf("Ramp Up Period(seconds)","0");
         //
         haltOnExceptionCb=new CheckBox("Halt On Exception");
+        showConsoleCb=new CheckBox("Show Console");
         //
         VerticalLayout formLayout=new VerticalLayout();
         formLayout.addComponent(scriptCombox);
@@ -77,6 +79,7 @@ public class StartBenchmarkWindow extends Window{
         formLayout.addComponent(loopCountTf);
         formLayout.addComponent(rampUpPeriodTf);
         formLayout.addComponent(haltOnExceptionCb);
+        formLayout.addComponent(showConsoleCb);
         formLayout.setSizeFull();
         //
         content.addComponent(formLayout);
@@ -115,6 +118,7 @@ public class StartBenchmarkWindow extends Window{
 		info.loopCount=getIntValue(loopCountTf);
 		info.rampUpPeriod=getIntValue(rampUpPeriodTf);
 		info.haltOnException=haltOnExceptionCb.getValue();
+		info.showConsole=showConsoleCb.getValue();
 		//
 		if(info.userCount<1){
 			DeploySystemUI.showInfo("setup user count");
