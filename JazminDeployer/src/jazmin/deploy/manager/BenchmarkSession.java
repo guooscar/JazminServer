@@ -11,10 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import jazmin.core.Jazmin;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 
@@ -92,6 +90,13 @@ public class BenchmarkSession {
 	ScheduledFuture<?>sampleTimer;
 	
 	//
+	public BenchmarkRequestStat getTotalStat(){
+		return totalStat;
+	}
+	//
+	public List<BenchmarkRequestStat>getAllTotalStats(){
+		return allStats;
+	}
 	//
 	public static interface LogHandler{
 		void log(String log);
@@ -154,20 +159,30 @@ public class BenchmarkSession {
 				logger.catching(e);
 			}
 		}
-		//
-		sampleTimer=Jazmin.scheduleAtFixedRate(()->{
+		Thread t=new Thread(this::addSampleLog);
+		t.setName(name+"_addSampleData");
+		t.start();
+	}
+	//
+	private void addSampleLog(){
+		while(finishCount.get()<userCount){
 			BenchmarkRequestStat stat=new BenchmarkRequestStat();
 			stat.startTime=new Date();
 			stat.average=totalStat.average;
 			stat.errorCount=totalStat.errorCount;
 			stat.noOfSamples=totalStat.noOfSamples;
+			stat.noOfUsers=totalStat.noOfUsers;
 			stat.throughtput=totalStat.throughtput;
 			stat.max=totalStat.max;
 			stat.min=totalStat.min;
 			stat.total=totalStat.total;
 			allStats.add(stat);
-		},1, 1, TimeUnit.SECONDS);
-		
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				logger.catching(e);
+			}
+		}
 	}
 	//
 	private String dump(){

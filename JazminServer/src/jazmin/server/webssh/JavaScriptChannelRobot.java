@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
+import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -56,11 +57,20 @@ public class JavaScriptChannelRobot extends ChannelRobot implements ScriptChanne
 	private void loadJavaScript(String source)throws ScriptException{
 		ScriptEngineManager engineManager = new ScriptEngineManager();
 		ScriptEngine engine = engineManager.getEngineByName("nashorn");
+		
+		Bindings bindings=engine.createBindings();
+	
 		SimpleScriptContext ssc=new SimpleScriptContext();
 		ssc.setAttribute("robot",this, ScriptContext.ENGINE_SCOPE);
+		bindings.put("robot", this);
 		if(context!=null){
-			context.forEach((name,object)->{ssc.setAttribute(name,object, ScriptContext.ENGINE_SCOPE);});
+			context.forEach((name,object)->{
+				ssc.setAttribute(name,object, ScriptContext.ENGINE_SCOPE);
+				bindings.put("name",object);
+					
+			});
 		}
+		engine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
 		String commonScript=
 					"load('nashorn:mozilla_compat.js');"+
 					"importPackage(Packages.jazmin.server.webssh);\n";

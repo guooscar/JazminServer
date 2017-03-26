@@ -5,11 +5,14 @@ package jazmin.deploy.manager;
 
 import java.util.function.IntConsumer;
 
+import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
+
+import jazmin.util.DumpUtil;
 
 /**
  * @author yama
@@ -34,6 +37,10 @@ public class JavascriptBenchmarkRobot implements BenchmarkRobot{
 	//
 	public void log(String log){
 		session.log(log);
+	}
+	//
+	public String json(Object o){
+		return DumpUtil.dump(o);
 	}
 	//
 	public void sleep(int milSeconds){
@@ -62,10 +69,21 @@ public class JavascriptBenchmarkRobot implements BenchmarkRobot{
 		ScriptEngineManager engineManager = new ScriptEngineManager();
 		ScriptEngine engine = engineManager.getEngineByName("nashorn");
 		SimpleScriptContext ssc=new SimpleScriptContext();
-		ssc.setAttribute("benchmark",this, ScriptContext.ENGINE_SCOPE);
-		ssc.setAttribute("http",new BenchmarkHttp(session), ScriptContext.ENGINE_SCOPE);
-		ssc.setAttribute("rpc",new BenchmarkRpcServer(session), ScriptContext.ENGINE_SCOPE);
-		ssc.setAttribute("msg",new BenchmarkMessageServer(session), ScriptContext.ENGINE_SCOPE);
+		BenchmarkHttp http= new BenchmarkHttp(session);
+		BenchmarkRpcServer rpc= new BenchmarkRpcServer(session);
+		BenchmarkMessageServer msg= new BenchmarkMessageServer(session);
+		//
+		ssc.setAttribute("benchmark", this,ScriptContext.ENGINE_SCOPE);
+		ssc.setAttribute("http", http,ScriptContext.ENGINE_SCOPE);
+		ssc.setAttribute("rpc", rpc,ScriptContext.ENGINE_SCOPE);
+		ssc.setAttribute("msg", msg,ScriptContext.ENGINE_SCOPE);
+		//
+		Bindings bindings = engine.createBindings();
+		bindings.put("benchmark", this);
+		bindings.put("http",http);
+		bindings.put("rpc", rpc);
+		bindings.put("msg", msg);
+		engine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
 		
 		String commonScript=
 					"load('nashorn:mozilla_compat.js');"+

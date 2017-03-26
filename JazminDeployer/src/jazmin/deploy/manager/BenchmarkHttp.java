@@ -3,12 +3,15 @@
  */
 package jazmin.deploy.manager;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
 import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.AsyncHttpClientConfig.Builder;
-import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
+import com.ning.http.client.Response;
 import com.ning.http.client.providers.netty.NettyAsyncHttpProvider;
 
 /**
@@ -36,6 +39,15 @@ public class BenchmarkHttp {
 		this.session=session;
 	}
 	//
+	public static class HttpResponse{
+		public String body;
+		public Map<String,List<String>>headers;
+		public int statusCode;
+		public HttpResponse() {
+			headers=new HashMap<>();
+		}
+	}
+	//
 	private Object sample(String name,SampleAction action){
 		long start=System.currentTimeMillis();
 		boolean error=false;
@@ -50,15 +62,15 @@ public class BenchmarkHttp {
 		}
 	}
 	//
-	public String post(String url){
+	public HttpResponse post(String url){
 		return post(url,null,null,null);
 	}
 	//
-	public String post(String url,
+	public HttpResponse post(String url,
 			Map<String,String>headers,
 			Map<String,String>parameters,
 			Map<String,String> formValues){
-		return (String) sample(url,()->{
+		return (HttpResponse) sample(url,()->{
 			 BoundRequestBuilder builder=asyncHttpClient.preparePost(url);
 			 if(headers!=null){
 				 headers.forEach((k,v)->{
@@ -76,18 +88,25 @@ public class BenchmarkHttp {
 				 });
 			 }
 			 session.log("[post]"+url);
-			 return builder.execute().get().getResponseBody();
+			 Response response= builder.execute().get();
+			 HttpResponse hr=new HttpResponse();
+			 hr.statusCode=response.getStatusCode();
+			 hr.body=response.getResponseBody();
+			 response.getHeaders().forEach((s,l)->{
+				 hr.headers.put(s, l);
+			 });
+			 return hr;
 		});
 	}
 	//
-	public String get(String url){
+	public HttpResponse get(String url){
 		return get(url,null,null);
 	}
 	//
-	public String get(String url,
+	public HttpResponse get(String url,
 			Map<String,String>headers,
 			Map<String,String>parameters){
-		return (String) sample(url,()->{
+		return (HttpResponse) sample(url,()->{
 			 BoundRequestBuilder builder=asyncHttpClient.prepareGet(url);
 			 if(headers!=null){
 				 headers.forEach((k,v)->{
@@ -100,7 +119,14 @@ public class BenchmarkHttp {
 				 });
 			 }
 			 session.log("[get]"+url);
-			 return builder.execute().get().getResponseBody();
+			 Response response= builder.execute().get();
+			 HttpResponse hr=new HttpResponse();
+			 hr.statusCode=response.getStatusCode();
+			 hr.body=response.getResponseBody();
+			 response.getHeaders().forEach((s,l)->{
+				 hr.headers.put(s, l);
+			 });
+			 return hr;
 		});
 	}
 }
