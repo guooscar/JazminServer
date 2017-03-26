@@ -266,11 +266,11 @@ public class BenchmarkSession {
 		BenchmarkRequestStat stat=getStat(name);
 		synchronized (stat) {
 			stat.sample(time, isError);
-			stat.noOfUsers=userCount-finishCount.get();
+			stat.noOfUsers=userThreads.size();
 		}
 		synchronized (totalStat) {
 			totalStat.sample(time, isError);
-			totalStat.noOfUsers=userCount-finishCount.get();
+			totalStat.noOfUsers=userThreads.size();
 		}
 	}
 	//
