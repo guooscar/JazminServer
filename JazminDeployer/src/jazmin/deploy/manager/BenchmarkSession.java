@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -89,7 +88,7 @@ public class BenchmarkSession {
 	List<BenchmarkRequestStat>allStats;
 	LogHandler logHandler;
 	List<Runnable> completeHandlers;
-	ScheduledFuture<?>sampleTimer;
+	public boolean finished;
 	
 	//
 	public BenchmarkRequestStat getTotalStat(){
@@ -174,23 +173,27 @@ public class BenchmarkSession {
 	//
 	private void addSampleLog(){
 		while(finishCount.get()<userCount){
-			BenchmarkRequestStat stat=new BenchmarkRequestStat();
-			stat.startTime=new Date();
-			stat.average=totalStat.average;
-			stat.errorCount=totalStat.errorCount;
-			stat.noOfSamples=totalStat.noOfSamples;
-			stat.noOfUsers=totalStat.noOfUsers;
-			stat.throughtput=totalStat.throughtput;
-			stat.max=totalStat.max;
-			stat.min=totalStat.min;
-			stat.total=totalStat.total;
-			allStats.add(stat);
+			addSampleLog0();
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				logger.catching(e);
 			}
 		}
+	}
+	//
+	private void addSampleLog0(){
+		BenchmarkRequestStat stat=new BenchmarkRequestStat();
+		stat.startTime=new Date();
+		stat.average=totalStat.average;
+		stat.errorCount=totalStat.errorCount;
+		stat.noOfSamples=totalStat.noOfSamples;
+		stat.noOfUsers=totalStat.noOfUsers;
+		stat.throughtput=totalStat.throughtput;
+		stat.max=totalStat.max;
+		stat.min=totalStat.min;
+		stat.total=totalStat.total;
+		allStats.add(stat);
 	}
 	//
 	private String dump(){
@@ -255,9 +258,8 @@ public class BenchmarkSession {
 	}
 	//
 	private void finishBenchmark(){
-		if(sampleTimer!=null){
-			sampleTimer.cancel(true);
-		}
+		finished=true;
+		addSampleLog0();
 		endTime=new Date();
 		log("\n"+dump());
 		//

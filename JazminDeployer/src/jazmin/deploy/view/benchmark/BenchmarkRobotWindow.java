@@ -133,10 +133,10 @@ public class BenchmarkRobotWindow extends Window{
 	private void deleteScript(){
 		JavaScriptSource script=table.getSelectValue();
 		if(script==null){
-			DeploySystemUI.showNotificationInfo("INFO", "Choose robot to delete");
+			DeploySystemUI.showNotificationInfo("INFO", "Choose benchmark to delete");
 			return;
 		}
-		DeployManager.deleteScript(script.name);
+		DeployManager.deleteBenchmarkScript(script.name);
 		loadData();
 	}
 	//

@@ -440,8 +440,7 @@
                 break;
             }
             if (typeof (data.errorCode) !== "number") {
-                _code = 1000;
-                break;
+                return false;
             }
             _code = data.errorCode;
         } while (false);

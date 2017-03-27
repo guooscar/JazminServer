@@ -86,7 +86,7 @@
             position: relative;
             width: 80%;
             margin: 30px auto;
-            max-width: 800px;
+            max-width: 1024px;
             min-width: 640px;
             overflow: auto;
             background-color: #ffffff;
@@ -172,7 +172,7 @@
         }
 
         .chart-js .summary .btn-view {
-            padding: 0 2px;
+            padding: 0 4px;
             color: #232323;
             cursor: pointer;
             border: solid 1px #cccccc;
@@ -233,8 +233,14 @@
             color: #35CE8D;
         }
 
+        .chart-js .item.max .value,
+        .chart-js .item.min .value,
         .chart-js .item.average .value {
             color: #118DF0;
+        }
+
+        .chart-js .item.deviation .value {
+            color: #9068BE;
         }
 
         .chart-js .item.errorCount .value {
@@ -277,13 +283,25 @@
                 <span class="label">No Of Users</span>:
                 <span class="value">--</span>
             </div>
+            <div class="item errorCount">
+                <span class="label">Error Count</span>:
+                <span class="value">--</span>
+            </div>
+            <div class="item deviation">
+                <span class="label">Deviation</span>:
+                <span class="value">--</span>
+            </div>
+            <div class="item max">
+                <span class="label">Max</span>:
+                <span class="value">--</span>ms
+            </div>
             <div class="item average">
                 <span class="label">Average Value</span>:
                 <span class="value">--</span>ms
             </div>
-            <div class="item errorCount">
-                <span class="label">Error Count</span>:
-                <span class="value">--</span>
+            <div class="item min">
+                <span class="label">Min</span>:
+                <span class="value">--</span>ms
             </div>
             <div style="clear:both;"></div>
         </div>
@@ -300,12 +318,15 @@
                     <td>Throughtput</td>
                     <td>No Of Samples</td>
                     <td>No Of Users</td>
+                    <td>Max Value</td>
                     <td>Average Value</td>
+                    <td>Min Value</td>
+                    <td>Deviation</td>
                     <td>Error Count</td>
                     </thead>
                     <tbody>
                     <tr>
-                        <td class="text-center" colspan="6">No Datas</td>
+                        <td class="text-center" colspan="9">No Datas</td>
                     </tr>
                     </tbody>
                 </table>
@@ -339,9 +360,6 @@
             if (!result) {
                 return;
             }
-            if (result.errorCode != 0) {
-                return;
-            }
             var _stats = result.list;
             if (!_stats || _stats.length === 0) {
                 return;
@@ -352,7 +370,7 @@
                 var _temp = _stats[i];
                 html.push("<tr>");
                 html.push("<td title='" + _temp.name + "' style='cursor: pointer;'>");
-                html.push("<div class='text-ellipsis' style='width: 250px;'>");
+                html.push("<div class='text-ellipsis' style='width: 200px;'>");
                 html.push(_temp.name);
                 html.push("</div>");
                 html.push("</td>");
@@ -367,8 +385,19 @@
                 html.push(_temp.noOfUsers);
                 html.push("</td>");
                 html.push("<td>");
+                html.push(_temp.max);
+                html.push("ms");
+                html.push("</td>");
+                html.push("<td>");
                 html.push(_temp.average);
                 html.push("ms");
+                html.push("</td>");
+                html.push("<td>");
+                html.push(_temp.min);
+                html.push("ms");
+                html.push("</td>");
+                html.push("<td>");
+                html.push(_temp.deviation);
                 html.push("</td>");
                 html.push("<td>");
                 html.push(_temp.errorCount);
@@ -376,6 +405,9 @@
                 html.push("</tr>");
             }
             $("#stat-view .viewer").find("table > tbody").html(html.join(""));
+            if (result.finished === true) {
+                return;
+            }
             window.setTimeout(function () {
                 window.__refreshStats__();
             }, 1000);
@@ -389,15 +421,14 @@
                 _chart.hideLoading();
                 return;
             }
-            if (result.errorCode != 0) {
-                _chart.hideLoading();
+            window.__renderChart__(_chart, result.all);
+            window.__renderTotal__(result.total);
+            if (result.finished === true) {
                 return;
             }
             window.setTimeout(function () {
                 window.__refreshChart__(_chart);
             }, 1000);
-            window.__renderChart__(_chart, result.all);
-            window.__renderTotal__(result.total);
         }).invoke();
     };
     window.__renderChart__ = function (_chart, data) {
@@ -409,6 +440,7 @@
         var _throughtput = [];
         var _noOfUsers = [];
         var _average = [];
+        var _deviation = [];
         for (var i = 0; i < _len; i++) {
             var _temp = data[i];
             if (!_temp) {
@@ -417,9 +449,16 @@
             _throughtput.push([_temp.startTime, _temp.throughtput]);
             _noOfUsers.push([_temp.startTime, _temp.noOfUsers]);
             _average.push([_temp.startTime, _temp.average]);
+            _deviation.push([_temp.startTime, _temp.deviation]);
         }
         _chart.hideLoading();
+        var _min = _throughtput[0][0];
         _chart.update({
+            xAxis: [
+                {
+                    min: _min
+                }
+            ],
             series: [
                 {
                     id: "throughtput",
@@ -432,6 +471,10 @@
                 {
                     id: "average",
                     data: _average
+                },
+                {
+                    id: "deviation",
+                    data: _deviation
                 }
             ]
         });
@@ -452,7 +495,10 @@
         $summary.find(".item.throughtput .value").text(total.throughtput);
         $summary.find(".item.noOfSamples .value").text(total.noOfSamples);
         $summary.find(".item.noOfUsers .value").text(total.noOfUsers);
+        $summary.find(".item.min .value").text(total.min);
+        $summary.find(".item.max .value").text(total.max);
         $summary.find(".item.average .value").text(total.average);
+        $summary.find(".item.deviation .value").text(total.deviation);
         $summary.find(".item.errorCount .value").text(total.errorCount);
     };
     $(function () {
@@ -480,6 +526,7 @@
             },
             xAxis: [
                 {
+                    id: "datetime",
                     type: "datetime",
                     dateTimeLabelFormats: {
                         millisecond: "%Y-%m-%d %H:%M:%S.%L",
@@ -491,7 +538,6 @@
                         month: "%b \"%y",
                         year: "%Y"
                     },
-                    min: new Date().getTime(),
                     minRange: 30000,
                     labels: {
                         overflow: "justify"
@@ -545,6 +591,21 @@
                         }
                     },
                     visible: false
+                },
+                {
+                    title: {
+                        text: "Deviation",
+                        style: {
+                            color: "#9068BE"
+                        }
+                    },
+                    labels: {
+                        format: "{value}",
+                        style: {
+                            color: "#9068BE"
+                        }
+                    },
+                    visible: false
                 }
             ],
             tooltip: {
@@ -564,7 +625,7 @@
                 align: "left",
                 verticalAlign: "top",
                 floating: true,
-                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || "#FFFFFF"
+                backgroundColor: "#FFFFFF"
             },
             series: [
                 {
@@ -581,7 +642,6 @@
                         valueSuffix: ""
                     }
                 },
-
                 {
                     id: "noOfUsers",
                     name: "No Of Users",
@@ -603,6 +663,20 @@
                     type: "spline",
                     color: "#051181",
                     yAxis: 2,
+                    data: [],
+                    marker: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        valueSuffix: ""
+                    }
+                },
+                {
+                    id: "deviation",
+                    name: "Deviation",
+                    type: "spline",
+                    color: "#9068BE",
+                    yAxis: 3,
                     data: [],
                     marker: {
                         enabled: false

@@ -182,12 +182,16 @@ public class DeployManager {
 	}
 	//
 	public static BenchmarkSession addBenchmarkSession(){
+		List<String>finishedSessions=new ArrayList<>();
+		benchmarkSessions.forEach((k,s)->{
+			if(s.finished){
+				finishedSessions.add(k);
+			}
+		});
+		finishedSessions.forEach(s->benchmarkSessions.remove(s));
 		BenchmarkSession session=new BenchmarkSession();
 		session.id=UUID.randomUUID().toString();
-		benchmarkSessions.put(session.id, session);
-		session.addCompleteHandler(()->{
-			benchmarkSessions.remove(session.id);
-		});
+		benchmarkSessions.put(session.id, session);		
 		return session;
 	}
 	//
@@ -383,6 +387,10 @@ public class DeployManager {
 			}
 		}
 		return result;
+	}
+	public static void deleteBenchmarkScript(String name){
+		File scriptFile=new File(workSpaceDir+"benchmark/"+name);
+		scriptFile.delete();
 	}
 	//
 	public static void deleteScript(String name){
