@@ -277,10 +277,11 @@ public class BenchmarkSession {
 		synchronized (totalStat) {
 			totalStat.sample(time, isError);
 			totalStat.noOfUsers=userThreads.size();
-			totalStat.throughtput=0;
-			statMap.forEach((k,v)->{
-				totalStat.throughtput+=v.throughtput;
-			});
+			long start=totalStat.startTime.getTime();
+			long t=(System.currentTimeMillis()-start)/(60*1000L);
+			if(t>0){
+				totalStat.throughtput=(int) (totalStat.noOfSamples/t);		
+			}
 		}
 	}
 	//
