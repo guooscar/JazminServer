@@ -61,7 +61,10 @@ public class BenchmarkSession {
 			}
 			average=total/noOfSamples;
 			if(total>0){
-				throughtput=(int) ((noOfSamples*60*1000L)/total);
+				double t=(System.currentTimeMillis()-startTime.getTime())/(60*1000.0);
+				if(t>0){
+					throughtput=(int) (noOfSamples/t);		
+				}
 			}
 		}
 	}
