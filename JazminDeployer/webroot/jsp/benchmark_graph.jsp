@@ -24,11 +24,126 @@
             font-size: 14px;
         }
 
+        .table {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            border-spacing: 0;
+            border-collapse: collapse;
+            overflow: auto;
+        }
+
+        .table > tbody > tr > td,
+        .table > tbody > tr > th,
+        .table > tfoot > tr > td,
+        .table > tfoot > tr > th,
+        .table > thead > tr > td,
+        .table > thead > tr > th {
+            padding: 8px;
+            line-height: 1.42857143;
+            vertical-align: middle;
+        }
+
+        .table tbody tr {
+            border-top: 1px solid #ddd;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-ellipsis {
+            text-overflow: ellipsis;
+            -o-text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
         .chart-js {
             position: relative;
             height: 100%;
             width: 100%;
             padding-bottom: 200px;
+        }
+
+        .stat-view-bg {
+            position: absolute;
+            display: none;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            background-color: #0e0e0e;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+        }
+
+        .stat-view-bg.show {
+            display: block;
+        }
+
+        .stat-view-bg .stat-view {
+            position: relative;
+            width: 80%;
+            margin: 30px auto;
+            max-width: 800px;
+            min-width: 640px;
+            overflow: auto;
+            background-color: #ffffff;
+            border: solid 1px #ababab;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+            border-radius: 5px;
+        }
+
+        .stat-view-bg .stat-view .header {
+            width: 100%;
+            height: 50px;
+            line-height: 50px;
+            font-size: 20px;
+            text-align: center;
+            border-bottom: solid 2px #dddddd;
+            background-color: #ffffff;
+        }
+
+        .stat-view-bg .stat-view .content {
+            position: relative;
+            max-height: 500px;;
+            width: 100%;
+            padding: 0 16px;
+            overflow: auto;
+
+        }
+
+        .stat-view-bg .stat-view .content .viewer {
+            position: relative;
+            height: 100%;
+            width: 100%;
+            overflow: auto;
+        }
+
+        .stat-view-bg .stat-view .bottom {
+            height: 50px;
+            line-height: 50px;
+            padding: 0 16px;
+            border-top: solid 2px #dddddd;
+            text-align: right;
+            background-color: #ffffff;
+        }
+
+        .stat-view-bg .stat-view .bottom .btn-close {
+            display: inline-block;
+            line-height: normal;
+            padding: 6px 16px;
+            border: solid 1px #cccccc;
+            -webkit-border-radius: 4px;
+            -moz-border-radius: 4px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .stat-view-bg .stat-view .bottom .btn-close:hover {
+            background-color: #f2f2f2;
         }
 
         .chart-js .benchmark-chart {
@@ -54,6 +169,20 @@
             width: 100%;
             z-index: 99;
             border-top: dashed 2px #888888;
+        }
+
+        .chart-js .summary .btn-view {
+            padding: 0 2px;
+            color: #232323;
+            cursor: pointer;
+            border: solid 1px #cccccc;
+            -webkit-border-radius: 2px;
+            -moz-border-radius: 2px;
+            border-radius: 2px;
+        }
+
+        .chart-js .summary .btn-view:hover {
+            background-color: #f2f2f2;
         }
 
         .chart-js .summary .name {
@@ -122,6 +251,7 @@
     <div id="summary" class="summary">
         <div class="name">
             <span class="label">Summary</span>#<span class="value">--</span>
+            <span id="btn-view" class="btn-view">≡</span>
         </div>
         <div class="time">
             <div class="item startTime">
@@ -159,6 +289,33 @@
         </div>
     </div>
 </div>
+<div id="stat-view-bg" class="stat-view-bg">
+    <div id="stat-view" class="stat-view">
+        <div class="header">Stats Of <span class="name">--</span></div>
+        <div class="content">
+            <div class="viewer">
+                <table class=" table">
+                    <thead>
+                    <td>Name</td>
+                    <td>Throughtput</td>
+                    <td>No Of Samples</td>
+                    <td>No Of Users</td>
+                    <td>Average Value</td>
+                    <td>Error Count</td>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="text-center" colspan="6">No Datas</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="bottom">
+            <div id="btn-close" class="btn-close">Close</div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript" src="/js/jquery.js"></script>
 <script type="text/javascript" src="/js/moment.js"></script>
 <script type="text/javascript" src="/js/highcharts.js"></script>
@@ -172,7 +329,59 @@
             noData: "暂无数据"
         }
     });
-    window.__refresh__ = function (_chart) {
+    window.__refreshStats__ = function () {
+        if (!$("#stat-view-bg").hasClass("show")) {
+            return;
+        }
+        itAjax.action("/srv/benchmark/stats").params({
+            id: "${benchmarkId}"
+        }).success(function (result) {
+            if (!result) {
+                return;
+            }
+            if (result.errorCode != 0) {
+                return;
+            }
+            var _stats = result.list;
+            if (!_stats || _stats.length === 0) {
+                return;
+            }
+            var _len = _stats.length;
+            var html = [];
+            for (var i = 0; i < _len; i++) {
+                var _temp = _stats[i];
+                html.push("<tr>");
+                html.push("<td title='" + _temp.name + "' style='cursor: pointer;'>");
+                html.push("<div class='text-ellipsis' style='width: 250px;'>");
+                html.push(_temp.name);
+                html.push("</div>");
+                html.push("</td>");
+                html.push("<td>");
+                html.push(_temp.throughtput);
+                html.push("/min");
+                html.push("</td>");
+                html.push("<td>");
+                html.push(_temp.noOfSamples);
+                html.push("</td>");
+                html.push("<td>");
+                html.push(_temp.noOfUsers);
+                html.push("</td>");
+                html.push("<td>");
+                html.push(_temp.average);
+                html.push("ms");
+                html.push("</td>");
+                html.push("<td>");
+                html.push(_temp.errorCount);
+                html.push("</td>");
+                html.push("</tr>");
+            }
+            $("#stat-view .viewer").find("table > tbody").html(html.join(""));
+            window.setTimeout(function () {
+                window.__refreshStats__();
+            }, 1000);
+        }).invoke();
+    };
+    window.__refreshChart__ = function (_chart) {
         itAjax.action("/srv/benchmark/data").params({
             id: "${benchmarkId}"
         }).success(function (result) {
@@ -185,7 +394,7 @@
                 return;
             }
             window.setTimeout(function () {
-                window.__refresh__(_chart);
+                window.__refreshChart__(_chart);
             }, 1000);
             window.__renderChart__(_chart, result.all);
             window.__renderTotal__(result.total);
@@ -233,6 +442,7 @@
         }
         var $summary = $("#summary");
         $summary.find(".name .value").text(total.name);
+        $("#stat-view").find(".name").text(total.name);
         try {
             $summary.find(".item.startTime .value").text(moment(total.startTime).format("YYYY-MM-DD HH:mm:ss.SSS"));
             $summary.find(".item.endTime .value").text(moment(total.endTime).format("YYYY-MM-DD HH:mm:ss.SSS"));
@@ -246,15 +456,12 @@
         $summary.find(".item.errorCount .value").text(total.errorCount);
     };
     $(function () {
-//        (function () {
-//            var $chart = $("#benchmark-chart");
-//            var _chartWidth = $chart.width();
-//            var _chartheight = $chart.height();
-//            $("#benchmark-chart-view").css({
-//                width: ( _chartWidth - 20) + "px",
-//                height: (_chartheight - 20) + "px"
-//            });
-//        })();
+        $("body").on("click", "#btn-view", function () {
+            $("#stat-view-bg").addClass("show");
+            window.__refreshStats__();
+        }).on("click", "#btn-close", function () {
+            $("#stat-view-bg").removeClass("show");
+        });
         var _hchart = new Highcharts.Chart("benchmark-chart-view", {
             chart: {
                 showAxes: true
@@ -308,7 +515,7 @@
                     },
                     visible: false
                 },
-                
+
                 {
                     title: {
                         text: "No Of Users",
@@ -374,7 +581,7 @@
                         valueSuffix: ""
                     }
                 },
-                
+
                 {
                     id: "noOfUsers",
                     name: "No Of Users",
@@ -407,7 +614,7 @@
             ]
         });
         _hchart.showLoading();
-        window.__refresh__(_hchart);
+        window.__refreshChart__(_hchart);
     });
 </script>
 </body>

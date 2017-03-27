@@ -87,7 +87,6 @@ public class BenchmarkHttp {
 					 builder.addFormParam(k, v);
 				 });
 			 }
-			 session.log("[post]"+url);
 			 Response response= builder.execute().get();
 			 HttpResponse hr=new HttpResponse();
 			 hr.statusCode=response.getStatusCode();
@@ -118,7 +117,6 @@ public class BenchmarkHttp {
 					 builder.addQueryParam(k, v);
 				 });
 			 }
-			 session.log("[get]"+url);
 			 Response response= builder.execute().get();
 			 HttpResponse hr=new HttpResponse();
 			 hr.statusCode=response.getStatusCode();

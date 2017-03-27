@@ -109,6 +109,10 @@ public class BenchmarkSession {
 		statMap=new ConcurrentHashMap<String,BenchmarkRequestStat>();
 		allStats=new ArrayList<>();
 	}
+	//
+	public List<BenchmarkRequestStat>getAllStats(){
+		return new ArrayList<>(statMap.values());
+	}
 	/**
 	 * 
 	 * @param handler
