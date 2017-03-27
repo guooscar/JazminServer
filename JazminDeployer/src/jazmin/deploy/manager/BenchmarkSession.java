@@ -278,7 +278,7 @@ public class BenchmarkSession {
 			totalStat.sample(time, isError);
 			totalStat.noOfUsers=userThreads.size();
 			long start=totalStat.startTime.getTime();
-			long t=(System.currentTimeMillis()-start)/(60*1000L);
+			double t=(System.currentTimeMillis()-start)/(60*1000.0);
 			if(t>0){
 				totalStat.throughtput=(int) (totalStat.noOfSamples/t);		
 			}
