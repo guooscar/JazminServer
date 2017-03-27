@@ -105,6 +105,7 @@ public class BenchmarkView extends VerticalLayout{
 			stopButton.setEnabled(false);
 			startButton.setEnabled(true);
 			updateLabel();			
+			DeploySystemUI.showInfo("Benchmark Complete");
 		});
 	}
 	//
