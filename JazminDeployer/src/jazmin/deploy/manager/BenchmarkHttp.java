@@ -20,7 +20,7 @@ import com.ning.http.client.providers.netty.NettyAsyncHttpProvider;
  */
 public class BenchmarkHttp {
 	static interface SampleAction{
-		Object run()throws Exception;
+		HttpResponse run()throws Exception;
 	}
 	//
 	BenchmarkSession session;
@@ -34,10 +34,13 @@ public class BenchmarkHttp {
 		clientConfig=clientConfigBuilder.build();
 		asyncHttpClient = new AsyncHttpClient(new NettyAsyncHttpProvider(clientConfig),clientConfig);		
 	}
+	boolean acceptAllStatusCode;
 	//
 	public BenchmarkHttp(BenchmarkSession session) {
 		this.session=session;
 	}
+	//
+	
 	//
 	public static class HttpResponse{
 		public String body;
@@ -47,12 +50,29 @@ public class BenchmarkHttp {
 			headers=new HashMap<>();
 		}
 	}
+	
+	/**
+	 * @return the acceptAllStatusCode
+	 */
+	public boolean isAcceptAllStatusCode() {
+		return acceptAllStatusCode;
+	}
+	/**
+	 * @param acceptAllStatusCode the acceptAllStatusCode to set
+	 */
+	public void setAcceptAllStatusCode(boolean acceptAllStatusCode) {
+		this.acceptAllStatusCode = acceptAllStatusCode;
+	}
 	//
-	private Object sample(String name,SampleAction action){
+	private HttpResponse sample(String name,SampleAction action){
 		long start=System.currentTimeMillis();
 		boolean error=false;
 		try{
-			return action.run();
+			HttpResponse rsp= action.run();
+			if(!acceptAllStatusCode&&rsp.statusCode!=200){
+				error=true;
+			}
+			return rsp;
 		}catch (Exception e) {
 			session.log(e.getMessage());
 			error=true;
