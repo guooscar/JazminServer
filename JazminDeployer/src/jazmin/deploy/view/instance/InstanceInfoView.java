@@ -36,6 +36,7 @@ import jazmin.deploy.manager.MonitorManager;
 import jazmin.deploy.ui.BeanTable;
 import jazmin.deploy.view.main.CodeEditorCallback;
 import jazmin.deploy.view.main.CodeEditorWindow;
+import jazmin.deploy.view.main.ConfirmWindow;
 import jazmin.deploy.view.main.DeployBaseView;
 import jazmin.deploy.view.main.InputWindow;
 import jazmin.deploy.view.main.TaskProgressWindow;
@@ -392,13 +393,27 @@ public class InstanceInfoView extends DeployBaseView {
 				startInstance0(window);
 			});
 		});
+		//
+		boolean hasMysql=false;
+		//
 		for (Instance i : getOptInstances()) {
+			if(i.application.type.equals(Application.TYPE_MYSQL)){
+				hasMysql=true;
+			}
 			optWindow.addTask(i.id, "");
 		}
-
 		optWindow.setCaption("Confirm");
 		optWindow.setInfo("Confirm start total " + getOptInstances().size() + " instance(s)?");
-		UI.getCurrent().addWindow(optWindow);
+		if(hasMysql){
+			ConfirmWindow cw=new ConfirmWindow((c)->{
+				UI.getCurrent().addWindow(optWindow);
+			});
+			cw.setCaption("Confirm");
+			cw.setInfo("database instance in operate queue\nCONFIRM YOUR OPERATION!");
+			UI.getCurrent().addWindow(cw);
+		}else{
+			UI.getCurrent().addWindow(optWindow);			
+		}
 	}
 
 	//
@@ -517,12 +532,25 @@ public class InstanceInfoView extends DeployBaseView {
 				startInstance0(window);
 			});
 		});
+		boolean hasMySql=false;
 		for (Instance i : getOptInstances()) {
 			optWindow.addTask(i.id, "");
+			if(i.application.type.equals(Application.TYPE_MYSQL)){
+				hasMySql=true;
+			}
 		}
 		optWindow.setCaption("Confirm");
 		optWindow.setInfo("Confirm restart total " + getOptInstances().size() + " instance(s)?");
-		UI.getCurrent().addWindow(optWindow);
+		if(hasMySql){
+			ConfirmWindow cw=new ConfirmWindow((c)->{
+				UI.getCurrent().addWindow(optWindow);
+			});
+			cw.setCaption("Confirm");
+			cw.setInfo("database instance in operate queue\nCONFIRM YOUR OPERATION!");
+			UI.getCurrent().addWindow(cw);
+		}else{
+			UI.getCurrent().addWindow(optWindow);			
+		}
 	}
 
 	//
