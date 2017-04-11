@@ -208,7 +208,7 @@ public class RangeFileView implements View {
         // Initialize response.
         response.reset();
         response.setBufferSize(DEFAULT_BUFFER_SIZE);
-        response.setHeader("Content-Disposition", disposition + ";filename=\"" + fileName + "\"");
+        response.setHeader("Content-Disposition", disposition + ";filename=\"" + java.net.URLEncoder.encode(fileName,"UTF-8") + "\"");
         response.setHeader("Accept-Ranges", "bytes");
         response.setHeader("ETag", eTag);
         response.setDateHeader("Last-Modified", lastModified);
