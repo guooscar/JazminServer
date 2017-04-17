@@ -838,7 +838,7 @@ public class MessageServer extends Server{
 	}
 	//
 	private void setPrincipal0(Session session,String principal,String userAgent){
-		if(principal==null){
+		if(principal==null||principal.trim().isEmpty()){
 			throw new IllegalArgumentException("principal can not be null");
 		}
 		if(session.principal!=null){
