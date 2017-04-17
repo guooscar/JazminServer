@@ -368,7 +368,7 @@ public class MessageServer extends Server{
 	private void checkPrincipal(long currentTime,Session session) {
 		if (session.getPrincipal() == null) {
 			if ((currentTime - session.createTime.getTime())> sessionCreateTime * 1000) {
-				session.kick(null);
+				session.kick("principal null");
 			}
 		}
 	}
