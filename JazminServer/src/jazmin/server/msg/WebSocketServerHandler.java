@@ -106,8 +106,10 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 		RequestMessage message;
 		try {
 			message = decodeMessage(content);
-			Session session = ctx.channel().attr(SESSION_KEY).get();
-			messageServer.receiveMessage(session, message);
+			if(message!=null){
+				Session session = ctx.channel().attr(SESSION_KEY).get();
+				messageServer.receiveMessage(session, message);
+			}
 		} catch (Exception e) {
 			logger.catching(e);
 		}
