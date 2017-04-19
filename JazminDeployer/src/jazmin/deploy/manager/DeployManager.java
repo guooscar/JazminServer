@@ -37,12 +37,12 @@ import jazmin.deploy.domain.AppPackage;
 import jazmin.deploy.domain.Application;
 import jazmin.deploy.domain.GraphVizRenderer;
 import jazmin.deploy.domain.Instance;
+import jazmin.deploy.domain.JavaScriptSource;
 import jazmin.deploy.domain.Machine;
 import jazmin.deploy.domain.MachineJob;
 import jazmin.deploy.domain.OutputListener;
 import jazmin.deploy.domain.PackageDownloadInfo;
 import jazmin.deploy.domain.RepoItem;
-import jazmin.deploy.domain.JavaScriptSource;
 import jazmin.deploy.domain.TopSearch;
 import jazmin.deploy.domain.User;
 import jazmin.deploy.domain.ant.AntManager;
@@ -182,12 +182,16 @@ public class DeployManager {
 	}
 	//
 	public static BenchmarkSession addBenchmarkSession(){
+		List<String>finishedSessions=new ArrayList<>();
+		benchmarkSessions.forEach((k,s)->{
+			if(s.finished){
+				finishedSessions.add(k);
+			}
+		});
+		finishedSessions.forEach(s->benchmarkSessions.remove(s));
 		BenchmarkSession session=new BenchmarkSession();
 		session.id=UUID.randomUUID().toString();
-		benchmarkSessions.put(session.id, session);
-		session.addCompleteHandler(()->{
-			benchmarkSessions.remove(session.id);
-		});
+		benchmarkSessions.put(session.id, session);		
 		return session;
 	}
 	//
@@ -334,11 +338,11 @@ public class DeployManager {
 		configDir+="config";
 		try{
 			errorMessage=new StringBuffer();
+			reloadUserConfig(configDir);
 			reloadApplicationConfig(configDir);
 			checkApplicationConfig();
 			reloadMachineConfig(configDir);
 			reloadInstanceConfig(configDir);
-			reloadUserConfig(configDir);
 			reloadJobConfig(configDir);
 			setInstancePrioriy();
 			reloadPackage();
@@ -383,6 +387,10 @@ public class DeployManager {
 			}
 		}
 		return result;
+	}
+	public static void deleteBenchmarkScript(String name){
+		File scriptFile=new File(workSpaceDir+"benchmark/"+name);
+		scriptFile.delete();
 	}
 	//
 	public static void deleteScript(String name){
@@ -802,6 +810,7 @@ public class DeployManager {
 			logger.info("load application from:"+configFile.getAbsolutePath());
 			String ss=FileUtil.getContent(configFile);
 			List<Application>apps= JSONUtil.fromJsonList(ss,Application.class);
+			logger.info("load total:"+apps.size()+" applications");
 			apps.forEach(in->{
 				applicationMap.put(in.id,in);
 			});
@@ -818,6 +827,7 @@ public class DeployManager {
 			String ss=FileUtil.getContent(configFile);
 			List<User>apps= JSONUtil.fromJsonList(ss,User.class);
 			apps.forEach(in->{
+				logger.debug("add user:"+in.id);
 				userMap.put(in.id,in);
 			});
 		}else{
@@ -855,6 +865,7 @@ public class DeployManager {
 		//do topsearch and cal priority
 		int idx=0;
 		for(Application a:TopSearch.topSearch(getApplications())){
+			logger.debug("application:"+a.id);
 			a.priority=idx++;
 		}
 	}
@@ -1054,7 +1065,7 @@ public class DeployManager {
 						}
 					});
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.catching(e);
 			sb.append(e.getMessage()+"\n");
 			throw e;
 		}
@@ -1099,6 +1110,7 @@ public class DeployManager {
 			sb.append(exec(instance,false,
 					instance.machine.jazminHome
 				+"/jazmin startbg "+instance.id));
+			return sb.toString();
 		}
 		if(instance.application.type.equals(Application.TYPE_MEMCACHED)){
 			String size=instance.getProperties().getOrDefault(Instance.P_MEMCACHED_SIZE,"64m");
@@ -1109,6 +1121,7 @@ public class DeployManager {
 					+instance.port+" -P "+pidFile;
 			sb.append(exec(instance,false,
 					memcachedCmd));
+			return sb.toString();
 		}
 		if(instance.application.type.equals(Application.TYPE_HAPROXY)){
 			String configFile=renderTemplate(instance);
@@ -1122,8 +1135,19 @@ public class DeployManager {
 			String pidFile=instanceDir+"/haproxy_pid";
 			sb.append(exec(instance,true,
 					"haproxy -p "+pidFile+" -f "+configPath));
+			return sb.toString();
 		}
-		
+		if(instance.application.type.equals(Application.TYPE_MYSQL)){
+			String targetSqlFile="/tmp/"+instance.id+".sql";
+			String downloadCommand="wget -N http://"+deployHostname+"/srv/deploy/pkg/"+instance.id+" -O "+targetSqlFile;
+			sb.append("target sql file "+targetSqlFile+"\n");
+			sb.append(exec(instance,false,downloadCommand));
+			String sourceCommand="mysql -u "+instance.user+" -p"+instance.password+" "+instance.id+" <"+targetSqlFile;
+			sb.append("source file on instance "+instance.id+"\n");
+			sb.append(exec(instance,false,sourceCommand));
+			return sb.toString();
+		}
+		sb.append("not support");
 		return sb.toString();
 	}
 	//
@@ -1133,6 +1157,7 @@ public class DeployManager {
 			sb.append(exec(instance,false,
 					instance.machine.jazminHome
 					+"/jazmin stop "+instance.id));
+			return sb.toString();
 		}
 		//
 		if(instance.application.type.equals(Application.TYPE_MEMCACHED)){
@@ -1141,6 +1166,7 @@ public class DeployManager {
 			String pidFile=instanceDir+"/memcached_pid";
 			sb.append(exec(instance,false,
 					"kill -9 `cat "+pidFile+"`"));
+			return sb.toString();
 		}
 		//
 		if(instance.application.type.equals(Application.TYPE_HAPROXY)){
@@ -1149,7 +1175,10 @@ public class DeployManager {
 			String pidFile=instanceDir+"/haproxy_pid";
 			sb.append(exec(instance,true,
 					"kill -9 `cat "+pidFile+"`"));
+			return sb.toString();
 		}
+		
+		sb.append("not support");
 		return sb.toString();
 	}
 	/**
@@ -1165,6 +1194,9 @@ public class DeployManager {
 		suffex=".jaz";
 		if(ins.application.type.equals(Application.TYPE_JAZMIN_WEB)){
 			suffex=".war";
+		}
+		if(ins.application.type.equals(Application.TYPE_MYSQL)){
+			suffex=".sql";
 		}
 		String packageName=ins.appId+"-"+ins.packageVersion+suffex;
 		AppPackage p= packageMap.get(packageName);

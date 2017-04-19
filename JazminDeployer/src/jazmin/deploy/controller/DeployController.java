@@ -99,10 +99,9 @@ public class DeployController {
 		String instanceId = querys.get(2);
 		Instance instance=DeployManager.getInstance(instanceId);
 		if(!checkMachine(c,instanceId)){
-				return;
+			return;
 		}
-		jazmin.deploy.domain.AppPackage result = DeployManager
-				.getInstancePackage(instanceId);
+		jazmin.deploy.domain.AppPackage result = DeployManager.getInstancePackage(instanceId);
 		if (result != null) {
 			c.view(new PackageDownloadView(instance,result));
 		}

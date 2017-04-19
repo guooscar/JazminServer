@@ -13,7 +13,7 @@ import jazmin.server.msg.codec.ResponseMessage;
  */
 public class BenchmarkMessageServer {
 	static interface SampleAction{
-		Object run()throws Exception;
+		ResponseMessage run()throws Exception;
 	}
 	//
 	BenchmarkSession session;
@@ -28,7 +28,7 @@ public class BenchmarkMessageServer {
 		client.connect(host,port);
 	}
 	//
-	private Object sample(String name,SampleAction action){
+	private ResponseMessage sample(String name,SampleAction action){
 		long start=System.currentTimeMillis();
 		boolean error=false;
 		try{
@@ -42,10 +42,10 @@ public class BenchmarkMessageServer {
 		}
 	}
 	//
-	public Object invoke(
+	public String invoke(
 			String serviceId,
 			String[] args){
-		ResponseMessage rsp=(ResponseMessage) sample(serviceId, ()->{
+		ResponseMessage rsp=sample(serviceId, ()->{
 			return client.invokeSync(serviceId, args);
 		});
 		if(rsp==null||rsp.responseObject==null){
@@ -54,6 +54,6 @@ public class BenchmarkMessageServer {
 		if(rsp.statusCode!=0){
 			throw new IllegalArgumentException(rsp.statusMessage);
 		}
-		return rsp.responseObject;
+		return (String) rsp.responseObject;
 	}
 }

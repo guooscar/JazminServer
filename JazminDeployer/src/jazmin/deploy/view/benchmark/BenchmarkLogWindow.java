@@ -36,7 +36,6 @@ public class BenchmarkLogWindow extends Window implements LogHandler{
         setResizable(true);
         setClosable(true);
         setHeight(90.0f, Unit.PERCENTAGE);
-     
         VerticalLayout content = new VerticalLayout();
         content.setSizeFull();
         editor= new AceEditor();
@@ -63,6 +62,9 @@ public class BenchmarkLogWindow extends Window implements LogHandler{
 	//
 	@Override
 	public void log(String log) {
+		if(getUI()==null){
+			return;
+		}
 		getUI().access(()->{
 			appendLog(log+"\n");			
 		});

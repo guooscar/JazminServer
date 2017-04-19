@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -62,7 +61,10 @@ public class BenchmarkSession {
 			}
 			average=total/noOfSamples;
 			if(total>0){
-				throughtput=(int) ((noOfSamples*60*1000L)/total);
+				double t=(System.currentTimeMillis()-startTime.getTime())/(60*1000.0);
+				if(t>0){
+					throughtput=(int) (noOfSamples/t);		
+				}
 			}
 		}
 	}
@@ -89,9 +91,16 @@ public class BenchmarkSession {
 	List<BenchmarkRequestStat>allStats;
 	LogHandler logHandler;
 	List<Runnable> completeHandlers;
-	ScheduledFuture<?>sampleTimer;
+	public boolean finished;
 	
 	//
+	public BenchmarkRequestStat getTotalStat(){
+		return totalStat;
+	}
+	//
+	public List<BenchmarkRequestStat>getAllTotalStats(){
+		return allStats;
+	}
 	//
 	public static interface LogHandler{
 		void log(String log);
@@ -101,6 +110,10 @@ public class BenchmarkSession {
 		completeHandlers=new ArrayList<>();
 		statMap=new ConcurrentHashMap<String,BenchmarkRequestStat>();
 		allStats=new ArrayList<>();
+	}
+	//
+	public List<BenchmarkRequestStat>getAllStats(){
+		return new ArrayList<>(statMap.values());
 	}
 	/**
 	 * 
@@ -139,35 +152,51 @@ public class BenchmarkSession {
 		//
 		int sleepMils=(rampUpPeriod*1000)/userCount;
 		finishCount=new AtomicInteger(0);
-		//
-		for(int i=0;i<userCount;i++){
-			UserThread ut=new UserThread();
-			ut.robot=robotFactory.create();
-			ut.setName(name+"-"+i);
-			userThreads.add(ut);
-			ut.start();
-			try {
-				if(sleepMils>0){
-					Thread.sleep(sleepMils);
+		Jazmin.schedule(()->{
+			for(int i=0;i<userCount;i++){
+				UserThread ut=new UserThread();
+				ut.robot=robotFactory.create();
+				ut.setName(name+"-"+i);
+				ut.idx=i;
+				userThreads.add(ut);
+				ut.start();
+				try {
+					if(sleepMils>0){
+						Thread.sleep(sleepMils);
+					}
+				} catch (InterruptedException e) {
+					logger.catching(e);
 				}
+			}
+		}, 0, TimeUnit.SECONDS);
+		Thread t=new Thread(this::addSampleLog);
+		t.setName(name+"_addSampleData");
+		t.start();
+	}
+	//
+	private void addSampleLog(){
+		while(finishCount.get()<userCount){
+			addSampleLog0();
+			try {
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				logger.catching(e);
 			}
 		}
-		//
-		sampleTimer=Jazmin.scheduleAtFixedRate(()->{
-			BenchmarkRequestStat stat=new BenchmarkRequestStat();
-			stat.startTime=new Date();
-			stat.average=totalStat.average;
-			stat.errorCount=totalStat.errorCount;
-			stat.noOfSamples=totalStat.noOfSamples;
-			stat.throughtput=totalStat.throughtput;
-			stat.max=totalStat.max;
-			stat.min=totalStat.min;
-			stat.total=totalStat.total;
-			allStats.add(stat);
-		},1, 1, TimeUnit.SECONDS);
-		
+	}
+	//
+	private void addSampleLog0(){
+		BenchmarkRequestStat stat=new BenchmarkRequestStat();
+		stat.startTime=new Date();
+		stat.average=totalStat.average;
+		stat.errorCount=totalStat.errorCount;
+		stat.noOfSamples=totalStat.noOfSamples;
+		stat.noOfUsers=totalStat.noOfUsers;
+		stat.throughtput=totalStat.throughtput;
+		stat.max=totalStat.max;
+		stat.min=totalStat.min;
+		stat.total=totalStat.total;
+		allStats.add(stat);
 	}
 	//
 	private String dump(){
@@ -232,9 +261,8 @@ public class BenchmarkSession {
 	}
 	//
 	private void finishBenchmark(){
-		if(sampleTimer!=null){
-			sampleTimer.cancel(true);
-		}
+		finished=true;
+		addSampleLog0();
 		endTime=new Date();
 		log("\n"+dump());
 		//
@@ -252,6 +280,11 @@ public class BenchmarkSession {
 		synchronized (totalStat) {
 			totalStat.sample(time, isError);
 			totalStat.noOfUsers=userThreads.size();
+			long start=totalStat.startTime.getTime();
+			double t=(System.currentTimeMillis()-start)/(60*1000.0);
+			if(t>0){
+				totalStat.throughtput=(int) (totalStat.noOfSamples/t);		
+			}
 		}
 	}
 	//
@@ -268,6 +301,7 @@ public class BenchmarkSession {
 	class UserThread extends Thread{
 		boolean abort;
 		BenchmarkRobot robot;
+		int idx;
 		//
 		public void abort(){
 			abort=true;
@@ -275,7 +309,7 @@ public class BenchmarkSession {
 		//
 		private void runTest(){
 			try{
-				robot.start();	
+				robot.start(idx);	
 			}catch (Exception e) {
 				log(robot.name()+"-"+e.getMessage());
 				logger.catching(e);
@@ -311,7 +345,7 @@ public class BenchmarkSession {
 				log("Robot is null");
 			}
 			userThreads.remove(this);
-			if(finishCount.incrementAndGet()==userCount){
+			if(finishCount.incrementAndGet()>=userCount){
 				finishBenchmark();
 			}
 		}
