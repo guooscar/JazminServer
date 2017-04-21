@@ -181,20 +181,27 @@ public class DefaultCodecFactory implements CodecFactory{
 		msg.messageType = messageType;
 		msg.requestId = requestId;
 		msg.serviceId = serviceId;
-		if (messageType == FORMAT_JSON) {
-			decodeJson(msg,payloadBytes);
-		} else if (messageType == FORMAT_ZJSON) {
-			decodeZJson(msg,payloadBytes);
-		} else if (messageType == FORMAT_AMF) {
-			decodeAmf3(msg,payloadBytes);
-		} else if (messageType == FORMAT_RAW) {
-			msg.rawData = payloadBytes;
-		}else{
+		boolean decoded=false;
+		try{
+			if (messageType == FORMAT_JSON) {
+				decodeJson(msg,payloadBytes);
+				decoded=true;
+			} else if (messageType == FORMAT_ZJSON) {
+				decodeZJson(msg,payloadBytes);
+				decoded=true;
+			} else if (messageType == FORMAT_AMF) {
+				decodeAmf3(msg,payloadBytes);
+				decoded=true;
+			} else if (messageType == FORMAT_RAW) {
+				msg.rawData = payloadBytes;
+				decoded=true;
+			}
+		}catch (Exception e) {
+			throw new CorruptedFrameException("bad message format" ,e);
+		}
+		if(!decoded){
 			throw new CorruptedFrameException("bad message format:" + messageType);
 		}
-		//
-		
-		//
 		return msg;
 	}
 	
@@ -214,7 +221,6 @@ public class DefaultCodecFactory implements CodecFactory{
 	//
 	protected static void decodeJson(RequestMessage msg,byte[]payload)throws Exception{
 		String s = new String(payload, charset);
-		JSONArray array=JSON.parseArray(s);
 		if (logger.isDebugEnabled()) {
 			logger.debug(
 					"\ndecode message #{}-{} \n{} ",
@@ -222,9 +228,13 @@ public class DefaultCodecFactory implements CodecFactory{
 					msg.serviceId,
 					DumpUtil.formatJSON(s));
 		}
-		String ret[]=new String[array.size()];
-		for(int i=0;i<array.size();i++){
-			ret[i]=array.getString(i);
+		JSONArray array=JSON.parseArray(s);
+		String ret[]=new String[0];
+		if(array!=null){
+			ret=new String[array.size()];
+			for(int i=0;i<array.size();i++){
+				ret[i]=array.getString(i);
+			}	
 		}
 		msg.requestParameters=ret;
 	}
