@@ -54,7 +54,7 @@ function stop(){
 		return;
 	fi
 	echo "try to stop jazmin server $INSTANCE_NAME pid:$JAZMIN_PID..."
-	while   ps ax| grep "$JAZMIN_PID" |grep -v grep >/dev/null 
+	while   ps ax| grep -w "$JAZMIN_PID" |grep -v grep >/dev/null 
 	do
 			echo "process $JAZMIN_PID still running" 
 			kill -15 $JAZMIN_PID
@@ -67,7 +67,7 @@ function check_old_pid(){
 	    if [ -z "$JAZMIN_PID" ]; then
 			return;
 		fi
-    while   ps ax| grep "$JAZMIN_PID" |grep -v grep >/dev/null 
+    while   ps ax| grep -w "$JAZMIN_PID" |grep -v grep >/dev/null 
     do
 	   echo "process $JAZMIN_PID still running.stop it first!" 
 	   exit 1
