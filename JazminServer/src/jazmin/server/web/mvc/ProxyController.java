@@ -33,6 +33,21 @@ public class ProxyController {
 	//
 	static ThreadLocal<Context>contextThreadLocal=new ThreadLocal<>();
 	//
+	//
+	private Class<?> findProxiedClass(Object proxiedObject) {
+	    Class<?> proxiedClass = proxiedObject.getClass();
+	    if (proxiedObject instanceof Proxy) {
+	        Class<?>[] ifaces = proxiedClass.getInterfaces();
+	        if (ifaces.length == 1) {
+	            proxiedClass = ifaces[0];
+	        } else {
+	            // We need some selection strategy here
+	            // or return all of them
+	            proxiedClass = ifaces[ifaces.length - 1];
+	        }
+	    }
+	    return proxiedClass;
+	}
 	/**
 	 * register proxy target
 	 */
@@ -41,7 +56,7 @@ public class ProxyController {
 		String targetName=target.getClass().getSimpleName();
 		if(targetName.contains("$Proxy")){
 			//proxy class
-			targetName=Proxy.getInvocationHandler(target).getClass().getSimpleName();
+			targetName=findProxiedClass(target).getSimpleName();
 		}
 		Method methods[]=target.getClass().getDeclaredMethods();
 		for(Method m:methods){
