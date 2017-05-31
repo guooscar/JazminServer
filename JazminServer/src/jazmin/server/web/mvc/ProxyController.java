@@ -6,6 +6,7 @@ package jazmin.server.web.mvc;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -36,7 +37,12 @@ public class ProxyController {
 	 * register proxy target
 	 */
 	public void registerProxyTarget(Object target){
+		
 		String targetName=target.getClass().getSimpleName();
+		if(targetName.contains("$Proxy")){
+			//proxy class
+			targetName=Proxy.getInvocationHandler(target).getClass().getSimpleName();
+		}
 		Method methods[]=target.getClass().getDeclaredMethods();
 		for(Method m:methods){
 			if(Modifier.isPublic(m.getModifiers())){
