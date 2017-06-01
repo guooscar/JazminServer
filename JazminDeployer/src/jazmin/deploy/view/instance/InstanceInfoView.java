@@ -83,6 +83,7 @@ public class InstanceInfoView extends DeployBaseView {
 		//
 		optOnSelectCheckBox = new CheckBox("Only Selected");
 		optOnSelectCheckBox.addStyleName(ValoTheme.COMBOBOX_SMALL);
+		optOnSelectCheckBox.setValue(true);
 		optLayout.addComponent(optOnSelectCheckBox);
 		optLayout.setComponentAlignment(optOnSelectCheckBox, Alignment.BOTTOM_RIGHT);
 		//

@@ -73,6 +73,7 @@ public class MachineInfoView extends DeployBaseView{
 		 //
         optOnSelectCheckBox=new CheckBox("Only Selected");
         optLayout.addComponent(optOnSelectCheckBox);
+        optOnSelectCheckBox.setValue(true);
         optOnSelectCheckBox.addStyleName(ValoTheme.COMBOBOX_SMALL);
         optLayout.setComponentAlignment(optOnSelectCheckBox, Alignment.BOTTOM_RIGHT);
 		//
