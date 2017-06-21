@@ -422,7 +422,6 @@ public class SmartBeanDAO<T> extends JazminDAO {
 		if(clazz==long.class||clazz==Long.class){
 			return (S) queryForLong(sql.toString(),qt.whereValues());
 		}
-		System.out.println(sql);
 		if(clazz==int.class||clazz==Integer.class){
 			return (S) queryForInteger(sql.toString(),qt.whereValues());
 		}
