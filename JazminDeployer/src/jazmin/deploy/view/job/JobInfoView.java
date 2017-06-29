@@ -22,7 +22,9 @@ import com.vaadin.ui.themes.ValoTheme;
 import jazmin.core.Jazmin;
 import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.MachineJob;
+import jazmin.deploy.domain.optlog.OptLog;
 import jazmin.deploy.manager.DeployManager;
+import jazmin.deploy.manager.OptLogManager;
 import jazmin.deploy.ui.BeanTable;
 import jazmin.deploy.view.main.DeployBaseView;
 import jazmin.deploy.view.main.TaskProgressWindow;
@@ -179,6 +181,7 @@ public class JobInfoView extends DeployBaseView{
 			});
 			final StringBuilder result=new StringBuilder();
 			try {
+				OptLogManager.addOptLog(OptLog.OPT_TYPE_RUN_JOB,app.id);
 				DeployManager.runJob(app,
 						JobInfoView.this::appendOutput);
 			} catch (Exception e) {

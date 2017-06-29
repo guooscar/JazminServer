@@ -12,10 +12,8 @@
 package jazmin.deploy.domain.svn;
 
 import java.io.File;
-
-import jazmin.deploy.domain.OutputListener;
-import jazmin.log.Logger;
-import jazmin.log.LoggerFactory;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNException;
@@ -24,12 +22,19 @@ import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
 import org.tmatesoft.svn.core.internal.wc.DefaultSVNOptions;
+import org.tmatesoft.svn.core.io.SVNRepository;
+import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 import org.tmatesoft.svn.core.wc.ISVNEventHandler;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNUpdateClient;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
 import org.tmatesoft.svn.core.wc.SVNWCUtil;
+
+import jazmin.deploy.domain.OutputListener;
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
+import jazmin.util.DumpUtil;
 /**
  * 
  * @author yama
@@ -43,6 +48,7 @@ public class WorkingCopy {
     private  ISVNEventHandler myUpdateEventHandler;
     private  ISVNEventHandler myWCEventHandler;
     SVNURL repositoryURL;
+    SVNRepository repository;
     File destPath;
     private OutputListener outputListener;
     static{
@@ -54,6 +60,8 @@ public class WorkingCopy {
     public WorkingCopy(String name,String password,String svnPath,String localPath) {
         try {
             repositoryURL = SVNURL.parseURIEncoded(svnPath);
+            repository = SVNRepositoryFactory.create(repositoryURL);
+            repository.setAuthenticationManager(SVNWCUtil.createDefaultAuthenticationManager(name,password.toCharArray()));
         } catch (SVNException e) {
             //
         }
@@ -65,7 +73,9 @@ public class WorkingCopy {
         ourClientManager.getUpdateClient().setEventHandler(myUpdateEventHandler);
         ourClientManager.getWCClient().setEventHandler(myWCEventHandler);
         //
-        destPath=new File(localPath);
+        if(localPath!=null){
+        	destPath=new File(localPath);
+        }
     }
     /**
 	 * @return the outputListener
@@ -122,21 +132,33 @@ public class WorkingCopy {
     @SuppressWarnings("deprecation")
 	public long update()
             throws SVNException {
-
         SVNUpdateClient updateClient = ourClientManager.getUpdateClient();
         updateClient.setIgnoreExternals(false);
         return updateClient.doUpdate(destPath, SVNRevision.HEAD, true);
     }
-    
+    //
+    public List<String> logs(long startRevision,long endRevision,int pageSize){
+    	List<String> histories=new ArrayList<>();
+    	try{
+    		repository.log(new String[]{""},startRevision,endRevision,true,true,pageSize,
+                    (logEntry)->{
+                    	 histories.add(logEntry.getRevision()+"");
+                    });
+		}catch(Exception e){
+		}
+    	return histories;
+    }
     //
     public static void main(String[] args) throws Exception {
        WorkingCopy wc=new WorkingCopy(
-    		   "svnuser",
     		   "svnuser", 
-    		   "svn://itit.io/repo/HwWebSystem",
-    		   "/Users/yama/Desktop/svn_test/");
+				"svnuser",
+    		   "svn://web1.itit.io/repo/CdzBizSystem",
+    		   "/tmp/repo");
        wc.cleanup();
        wc.checkout();
        wc.update();
+       List<String> list=wc.logs(-1,0,10);
+       System.out.println(DumpUtil.dump(list));
     }
 }
