@@ -428,6 +428,12 @@ public class SmartBeanDAO<T> extends JazminDAO {
 		if(clazz==short.class||clazz==Short.class){
 			return (S) queryForShort(sql.toString(),qt.whereValues());
 		}
+		if(clazz==Double.class||clazz==Double.class){
+			return (S) queryForDouble(sql.toString(),qt.whereValues());
+		}
+		if(clazz==Float.class||clazz==Float.class){
+			return (S) queryForFloat(sql.toString(),qt.whereValues());
+		}
 		throw new IllegalArgumentException(clazz.getSimpleName()+" not supported");
 	}
 	//

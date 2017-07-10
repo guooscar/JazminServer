@@ -41,6 +41,7 @@ public class Instance{
 	public boolean isAlive;
 	public int priority;
 	public String packageVersion;
+	public String scmTag;
 	public Map<String,String>properties;
 	public Date lastAliveTime;
 	//

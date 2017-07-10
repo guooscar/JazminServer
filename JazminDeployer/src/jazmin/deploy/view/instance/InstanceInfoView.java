@@ -31,8 +31,11 @@ import jazmin.deploy.domain.Application;
 import jazmin.deploy.domain.Instance;
 import jazmin.deploy.domain.Machine;
 import jazmin.deploy.domain.monitor.MonitorInfo;
+import jazmin.deploy.domain.optlog.OptLog;
+import jazmin.deploy.domain.svn.WorkingCopy;
 import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.manager.MonitorManager;
+import jazmin.deploy.manager.OptLogManager;
 import jazmin.deploy.ui.BeanTable;
 import jazmin.deploy.view.main.CodeEditorCallback;
 import jazmin.deploy.view.main.CodeEditorWindow;
@@ -50,7 +53,6 @@ public class InstanceInfoView extends DeployBaseView {
 	BeanTable<Instance> table;
 	CheckBox optOnSelectCheckBox;
 	List<Instance> instanceList;
-
 	//
 	public InstanceInfoView() {
 		super();
@@ -150,6 +152,7 @@ public class InstanceInfoView extends DeployBaseView {
 		addOptButton("Test", null, (e) -> testInstance());
 		//
 		addOptButton("SetVer", ValoTheme.BUTTON_PRIMARY, (e) -> setPackageVersion());
+		addOptButton("SetTag", ValoTheme.BUTTON_PRIMARY, (e) -> setScmTag());
 		//
 		addOptButton("Create", ValoTheme.BUTTON_DANGER, (e) -> createInstance());
 		addOptButton("Start", ValoTheme.BUTTON_DANGER, (e) -> startInstance());
@@ -426,6 +429,9 @@ public class InstanceInfoView extends DeployBaseView {
 			if (window.isCancel()) {
 				break;
 			}
+			//
+			OptLogManager.addOptLog(OptLog.OPT_TYPE_START_INSTANCE,instance.id);
+			//
 			window.getUI().access(() -> {
 				window.setInfo("start " + instance.id + " " + counter.incrementAndGet() + "/" + getOptInstances().size()
 						+ "...");
@@ -469,7 +475,6 @@ public class InstanceInfoView extends DeployBaseView {
 					window.getUI().access(() -> window.updateTask(instance.id, "done"));
 				}
 			}
-
 		}
 		window.getUI().access(() -> {
 			window.close();
@@ -501,6 +506,9 @@ public class InstanceInfoView extends DeployBaseView {
 			if (window.isCancel()) {
 				break;
 			}
+			//
+			OptLogManager.addOptLog(OptLog.OPT_TYPE_STOP_INSTANCE,instance.id);
+			//
 			window.getUI().access(() -> {
 				window.setInfo("stop " + instance.id + " " + counter.incrementAndGet() + "/" + getOptInstances().size()
 						+ "...");
@@ -570,6 +578,39 @@ public class InstanceInfoView extends DeployBaseView {
 		});
 		sw.setCaption("Change instance package version");
 		sw.setInfo("Change " + getOptInstances().size() + " instance(s) package version");
+		UI.getCurrent().addWindow(sw);
+	}
+	
+	private void setScmTag() {
+		List<Instance> instances=getOptInstances();
+		if(instances.size()==0||instances.size()>1){
+			DeploySystemUI.showInfo("Please select one instance");
+			return;
+		}
+		Instance instance=instances.get(0);
+		InputWindow sw = new InputWindow(window -> {
+			String version = window.getInputValue();
+			try {
+				DeployManager.setScmTag(getOptInstances(), version);
+				DeployManager.saveInstanceConfig();
+			} catch (Exception e) {
+				DeploySystemUI.showNotificationInfo("error", e.getMessage());
+			}
+			window.close();
+			DeploySystemUI.showNotificationInfo("info", "Set scm Tag Success");
+			loadData();
+		});
+		sw.setCaption("Set Scm Tag");
+		sw.setInfo("Record Latest Released Scm Version");
+		Application app=DeployManager.getApplicationById(instance.appId);
+		WorkingCopy wc=new WorkingCopy(
+				app.scmUser, 
+				app.scmPassword,
+				app.scmPath,null);
+		List<String> logs=wc.logs(-1,0, 1);
+		if(logs.size()>0){
+			sw.setInputValue(logs.get(0));
+		}
 		UI.getCurrent().addWindow(sw);
 	}
 

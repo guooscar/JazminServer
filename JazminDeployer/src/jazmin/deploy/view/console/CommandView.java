@@ -10,7 +10,9 @@ import jazmin.core.Jazmin;
 import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.Application;
 import jazmin.deploy.domain.Instance;
+import jazmin.deploy.domain.optlog.OptLog;
 import jazmin.deploy.manager.DeployManager;
+import jazmin.deploy.manager.OptLogManager;
 
 import org.vaadin.aceeditor.AceEditor;
 import org.vaadin.aceeditor.AceMode;
@@ -113,6 +115,7 @@ public  class CommandView extends VerticalLayout{
 		if(text==null||text.trim().isEmpty()){
 			return;
 		}
+		OptLogManager.addOptLog(OptLog.OPT_TYPE_EXECUTE_COMMAND,text);
 		CommandHistoryWindow.addHistory(text);
 		inputTxt.setValue("");
 		String[] commands=text.split(";");
