@@ -76,7 +76,7 @@ public class QueryTerms {
 		return this;
 	}
 	//
-	Object[] whereValues(){
+	public Object[] whereValues(){
 		List<Object>ret=new LinkedList<Object>();
 		for(Where w:wheres){
 			if(w.key!=null){

@@ -35,11 +35,14 @@ public class DeploySystemUI extends UI {
 	private static final long serialVersionUID = 1L;
 	//
 	private MainView mainView;
+	private static String clientIpAddress;
+	private static String userId;
 	//
 	private WebNotification webNotification;
 	//
 	@Override
     protected void init(VaadinRequest request) {
+		clientIpAddress=getAddress(request);
 		webNotification=new WebNotification(this);
 		Responsive.makeResponsive(this);
 		addStyleName(ValoTheme.UI_WITH_MENU);
@@ -49,6 +52,18 @@ public class DeploySystemUI extends UI {
 			webNotification.requestPermission();
 			showMainView();		
 		}
+	}
+	//
+	private static String getAddress(VaadinRequest request){
+		String ret=null;
+		ret=request.getHeader("X-Forwarded-For");
+		if(ret==null||ret.trim().isEmpty()){
+			ret=request.getHeader("HTTP_X_FORWARDED_FOR");
+		}
+		if(ret==null||ret.trim().isEmpty()){
+			ret=request.getRemoteAddr();
+		}
+		return ret;
 	}
 	//
 	public void showWebNotification(String title,String content){
@@ -72,10 +87,23 @@ public class DeploySystemUI extends UI {
 		return VaadinSession.getCurrent().getAttribute(User.class);
 	}
 	//
+	public static String getClientIpAddress(){
+		return clientIpAddress;
+	}
+	//
+	public static String getUserId(){
+		return userId;
+	}
+	//
 	public static void setUser(User user){
 		VaadinSession vs=VaadinSession.getCurrent();
 		vs.setAttribute(User.class, user);
 		vs.getSession().setAttribute("user",user);
+		if(user!=null){
+			userId=user.id;
+		}else{
+			userId="";
+		}
 	}
 	//
 	public static void showNotificationInfo(String caption,String description){
