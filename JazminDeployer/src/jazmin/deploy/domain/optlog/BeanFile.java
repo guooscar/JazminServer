@@ -35,6 +35,7 @@ public abstract class BeanFile<T> {
 	private Class<?> type;
 	private int saveDays=7;//default save 7 days
 	private String spilitChar="\t";
+	private SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	//
 	public BeanFile(){
 		ParameterizedType pt=(ParameterizedType) getClass().getGenericSuperclass();
@@ -50,10 +51,13 @@ public abstract class BeanFile<T> {
 				continue;
 			}
 			try {
-				if(fileClazz==Date.class){
-					sb.append(((Date)f.get(t)).getTime());
-				}else{
-					sb.append((String)f.get(t));
+				Object val=f.get(t);
+				if(val!=null){
+					if(fileClazz==Date.class){
+						sb.append(sdf.format((Date)val));
+					}else{
+						sb.append((String)val);
+					}
 				}
 			} catch (Exception e) {
 				logger.error(e);
@@ -116,7 +120,7 @@ public abstract class BeanFile<T> {
 					|| fieldType.equals(float.class)) {
 				value = strValue==null?0:Float.valueOf(strValue);
 			} else if (fieldType.equals(Date.class)) {
-				value = new Date(Long.valueOf(strValue));
+				value = strValue==null?null:sdf.parse(strValue);
 			} else if (fieldType.equals(Boolean.class)
 					|| fieldType.equals(boolean.class)) {
 				value = strValue==null?0:Boolean.valueOf(strValue);
