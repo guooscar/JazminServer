@@ -537,7 +537,7 @@ public class DeployManager {
 		configDir+="config";
 		File configFile=new File(configDir,"instance.json");
 		List<Instance>list=getInstances();
-		Collections.sort(list,(o1,o2)->o1.appId.compareTo(o2.appId));
+		Collections.sort(list,(o1,o2)->o1.cluster.compareTo(o2.cluster));
 		if(configFile.exists()){
 			String result=JSONUtil.toJson(
 					list,
@@ -545,10 +545,12 @@ public class DeployManager {
 						@Override
 						public boolean apply(Object arg0, String name,
 								Object arg2) {
-							if(name.equals("alive")||
-									name.equals("application")||
-									name.equals("machine")||
-									name.equals("priority")){
+							String t=name.toLowerCase();
+							if(t.endsWith("lastAliveTime")||
+									t.endsWith("isAlive")||
+									t.endsWith("application")||
+									t.endsWith("machine")||
+									t.endsWith("priority")){
 								return false;
 							}
 							return true;
