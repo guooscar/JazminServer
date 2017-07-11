@@ -30,6 +30,8 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.tmatesoft.svn.core.SVNException;
 
+import com.alibaba.fastjson.JSON;
+
 import jazmin.core.Jazmin;
 import jazmin.core.job.CronExpression;
 import jazmin.deploy.DeployStartServlet;
@@ -64,7 +66,6 @@ import jazmin.util.BeanUtil;
 import jazmin.util.FileUtil;
 import jazmin.util.IOUtil;
 import jazmin.util.JSONUtil;
-import jazmin.util.JSONUtil.JSONPropertyFilter;
 import jazmin.util.SshUtil;
 
 /**
@@ -532,23 +533,7 @@ public class DeployManager {
 		List<Instance>list=getInstances();
 		Collections.sort(list,(o1,o2)->o1.cluster.compareTo(o2.cluster));
 		if(configFile.exists()){
-			String result=JSONUtil.toJson(
-					list,
-					new JSONPropertyFilter(){
-						@Override
-						public boolean apply(Object arg0, String name,
-								Object arg2) {
-							String t=name.toLowerCase();
-							if(t.endsWith("lastAliveTime")||
-									t.endsWith("isAlive")||
-									t.endsWith("application")||
-									t.endsWith("machine")||
-									t.endsWith("priority")){
-								return false;
-							}
-							return true;
-						}
-					},true);
+			String result=JSON.toJSONString(list,true);
 			FileUtil.saveContent(result, configFile);
 		}
 	}
@@ -1300,6 +1285,4 @@ public class DeployManager {
 		}
 		return -1;
 	}
-	
-	
 }

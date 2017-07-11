@@ -52,6 +52,7 @@ import jazmin.deploy.view.main.WebSshWindow;
  */
 @SuppressWarnings("serial")
 public class InstanceInfoView extends DeployBaseView {
+	//
 	BeanTable<Instance> table;
 	CheckBox optOnSelectCheckBox;
 	List<Instance> instanceList;
@@ -571,12 +572,12 @@ public class InstanceInfoView extends DeployBaseView {
 			try {
 				DeployManager.setPackageVersion(getOptInstances(), version);
 				DeployManager.saveInstanceConfig();
+				DeploySystemUI.showNotificationInfo("info", "Package version set to " + version);
+				loadData();
 			} catch (Exception e) {
 				DeploySystemUI.showNotificationInfo("error", e.getMessage());
 			}
 			window.close();
-			DeploySystemUI.showNotificationInfo("info", "Package version set to " + version);
-			loadData();
 		});
 		sw.setCaption("Change instance package version");
 		sw.setInfo("Change " + getOptInstances().size() + " instance(s) package version");
