@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 /**
  * @author yama
  * 6 Jan, 2015
@@ -32,16 +34,21 @@ public class Instance{
 	public String id;
 	public String cluster;
 	public String appId;
+	@JSONField(serialize=false)
 	public Application application;
 	public String machineId;
+	@JSONField(serialize=false)
 	public Machine machine;
 	public int port;
 	public String user;
 	public String password;
+	@JSONField(serialize=false)
 	public boolean isAlive;
+	@JSONField(serialize=false)
 	public int priority;
 	public String packageVersion;
 	public Map<String,String>properties;
+	@JSONField(serialize=false)
 	public Date lastAliveTime;
 	//
 	public Instance() {
@@ -87,6 +94,7 @@ public class Instance{
 	/**
 	 * @return the app
 	 */
+	@JSONField(serialize=false)
 	public String getApp() {
 		return appId;
 	}
@@ -135,6 +143,7 @@ public class Instance{
 	/**
 	 * @return the user
 	 */
+	
 	public String getUser() {
 		return user;
 	}
@@ -159,6 +168,7 @@ public class Instance{
 	/**
 	 * @return the isAlive
 	 */
+	@JSONField(serialize=false)
 	public boolean isAlive() {
 		return isAlive;
 	}
