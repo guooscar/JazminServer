@@ -525,13 +525,6 @@ public class DeployManager {
 		instances.forEach(i->i.packageVersion=(version));
 	}
 	//
-	public static void setScmTag(List<Instance>instances,String tag){
-		if(tag==null||tag.trim().isEmpty()){
-			return;
-		}
-		instances.forEach(i->i.scmTag=(tag));
-	}
-	//
 	public static void saveInstanceConfig()throws Exception{
 		String configDir=workSpaceDir;
 		configDir+="config";
