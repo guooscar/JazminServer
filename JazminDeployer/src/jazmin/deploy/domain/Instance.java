@@ -47,7 +47,6 @@ public class Instance{
 	@JSONField(serialize=false)
 	public int priority;
 	public String packageVersion;
-	public String scmTag;
 	public Map<String,String>properties;
 	@JSONField(serialize=false)
 	public Date lastAliveTime;

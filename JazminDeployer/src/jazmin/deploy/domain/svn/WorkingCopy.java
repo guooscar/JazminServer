@@ -26,6 +26,9 @@ import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 import org.tmatesoft.svn.core.wc.ISVNEventHandler;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
+import org.tmatesoft.svn.core.wc.SVNCommitClient;
+import org.tmatesoft.svn.core.wc.SVNCopyClient;
+import org.tmatesoft.svn.core.wc.SVNCopySource;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNUpdateClient;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
@@ -145,15 +148,40 @@ public class WorkingCopy {
                     	 histories.add(logEntry.getRevision()+"");
                     });
 		}catch(Exception e){
+			logger.error(e);
 		}
     	return histories;
+    }
+    //
+    public void copy(String targetDirUrl,String commit){
+    	try {
+    		SVNURL repositoryTrgtUrl = SVNURL.parseURIEncoded(targetDirUrl);
+        	SVNCopyClient client=ourClientManager.getCopyClient();
+        	SVNCopySource[] copySources = new SVNCopySource[1];
+            copySources[0] = new SVNCopySource(SVNRevision.HEAD,
+            		SVNRevision.HEAD,repositoryURL);
+            	
+        	client.doCopy(copySources, repositoryTrgtUrl, false, true, false, commit, null);
+		} catch (Exception e) {
+			logger.error(e);
+		}
+    }
+    //
+    public void delete(String sourceDirUrl,String commit){
+    	try {
+    		SVNURL repositorySrcUrl = SVNURL.parseURIEncoded(sourceDirUrl);
+        	SVNCommitClient client=ourClientManager.getCommitClient();
+            client.doDelete(new SVNURL[]{repositorySrcUrl},commit);
+		} catch (Exception e) {
+			logger.error(e);
+		}
     }
     //
     public static void main(String[] args) throws Exception {
        WorkingCopy wc=new WorkingCopy(
     		   "svnuser", 
 				"svnuser",
-    		   "svn://web1.itit.io/repo/CdzBizSystem",
+    		   "svn://web1.itit.io/repo/CdzDB",
     		   "/tmp/repo");
        wc.cleanup();
        wc.checkout();

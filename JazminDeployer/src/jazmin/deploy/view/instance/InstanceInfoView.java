@@ -3,7 +3,9 @@
  */
 package jazmin.deploy.view.instance;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +52,7 @@ import jazmin.deploy.view.main.WebSshWindow;
  */
 @SuppressWarnings("serial")
 public class InstanceInfoView extends DeployBaseView {
+	//
 	BeanTable<Instance> table;
 	CheckBox optOnSelectCheckBox;
 	List<Instance> instanceList;
@@ -569,12 +572,12 @@ public class InstanceInfoView extends DeployBaseView {
 			try {
 				DeployManager.setPackageVersion(getOptInstances(), version);
 				DeployManager.saveInstanceConfig();
+				DeploySystemUI.showNotificationInfo("info", "Package version set to " + version);
+				loadData();
 			} catch (Exception e) {
 				DeploySystemUI.showNotificationInfo("error", e.getMessage());
 			}
 			window.close();
-			DeploySystemUI.showNotificationInfo("info", "Package version set to " + version);
-			loadData();
 		});
 		sw.setCaption("Change instance package version");
 		sw.setInfo("Change " + getOptInstances().size() + " instance(s) package version");
@@ -588,30 +591,19 @@ public class InstanceInfoView extends DeployBaseView {
 			return;
 		}
 		Instance instance=instances.get(0);
-		InputWindow sw = new InputWindow(window -> {
-			String version = window.getInputValue();
-			try {
-				DeployManager.setScmTag(getOptInstances(), version);
-				DeployManager.saveInstanceConfig();
-			} catch (Exception e) {
-				DeploySystemUI.showNotificationInfo("error", e.getMessage());
-			}
-			window.close();
-			DeploySystemUI.showNotificationInfo("info", "Set scm Tag Success");
-			loadData();
-		});
-		sw.setCaption("Set Scm Tag");
-		sw.setInfo("Record Latest Released Scm Version");
 		Application app=DeployManager.getApplicationById(instance.appId);
+		if(app.scmPath==null||app.scmPath.isEmpty()){
+			DeploySystemUI.showInfo("This instance scmPath is null");
+			return;
+		}
+		SimpleDateFormat sdf=new SimpleDateFormat("yyyyMMddhhmmss");
+		String targetUrl="svn://web1.itit.io/repo/Tags/"+app.id+sdf.format(new Date());
 		WorkingCopy wc=new WorkingCopy(
 				app.scmUser, 
 				app.scmPassword,
 				app.scmPath,null);
-		List<String> logs=wc.logs(-1,0, 1);
-		if(logs.size()>0){
-			sw.setInputValue(logs.get(0));
-		}
-		UI.getCurrent().addWindow(sw);
+		wc.copy(targetUrl,"setScmTag");
+		DeploySystemUI.showInfo("scmPath success targetUrl:"+targetUrl);
 	}
 
 	private void viewMonitor() {
