@@ -3,9 +3,7 @@
  */
 package jazmin.deploy.view.instance;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -586,24 +584,48 @@ public class InstanceInfoView extends DeployBaseView {
 	
 	private void setScmTag() {
 		List<Instance> instances=getOptInstances();
-		if(instances.size()==0||instances.size()>1){
-			DeploySystemUI.showInfo("Please select one instance");
+		if(instances.size()==0){
+			DeploySystemUI.showInfo("Please select instances");
 			return;
 		}
-		Instance instance=instances.get(0);
-		Application app=DeployManager.getApplicationById(instance.appId);
-		if(app.scmPath==null||app.scmPath.isEmpty()){
-			DeploySystemUI.showInfo("This instance scmPath is null");
-			return;
+		for (Instance instance : instances) {
+			Application app=DeployManager.getApplicationById(instance.appId);
+			if(app.scmPath==null||app.scmPath.isEmpty()){
+				DeploySystemUI.showInfo(app.id+" scmPath cannot be null");
+				return;
+			}
+			if(app.scmPath.lastIndexOf("/")==-1){
+				DeploySystemUI.showInfo(app.id+" scmPath error."+app.scmPath);
+				return;
+			}
 		}
-		SimpleDateFormat sdf=new SimpleDateFormat("yyyyMMddhhmmss");
-		String targetUrl="svn://web1.itit.io/repo/Tags/"+app.id+sdf.format(new Date());
-		WorkingCopy wc=new WorkingCopy(
-				app.scmUser, 
-				app.scmPassword,
-				app.scmPath,null);
-		wc.copy(targetUrl,"setScmTag");
-		DeploySystemUI.showInfo("scmPath success targetUrl:"+targetUrl);
+		//
+		InputWindow sw = new InputWindow(window -> {
+			String tag = window.getInputValue();
+			if(tag==null||tag.trim().length()==0){
+				DeploySystemUI.showInfo("tag cannot be null");
+				return;
+			}
+			try {
+				for (Instance instance : instances) {
+					Application app=DeployManager.getApplicationById(instance.appId);
+					String targetUrl=app.scmPath.substring(0,app.scmPath.lastIndexOf("/"))+"/JazminTags/"+app.id+"/"+tag;
+					WorkingCopy wc=new WorkingCopy(
+							app.scmUser, 
+							app.scmPassword,
+							app.scmPath,null);
+					wc.copy(targetUrl,"setScmTag "+tag);
+				}
+				DeploySystemUI.showNotificationInfo("info", "set tag success." + tag);
+				
+			} catch (Exception e) {
+				DeploySystemUI.showNotificationInfo("error", e.getMessage());
+			}
+			window.close();
+		});
+		sw.setCaption("SetScmTag");
+		sw.setInfo("Set " + getOptInstances().size() + " instance(s) scmTag");
+		UI.getCurrent().addWindow(sw);
 	}
 
 	private void viewMonitor() {
