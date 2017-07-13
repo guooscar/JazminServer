@@ -203,9 +203,14 @@ public class DeployManager {
 	public static List<String> getJobLogNames(String jobId){
 		List<String>result=new ArrayList<>();
 		File dir=new File(workSpaceDir+"joblog/"+jobId);
+		List<File>temp=new ArrayList<>();
 		for(File f:dir.listFiles(f->f.getName().endsWith("log"))){
-			result.add(f.getName());
+			temp.add(f);
 		}
+		Collections.sort(temp,(f1,f2)->{
+			return (int) (f1.lastModified()-f2.lastModified());
+		});
+		temp.forEach(f->result.add(f.getName()));
 		return result;
 	}
 	//
