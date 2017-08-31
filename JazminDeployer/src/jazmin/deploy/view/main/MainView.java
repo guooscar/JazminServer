@@ -62,6 +62,8 @@ public class MainView extends HorizontalLayout {
 			bfw.focus();
         }
         DeploySystemUI.setupErrorHandler();
+        //
+        setView(new DashboardView());
     }
     //
     public void setView(Component view){

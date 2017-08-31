@@ -105,6 +105,7 @@ public class DeployManager {
 	public static String repoPath="";
 	public static String antPath="";
 	public static String antCommonLibPath="";
+	public static Date lastHealthCheckTime;
 	//
 	public static void setup() throws Exception {
 		workSpaceDir=Jazmin.environment.getString("deploy.workspace","./workspace/");
@@ -126,6 +127,25 @@ public class DeployManager {
 		}
 		//
 		startJobCronThread();
+		startHealthCheckThread();
+	}
+	//
+	private static void startHealthCheckThread(){
+		Thread jobThead=new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while(true){
+					checkHealth();
+					try {
+						Thread.sleep(10000);
+					} catch (InterruptedException e) {
+						logger.catching(e);
+					}
+				}
+			}
+		});
+		jobThead.setName("DeployManager-HealthCheck");
+		jobThead.start();
 	}
 	//
 	private static void startJobCronThread(){
@@ -164,6 +184,25 @@ public class DeployManager {
 				job.errorMessage=e.getMessage();
 			}
 			
+		});
+	}
+	//
+	private static void checkHealth(){
+		lastHealthCheckTime=new Date();
+		machineMap.values().forEach((machine)->{
+			try {
+				testMachine(machine);
+			} catch (Exception e) {
+				logger.error(e);
+			}
+		});
+		//
+		instanceMap.values().forEach((instance)->{
+			try {
+				testInstance(instance);
+			} catch (Exception e) {
+				logger.error(e);
+			}
 		});
 	}
 	//
