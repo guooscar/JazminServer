@@ -63,16 +63,18 @@ public class MainView extends HorizontalLayout {
         }
         DeploySystemUI.setupErrorHandler();
         //
-        setView(new DashboardView());
+    	setView(dashboardView);
     }
     //
     public void setView(Component view){
     	content.removeAllComponents();
     	content.addComponent(view);
     }
+    DashboardView dashboardView;
     //
     private void initMenus(){
-    	menuView.addMenuItem("Dashboard", FontAwesome.DASHBOARD,DashboardView.class);	
+    	dashboardView=new DashboardView();
+    	menuView.addMenuItem("Dashboard", FontAwesome.DASHBOARD,dashboardView);	
     	menuView.addMenuItem("Instances", FontAwesome.LIST,new InstanceInfoView());
     	menuView.addMenuItem("Machines", FontAwesome.DESKTOP,new MachineInfoView());	
     	menuView.addMenuItem("Applications", FontAwesome.FILE,new ApplicationInfoView());	
@@ -84,7 +86,7 @@ public class MainView extends HorizontalLayout {
      	menuView.addMenuItem("Consoles", FontAwesome.CODE,consoleView);
      	menuView.addMenuItem("Jobs", FontAwesome.CUBES,new JobInfoView());
      	menuView.addMenuItem("Benchmarks", FontAwesome.CAB,new BenchmarkView());
-        
+     
     }
     //
     public ConsoleView getConsoleView(){

@@ -19,7 +19,7 @@ public class WebSshWindow extends Window{
 	//
 	public WebSshWindow(String token) {
         Responsive.makeResponsive(this);
-        setWidth(90.0f, Unit.PERCENTAGE);
+        setWidth(700,Unit.PIXELS);
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);
         setResizable(true);

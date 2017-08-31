@@ -54,6 +54,9 @@ public class DashboardView extends Panel{
         TimerTask t=new TimerTask() {
 			@Override
 			public void run() {
+				if(getUI()==null){
+					return;
+				}
 				getUI().access(()->{
 					reloadDataMachine();
 			        reloadDataInstance();
