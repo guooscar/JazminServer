@@ -43,22 +43,40 @@ public class ProcessInstance {
 	private boolean isDone;
 	//
 	private Set<String>tokenNodes;
+	ExecuteHandler executeHandler;
 	//
 	public ProcessInstance(WorkflowProcess process,WorkflowEngine engine) {
 		nodeMap=new HashMap<>();
 		executeMap=new HashMap<>();
 		this.engine=engine;
 		endNodes=new TreeSet<>();
+		context=new ExecuteContext(this);
 		load(process);
 		id=UUID.randomUUID().toString();
 		tokenNodes=new TreeSet<>();
 	}
+	//
+	
 	/**
 	 * @return
 	 */
 	public List<ExecuteHistory>getExecuteHistories(){
 		return new ArrayList<ExecuteHistory>(historyMap.values());
 	}
+	/**
+	 * @return the executeHandler
+	 */
+	public ExecuteHandler getExecuteHandler() {
+		return executeHandler;
+	}
+
+	/**
+	 * @param executeHandler the executeHandler to set
+	 */
+	public void setExecuteHandler(ExecuteHandler executeHandler) {
+		this.executeHandler = executeHandler;
+	}
+
 	/**
 	 * @return
 	 */
@@ -172,7 +190,6 @@ public class ProcessInstance {
 	public void start(){
 		isDone=false;
 		historyMap=new ConcurrentHashMap<>();
-		context=new ExecuteContext(this);
 		enter(null,startNode);
 		signal(startNode.id);
 	}
@@ -192,6 +209,15 @@ public class ProcessInstance {
 			try {
 				context.currentNode=node;
 				execute.execute(context);
+			} catch (Exception e) {
+				logger.catching(e);
+				history.error=e;
+			}
+		}
+		if(executeHandler!=null){
+			try {
+				context.currentNode=node;
+				executeHandler.execute(context);
 			} catch (Exception e) {
 				logger.catching(e);
 				history.error=e;

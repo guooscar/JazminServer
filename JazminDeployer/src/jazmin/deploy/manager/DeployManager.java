@@ -50,6 +50,7 @@ import jazmin.deploy.domain.User;
 import jazmin.deploy.domain.ant.AntManager;
 import jazmin.deploy.domain.svn.WorkingCopy;
 import jazmin.deploy.manager.RobotDeployManagerContext.RobotDeployManagerContextImpl;
+import jazmin.deploy.manager.RobotWorkflowEngineContext.RobotWorkflowEngineContextImpl;
 import jazmin.deploy.util.DateUtil;
 import jazmin.deploy.workflow.WorkflowEngine;
 import jazmin.log.Logger;
@@ -362,6 +363,7 @@ public class DeployManager {
 		info.password=root?machine.rootSshPassword:machine.sshPassword;
 		Map<String,Object>context=new HashMap<>();
 		context.put("deployer", new RobotDeployManagerContextImpl(machine));
+		context.put("workflow",new RobotWorkflowEngineContextImpl(DeployManager.workflowEngine));
 		info.channelListener=new JavaScriptChannelRobot(getRobotScriptRunContent(robot),context);
 		String uuid=UUID.randomUUID().toString();
 		oneTimeSSHConnectionMap.put(uuid,info);

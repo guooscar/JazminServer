@@ -38,9 +38,9 @@ public class JavaScriptClassExecute implements Execute,ScriptExecuteContext{
 		engine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
 		String commonScript=
 					"load('nashorn:mozilla_compat.js');"+
-					"importPackage(Packages.io.itit.workflow);\n"+
-					"importPackage(Packages.io.itit.definition);\n"+
-					"importPackage(Packages.io.itit.execute);\n";
+					"importPackage(Packages.jazmin.deploy.workflow);\n"+
+					"importPackage(Packages.jazmin.deploy.workflow.definition);\n"+
+					"importPackage(Packages.jazmin.deploy.workflow.execute);\n";
 		engine.eval(commonScript+script, ssc); 
 	}
 	//---------------------------------------------------------------------------------
