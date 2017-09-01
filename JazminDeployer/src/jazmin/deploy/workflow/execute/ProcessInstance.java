@@ -39,11 +39,13 @@ public class ProcessInstance {
 	private Map<String,Execute>executeMap;
 	WorkflowEngine engine;
 	Map<String,ExecuteHistory>historyMap;
+	List<ExecuteHistory>allHistories;
 	ExecuteContext context;
 	private boolean isDone;
 	//
 	private Set<String>tokenNodes;
 	ExecuteHandler executeHandler;
+	
 	//
 	public ProcessInstance(WorkflowProcess process,WorkflowEngine engine) {
 		nodeMap=new HashMap<>();
@@ -56,11 +58,13 @@ public class ProcessInstance {
 		tokenNodes=new TreeSet<>();
 	}
 	//
-	
+	public List<ExecuteHistory>getAllExecuteHistories(){
+		return allHistories;
+	}
 	/**
 	 * @return
 	 */
-	public List<ExecuteHistory>getExecuteHistories(){
+	public List<ExecuteHistory>getRuntimeExecuteHistories(){
 		return new ArrayList<ExecuteHistory>(historyMap.values());
 	}
 	/**
@@ -190,6 +194,7 @@ public class ProcessInstance {
 	public void start(){
 		isDone=false;
 		historyMap=new ConcurrentHashMap<>();
+		allHistories=new ArrayList<>();
 		enter(null,startNode);
 		signal(startNode.id);
 	}
@@ -308,7 +313,6 @@ public class ProcessInstance {
 		ExecuteHistory history=historyMap.get(node.id);
 		if(history==null){
 			history=new ExecuteHistory();
-			history.id=UUID.randomUUID().toString();
 			history.node=node.id;
 			if(fromNode!=null){
 				history.fromNodes.add(fromNode.id);
@@ -316,6 +320,11 @@ public class ProcessInstance {
 			history.status=ExecuteHistory.STATUS_ENTER;
 			historyMap.put(node.id, history);
 		}
+		//
+		ExecuteHistory allHistory=new ExecuteHistory();
+		allHistory.node=node.id;
+		allHistory.startTime=new Date();
+		allHistories.add(allHistory);
 		//
 		tokenNodes.add(node.id);
 		WorkflowEvent enterEvent=new WorkflowEvent();
@@ -337,6 +346,17 @@ public class ProcessInstance {
 		history.status=ExecuteHistory.STATUS_FINISHED;
 		history.endTime=new Date();
 		history.fromNodes.clear();
+		//
+		ExecuteHistory allHistory=null;
+		for(int i=allHistories.size()-1;i>=0;i--){
+			ExecuteHistory eh=allHistories.get(i);
+			if(eh.node.equals(node.id)){
+				allHistory=eh;
+			}
+		}
+		if(allHistory!=null){
+			allHistory.endTime=new Date();
+		}
 		//
 		tokenNodes.remove(node.id);
 		//
