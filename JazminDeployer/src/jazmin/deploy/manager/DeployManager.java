@@ -30,6 +30,8 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.tmatesoft.svn.core.SVNException;
 
+import com.alibaba.fastjson.JSON;
+
 import jazmin.core.Jazmin;
 import jazmin.core.job.CronExpression;
 import jazmin.deploy.DeployStartServlet;
@@ -37,18 +39,20 @@ import jazmin.deploy.domain.AppPackage;
 import jazmin.deploy.domain.Application;
 import jazmin.deploy.domain.GraphVizRenderer;
 import jazmin.deploy.domain.Instance;
+import jazmin.deploy.domain.JavaScriptSource;
 import jazmin.deploy.domain.Machine;
 import jazmin.deploy.domain.MachineJob;
 import jazmin.deploy.domain.OutputListener;
 import jazmin.deploy.domain.PackageDownloadInfo;
 import jazmin.deploy.domain.RepoItem;
-import jazmin.deploy.domain.RobotScript;
 import jazmin.deploy.domain.TopSearch;
 import jazmin.deploy.domain.User;
 import jazmin.deploy.domain.ant.AntManager;
 import jazmin.deploy.domain.svn.WorkingCopy;
 import jazmin.deploy.manager.RobotDeployManagerContext.RobotDeployManagerContextImpl;
+import jazmin.deploy.manager.RobotWorkflowEngineContext.RobotWorkflowEngineContextImpl;
 import jazmin.deploy.util.DateUtil;
+import jazmin.deploy.workflow.WorkflowEngine;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.web.WebServer;
@@ -64,7 +68,6 @@ import jazmin.util.BeanUtil;
 import jazmin.util.FileUtil;
 import jazmin.util.IOUtil;
 import jazmin.util.JSONUtil;
-import jazmin.util.JSONUtil.JSONPropertyFilter;
 import jazmin.util.SshUtil;
 
 /**
@@ -86,6 +89,9 @@ public class DeployManager {
 	private static Map<String, ConnectionInfo>oneTimeSSHConnectionMap=new ConcurrentHashMap<>();
 	private static Map<String, HostInfo>oneTimeVncHostInfoMap=new ConcurrentHashMap<>();
 	//
+	private static Map<String, BenchmarkSession>benchmarkSessions=new ConcurrentHashMap<>();
+	public static WorkflowEngine workflowEngine;
+	//
 	static{
 		instanceMap=new ConcurrentHashMap<String, Instance>();
 		machineMap=new ConcurrentHashMap<String, Machine>();
@@ -102,6 +108,7 @@ public class DeployManager {
 	public static String repoPath="";
 	public static String antPath="";
 	public static String antCommonLibPath="";
+	public static Date lastHealthCheckTime;
 	//
 	public static void setup() throws Exception {
 		workSpaceDir=Jazmin.environment.getString("deploy.workspace","./workspace/");
@@ -121,8 +128,28 @@ public class DeployManager {
 		if(websockifyServer!=null){
 			websockifyServer.setHostInfoProvider(DeployManager::getOneTimeVncInfo);
 		}
+		workflowEngine=new WorkflowEngine();
 		//
 		startJobCronThread();
+		startHealthCheckThread();
+	}
+	//
+	private static void startHealthCheckThread(){
+		Thread jobThead=new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while(true){
+					checkHealth();
+					try {
+						Thread.sleep(10000);
+					} catch (InterruptedException e) {
+						logger.catching(e);
+					}
+				}
+			}
+		});
+		jobThead.setName("DeployManager-HealthCheck");
+		jobThead.start();
 	}
 	//
 	private static void startJobCronThread(){
@@ -164,6 +191,25 @@ public class DeployManager {
 		});
 	}
 	//
+	private static void checkHealth(){
+		lastHealthCheckTime=new Date();
+		machineMap.values().forEach((machine)->{
+			try {
+				testMachine(machine);
+			} catch (Exception e) {
+				logger.error(e);
+			}
+		});
+		//
+		instanceMap.values().forEach((instance)->{
+			try {
+				testInstance(instance);
+			} catch (Exception e) {
+				logger.error(e);
+			}
+		});
+	}
+	//
 	private static class FileOutputStreamWrapper extends FileOutputStream{
 		OutputListener ol;
 		public FileOutputStreamWrapper(String path,OutputListener ol) throws FileNotFoundException {
@@ -179,12 +225,35 @@ public class DeployManager {
 		}
 	}
 	//
+	public static BenchmarkSession addBenchmarkSession(){
+		List<String>finishedSessions=new ArrayList<>();
+		benchmarkSessions.forEach((k,s)->{
+			if(s.finished){
+				finishedSessions.add(k);
+			}
+		});
+		finishedSessions.forEach(s->benchmarkSessions.remove(s));
+		BenchmarkSession session=new BenchmarkSession();
+		session.id=UUID.randomUUID().toString();
+		benchmarkSessions.put(session.id, session);		
+		return session;
+	}
+	//
+	public static BenchmarkSession getBenchmarkSession(String id){
+		return benchmarkSessions.get(id);
+	}
+	//
 	public static List<String> getJobLogNames(String jobId){
 		List<String>result=new ArrayList<>();
 		File dir=new File(workSpaceDir+"joblog/"+jobId);
+		List<File>temp=new ArrayList<>();
 		for(File f:dir.listFiles(f->f.getName().endsWith("log"))){
-			result.add(f.getName());
+			temp.add(f);
 		}
+		Collections.sort(temp,(f1,f2)->{
+			return (int) (f1.lastModified()-f2.lastModified());
+		});
+		temp.forEach(f->result.add(f.getName()));
 		return result;
 	}
 	//
@@ -294,6 +363,7 @@ public class DeployManager {
 		info.password=root?machine.rootSshPassword:machine.sshPassword;
 		Map<String,Object>context=new HashMap<>();
 		context.put("deployer", new RobotDeployManagerContextImpl(machine));
+		context.put("workflow",new RobotWorkflowEngineContextImpl(DeployManager.workflowEngine));
 		info.channelListener=new JavaScriptChannelRobot(getRobotScriptRunContent(robot),context);
 		String uuid=UUID.randomUUID().toString();
 		oneTimeSSHConnectionMap.put(uuid,info);
@@ -318,11 +388,11 @@ public class DeployManager {
 		configDir+="config";
 		try{
 			errorMessage=new StringBuffer();
+			reloadUserConfig(configDir);
 			reloadApplicationConfig(configDir);
 			checkApplicationConfig();
 			reloadMachineConfig(configDir);
 			reloadInstanceConfig(configDir);
-			reloadUserConfig(configDir);
 			reloadJobConfig(configDir);
 			setInstancePrioriy();
 			reloadPackage();
@@ -346,19 +416,42 @@ public class DeployManager {
 		}
 	}
 	//
-	public static List<RobotScript>getRobotScripts(){
-		String configDir=workSpaceDir+"script";
+	public static List<JavaScriptSource>getRobotScripts(){
+		return getScripts0("script");
+	}
+	//
+	//
+	public static List<JavaScriptSource>getWorkflowScripts(){
+		return getScripts0("workflow");
+	}
+	//
+	public static List<JavaScriptSource>getBenchmarkScripts(){
+		return getScripts0("benchmark");
+	}
+	//
+	private static List<JavaScriptSource>getScripts0(String dirName){
+		String configDir=workSpaceDir+dirName;
 		File dir=new File(configDir);
-		List<RobotScript>result=new ArrayList<RobotScript>();
+		List<JavaScriptSource>result=new ArrayList<JavaScriptSource>();
 		for(File f:dir.listFiles()){
 			if(f.isFile()){
-				RobotScript s=new RobotScript();
+				JavaScriptSource s=new JavaScriptSource();
 				s.name=f.getName();
 				s.lastModifiedTime=new Date(f.lastModified());
 				result.add(s);
 			}
 		}
 		return result;
+	}
+	//
+	public static void deleteWorkflowScript(String name){
+		File scriptFile=new File(workSpaceDir+"workflow/"+name);
+		scriptFile.delete();
+	}
+	//
+	public static void deleteBenchmarkScript(String name){
+		File scriptFile=new File(workSpaceDir+"benchmark/"+name);
+		scriptFile.delete();
 	}
 	//
 	public static void deleteScript(String name){
@@ -373,6 +466,15 @@ public class DeployManager {
 	//
 	public static String getRobotScriptContent(String name) throws IOException{
 		File scriptFile=new File(workSpaceDir+"script/"+name);
+		return FileUtil.getContent(scriptFile);
+	}
+	public static String getBenchmarkScriptContent(String name) throws IOException{
+		File scriptFile=new File(workSpaceDir+"benchmark/"+name);
+		return FileUtil.getContent(scriptFile);
+	}
+	//
+	public static String getWorkflowScriptContent(String name) throws IOException{
+		File scriptFile=new File(workSpaceDir+"workflow/"+name);
 		return FileUtil.getContent(scriptFile);
 	}
 	//
@@ -394,13 +496,24 @@ public class DeployManager {
 		return result.toString();
 	}
 	//
-	public static RobotScript getRobotScript(String name) throws IOException{
-		String configDir=workSpaceDir+"script";
+	public static JavaScriptSource getWorkflowScript(String name) throws IOException{
+		return getScript0("workflow",name);
+	}
+	//
+	public static JavaScriptSource getRobotScript(String name) throws IOException{
+		return getScript0("script",name);
+	}
+	//
+	public static JavaScriptSource getBenchmarkScript(String name) throws IOException{
+		return getScript0("benchmark",name);
+	}
+	public static JavaScriptSource getScript0(String dirName,String name) throws IOException{
+		String configDir=workSpaceDir+dirName;
 		File dir=new File(configDir);
 		for(File f:dir.listFiles()){
 			if(f.isFile()){
 				if(f.getName().equals(name)){
-					RobotScript s=new RobotScript();
+					JavaScriptSource s=new JavaScriptSource();
 					s.name=f.getName();
 					s.lastModifiedTime=new Date(f.lastModified());
 					return s;
@@ -410,8 +523,20 @@ public class DeployManager {
 		return null;
 	}
 	//
+	public static void saveWorkflowScript(String name,String content) throws IOException{
+		saveScript0("workflow",name,content);
+	}
+	//
 	public static void saveRobotScript(String name,String content) throws IOException{
-		File scriptFile=new File(workSpaceDir+"script/"+name);
+		saveScript0("script",name,content);
+	}
+	//
+	public static void saveBenhmarkScript(String name,String content) throws IOException{
+		saveScript0("benchmark",name,content);
+	}
+	//
+	private static void saveScript0(String dir,String name,String content) throws IOException{
+		File scriptFile=new File(workSpaceDir+dir+"/"+name);
 		if(!scriptFile.exists()){
 			scriptFile.createNewFile();
 		}
@@ -479,22 +604,9 @@ public class DeployManager {
 		configDir+="config";
 		File configFile=new File(configDir,"instance.json");
 		List<Instance>list=getInstances();
-		Collections.sort(list,(o1,o2)->o1.priority-o2.priority);
+		Collections.sort(list,(o1,o2)->o1.cluster.compareTo(o2.cluster));
 		if(configFile.exists()){
-			String result=JSONUtil.toJson(
-					list,
-					new JSONPropertyFilter(){
-						@Override
-						public boolean apply(Object arg0, String name,
-								Object arg2) {
-							if(name.equals("alive")||
-									name.equals("machine")||
-									name.equals("priority")){
-								return false;
-							}
-							return true;
-						}
-					},true);
+			String result=JSON.toJSONString(list,true);
 			FileUtil.saveContent(result, configFile);
 		}
 	}
@@ -759,6 +871,7 @@ public class DeployManager {
 			logger.info("load application from:"+configFile.getAbsolutePath());
 			String ss=FileUtil.getContent(configFile);
 			List<Application>apps= JSONUtil.fromJsonList(ss,Application.class);
+			logger.info("load total:"+apps.size()+" applications");
 			apps.forEach(in->{
 				applicationMap.put(in.id,in);
 			});
@@ -775,6 +888,7 @@ public class DeployManager {
 			String ss=FileUtil.getContent(configFile);
 			List<User>apps= JSONUtil.fromJsonList(ss,User.class);
 			apps.forEach(in->{
+				logger.debug("add user:"+in.id);
 				userMap.put(in.id,in);
 			});
 		}else{
@@ -812,6 +926,7 @@ public class DeployManager {
 		//do topsearch and cal priority
 		int idx=0;
 		for(Application a:TopSearch.topSearch(getApplications())){
+			logger.debug("application:"+a.id);
 			a.priority=idx++;
 		}
 	}
@@ -1011,7 +1126,7 @@ public class DeployManager {
 						}
 					});
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.catching(e);
 			sb.append(e.getMessage()+"\n");
 			throw e;
 		}
@@ -1056,6 +1171,7 @@ public class DeployManager {
 			sb.append(exec(instance,false,
 					instance.machine.jazminHome
 				+"/jazmin startbg "+instance.id));
+			return sb.toString();
 		}
 		if(instance.application.type.equals(Application.TYPE_MEMCACHED)){
 			String size=instance.getProperties().getOrDefault(Instance.P_MEMCACHED_SIZE,"64m");
@@ -1066,6 +1182,7 @@ public class DeployManager {
 					+instance.port+" -P "+pidFile;
 			sb.append(exec(instance,false,
 					memcachedCmd));
+			return sb.toString();
 		}
 		if(instance.application.type.equals(Application.TYPE_HAPROXY)){
 			String configFile=renderTemplate(instance);
@@ -1079,8 +1196,19 @@ public class DeployManager {
 			String pidFile=instanceDir+"/haproxy_pid";
 			sb.append(exec(instance,true,
 					"haproxy -p "+pidFile+" -f "+configPath));
+			return sb.toString();
 		}
-		
+		if(instance.application.type.equals(Application.TYPE_MYSQL)){
+			String targetSqlFile="/tmp/"+instance.id+".sql";
+			String downloadCommand="wget -N http://"+deployHostname+"/srv/deploy/pkg/"+instance.id+" -O "+targetSqlFile;
+			sb.append("target sql file "+targetSqlFile+"\n");
+			sb.append(exec(instance,false,downloadCommand));
+			String sourceCommand="mysql -u "+instance.user+" -p"+instance.password+" "+instance.id+" <"+targetSqlFile;
+			sb.append("source file on instance "+instance.id+"\n");
+			sb.append(exec(instance,false,sourceCommand));
+			return sb.toString();
+		}
+		sb.append("not support");
 		return sb.toString();
 	}
 	//
@@ -1090,6 +1218,7 @@ public class DeployManager {
 			sb.append(exec(instance,false,
 					instance.machine.jazminHome
 					+"/jazmin stop "+instance.id));
+			return sb.toString();
 		}
 		//
 		if(instance.application.type.equals(Application.TYPE_MEMCACHED)){
@@ -1098,6 +1227,7 @@ public class DeployManager {
 			String pidFile=instanceDir+"/memcached_pid";
 			sb.append(exec(instance,false,
 					"kill -9 `cat "+pidFile+"`"));
+			return sb.toString();
 		}
 		//
 		if(instance.application.type.equals(Application.TYPE_HAPROXY)){
@@ -1106,7 +1236,10 @@ public class DeployManager {
 			String pidFile=instanceDir+"/haproxy_pid";
 			sb.append(exec(instance,true,
 					"kill -9 `cat "+pidFile+"`"));
+			return sb.toString();
 		}
+		
+		sb.append("not support");
 		return sb.toString();
 	}
 	/**
@@ -1122,6 +1255,9 @@ public class DeployManager {
 		suffex=".jaz";
 		if(ins.application.type.equals(Application.TYPE_JAZMIN_WEB)){
 			suffex=".war";
+		}
+		if(ins.application.type.equals(Application.TYPE_MYSQL)){
+			suffex=".sql";
 		}
 		String packageName=ins.appId+"-"+ins.packageVersion+suffex;
 		AppPackage p= packageMap.get(packageName);
@@ -1222,6 +1358,4 @@ public class DeployManager {
 		}
 		return -1;
 	}
-	
-	
 }

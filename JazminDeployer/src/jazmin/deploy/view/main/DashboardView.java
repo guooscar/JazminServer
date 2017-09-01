@@ -3,10 +3,10 @@
  */
 package jazmin.deploy.view.main;
 
-import jazmin.deploy.domain.Instance;
-import jazmin.deploy.domain.Machine;
-import jazmin.deploy.manager.DeployManager;
-import jazmin.deploy.ui.StaticBeanForm;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import com.vaadin.server.Responsive;
 import com.vaadin.ui.Alignment;
@@ -18,6 +18,12 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
+import jazmin.deploy.domain.Instance;
+import jazmin.deploy.domain.Machine;
+import jazmin.deploy.manager.DeployManager;
+import jazmin.deploy.ui.BeanTable;
+import jazmin.deploy.ui.StaticBeanForm;
+
 /**
  * @author yama
  * 16 Jan, 2015
@@ -25,6 +31,7 @@ import com.vaadin.ui.themes.ValoTheme;
 @SuppressWarnings("serial")
 public class DashboardView extends Panel{
 	private VerticalLayout root;
+	private Label healthCheckLabel;
 	public DashboardView() {
 		super();
 		addStyleName(ValoTheme.PANEL_BORDERLESS);
@@ -40,6 +47,28 @@ public class DashboardView extends Panel{
         Component content=buildContent();
         root.addComponent(content);
         root.setExpandRatio(content,1);
+        //
+        reloadDataMachine();
+        reloadDataInstance();
+        //
+        TimerTask t=new TimerTask() {
+			@Override
+			public void run() {
+				if(getUI()==null){
+					return;
+				}
+				getUI().access(()->{
+					reloadDataMachine();
+			        reloadDataInstance();
+			        if(DeployManager.lastHealthCheckTime!=null){
+			        	healthCheckLabel.setValue("Last Check:"+DeployManager.lastHealthCheckTime+"");
+			        }
+						
+				});
+			}
+		};
+		Timer tt = new Timer(true);
+		tt.scheduleAtFixedRate(t, 5000, 10*1000);
     }
 	//
 	private Component buildHeader(){
@@ -50,7 +79,16 @@ public class DashboardView extends Panel{
         titleLabel.setSizeUndefined();
         titleLabel.addStyleName(ValoTheme.LABEL_H1);
         titleLabel.addStyleName(ValoTheme.LABEL_NO_MARGIN);
+        //
+        healthCheckLabel=new Label("");
+        healthCheckLabel.setSizeUndefined();
+        healthCheckLabel.addStyleName(ValoTheme.LABEL_H4);
+        healthCheckLabel.addStyleName(ValoTheme.LABEL_NO_MARGIN);
+        
         header.addComponent(titleLabel);
+        header.addComponent(healthCheckLabel);
+        //
+       
         return header;
 	}
 	//
@@ -70,38 +108,81 @@ public class DashboardView extends Panel{
 		public int total;
 	}
 	//
-	private Component buildMachines(){
+	public static class DeActiveItemBean{
+		public String id;
+		public String info;
+	}
+	//
+	private void reloadDataMachine(){
 		ActiveStateBean bean=new ActiveStateBean();
+		List<DeActiveItemBean>items=new ArrayList<>();
 		for(Machine m:DeployManager.getMachines()){
 			bean.total++;
 			if(m.isAlive){
 				bean.active++;
 			}else{
 				bean.deActive++;
+				DeActiveItemBean b=new DeActiveItemBean();
+				b.id=m.id;
+				b.info=m.publicHost;
+				items.add(b);
 			}
 		}
-		StaticBeanForm<ActiveStateBean>form=
-				new StaticBeanForm<DashboardView.ActiveStateBean>(bean,1);
-		form.setSizeFull();
-		form.setCaption("Machine Status");
-		return createContentWrapper(form);
+		//
+		machineForm.setBean(bean);
+		machineTable.setBeanData(items);
 	}
 	//
-	private Component buildInstances(){
+	private void reloadDataInstance(){
 		ActiveStateBean bean=new ActiveStateBean();
+		List<DeActiveItemBean>items=new ArrayList<>();
 		for(Instance m:DeployManager.getInstances()){
 			bean.total++;
 			if(m.isAlive){
 				bean.active++;
 			}else{
 				bean.deActive++;
+				DeActiveItemBean b=new DeActiveItemBean();
+				b.id=m.id;
+				b.info="["+m.cluster+"]"+m.appId;
+				items.add(b);
 			}
 		}
-		StaticBeanForm<ActiveStateBean>form=
+		//
+		instanceForm.setBean(bean);
+		instanceTable.setBeanData(items);
+	}
+	//
+	BeanTable<DeActiveItemBean>machineTable;
+	StaticBeanForm<ActiveStateBean>machineForm;
+	//
+	BeanTable<DeActiveItemBean>instanceTable;
+	StaticBeanForm<ActiveStateBean>instanceForm;
+	//
+	private Component buildMachines(){
+		ActiveStateBean bean=new ActiveStateBean();
+		machineForm=
 				new StaticBeanForm<DashboardView.ActiveStateBean>(bean,1);
-		form.setSizeFull();
-		form.setCaption("Instance Status");
-		return createContentWrapper(form);
+		machineForm.setSizeFull();
+		machineForm.setCaption("Machine Status");
+		//
+		machineTable=new BeanTable<>("DeActive Machines", DeActiveItemBean.class);
+		//
+		VerticalLayout vl=new VerticalLayout(machineForm,machineTable);
+		return createContentWrapper(vl);
+	}
+	//
+	private Component buildInstances(){
+		ActiveStateBean bean=new ActiveStateBean();
+		instanceForm=
+				new StaticBeanForm<DashboardView.ActiveStateBean>(bean,1);
+		instanceForm.setSizeFull();
+		instanceForm.setCaption("Instance Status");
+		//
+		instanceTable=new BeanTable<>("DeActive Instances", DeActiveItemBean.class);
+		//
+		VerticalLayout vl=new VerticalLayout(instanceForm,instanceTable);
+		return createContentWrapper(vl);
 	}
 	//
 	private Component createContentWrapper(final Component content) {

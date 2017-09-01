@@ -6,7 +6,7 @@ package jazmin.deploy.view.machine;
 import java.io.IOException;
 
 import jazmin.deploy.DeploySystemUI;
-import jazmin.deploy.domain.RobotScript;
+import jazmin.deploy.domain.JavaScriptSource;
 import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.ui.BeanTable;
 import jazmin.deploy.view.main.InputWindow;
@@ -36,9 +36,9 @@ import com.vaadin.ui.themes.ValoTheme;
 @SuppressWarnings("serial")
 public class MachineRobotWindow extends Window{
 
-	BeanTable<RobotScript> table;
+	BeanTable<JavaScriptSource> table;
 	AceEditor editor ;
-	RobotScript currentScript;
+	JavaScriptSource currentScript;
 	//
 	public MachineRobotWindow() {
 		Responsive.makeResponsive(this);
@@ -53,7 +53,7 @@ public class MachineRobotWindow extends Window{
         VerticalLayout content = new VerticalLayout();
         content.setSizeFull();
         setContent(content);
-        table = new BeanTable<RobotScript>(null,RobotScript.class);
+        table = new BeanTable<JavaScriptSource>(null,JavaScriptSource.class);
 		content.addComponent(table);
 		table.setWidth("300px");
 		table.setHeight("100%");
@@ -109,7 +109,7 @@ public class MachineRobotWindow extends Window{
         table.addItemClickListener(new ItemClickListener() {
 			@Override
 			public void itemClick(ItemClickEvent event) {
-				RobotScript script=table.getItemValue(event.getItem());
+				JavaScriptSource script=table.getItemValue(event.getItem());
 				showScriptContent(script);
 			}
 		});
@@ -117,7 +117,7 @@ public class MachineRobotWindow extends Window{
         loadData();
     }
 	//
-	private void showScriptContent(RobotScript script){
+	private void showScriptContent(JavaScriptSource script){
 		try {
 			currentScript=script;
 			editor.setValue(DeployManager.getRobotScriptContent(script.name));
@@ -131,7 +131,7 @@ public class MachineRobotWindow extends Window{
 	}
 	//
 	private void deleteScript(){
-		RobotScript script=table.getSelectValue();
+		JavaScriptSource script=table.getSelectValue();
 		if(script==null){
 			DeploySystemUI.showNotificationInfo("INFO", "Choose robot to delete");
 			return;

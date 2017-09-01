@@ -3,6 +3,10 @@
  */
 package jazmin.server.msg.client;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -15,11 +19,10 @@ import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.io.IOWorker;
 import jazmin.misc.io.NetworkTrafficStat;
-import jazmin.server.msg.codec.MessageEncoder;
-import jazmin.server.msg.CodecFactory;
 import jazmin.server.msg.codec.DefaultCodecFactory;
 import jazmin.server.msg.codec.RequestMessage;
 import jazmin.server.msg.codec.ResponseMessage;
+import jazmin.server.rpc.RpcException;
 import jazmin.util.DumpUtil;
 
 /**
@@ -32,11 +35,16 @@ public class MessageClient {
 	private Bootstrap bootstrap;
 	private NetworkTrafficStat networkTrafficStat;
 	private Channel channel;
-	private CodecFactory codecFactory;
+	private Map<Integer,RPCLock> lockMap;
+	private int timeout=5000;//5 sec timeout
+	private AtomicInteger messageId;
+	//
+	public static int MESSAGE_TYPE=DefaultCodecFactory.FORMAT_JSON;
 	//
 	public MessageClient() {
 		networkTrafficStat=new NetworkTrafficStat();
-		codecFactory=new DefaultCodecFactory();
+		lockMap=new ConcurrentHashMap<>();
+		messageId=new AtomicInteger(1);
 		initNettyConnector();
 	}
 	//
@@ -50,8 +58,8 @@ public class MessageClient {
 			@Override
 			public void initChannel(SocketChannel sc) throws Exception {
 				sc.pipeline().addLast(
-							new MessageEncoder(codecFactory,networkTrafficStat), 
-							new MessageEncoder(codecFactory,networkTrafficStat),
+							new MessageEncoder(networkTrafficStat), 
+							new MessageDecoder(networkTrafficStat),
 							clientHandler);
 				
 			}
@@ -77,10 +85,57 @@ public class MessageClient {
 	}
 	public void messageRecieved(ResponseMessage rspMessage) {
 		logger.debug("<<<<<<<<\n"+DumpUtil.dump(rspMessage));
+		RPCLock lock=lockMap.get(rspMessage.requestId);
+		if(lock!=null){
+			synchronized (lock) {
+				lock.response=rspMessage;
+				lock.notifyAll();
+			}
+		}
 	}
 	//
-	public void send(RequestMessage requestMessage){
-		logger.debug(">>>>>>>>\n"+DumpUtil.dump(requestMessage));
-		channel.writeAndFlush(requestMessage);
+	public void send(int msgId,String serviceId,String[] args){
+		RequestMessage msg=new RequestMessage();
+		msg.requestId=msgId;
+		msg.messageType=MESSAGE_TYPE;
+		msg.serviceId=serviceId;
+		if(args!=null){
+			msg.requestParameters=args;
+		}
+		if(logger.isDebugEnabled()){
+			logger.debug(">>>>>>>>\n"+DumpUtil.dump(msg));
+		}
+		channel.writeAndFlush(msg);
+	}
+	//
+	static class RPCLock{
+		public int id;
+		public long startTime;
+		public ResponseMessage response;
+	}
+	//
+	public ResponseMessage invokeSync(String serviceId,String[] args){
+		RPCLock lock=new RPCLock();
+		lock.startTime=System.currentTimeMillis();
+		lock.id=messageId.incrementAndGet();
+		lockMap.put(lock.id,lock);
+		send(lock.id,serviceId,args);
+		synchronized (lock) {
+			try {
+				while(lock.response==null){
+					lock.wait(timeout);
+					long currentTime=System.currentTimeMillis();
+					if((currentTime-lock.startTime)>timeout){
+						lockMap.remove(lock.id);
+						throw new RpcException(
+								"rpc request:"+lock.id+" timeout,startTime:"+lock.startTime+",serviceId:"+serviceId);
+					}
+				}
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+			lockMap.remove(lock.id);
+			return lock.response;
+		}
 	}
 }

@@ -9,7 +9,7 @@ import java.util.Date;
  * @author yama
  *
  */
-public class RobotScript {
+public class JavaScriptSource {
 	public String name;
 	public Date lastModifiedTime;
 }

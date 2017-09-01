@@ -4,6 +4,7 @@
 package jazmin.test.server.web;
 
 import java.awt.Point;
+import java.lang.reflect.Proxy;
 
 import jazmin.core.Jazmin;
 import jazmin.core.app.AppException;
@@ -32,8 +33,13 @@ public class TestProxyController extends WebApplication{
 	public static class SimpleProxyController extends ProxyController{
 		public SimpleProxyController() {
 			super();
+			
 			registerProxyTarget(new SimpleObject());
 		}
+	}
+	//
+	public static interface SimpleInterface{
+		void test();
 	}
 	//
 	public static class SimpleObject{

@@ -96,7 +96,7 @@ public class MessageServerCommand extends ConsoleCommand {
     		out.println("can not find session:"+args);
     		return;
     	}
-    	session.kick("kick by jasmin console.");	
+    	session.kick("kick by jazmin console.");	
 	}
     //
     private void showSessions(String args){

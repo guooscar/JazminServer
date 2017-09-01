@@ -69,7 +69,7 @@ public class FileView implements View{
         // sets HTTP header
         String filename = new String(file.getName().getBytes("UTF-8"), "ISO8859-1");
         response.setHeader("Content-Disposition", 
-        		contentDisposition+"; filename=\"" + filename + "\"");
+        		contentDisposition+"; filename=\"" + java.net.URLEncoder.encode(filename,"UTF-8") + "\"");
         if(cacheSeconds>0){
         	long expiry = new Date().getTime() + cacheSeconds*1000;
         	response.setDateHeader("Expires", expiry);

@@ -73,6 +73,7 @@ public class ApplicationInfoView extends DeployBaseView{
 		 //
         optOnSelectCheckBox=new CheckBox("Only Selected");
         optLayout.addComponent(optOnSelectCheckBox);
+        optOnSelectCheckBox.setValue(true);
         optOnSelectCheckBox.addStyleName(ValoTheme.CHECKBOX_SMALL);
         optLayout.setComponentAlignment(optOnSelectCheckBox, Alignment.BOTTOM_RIGHT);
 		//

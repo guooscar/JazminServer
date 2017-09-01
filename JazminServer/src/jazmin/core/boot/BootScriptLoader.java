@@ -13,6 +13,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -76,6 +77,11 @@ public class BootScriptLoader {
 		//
 		ssc.setAttribute("$",bc, ScriptContext.ENGINE_SCOPE);
 		ssc.setAttribute("jazmin",bc, ScriptContext.ENGINE_SCOPE);
+		//
+		Bindings bindings=engine.createBindings();
+		bindings.put("$", bc);
+		bindings.put("jazmin",bc);
+		engine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
 		//
 		String importScript=
 				"load('nashorn:mozilla_compat.js');"+

@@ -3,7 +3,9 @@
  */
 package jazmin.deploy.view.instance;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,11 +33,15 @@ import jazmin.deploy.domain.Application;
 import jazmin.deploy.domain.Instance;
 import jazmin.deploy.domain.Machine;
 import jazmin.deploy.domain.monitor.MonitorInfo;
+import jazmin.deploy.domain.optlog.OptLog;
+import jazmin.deploy.domain.svn.WorkingCopy;
 import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.manager.MonitorManager;
+import jazmin.deploy.manager.OptLogManager;
 import jazmin.deploy.ui.BeanTable;
 import jazmin.deploy.view.main.CodeEditorCallback;
 import jazmin.deploy.view.main.CodeEditorWindow;
+import jazmin.deploy.view.main.ConfirmWindow;
 import jazmin.deploy.view.main.DeployBaseView;
 import jazmin.deploy.view.main.InputWindow;
 import jazmin.deploy.view.main.TaskProgressWindow;
@@ -46,10 +52,10 @@ import jazmin.deploy.view.main.WebSshWindow;
  */
 @SuppressWarnings("serial")
 public class InstanceInfoView extends DeployBaseView {
+	//
 	BeanTable<Instance> table;
 	CheckBox optOnSelectCheckBox;
 	List<Instance> instanceList;
-
 	//
 	public InstanceInfoView() {
 		super();
@@ -82,6 +88,7 @@ public class InstanceInfoView extends DeployBaseView {
 		//
 		optOnSelectCheckBox = new CheckBox("Only Selected");
 		optOnSelectCheckBox.addStyleName(ValoTheme.COMBOBOX_SMALL);
+		optOnSelectCheckBox.setValue(true);
 		optLayout.addComponent(optOnSelectCheckBox);
 		optLayout.setComponentAlignment(optOnSelectCheckBox, Alignment.BOTTOM_RIGHT);
 		//
@@ -148,6 +155,7 @@ public class InstanceInfoView extends DeployBaseView {
 		addOptButton("Test", null, (e) -> testInstance());
 		//
 		addOptButton("SetVer", ValoTheme.BUTTON_PRIMARY, (e) -> setPackageVersion());
+		addOptButton("SetTag", ValoTheme.BUTTON_PRIMARY, (e) -> setScmTag());
 		//
 		addOptButton("Create", ValoTheme.BUTTON_DANGER, (e) -> createInstance());
 		addOptButton("Start", ValoTheme.BUTTON_DANGER, (e) -> startInstance());
@@ -392,13 +400,27 @@ public class InstanceInfoView extends DeployBaseView {
 				startInstance0(window);
 			});
 		});
+		//
+		boolean hasMysql=false;
+		//
 		for (Instance i : getOptInstances()) {
+			if(i.application.type.equals(Application.TYPE_MYSQL)){
+				hasMysql=true;
+			}
 			optWindow.addTask(i.id, "");
 		}
-
 		optWindow.setCaption("Confirm");
 		optWindow.setInfo("Confirm start total " + getOptInstances().size() + " instance(s)?");
-		UI.getCurrent().addWindow(optWindow);
+		if(hasMysql){
+			ConfirmWindow cw=new ConfirmWindow((c)->{
+				UI.getCurrent().addWindow(optWindow);
+			});
+			cw.setCaption("Confirm");
+			cw.setInfo("database instance in operate queue\nCONFIRM YOUR OPERATION!");
+			UI.getCurrent().addWindow(cw);
+		}else{
+			UI.getCurrent().addWindow(optWindow);			
+		}
 	}
 
 	//
@@ -410,6 +432,9 @@ public class InstanceInfoView extends DeployBaseView {
 			if (window.isCancel()) {
 				break;
 			}
+			//
+			OptLogManager.addOptLog(OptLog.OPT_TYPE_START_INSTANCE,instance.id);
+			//
 			window.getUI().access(() -> {
 				window.setInfo("start " + instance.id + " " + counter.incrementAndGet() + "/" + getOptInstances().size()
 						+ "...");
@@ -453,7 +478,6 @@ public class InstanceInfoView extends DeployBaseView {
 					window.getUI().access(() -> window.updateTask(instance.id, "done"));
 				}
 			}
-
 		}
 		window.getUI().access(() -> {
 			window.close();
@@ -485,6 +509,9 @@ public class InstanceInfoView extends DeployBaseView {
 			if (window.isCancel()) {
 				break;
 			}
+			//
+			OptLogManager.addOptLog(OptLog.OPT_TYPE_STOP_INSTANCE,instance.id);
+			//
 			window.getUI().access(() -> {
 				window.setInfo("stop " + instance.id + " " + counter.incrementAndGet() + "/" + getOptInstances().size()
 						+ "...");
@@ -517,12 +544,25 @@ public class InstanceInfoView extends DeployBaseView {
 				startInstance0(window);
 			});
 		});
+		boolean hasMySql=false;
 		for (Instance i : getOptInstances()) {
 			optWindow.addTask(i.id, "");
+			if(i.application.type.equals(Application.TYPE_MYSQL)){
+				hasMySql=true;
+			}
 		}
 		optWindow.setCaption("Confirm");
 		optWindow.setInfo("Confirm restart total " + getOptInstances().size() + " instance(s)?");
-		UI.getCurrent().addWindow(optWindow);
+		if(hasMySql){
+			ConfirmWindow cw=new ConfirmWindow((c)->{
+				UI.getCurrent().addWindow(optWindow);
+			});
+			cw.setCaption("Confirm");
+			cw.setInfo("database instance in operate queue\nCONFIRM YOUR OPERATION!");
+			UI.getCurrent().addWindow(cw);
+		}else{
+			UI.getCurrent().addWindow(optWindow);			
+		}
 	}
 
 	//
@@ -532,16 +572,38 @@ public class InstanceInfoView extends DeployBaseView {
 			try {
 				DeployManager.setPackageVersion(getOptInstances(), version);
 				DeployManager.saveInstanceConfig();
+				DeploySystemUI.showNotificationInfo("info", "Package version set to " + version);
+				loadData();
 			} catch (Exception e) {
 				DeploySystemUI.showNotificationInfo("error", e.getMessage());
 			}
 			window.close();
-			DeploySystemUI.showNotificationInfo("info", "Package version set to " + version);
-			loadData();
 		});
 		sw.setCaption("Change instance package version");
 		sw.setInfo("Change " + getOptInstances().size() + " instance(s) package version");
 		UI.getCurrent().addWindow(sw);
+	}
+	
+	private void setScmTag() {
+		List<Instance> instances=getOptInstances();
+		if(instances.size()==0||instances.size()>1){
+			DeploySystemUI.showInfo("Please select one instance");
+			return;
+		}
+		Instance instance=instances.get(0);
+		Application app=DeployManager.getApplicationById(instance.appId);
+		if(app.scmPath==null||app.scmPath.isEmpty()){
+			DeploySystemUI.showInfo("This instance scmPath is null");
+			return;
+		}
+		SimpleDateFormat sdf=new SimpleDateFormat("yyyyMMddhhmmss");
+		String targetUrl="svn://web1.itit.io/repo/Tags/"+app.id+sdf.format(new Date());
+		WorkingCopy wc=new WorkingCopy(
+				app.scmUser, 
+				app.scmPassword,
+				app.scmPath,null);
+		wc.copy(targetUrl,"setScmTag");
+		DeploySystemUI.showInfo("scmPath success targetUrl:"+targetUrl);
 	}
 
 	private void viewMonitor() {

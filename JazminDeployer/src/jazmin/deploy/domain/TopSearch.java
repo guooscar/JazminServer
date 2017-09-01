@@ -58,7 +58,13 @@ public class TopSearch {
 		//
 		Map<String,Application>appMap=new HashMap<String, Application>();
 		apps.forEach(a->appMap.put(a.id,a));
-		temp.forEach(s->result.add(appMap.get(s)));
+		temp.forEach(s->{
+			Application a=appMap.get(s);
+			if(a!=null){
+				result.add(a);
+			}
+		});
+		
 		//
 		return result;
 	}

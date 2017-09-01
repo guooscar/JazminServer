@@ -404,4 +404,37 @@ public class SmartBeanDAO<T> extends JazminDAO {
 		}
 		return result.toString();
 	}
+	//
+	/**
+	 * 
+	 * @param field
+	 * @param qt
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked"})
+	public <S extends Number>S sum(Class<S> clazz,String field,QueryTerms qt){
+		StringBuilder sql=new StringBuilder();
+		String tableName=getTableName();
+		sql.append("select sum("+field+") ");
+		sql.append(" from ").append(tableName);
+		sql.append(" where 1=1");
+		sql.append(qt.whereStatement());
+		if(clazz==long.class||clazz==Long.class){
+			return (S) queryForLong(sql.toString(),qt.whereValues());
+		}
+		if(clazz==int.class||clazz==Integer.class){
+			return (S) queryForInteger(sql.toString(),qt.whereValues());
+		}
+		if(clazz==short.class||clazz==Short.class){
+			return (S) queryForShort(sql.toString(),qt.whereValues());
+		}
+		if(clazz==Double.class||clazz==Double.class){
+			return (S) queryForDouble(sql.toString(),qt.whereValues());
+		}
+		if(clazz==Float.class||clazz==Float.class){
+			return (S) queryForFloat(sql.toString(),qt.whereValues());
+		}
+		throw new IllegalArgumentException(clazz.getSimpleName()+" not supported");
+	}
+	//
 }

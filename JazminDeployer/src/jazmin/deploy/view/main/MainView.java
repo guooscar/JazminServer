@@ -6,12 +6,14 @@ import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.User;
 import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.view.app.ApplicationInfoView;
+import jazmin.deploy.view.benchmark.BenchmarkView;
 import jazmin.deploy.view.console.ConsoleView;
 import jazmin.deploy.view.instance.InstanceInfoView;
 import jazmin.deploy.view.job.JobInfoView;
 import jazmin.deploy.view.machine.MachineInfoView;
 import jazmin.deploy.view.pkg.PackageInfoView;
 import jazmin.deploy.view.repo.RepoInfoView;
+import jazmin.deploy.view.workflow.WorkflowView;
 
 import com.vaadin.server.FileResource;
 import com.vaadin.server.FontAwesome;
@@ -61,26 +63,31 @@ public class MainView extends HorizontalLayout {
 			bfw.focus();
         }
         DeploySystemUI.setupErrorHandler();
+        //
+    	setView(dashboardView);
     }
     //
     public void setView(Component view){
     	content.removeAllComponents();
     	content.addComponent(view);
     }
+    DashboardView dashboardView;
     //
     private void initMenus(){
-    	menuView.addMenuItem("Dashboard", FontAwesome.DASHBOARD,DashboardView.class);	
-    	menuView.addMenuItem("Instances", FontAwesome.LIST,new InstanceInfoView());
-    	menuView.addMenuItem("Machines", FontAwesome.DESKTOP,new MachineInfoView());	
-    	menuView.addMenuItem("Applications", FontAwesome.FILE,new ApplicationInfoView());	
+    	dashboardView=new DashboardView();
+    	menuView.addMenuItem("Dashboard", FontAwesome.DASHBOARD,dashboardView);	
+    	menuView.addMenuItem("Instance", FontAwesome.LIST,new InstanceInfoView());
+    	menuView.addMenuItem("Machine", FontAwesome.DESKTOP,new MachineInfoView());	
+    	menuView.addMenuItem("Application", FontAwesome.FILE,new ApplicationInfoView());	
         if(DeploySystemUI.getUser().id.equals(User.ADMIN)){
-    		menuView.addMenuItem("Packages", FontAwesome.FOLDER_O,new PackageInfoView());	
-        	menuView.addMenuItem("Repos", FontAwesome.CLOUD_UPLOAD,new RepoInfoView());
+    		menuView.addMenuItem("Package", FontAwesome.FOLDER_O,new PackageInfoView());	
+        	menuView.addMenuItem("Repo", FontAwesome.CLOUD_UPLOAD,new RepoInfoView());
         	consoleView=new ConsoleView();
     	}
-     	menuView.addMenuItem("Consoles", FontAwesome.CODE,consoleView);
-    	menuView.addMenuItem("Jobs", FontAwesome.CUBES,new JobInfoView());	
-        
+     	menuView.addMenuItem("Console", FontAwesome.CODE,consoleView);
+     	menuView.addMenuItem("Job", FontAwesome.CUBES,new JobInfoView());
+     	menuView.addMenuItem("Benchmark", FontAwesome.CAB,new BenchmarkView());
+     	menuView.addMenuItem("Workflow", FontAwesome.GEARS,new WorkflowView());
     }
     //
     public ConsoleView getConsoleView(){

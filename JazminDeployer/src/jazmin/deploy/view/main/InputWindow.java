@@ -99,4 +99,8 @@ public class InputWindow extends Window{
 	public String getInputValue(){
 		return textField.getValue();
 	}
+	//
+	public void setInputValue(String value){
+		textField.setValue(value);
+	}
 }

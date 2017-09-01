@@ -70,6 +70,7 @@ public class MessageServer extends Server{
 	static final int DEFAULT_IDLE_TIME=60*10;//10 min
 	static final int DEFAULT_MAX_SESSION_COUNT=8000;
 	static final int DEFAULT_MAX_CHANNEL_COUNT=1000;
+	static final int DEFAULT_SESSION_CREATE_TIME=60;
 	//
 	ServerBootstrap tcpNettyServer;
 	ServerBootstrap webSocketNettyServer;
@@ -83,7 +84,7 @@ public class MessageServer extends Server{
 	int webSocketPort;
 	int udpPort;
 	int idleTime;
-	int sessionTimeout;
+	int sessionCreateTime;//session create idle time in seconds
 	int maxSessionCount;
 	int maxChannelCount;
 	int maxSessionRequestCountPerSecond;
@@ -121,6 +122,7 @@ public class MessageServer extends Server{
 		idleTime=DEFAULT_IDLE_TIME;
 		maxSessionCount=DEFAULT_MAX_SESSION_COUNT;
 		maxChannelCount=DEFAULT_MAX_CHANNEL_COUNT;
+		sessionCreateTime=DEFAULT_SESSION_CREATE_TIME;
 		//
 		sessionCreatedMethod=Dispatcher.getMethod(
 				SessionLifecycleListener.class,
@@ -158,6 +160,21 @@ public class MessageServer extends Server{
 	MessageDecoder createDecoder(){
 		return new MessageDecoder(codecFactory,networkTrafficStat);
 	}
+	
+	/**
+	 * @return the sessionCreateTime
+	 */
+	public int getSessionCreateTime() {
+		return sessionCreateTime;
+	}
+
+	/**
+	 * @param sessionCreateTime the sessionCreateTime to set
+	 */
+	public void setSessionCreateTime(int sessionCreateTime) {
+		this.sessionCreateTime = sessionCreateTime;
+	}
+
 	/**
 	 * @return the codecFactory
 	 */
@@ -350,8 +367,8 @@ public class MessageServer extends Server{
 	 */
 	private void checkPrincipal(long currentTime,Session session) {
 		if (session.getPrincipal() == null) {
-			if ((currentTime - session.createTime.getTime())> 30 * 1000) {
-				session.kick("principal not set.");
+			if ((currentTime - session.createTime.getTime())> sessionCreateTime * 1000) {
+				session.kick("principal null");
 			}
 		}
 	}
@@ -821,7 +838,7 @@ public class MessageServer extends Server{
 	}
 	//
 	private void setPrincipal0(Session session,String principal,String userAgent){
-		if(principal==null){
+		if(principal==null||principal.trim().isEmpty()){
 			throw new IllegalArgumentException("principal can not be null");
 		}
 		if(session.principal!=null){
@@ -958,8 +975,8 @@ public class MessageServer extends Server{
 		.print("webSocketPort", webSocketPort)
 		.print("udpPort", udpPort)
 		.print("idleTime", idleTime+" seconds")
+		.print("sessionCreateTime", sessionCreateTime+" seconds")
 		.print("codecFactory", codecFactory+"")
-		.print("sessionTimeout", sessionTimeout+" seconds")
 		.print("maxSessionCount", maxSessionCount)
 		.print("maxChannelCount", maxChannelCount)
 		.print("maxSessionRequestCountPerSecond", maxSessionRequestCountPerSecond)

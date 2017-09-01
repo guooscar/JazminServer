@@ -189,9 +189,8 @@ public class Session {
 	 */
 	public void kick(String message){
 		if(logger.isDebugEnabled()){
-			logger.debug("session kicked:{}",message);
+			logger.debug("session kicked:{} {}",id,message);
 		}
-		sendError(null,ResponseMessage.SC_KICKED, message);
 		if(channel!=null){
 			channel.close();	
 		}
