@@ -29,5 +29,6 @@ public class DeployDispatchServlet extends DispatchServlet{
 		dispatcher.registerController(new MonitorController());
 		dispatcher.registerController(new AudioController());
 		dispatcher.registerController(new BenchmarkController());
+		dispatcher.registerController(new WorkflowController());
 	}
 }

@@ -51,6 +51,7 @@ import jazmin.deploy.domain.ant.AntManager;
 import jazmin.deploy.domain.svn.WorkingCopy;
 import jazmin.deploy.manager.RobotDeployManagerContext.RobotDeployManagerContextImpl;
 import jazmin.deploy.util.DateUtil;
+import jazmin.deploy.workflow.WorkflowEngine;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.web.WebServer;
@@ -88,6 +89,7 @@ public class DeployManager {
 	private static Map<String, HostInfo>oneTimeVncHostInfoMap=new ConcurrentHashMap<>();
 	//
 	private static Map<String, BenchmarkSession>benchmarkSessions=new ConcurrentHashMap<>();
+	public static WorkflowEngine workflowEngine;
 	//
 	static{
 		instanceMap=new ConcurrentHashMap<String, Instance>();
@@ -125,6 +127,7 @@ public class DeployManager {
 		if(websockifyServer!=null){
 			websockifyServer.setHostInfoProvider(DeployManager::getOneTimeVncInfo);
 		}
+		workflowEngine=new WorkflowEngine();
 		//
 		startJobCronThread();
 		startHealthCheckThread();
@@ -415,6 +418,11 @@ public class DeployManager {
 		return getScripts0("script");
 	}
 	//
+	//
+	public static List<JavaScriptSource>getWorkflowScripts(){
+		return getScripts0("workflow");
+	}
+	//
 	public static List<JavaScriptSource>getBenchmarkScripts(){
 		return getScripts0("benchmark");
 	}
@@ -433,6 +441,12 @@ public class DeployManager {
 		}
 		return result;
 	}
+	//
+	public static void deleteWorkflowScript(String name){
+		File scriptFile=new File(workSpaceDir+"workflow/"+name);
+		scriptFile.delete();
+	}
+	//
 	public static void deleteBenchmarkScript(String name){
 		File scriptFile=new File(workSpaceDir+"benchmark/"+name);
 		scriptFile.delete();
@@ -457,6 +471,11 @@ public class DeployManager {
 		return FileUtil.getContent(scriptFile);
 	}
 	//
+	public static String getWorkflowScriptContent(String name) throws IOException{
+		File scriptFile=new File(workSpaceDir+"workflow/"+name);
+		return FileUtil.getContent(scriptFile);
+	}
+	//
 	public static String getRobotScriptRunContent(String name)throws IOException{
 		String fileContent=getRobotScriptContent(name);
 		StringBuilder result=new StringBuilder();
@@ -473,6 +492,10 @@ public class DeployManager {
 		}
 		result.append(fileContent);
 		return result.toString();
+	}
+	//
+	public static JavaScriptSource getWorkflowScript(String name) throws IOException{
+		return getScript0("workflow",name);
 	}
 	//
 	public static JavaScriptSource getRobotScript(String name) throws IOException{
@@ -496,6 +519,10 @@ public class DeployManager {
 			}
 		}
 		return null;
+	}
+	//
+	public static void saveWorkflowScript(String name,String content) throws IOException{
+		saveScript0("workflow",name,content);
 	}
 	//
 	public static void saveRobotScript(String name,String content) throws IOException{
