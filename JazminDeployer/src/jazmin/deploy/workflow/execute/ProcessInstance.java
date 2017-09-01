@@ -94,6 +94,10 @@ public class ProcessInstance {
 		return isDone;
 	}
 	//
+	public Map<String,Object>getVariableMap(){
+		return new HashMap<>(context.variables);
+	}
+	//
 	public void setVariable(String key,Object v){
 		context.setVariable(key, v);
 	}
