@@ -12,6 +12,7 @@ import jazmin.server.web.mvc.Context;
 import jazmin.server.web.mvc.Controller;
 import jazmin.server.web.mvc.HttpMethod;
 import jazmin.server.web.mvc.JsonView;
+import jazmin.server.web.mvc.ResourceView;
 import jazmin.server.web.mvc.Service;
 
 /**
@@ -20,6 +21,11 @@ import jazmin.server.web.mvc.Service;
  */
 @Controller(id="workflow")
 public class WorkflowController {
+	//
+	@Service(id="editor")
+	public void editor(Context ctx){
+		ctx.view(new ResourceView("/jsp/workflow.jsp"));
+	}
 	//
 	@Service(id="get_workflow_list",method=HttpMethod.POST)
 	public void getWorkflowList(Context ctx){
