@@ -559,6 +559,40 @@
         }
         return _diff;
     };
+    Object.keys = (function () {
+        var hasOwnProperty = Object.prototype.hasOwnProperty,
+            hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString'),
+            dontEnums = [
+                'toString',
+                'toLocaleString',
+                'valueOf',
+                'hasOwnProperty',
+                'isPrototypeOf',
+                'propertyIsEnumerable',
+                'constructor'
+            ],
+            dontEnumsLength = dontEnums.length;
+
+        return function (obj) {
+            if (typeof obj !== 'function' && (typeof obj !== 'object' || obj === null)) {
+                return [];
+            }
+            var result = [], prop, i;
+            for (prop in obj) {
+                if (hasOwnProperty.call(obj, prop)) {
+                    result.push(prop);
+                }
+            }
+            if (hasDontEnumBug) {
+                for (i = 0; i < dontEnumsLength; i++) {
+                    if (hasOwnProperty.call(obj, dontEnums[i])) {
+                        result.push(dontEnums[i]);
+                    }
+                }
+            }
+            return result;
+        };
+    }());
     String.isEmpty = function (value) {
         return !value || value.toString().trim().length === 0;
     };
@@ -1146,6 +1180,69 @@
         return new ITAjax();
     };
 })(window, jQuery);
+/*!
+ Licensed under the MIT license
+
+ Copyright (c) 2016 ItIt.Io
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ Any Problem , please contact <a href="mailto:yingosen@gmail.com">yingosen@gmail.com</a>
+
+ */
+/**
+ * 网络请求出发管理
+ * @auth: ginko.wang
+ * @date: 2016-05-25 23:39
+ */
+!!(function (window, $, bpms) {
+    var $codes = {
+        900001: "参数错误"
+    };
+
+    /**
+     * 请求返回错误统一处理类
+     * @param codes
+     * @param data
+     * @returns {boolean}
+     */
+    ITAjax.options.callbacks.code = function (codes, data) {
+        var _code = -1;
+        do {
+            if (typeof(data) !== "object") {
+                _code = 1000;
+                break;
+            }
+            if (typeof(data.errorCode) !== "number") {
+                _code = 1000;
+                break;
+            }
+            _code = data.errorCode;
+        } while (false);
+        if (_code === 0) {
+            return false;
+        }
+        var _message = codes[_code];
+        if (!_message) {
+            _message = $codes[_code];
+        }
+        if (_code === -1) {
+            _message = data.errorMessage;
+        }
+        if (!_message) {
+            _message = data.message;
+        }
+        if (_message !== 0 && !_message) {
+            _message = "系统错误:(CODE:" + _code + ")";
+        }
+        bpms.dialog.error(_message);
+        return true;
+    };
+})(window, jQuery, window.bpms);
 /*
  * ! Licensed under the MIT license
  * 
@@ -1202,13 +1299,19 @@
             _this.linkerOut = _this.linkerNode.output(_this.outId, "Out");
             _this.linkerOut.onConnect = function (input) {
                 _this.connect(input);
+                $("body").trigger("changed.bpms");
             };
             _this.linkerOut.onRemove = function (input) {
                 _this.disconnect(input);
+                $("body").trigger("changed.bpms");
             };
         }
         _this.linkerNode.onDrag = function (x, y) {
             _this.drag(x, y);
+            if (!!bpm) {
+                bpm.setLastPosition(x, y);
+            }
+            $("body").trigger("changed.bpms");
         };
         _this.linkerNode.onActive = function () {
             if (!!bpm) {
@@ -1220,14 +1323,16 @@
             $("#node-script-type").val(_this.scriptType);
             $("#node-execute").val(_this.execute);
             $("#node-taskid").val(_this.taskId);
+            $("body").trigger("changed.bpms");
+
         };
         _this.linkerNode.onRemove = function () {
-            console.log(this); // print the node object
             delete bpm.__nodes__[_this.linkerNode.id];
             for (var key in bpm.__nodes__) {
                 var _node = bpm.__nodes__[key];
                 delete _node.__transtions__[_this.linkerNode.id];
             }
+            $("body").trigger("changed.bpms");
         };
     };
     BNode.prototype.__init__ = function () {
@@ -1436,8 +1541,8 @@
         this.id = undefined;
         this.name = undefined;
         this.activeNode = undefined;
-        this.__lastX__ = 50;
-        this.__lastY__ = 50;
+        this.__lastX__ = 0;
+        this.__lastY__ = 0;
         this.__idCounter__ = 0;
         this.__nodes__ = {};
     };
@@ -1490,8 +1595,10 @@
     Bpm.prototype.add = function (name, type) {
         var _this = this;
         var _id = _this.generateId();
-        var _position = _this.__position__();
-        return _this.addCustomer(_id, name, type, _position.x, _position.y);
+        _this.__lastX__ = _this.__lastX__ + 150;
+        _this.__lastY__ = _this.__lastY__ + 20;
+        $("body").trigger("changed.bpms");
+        return _this.addCustomer(_id, name, type, _this.__lastX__, _this.__lastY__);
     };
     /**
      * 新增节点
@@ -1511,11 +1618,8 @@
     };
     /**
      *
-     * @param id
-     * @param name
-     * @param type
-     * @param x
-     * @param y
+     * @param fromId
+     * @param toId
      */
     Bpm.prototype.connect = function (fromId, toId) {
         var _this = this;
@@ -1533,24 +1637,6 @@
         delete _this.__nodes__[id];
     };
     /**
-     * 计算位置
-     *
-     * @returns {{x: number, y: number}}
-     * @private
-     */
-    Bpm.prototype.__position__ = function () {
-        var _this = this;
-        var _nodes = [];
-        for (var key in _this.__nodes__) {
-            _nodes.push(_this.__nodes__[key].data());
-        }
-        var _len = _nodes.length;
-        return {
-            x: (_len % 8) * 200 + (50 * (_len % 8 + 1)),
-            y: parseInt(_len / 8) * 100 + 60
-        };
-    };
-    /**
      * 获取bpm配置数据
      *
      * @returns {{id: *, name: *, nodes: Array}}
@@ -1565,6 +1651,8 @@
             id: _this.id,
             name: _this.name,
             counter: _this.__idCounter__,
+            lastX: _this.__lastX__,
+            lastY: _this.__lastY__,
             nodes: _nodes
         };
     };
