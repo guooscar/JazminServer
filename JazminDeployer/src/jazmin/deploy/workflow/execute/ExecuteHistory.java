@@ -15,7 +15,7 @@ public class ExecuteHistory {
 	public static final String STATUS_ENTER="enter";
 	public static final String STATUS_FINISHED="finished";
 	//
-	public int id;
+	public String id;
 	public String node;
 	public TreeSet<String> fromNodes;
 	public Date startTime;

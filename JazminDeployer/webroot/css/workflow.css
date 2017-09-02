@@ -1,0 +1,928 @@
+@charset "UTF-8";
+/*!
+Licensed under the MIT license
+
+Copyright (c) 2016 ItIt.Io
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Any Problem , please contact <a href="mailto:yingosen@gmail.com">yingosen@gmail.com</a>
+
+*/
+
+/************************ Commons css ********************************/
+* {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    font-family: "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "STHeiti", "Microsoft YaHei", "WenQuanYi Micro Hei", "Arial", sans-serif;
+    font-size: 14px;
+    line-height: 150%;
+    color: #676767;
+    font-weight: 400;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    apple-mobile-web-app-status-bar-style: black-translucent;
+}
+
+.hide {
+    display: none !important
+}
+
+.show {
+    display: block !important
+}
+
+.invisible {
+    visibility: hidden
+}
+
+.hidden {
+    display: none !important
+}
+
+.text-left {
+    text-align: left !important;
+}
+
+.text-right {
+    text-align: right !important;
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+.clearfix {
+    clear: both !important;
+}
+
+.blur20 {
+    -moz-filter: blur(20px);
+    -webkit-filter: blur(20px);
+    -o-filter: blur(20px);
+    -ms-filter: blur(20px);
+    filter: blur(20px);
+}
+
+.blur15 {
+    -moz-filter: blur(15px);
+    -webkit-filter: blur(15px);
+    -o-filter: blur(15px);
+    -ms-filter: blur(15px);
+    filter: blur(15px);
+}
+
+.blur10 {
+    -moz-filter: blur(10px);
+    -webkit-filter: blur(10px);
+    -o-filter: blur(10px);
+    -ms-filter: blur(10px);
+    filter: blur(10px);
+}
+
+.text-ellipsis {
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.text-left {
+    text-align: left !important;
+}
+
+.text-right {
+    text-align: right !important;
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+.pre {
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+}
+
+.pl-5 {
+    padding-left: 5px !important;
+}
+
+.pl-10 {
+    padding-left: 10px !important;
+}
+
+.pl-15 {
+    padding-left: 15px !important;
+}
+
+.pl-20 {
+    padding-left: 20px !important;
+}
+
+.pr-5 {
+    padding-right: 5px !important;
+}
+
+.pr-10 {
+    padding-right: 10px !important;
+}
+
+.pr-15 {
+    padding-right: 15px !important;
+}
+
+.pr-20 {
+    padding-right: 20px !important;
+}
+
+.ph-5 {
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+}
+
+.ph-10 {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+}
+
+.ph-15 {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+}
+
+.ph-20 {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+}
+
+.pt-5 {
+    padding-top: 5px !important;
+}
+
+.pt-10 {
+    padding-top: 10px !important;
+}
+
+.pt-15 {
+    padding-top: 15px !important;
+}
+
+.pt-20 {
+    padding-top: 20px !important;
+}
+
+.pb-5 {
+    padding-bottom: 5px !important;
+}
+
+.pb-10 {
+    padding-bottom: 10px !important;
+}
+
+.pb-15 {
+    padding-bottom: 15px !important;
+}
+
+.pb-20 {
+    padding-bottom: 20px !important;
+}
+
+.pv-5 {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+}
+
+.pv-10 {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+
+.pv-15 {
+    padding-top: 15px !important;
+    padding-bottom: 15px !important;
+}
+
+.pv-20 {
+    padding-top: 20px !important;
+    padding-bottom: 20px !important;
+}
+
+.no-padding {
+    padding: 0 !important;
+}
+
+.no-hpadding {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.no-vpadding {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+.no-lpadding {
+    padding-left: 0 !important;
+}
+
+.no-rpadding {
+    padding-right: 0 !important;
+}
+
+.ml-5 {
+    margin-left: 5px !important;
+}
+
+.ml-10 {
+    margin-left: 10px !important;
+}
+
+.ml-15 {
+    margin-left: 15px !important;
+}
+
+.ml-20 {
+    margin-left: 20px !important;
+}
+
+.mr-5 {
+    margin-right: 5px !important;
+}
+
+.mr-10 {
+    margin-right: 10px !important;
+}
+
+.mr-15 {
+    margin-right: 15px !important;
+}
+
+.mr-20 {
+    margin-right: 20px !important;
+}
+
+.mh-5 {
+    margin-left: 5px !important;
+    margin-right: 5px !important;
+}
+
+.mh-10 {
+    margin-left: 10px !important;
+    margin-right: 10px !important;
+}
+
+.mh-15 {
+    margin-left: 15px !important;
+    margin-right: 15px !important;
+}
+
+.mh-20 {
+    margin-left: 20px !important;
+    margin-right: 20px !important;
+}
+
+.mt-5 {
+    margin-top: 5px !important;
+}
+
+.mt-10 {
+    margin-top: 10px !important;
+}
+
+.mt-15 {
+    margin-top: 15px !important;
+}
+
+.mt-20 {
+    margin-top: 20px !important;
+}
+
+.mb-5 {
+    margin-bottom: 5px !important;
+}
+
+.mb-10 {
+    margin-bottom: 10px !important;
+}
+
+.mb-15 {
+    margin-bottom: 15px !important;
+}
+
+.mb-20 {
+    margin-bottom: 20px !important;
+}
+
+.mv-5 {
+    margin-top: 5px !important;
+    margin-bottom: 5px !important;
+}
+
+.mv-10 {
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+}
+
+.mv-15 {
+    margin-top: 15px !important;
+    margin-bottom: 15px !important;
+}
+
+.mv-20 {
+    margin-top: 20px !important;
+    margin-bottom: 20px !important;
+}
+
+.no-margin {
+    margin: 0 !important;
+}
+
+.no-hmargin {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.no-vmargin {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.no-lmargin {
+    margin-left: 0 !important;
+}
+
+.no-rmargin {
+    margin-right: 0 !important;
+}
+
+.no-tmargin {
+    margin-top: 0 !important;
+}
+
+.no-bmargin {
+    margin-bottom: 0 !important;
+}
+
+input, textarea, select {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: none;
+    outline: none;
+    border-radius: 0;
+}
+
+input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill {
+    background-color: transparent !important;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.line {
+    -webkit-box-shadow: 0px 5px 5px -5px #ccc;
+    -khtml-box-shadow: 0px 5px 5px -5px #ccc;
+    -moz-box-shadow: 0px 5px 5px -5px #ccc;
+    box-shadow: 0px 5px 5px -5px #ccc;
+
+}
+
+button, input, textarea {
+    outline: none;
+}
+
+.no-hpadding {
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+}
+
+/**
+ * 该属性用来绑定元素点击跳转事件,js方法会读取 data-href属性
+ */
+.href-event {
+
+}
+
+/**
+ *  电话点击事件
+ */
+a.tel-event {
+    color: #348FEF !important;
+}
+
+/**
+ * 该属性用来绑定元素点击事件,js方法会读取data-handler属性回调处理函数
+ */
+.data-event {
+
+}
+
+/**
+ * 该属性用来绑定元素鼠标hover事件
+ */
+.hover-event {
+    cursor: pointer;
+}
+
+.placeholder {
+    color: #676767;
+}
+
+/*************************************start common**********************************************/
+.pageloader {
+
+}
+
+.pageloader .data-loading,
+.pageloader .data-no-tip,
+.pageloader .data-no-more-tip {
+    text-align: center;
+    padding: 15px 10px;
+    font-size: 14px;
+    display: none;
+}
+
+.pageloader .data-loading {
+    display: block;
+}
+
+/*************************************end   common**********************************************/
+.share-dialog {
+    display: none;
+}
+
+.autokey {
+
+}
+
+.truncate {
+
+}
+
+.echarts {
+
+}
+
+img.responsive {
+    width: 98%;
+    display: block;
+    margin: 0 auto;
+}
+
+.modal-dialog-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    margin: 0;
+}
+
+.modal-dialog-middle {
+    position: fixed;
+    left: 0;
+    top: 20%;
+    width: 100%;
+    padding: 10px;
+    margin: 0;
+}
+
+.modal .modal-content {
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
+    border: none;
+}
+
+.modal .modal-content .modal-header {
+    text-align: center;
+    color: #676767;
+    font-size: 15px;
+    border: none;
+}
+
+.modal .modal-content .modal-body {
+    position: relative;
+}
+
+.modal .modal-content .modal-body .item {
+    margin-bottom: 10px;
+}
+
+.modal .modal-content .modal-body .item input {
+    width: 100%;
+    height: 40px;
+    background-color: #f5f5f5;
+    resize: none;
+    padding: 5px;
+    border: solid 1px #e5e5e5;
+}
+
+.modal-content .modal-body textarea.content {
+    width: 100%;
+    height: 100px;
+    background-color: #f5f5f5;
+    resize: none;
+    padding: 5px;
+    border: solid 1px #e5e5e5;
+}
+
+.modal-content .modal-body textarea.content.error {
+    border: dashed 1px #ff0000;
+}
+
+.modal-content .modal-body .counter {
+    position: absolute;
+    right: 20px;
+    bottom: 10px;
+    font-size: 12px;
+    padding: 0 2px;
+    color: #b2b2b2;
+    background-color: #f5f5f5;
+}
+
+.modal .modal-content .modal-footer {
+    border: none;
+}
+
+.modal .modal-content .modal-footer .btn-cancel,
+.modal .modal-content .modal-footer .btn-submit {
+    float: left;
+    width: 48%;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    color: #ffffff;
+}
+
+.modal .modal-content .modal-footer .btn-cancel {
+    background-color: #feab04;
+    margin-right: 2%;
+}
+
+.modal .modal-content .modal-footer .btn-submit {
+    margin-left: 2%;
+    background-color: #4483c5;
+}
+
+.modal.perview-image .modal-dialog {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    background-color: #434343 !important;
+}
+
+.modal.perview-image .modal-content {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    padding: 50px 0 !important;
+    background-color: transparent !important;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+
+.modal.perview-image .modal-content .modal-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
+    padding: 0 16px !important;
+    color: #ffffff !important;
+}
+
+.modal.perview-image .modal-content .modal-header .close {
+    color: #ffffff !important;
+    opacity: 1.0 !important;
+    height: 50px;
+    line-height: 50px;
+}
+
+.modal.perview-image .modal-content .modal-body {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.v-error {
+    color: #a30f0f;
+    font-size: 10px;
+}
+
+/***********************************************************************/
+
+.bpms {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    background-color: #313749;
+    padding-top: 44px;
+}
+
+.bpms .top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 44px;
+    width: 100%;
+    background-color: #f3f3f3;
+    padding: 0 356px 0 256px;
+    border-bottom: solid 1px #cdcdcd;
+    -webkit-box-shadow: 0 0 3px #888888;
+    -moz-box-shadow: 0 0 3px #888888;
+    box-shadow: 0 0 3px #888888;
+}
+
+.bpms .top .show-left,
+.bpms .top .show-right {
+    position: absolute;
+    top: 0;
+    left: -2px;
+    height: 44px;
+    line-height: 44px;
+    overflow: hidden;
+}
+
+.bpms .top .proc-name {
+    position: absolute;
+    top: 0;
+    right: 266px;
+    height: 44px;
+    width: 80px;
+    line-height: 44px;
+    overflow: hidden;
+    text-align: center;
+    font-weight: 600;
+}
+
+.bpms .top .show-right {
+    left: auto;
+    right: -2px;
+    overflow: hidden;
+}
+
+.bpms .top .group {
+    position: relative;
+    height: 44px;
+    line-height: 44px;
+}
+
+.bpms .processes,
+.bpms .components {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 240px;
+    padding-top: 44px;
+    background-color: #ffffff;
+    border-right: solid 1px #cdcdcd;
+    -webkit-transform: translateX(-360px);
+    -moz-transform: translateX(-360px);
+    -ms-transform: translateX(-360px);
+    -o-transform: translateX(-360px);
+    transform: translateX(-360px);
+    -webkit-transition: -webkit-transform 0.3s ease-in-out;
+    -moz-transition: -moz-transform 0.3s ease-in-out;
+    -ms-transition: -ms-transform 0.3s ease-in-out;
+    -o-transition: -o-transform 0.3s ease-in-out;
+    transition: transform 0.3s ease-in-out;
+    overflow: hidden;
+}
+
+.bpms .components {
+    left: auto;
+    right: 0;
+    border-left: solid 1px #cdcdcd;
+    -webkit-transform: translateX(360px);
+    -moz-transform: translateX(360px);
+    -ms-transform: translateX(360px);
+    -o-transform: translateX(360px);
+    transform: translateX(360px);
+}
+
+.bpms.with-left {
+    padding-left: 240px;
+}
+
+.bpms.with-right {
+    padding-right: 240px;
+}
+
+.bpms.with-left .processes {
+    -webkit-transform: translateX(0);
+    -moz-transform: translateX(0);
+    -ms-transform: translateX(0);
+    -o-transform: translateX(0);
+    transform: translateX(0);
+}
+
+.bpms.with-right .components {
+    -webkit-transform: translateX(0);
+    -moz-transform: translateX(0);
+    -ms-transform: translateX(0);
+    -o-transform: translateX(0);
+    transform: translateX(0);
+}
+
+.bpms .processes .header,
+.bpms .components .header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 44px;
+    line-height: 44px;
+    width: 240px;
+    background-color: #f3f3f3;
+    padding: 0 12px;
+    border-bottom: solid 1px #cdcdcd;
+}
+
+.bpms .processes .header .title,
+.bpms .components .header .title {
+    color: #434343;
+}
+
+.bpms .processes .header .close,
+.bpms .components .header .close {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    height: 24px;
+    width: 24px;
+    line-height: 24px;
+    text-align: center;
+    cursor: pointer;
+    border: solid 1px #ececec;
+}
+
+.bpms .processes .header .close:hover,
+.bpms .components .header .close:hover {
+    border: solid 1px #cdcdcd;
+    background-color: #f3f3f3;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+}
+
+.bpms .processes .bodyer,
+.bpms .components .bodyer {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    padding: 10px 0;
+    -webkit-box-shadow: 0 0 3px #888888;
+    -moz-box-shadow: 0 0 3px #888888;
+    box-shadow: 0 0 3px #888888;
+}
+
+.bpms .processes .bodyer .items,
+.bpms .components .bodyer .items {
+
+}
+
+.bpms .components .bodyer .fields.property {
+    border-top: solid 1px #ececec;
+    padding: 0 20px;
+}
+
+.bpms .components .bodyer .fields .field {
+    position: relative;
+    margin-top: 5px;
+}
+
+.bpms .components .bodyer .fields .field .field-label {
+
+}
+
+.bpms .processes .bodyer .items .item {
+    padding: 8px 30px 8px 20px;
+    border-bottom: solid 1px #ececec;
+    cursor: pointer;
+}
+
+.bpms .processes .bodyer .items .item.checked {
+    background-color: #b2b2b2;
+}
+
+.bpms .processes .bodyer .items .item .name {
+    height: 30px;
+    line-height: 30px;
+    color: #434343;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.bpms .processes .bodyer .items .item .time {
+    height: 20px;
+    line-height: 20px;
+    font-size: 12px;
+    color: #6f99f1;
+}
+
+.bpms .components .bodyer .items .item {
+    height: 36px;
+    line-height: 36px;
+    padding: 0 20px;
+    border-bottom: solid 1px #ececec;
+    cursor: pointer;
+}
+
+.bpms .processes .bodyer .items .item:hover,
+.bpms .components .bodyer .items .item:hover {
+    background-color: #ececec;
+}
+
+.bpms .components .bodyer .nodes.items .item {
+    position: relative;
+    padding-left: 60px;
+}
+
+.bpms .components .bodyer .nodes.items .item .icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 36px;
+    width: 60px;
+}
+
+.bpms .components .bodyer .nodes.items .item.start .icon {
+    background: url("/image/bpms/start-small.png") center no-repeat transparent;
+    -webkit-background-size: 24px;
+    background-size: 24px;
+}
+
+.bpms .components .bodyer .nodes.items .item.fork .icon {
+    background: url("/image/bpms/fork-small.png") center no-repeat transparent;
+    -webkit-background-size: 24px;
+    background-size: 24px;
+}
+
+.bpms .components .bodyer .nodes.items .item.join .icon {
+    background: url("/image/bpms/join-small.png") center no-repeat transparent;
+    -webkit-background-size: 24px;
+    background-size: 24px;
+}
+
+.bpms .components .bodyer .nodes.items .item.task .icon {
+    background: url("/image/bpms/task-small.png") center no-repeat transparent;
+    -webkit-background-size: 24px;
+    background-size: 24px;
+}
+
+.bpms .components .bodyer .nodes.items .item.decision .icon {
+    background: url("/image/bpms/decision-small.png") center no-repeat transparent;
+    -webkit-background-size: 24px;
+    background-size: 24px;
+}
+
+.bpms .components .bodyer .nodes.items .item.end .icon {
+    background: url("/image/bpms/end-small.png") center no-repeat transparent;
+    -webkit-background-size: 24px;
+    background-size: 24px;
+}
+
+.run-status-dialog{
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	height: 280px;
+	width: 500px;
+	z-index:101;
+	background-color: #f3f3f3;
+	padding: 10px 20px;
+}
+	

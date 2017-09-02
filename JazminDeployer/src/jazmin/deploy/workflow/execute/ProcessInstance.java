@@ -44,8 +44,7 @@ public class ProcessInstance {
 	private boolean isDone;
 	//
 	private Set<String>tokenNodes;
-	ExecuteHandler executeHandler;
-	
+	EventHandler eventHandler;
 	//
 	public ProcessInstance(WorkflowProcess process,WorkflowEngine engine) {
 		nodeMap=new HashMap<>();
@@ -64,21 +63,21 @@ public class ProcessInstance {
 	/**
 	 * @return
 	 */
-	public List<ExecuteHistory>getRuntimeExecuteHistories(){
+	public List<ExecuteHistory>getExecuteHistories(){
 		return new ArrayList<ExecuteHistory>(historyMap.values());
 	}
 	/**
 	 * @return the executeHandler
 	 */
-	public ExecuteHandler getExecuteHandler() {
-		return executeHandler;
+	public EventHandler getEventHandler() {
+		return eventHandler;
 	}
 
 	/**
 	 * @param executeHandler the executeHandler to set
 	 */
-	public void setExecuteHandler(ExecuteHandler executeHandler) {
-		this.executeHandler = executeHandler;
+	public void setEventHandler(EventHandler executeHandler) {
+		this.eventHandler = executeHandler;
 	}
 
 	/**
@@ -138,7 +137,7 @@ public class ProcessInstance {
 			}
 			nodeMap.put(n.id,n);
 			//load execute
-			if(n.execute!=null){
+			if(n.execute!=null&&!n.execute.trim().isEmpty()){
 				Execute execute=engine.loadExecute(n.execute);
 				if(execute==null){
 					throw new IllegalArgumentException("can not load execute with express:"+n.execute);
@@ -219,15 +218,7 @@ public class ProcessInstance {
 				history.error=e;
 			}
 		}
-		if(executeHandler!=null){
-			try {
-				context.currentNode=node;
-				executeHandler.execute(context);
-			} catch (Exception e) {
-				logger.catching(e);
-				history.error=e;
-			}
-		}
+		
 		//
 		if(node.type.equals(Node.TYPE_START)){
 			transition(node);
@@ -250,7 +241,9 @@ public class ProcessInstance {
 		//
 		if(node.type.equals(Node.TYPE_JOIN)){
 			boolean allPresent=true;
+			System.err.println(history.fromNodes);
 			for(Node dependNode:findDependNodes(node.id)){
+				System.err.println(dependNode.id);
 				if(!history.fromNodes.contains(dependNode.id)){
 					allPresent=false;
 				}
@@ -313,12 +306,13 @@ public class ProcessInstance {
 		ExecuteHistory history=historyMap.get(node.id);
 		if(history==null){
 			history=new ExecuteHistory();
+			history.id=UUID.randomUUID().toString();
 			history.node=node.id;
-			if(fromNode!=null){
-				history.fromNodes.add(fromNode.id);
-			}
 			history.status=ExecuteHistory.STATUS_ENTER;
 			historyMap.put(node.id, history);
+		}
+		if(fromNode!=null){
+			history.fromNodes.add(fromNode.id);
 		}
 		//
 		ExecuteHistory allHistory=new ExecuteHistory();
@@ -332,6 +326,16 @@ public class ProcessInstance {
 		enterEvent.node=node;
 		enterEvent.type=WorkflowEvent.TYPE_ENTER;
 		engine.fireEvent(enterEvent);
+		//
+		if(eventHandler!=null){
+			try {
+				context.currentNode=node;
+				eventHandler.onEvent(context,"enter");
+			} catch (Exception e) {
+				logger.catching(e);
+				history.error=e;
+			}
+		}
 	}
 	//
 	void leave(Node node){
@@ -365,6 +369,16 @@ public class ProcessInstance {
 		enterEvent.node=node;
 		enterEvent.type=WorkflowEvent.TYPE_LEAVE;
 		engine.fireEvent(enterEvent);
+		//
+		if(eventHandler!=null){
+			try {
+				context.currentNode=node;
+				eventHandler.onEvent(context,"leave");
+			} catch (Exception e) {
+				logger.catching(e);
+				history.error=e;
+			}
+		}
 	}
 	//
 	

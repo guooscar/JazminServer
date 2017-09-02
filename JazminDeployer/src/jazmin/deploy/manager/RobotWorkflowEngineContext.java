@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import jazmin.deploy.workflow.WorkflowEngine;
 import jazmin.deploy.workflow.definition.WorkflowProcess;
-import jazmin.deploy.workflow.execute.ExecuteHandler;
+import jazmin.deploy.workflow.execute.EventHandler;
 import jazmin.deploy.workflow.execute.ProcessInstance;
 
 /**
@@ -15,7 +15,7 @@ import jazmin.deploy.workflow.execute.ProcessInstance;
  *
  */
 public interface RobotWorkflowEngineContext {
-	public ProcessInstance startWorkflow(String name,ExecuteHandler handler);
+	public ProcessInstance startWorkflow(String name,EventHandler handler);
 	//
 	public  class RobotWorkflowEngineContextImpl implements RobotWorkflowEngineContext{
 		WorkflowEngine engine;
@@ -23,7 +23,7 @@ public interface RobotWorkflowEngineContext {
 			this.engine=engine;
 		}
 		//
-		public ProcessInstance startWorkflow(String name,ExecuteHandler handler){
+		public ProcessInstance startWorkflow(String name,EventHandler handler){
 			try {
 				String content=DeployManager.getWorkflowScriptContent(name);
 				WorkflowProcess p=engine.loadProcess(content);
