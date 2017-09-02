@@ -1423,6 +1423,9 @@ public class DeployManager {
         createDirs("repo");
         createDirs("package");
         createDirs("script");
+        createDirs("workflow");
+        createDirs("benchmark");
+        
         //
         createFile("config/application.json");
         createFile("config/instance.json");
