@@ -75,7 +75,7 @@
             }
             node.__id = gid();
             node.id = node.id ? node.id : node.__id;
-            node.el = $("<div class=\"linker_node node_" + node.id + " " + _nodeClass + "\" style=\"left:" + node.x + "px;top: " + node.y + "px;\"><h3><div class='linker_node_title'>" + node.name + "</div><span class=\"remove\"></span></h3><div class=\"linker_inputs\"></div><div class=\"linker_outputs\"></div></div>");
+            node.el = $("<div class=\"linker_node node_" + node.id + " " + _nodeClass + "\" style=\"left:" + node.x + "px;top: " + node.y + "px;\"><h3><div class='linker_node_title'>" + node.id + "</div><span class=\"remove\"></span></h3><div class=\"linker_inputs\"></div><div class=\"linker_outputs\"></div><div class=\"linker_node_id\">"+node.name+"</div></div>");
             node.el.data("obj", node);
             node.pathsOut = {}; // paths out from this node
             node.pathsIn = {}; // paths in to this node
@@ -119,9 +119,9 @@
             node.inputs = [];
             node.name = function (name) {
                 if (typeof(name) !== "string") {
-                    return node.el.find("div.linker_node_title").text();
+                    return node.el.find("div.linker_node_id").text();
                 }
-                node.el.find("div.linker_node_title").text(name);
+                node.el.find("div.linker_node_id").text(name);
             };
             node.input = function (id, name) {
                 var i = node.inputs.push({

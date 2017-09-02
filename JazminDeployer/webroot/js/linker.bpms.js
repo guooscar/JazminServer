@@ -1321,10 +1321,7 @@
             $("#node-name").val(_this.name);
             $("#node-type").val(_this.type);
             $("#node-script-type").val(_this.scriptType);
-            $("#node-execute").val(_this.execute);
             $("#node-taskid").val(_this.taskId);
-            $("body").trigger("changed.bpms");
-
         };
         _this.linkerNode.onRemove = function () {
             delete bpm.__nodes__[_this.linkerNode.id];
@@ -1552,7 +1549,7 @@
      * @returns {string}
      */
     Bpm.prototype.generateId = function () {
-        return "bpm-node-" + (this.__idCounter__++);
+        return "node-" + (this.__idCounter__++);
     };
     /**
      * 当前id
@@ -1560,7 +1557,7 @@
      * @returns {string}
      */
     Bpm.prototype.currentId = function () {
-        return "bpm-node-" + (this.__idCounter__);
+        return "node-" + (this.__idCounter__);
     };
 
     /**

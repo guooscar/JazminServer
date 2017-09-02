@@ -386,7 +386,7 @@ body {
     margin-bottom: 0 !important;
 }
 
-input, textarea {
+input, textarea,select {
     -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
@@ -819,7 +819,10 @@ img.responsive {
 }
 
 .bpms .components .bodyer .fields .field .field-label {
+}
 
+.bpms .components .bodyer .fields .field .field-content {
+    position: relative;
 }
 
 .bpms .processes .bodyer .items .item {
@@ -909,14 +912,13 @@ img.responsive {
     background-size: 24px;
 }
 
-.run-status-dialog{
-	position: fixed;
-	bottom: 0;
-	right: 0;
-	height: 280px;
-	width: 500px;
-	z-index:101;
-	background-color: #f3f3f3;
-	padding: 10px 20px;
+.run-status-dialog {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    height: 280px;
+    width: 500px;
+    z-index: 101;
+    background-color: #f3f3f3;
+    padding: 10px 20px;
 }
-	
