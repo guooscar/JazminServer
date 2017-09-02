@@ -39,6 +39,7 @@ public class ProcessInstance {
 	private Map<String,Execute>executeMap;
 	WorkflowEngine engine;
 	Map<String,ExecuteHistory>historyMap;
+	List<ExecuteHistory>allHistories;
 	ExecuteContext context;
 	private boolean isDone;
 	//
@@ -56,7 +57,9 @@ public class ProcessInstance {
 		tokenNodes=new TreeSet<>();
 	}
 	//
-	
+	public List<ExecuteHistory>getAllExecuteHistories(){
+		return allHistories;
+	}
 	/**
 	 * @return
 	 */
@@ -190,6 +193,7 @@ public class ProcessInstance {
 	public void start(){
 		isDone=false;
 		historyMap=new ConcurrentHashMap<>();
+		allHistories=new ArrayList<>();
 		enter(null,startNode);
 		signal(startNode.id);
 	}
@@ -311,6 +315,11 @@ public class ProcessInstance {
 			history.fromNodes.add(fromNode.id);
 		}
 		//
+		ExecuteHistory allHistory=new ExecuteHistory();
+		allHistory.node=node.id;
+		allHistory.startTime=new Date();
+		allHistories.add(allHistory);
+		//
 		tokenNodes.add(node.id);
 		WorkflowEvent enterEvent=new WorkflowEvent();
 		enterEvent.instance=this;
@@ -341,6 +350,17 @@ public class ProcessInstance {
 		history.status=ExecuteHistory.STATUS_FINISHED;
 		history.endTime=new Date();
 		history.fromNodes.clear();
+		//
+		ExecuteHistory allHistory=null;
+		for(int i=allHistories.size()-1;i>=0;i--){
+			ExecuteHistory eh=allHistories.get(i);
+			if(eh.node.equals(node.id)){
+				allHistory=eh;
+			}
+		}
+		if(allHistory!=null){
+			allHistory.endTime=new Date();
+		}
 		//
 		tokenNodes.remove(node.id);
 		//
