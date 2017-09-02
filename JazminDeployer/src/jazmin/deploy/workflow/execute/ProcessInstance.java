@@ -46,6 +46,7 @@ public class ProcessInstance {
 	//
 	private Set<String>tokenNodes;
 	EventHandler eventHandler;
+	ExceptionHandler exceptionHandler;
 	private static AtomicInteger instanceCounter=new AtomicInteger(0);
 	//
 	public ProcessInstance(WorkflowProcess process,WorkflowEngine engine) {
@@ -58,6 +59,21 @@ public class ProcessInstance {
 		id=process.id+"-"+instanceCounter.incrementAndGet();
 		tokenNodes=new TreeSet<>();
 	}
+	
+	/**
+	 * @return the exceptionHandler
+	 */
+	public ExceptionHandler getExceptionHandler() {
+		return exceptionHandler;
+	}
+
+	/**
+	 * @param exceptionHandler the exceptionHandler to set
+	 */
+	public void setExceptionHandler(ExceptionHandler exceptionHandler) {
+		this.exceptionHandler = exceptionHandler;
+	}
+
 	//
 	public List<ExecuteHistory>getAllExecuteHistories(){
 		return allHistories;
@@ -216,7 +232,7 @@ public class ProcessInstance {
 				context.currentNode=node;
 				execute.execute(context);
 			} catch (Exception e) {
-				logger.catching(e);
+				handleException(e);
 				history.error=e;
 			}
 		}
@@ -243,7 +259,6 @@ public class ProcessInstance {
 		//
 		if(node.type.equals(Node.TYPE_JOIN)){
 			boolean allPresent=true;
-			System.err.println(history.fromNodes);
 			for(Node dependNode:findDependNodes(node.id)){
 				System.err.println(dependNode.id);
 				if(!history.fromNodes.contains(dependNode.id)){
@@ -254,6 +269,17 @@ public class ProcessInstance {
 				transition(node);
 			}
 			return;
+		}
+	}
+	//
+	private void handleException(Throwable e){
+		logger.catching(e);
+		if(exceptionHandler!=null){
+			try{
+				exceptionHandler.onException(context, e);
+			}catch (Exception ee) {
+				logger.catching(ee);
+			}
 		}
 	}
 	//
@@ -332,10 +358,10 @@ public class ProcessInstance {
 		if(eventHandler!=null){
 			try {
 				context.currentNode=node;
-				eventHandler.onEvent(context,"enter");
+				eventHandler.onEvent(context,EventHandler.EVENT_TYPE_ENTER);
 			} catch (Exception e) {
-				logger.catching(e);
 				history.error=e;
+				handleException(e);
 			}
 		}
 	}
@@ -375,10 +401,10 @@ public class ProcessInstance {
 		if(eventHandler!=null){
 			try {
 				context.currentNode=node;
-				eventHandler.onEvent(context,"leave");
+				eventHandler.onEvent(context,EventHandler.EVENT_TYPE_LEAVE);
 			} catch (Exception e) {
-				logger.catching(e);
 				history.error=e;
+				handleException(e);
 			}
 		}
 	}
