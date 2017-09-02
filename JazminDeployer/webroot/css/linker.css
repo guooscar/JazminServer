@@ -21,11 +21,11 @@
 }
 
 .linker_container .linker_board {
+    position: absolute;
     width: 19200px;
     height: 19200px;
-    position: absolute;
-    top: 0;
-    left: 0
+    top:0;
+    left:0;
 }
 
 .linker_container svg#linker_paths {
@@ -50,6 +50,7 @@
 }
 
 .linker_container .linker_node {
+    position: relative;
     background-color: #364156;
     border-radius: 5px;
     width: 100px;
@@ -86,6 +87,15 @@
     margin: 0;
     padding: 5px 0;
     cursor: move
+}
+
+.linker_container .linker_node .linker_node_id {
+    position: absolute;
+    top: -16px;
+    width: 100%;
+    text-align: center;
+    font-size: 10px;
+    color: #f3f3f3;
 }
 
 .linker_container .linker_node > h3 .remove,
@@ -191,37 +201,37 @@
 }
 
 .linker_container .linker_node.linker_node_start {
-    background: url("/image/bpms/start.png") center 10px no-repeat #364156;
-    -webkit-background-size: 80px;
-    background-size: 80px;
+    background: url("/image/bpms/start-small.png") center 30px no-repeat #364156;
+    -webkit-background-size: 40px;
+    background-size: 40px;
 }
 
 .linker_container .linker_node.linker_node_fork {
-    background: url("/image/bpms/fork.png") center 10px no-repeat #364156;
-    -webkit-background-size: 80px;
-    background-size: 80px;
+    background: url("/image/bpms/fork-small.png") center 30px no-repeat #364156;
+    -webkit-background-size: 40px;
+    background-size: 40px;
 }
 
 .linker_container .linker_node.linker_node_join {
-    background: url("/image/bpms/join.png") center 10px no-repeat #364156;
-    -webkit-background-size: 80px;
-    background-size: 80px;
+    background: url("/image/bpms/join-small.png") center 30px no-repeat #364156;
+    -webkit-background-size: 40px;
+    background-size: 40px;
 }
 
 .linker_container .linker_node.linker_node_task {
-    background: url("/image/bpms/task.png") center 10px no-repeat #364156;
-    -webkit-background-size: 80px;
-    background-size: 80px;
+    background: url("/image/bpms/task-small.png") center 30px no-repeat #364156;
+    -webkit-background-size: 40px;
+    background-size: 40px;
 }
 
 .linker_container .linker_node.linker_node_decision {
-    background: url("/image/bpms/decision.png") center 10px no-repeat #364156;
-    -webkit-background-size: 80px;
-    background-size: 80px;
+    background: url("/image/bpms/decision-small.png") center 30px no-repeat #364156;
+    -webkit-background-size: 40px;
+    background-size: 40px;
 }
 
 .linker_container .linker_node.linker_node_end {
-    background: url("/image/bpms/end.png") center 10px no-repeat #364156;
-    -webkit-background-size: 80px;
-    background-size: 80px;
+    background: url("/image/bpms/end-small.png") center 30px no-repeat #364156;
+    -webkit-background-size: 40px;
+    background-size: 40px;
 }

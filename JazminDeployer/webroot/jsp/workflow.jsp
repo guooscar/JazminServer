@@ -7,24 +7,29 @@
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/linker.css">
     <link rel="stylesheet" href="/css/workflow.css">
+    <style>
+        #editor {
+            border: solid 1px #cdcdcd;
+        }
+    </style>
 </head>
 <body>
 <div id="bpms" class="bpms">
     <div id="linker"></div>
     <div id="run-status-dialog" class="run-status-dialog hidden">
-        <div
-                style="border-bottom: solid 1px #ececec; height: 44px; line-height: 44px;">
-            InstanceId:<span id="instance-id"></span><span
-                id="instance-state" style="color: #00ff00;"></span>
-            <div class="btn btn-default btn-sm btn-halt">Halt</div>
+        <div class="instance-info">
+            <b>InstanceId:</b>
+            <span id="instance-id" style="padding: 0 5px"></span>
+            <span id="instance-state" class="state"></span>
+            <div class="btn btn-default btn-xs btn-halt">Halt</div>
         </div>
-        <div>
-            TokenNodes:<span id="instance-token-nodes" class="instance-token-nodes"></span>
+        <div class="instance-token-nodes">
+            <b>TokenNodes:</b><span id="instance-token-nodes"></span>
         </div>
-        <div>
-            <table style="width: 100%">
+        <div class="instance-variables">
+            <table class="table">
                 <thead>
-                <th style="width: 100px">Key</th>
+                <th>Key</th>
                 <th>Value</th>
                 </thead>
                 <tbody id="instance-variables">
@@ -119,20 +124,19 @@
                     </div>
                 </div>
                 <div class="field">
-                    <div class="field-label">ScriptType</div>
+                    <div class="field-label">Script</div>
                     <div class="field-content">
-                        <select id="node-script-type" class="form-control">
-                            <option value=""></option>
-                            <option value="java">java</option>
-                            <option value="js">js</option>
-                            <option value="jsfile">jsfile</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="field">
-                    <div class="field-label">Execute</div>
-                    <div class="field-content">
-                        <textarea id="node-execute" class="form-control" rows="5"></textarea>
+                        <div class="input-group">
+                            <select id="node-script-type" class="form-control">
+                                <option value=""></option>
+                                <option value="java">java</option>
+                                <option value="js">js</option>
+                                <option value="jsfile">jsfile</option>
+                            </select>
+                            <span class="input-group-btn">
+                            <button id="btn-script-code" class="btn btn-default" type="button">Code</button>
+                          </span>
+                        </div><!-- /input-group -->
                     </div>
                 </div>
                 <div class="field">
@@ -153,26 +157,6 @@
     </div>
 </div>
 <section>
-    <div id="confirm-dialog" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content" style="width:400px">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    <h4 class="modal-title">Tip</h4>
-                </div>
-                <div class="modal-body"
-                     style="padding-top:30px;padding-bottom:30px;font-weight:600;font-size:16px;color:#2b2b2b">
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary btn-confirm">Confirm</button>
-                </div>
-            </div>
-        </div>
-    </div>
     <div id="prompt-dialog" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -196,7 +180,26 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
-                    <button type="button" class="btn btn-primary btn-confirm">Confirm</button>
+                    <button type="button" class="btn btn-primary btn-confirm">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="code-dialog" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Code Editor</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="editor" class="editor" style="height: 400px;width: 100%"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
+                    <button type="button" class="btn btn-primary btn-confirm">OK</button>
                 </div>
             </div>
         </div>
@@ -205,15 +208,23 @@
 <script src="/js/jquery.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 <script src="/js/linker.js"></script>
+<script src="/js/ace/ace.js"></script>
 <script src="/js/linker.bpms.js"></script>
 <script>
     var bpm = undefined;
     var linker = undefined;
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/chrome");
+    editor.setHighlightActiveLine(true);
+    editor.setShowPrintMargin(true);
+    editor.getSession().setUseWrapMode(true);
+    editor.getSession().setMode("ace/mode/javascript");
     window.__updateInstanceState__ = function (result) {
         var _instance = result.instance;
         $("#run-status-dialog").removeClass("hidden");
         $("#instance-id").text(_instance.id);
-        $("#instance-state").text(_instance.done == true ? "complete" : "running");
+        var _state = _instance.done == true ? "complete" : "running";
+        $("#instance-state").text(_state).removeClass("running complete").addClass(_state);
         var variableMap = _instance.variableMap;
         var html = [];
         for (var key in variableMap) {
@@ -239,7 +250,7 @@
         for (var i = 0; i < _instance.tokenNodes.length; i++) {
             var _nodeId = _instance.tokenNodes[i];
             var _bnode = bpm.__nodes__[_nodeId];
-            html.push('<div class="btn btn-default btn-sm btn-token ml-5" data-id=' + _nodeId + '>' + _bnode.name + '</div>');
+            html.push('<div class="btn btn-default btn-xs btn-token ml-5" data-id=' + _nodeId + '>' + _bnode.name + '</div>');
         }
         $("#instance-token-nodes").html(html.join(""));
     };
@@ -253,7 +264,7 @@
             }
             window.__refresh__();
         }).error(function () {
-            bpms.dialog.error("发生错误,请稍后重试");
+            bpms.dialog.error("error try later");
         }).complete(function () {
         }).invoke();
     };
@@ -268,7 +279,7 @@
             }
             window.__updateInstanceState__(result);
         }).error(function () {
-            bpms.dialog.error("发生错误,请稍后重试");
+            bpms.dialog.error("error try later");
         }).complete(function () {
         }).invoke();
     };
@@ -283,7 +294,7 @@
             }
             window.__updateInstanceState__(result);
         }).error(function () {
-            bpms.dialog.error("发生错误,请稍后重试");
+            bpms.dialog.error("error try later");
         }).complete(function () {
         }).invoke();
     }
@@ -292,15 +303,17 @@
         linker = $("#linker").linker({settingIcon: false});
         bpm = new Bpm(linker, procObj.name, procObj.name);
         bpm.setIdCounter(procObj.counter);
-        bpm.setLastPosition(procObj.lastX,procObj.lastY);
-        for (var i = 0; i < procObj.nodes.length; i++) {
-            var _node = procObj.nodes[i];
+        bpm.setLastPosition(procObj.lastX, procObj.lastY);
+        var i, _node;
+        for (i = 0; i < procObj.nodes.length; i++) {
+            _node = procObj.nodes[i];
             var bnode = bpm.addCustomer(_node.id, _node.name, _node.type, _node.x, _node.y);
             bnode.taskId = _node.taskId;
             bnode.execute = _node.execute;
+            bnode.scriptType = _node.scriptType;
         }
-        for (var i = 0; i < procObj.nodes.length; i++) {
-            var _node = procObj.nodes[i];
+        for (i = 0; i < procObj.nodes.length; i++) {
+            _node = procObj.nodes[i];
             if (!_node.transtions) {
                 continue;
             }
@@ -308,14 +321,13 @@
                 bpm.connect(_node.id, _node.transtions[j].to);
             }
         }
-        $("#proc-name").text(procObj.name).data("name", procObj.name);
-        $("#btn-groups").find(".btn.btn-save").removeClass("disabled");
+        $("#proc-name").text(procObj.name).data("name", procObj.name).removeClass("unsave");
         $("#bpms").addClass("with-right");
+        $("#btn-groups").find(".btn.btn-save").addClass("disabled");
     };
     window.__loadWorkflowInstances__ = function () {
         itAjax().action("/srv/workflow/get_workflow_list").params({}).success(function (result) {
             if (!result || !Array.isArray(result.list)) {
-                bpms.dialog.error("加载数据失败");
                 return;
             }
             var _list = result.list;
@@ -325,12 +337,12 @@
                 var _item = _list[i];
                 html.push('<div class="item" data-name="' + _item.name + '">');
                 html.push('<div class="name">' + _item.name + '</div>');
-                html.push('<div class="time">' + Date.dateDiff(_item.lastModifiedTime) + '</div>');
+                html.push('<div class="time">' + Date.format(_item.lastModifiedTime, "yyyy-MM-dd hh:mm") + '</div>');
                 html.push('</div>');
             }
             $("#process").html(html.join(""));
         }).error(function () {
-            bpms.dialog.error("发生错误,请稍后重试");
+            bpms.dialog.error("error try later");
         }).complete(function () {
         }).invoke();
     };
@@ -338,11 +350,16 @@
         (function () {
             window.__loadWorkflowInstances__();
         })();
-        $("body").on("changed.bpms", function () {
+        $("body").on("hidden.bs.modal", "#code-dialog", function () {
+            var event = arguments[0] || window.event;
+            event.preventDefault();
+            editor.setValue("");
+        }).on("changed.bpms", function () {
             var event = arguments[0] || window.event;
             event.preventDefault();
             var $procName = $("#proc-name");
-            $procName.text($procName.data("name") + "*");
+            $procName.text($procName.data("name") + "*").addClass("unsave");
+            $("#btn-groups").find(".btn.btn-save").removeClass("disabled");
         }).on("click", "#show-left", function () {
             var event = arguments[0] || window.event;
             event.preventDefault();
@@ -352,21 +369,39 @@
                 return;
             }
             bpm.activeNode.taskId = $(this).val();
+            $("body").trigger("changed.bpms");
         }).on("change", "#node-script-type", function () {
             if (!bpm || !bpm.activeNode) {
                 return;
             }
             bpm.activeNode.scriptType = $(this).val();
-        }).on("input", "#node-execute", function () {
+            $("body").trigger("changed.bpms");
+        }).on("click", "#code-dialog .modal-footer .btn-confirm", function () {
+            var event = arguments[0] || window.event;
+            event.preventDefault();
             if (!bpm || !bpm.activeNode) {
                 return;
             }
-            bpm.activeNode.execute = $(this).val();
+            $("#code-dialog").modal("hide");
+            bpm.activeNode.execute = editor.getValue();
+            $("body").trigger("changed.bpms");
+        }).on("click", "#btn-script-code", function () {
+            var event = arguments[0] || window.event;
+            event.preventDefault();
+            if (!bpm || !bpm.activeNode) {
+                return;
+            }
+            editor.setValue(bpm.activeNode.execute);
+            $("#code-dialog").modal({
+                backdrop: "static",
+                keyboard: false
+            });
         }).on("input", "#node-name", function () {
             if (!bpm || !bpm.activeNode) {
                 return;
             }
             bpm.activeNode.refreshName($(this).val());
+            $("body").trigger("changed.bpms");
         }).on("click", "#left .close", function () {
             var event = arguments[0] || window.event;
             event.preventDefault();
@@ -386,8 +421,10 @@
             if ($this.hasClass("checked")) {
                 return;
             }
-            if (!!bpm && !confirm("当前有未保存流程，是否切换")) {
-                return;
+            if ($("#proc-name").hasClass("unsave")) {
+                if (!!bpm && !confirm("current workflow have change,discard?")) {
+                    return;
+                }
             }
             $("#process.items").find(".item.checked").removeClass("checked");
             $this.addClass("checked");
@@ -398,11 +435,10 @@
                 var content = result.content;
                 window.__render__(JSON.parse(content));
             }).error(function () {
-                bpms.dialog.error("发生错误,请稍后重试");
+                bpms.dialog.error("error try later");
             }).complete(function () {
                 $this.removeClass("requesting");
             }).invoke();
-            //
         }).on("click", "#nodes.items .item", function () {
             var event = arguments[0] || window.event;
             event.preventDefault();
@@ -411,23 +447,20 @@
             }
             var $this = $(this);
             var _type = $this.data("type");
-            bpm.add("未命名", _type);
+            bpm.add(_type, _type);
         }).on("click", "#btn-groups .btn.btn-run", function () {
             window.__run__();
         }).on("click", "#btn-groups .btn.btn-create", function () {
             var event = arguments[0] || window.event;
             event.preventDefault();
             if (!!linker) {
-                if (!confirm("已有流程，是否清除？")) {
-                    return;
-                }
                 $("#linker").html("");
             }
-            bpms.dialog.prompt("请输入流程名称", "不能少于1一个字符", function (result) {
-                linker = $("#linker").linker({settingIcon: false})
+            bpms.dialog.prompt("Input workflow name", "", function (result) {
+                $("#process.items").find(".item.checked").removeClass("checked");
+                linker = $("#linker").linker({settingIcon: false});
                 bpm = new Bpm(linker, result, result);
                 $("#bpms").addClass("with-right");
-                $("#btn-groups").find(".btn.btn-save").removeClass("disabled");
                 $("#proc-name").text(result).data("name", result);
                 $("body").trigger("changed.bpms");
             }, "string", true, 2);
@@ -449,7 +482,7 @@
                 return;
             }
             if ($this.hasClass("requesting")) {
-                bpms.dialog.warn("正在保存,请稍后");
+                bpms.dialog.warn("saving please wait");
                 return;
             }
             var _name = $("#proc-name").data("name");
@@ -462,9 +495,9 @@
                 if (result.errorCode != 0) {
                     return;
                 }
-                $("#proc-name").text(_name).data("name", _name);
+                $("#proc-name").text(_name).data("name", _name).removeClass("unsave");
             }).error(function () {
-                bpms.dialog.error("发生错误,请稍后重试");
+                bpms.dialog.error("error try later");
             }).complete(function () {
                 $this.removeClass("requesting");
             }).invoke();
