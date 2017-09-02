@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/css/linker.css">
     <link rel="stylesheet" href="/css/workflow.css">
     <style>
+    
         #editor {
             border: solid 1px #cdcdcd;
         }
@@ -391,7 +392,9 @@
             if (!bpm || !bpm.activeNode) {
                 return;
             }
-            editor.setValue(bpm.activeNode.execute);
+            if(!!bpm.activeNode.execute){
+                editor.setValue(bpm.activeNode.execute);
+            }
             $("#code-dialog").modal({
                 backdrop: "static",
                 keyboard: false
