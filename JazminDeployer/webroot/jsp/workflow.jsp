@@ -456,6 +456,11 @@
         }).on("click", "#btn-groups .btn.btn-create", function () {
             var event = arguments[0] || window.event;
             event.preventDefault();
+            if ($("#proc-name").hasClass("unsave")) {
+                if (!!bpm && !confirm("current workflow have change,discard?")) {
+                    return;
+                }
+            }
             if (!!linker) {
                 $("#linker").html("");
             }
