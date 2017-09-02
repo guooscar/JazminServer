@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8" %>
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,28 +11,28 @@
 <body>
 <div id="bpms" class="bpms">
     <div id="linker"></div>
-		<div id="run-status-dialog" class="run-status-dialog hidden">
-			<div
-				style="border-bottom: solid 1px #ececec; height: 44px; line-height: 44px;">
-				InstanceId:<span id="instance-id"></span><span
-					id="instance-state" style="color: #00ff00;"></span>
-					<div class="btn btn-default btn-sm btn-halt">Halt</div>
-			</div>
-			<div>
-				TokenNodes:<span  id="instance-token-nodes" class="instance-token-nodes"></span>
-			</div>
-			<div>
-				<table style="width: 100%">
-					<thead>
-						<th style="width: 100px">Key</th>
-						<th>Value</th>
-					</thead>
-					<tbody id="instance-variables">
-					</tbody>
-				</table>
-			</div>
-		</div>
-		<div id="top" class="top">
+    <div id="run-status-dialog" class="run-status-dialog hidden">
+        <div
+                style="border-bottom: solid 1px #ececec; height: 44px; line-height: 44px;">
+            InstanceId:<span id="instance-id"></span><span
+                id="instance-state" style="color: #00ff00;"></span>
+            <div class="btn btn-default btn-sm btn-halt">Halt</div>
+        </div>
+        <div>
+            TokenNodes:<span id="instance-token-nodes" class="instance-token-nodes"></span>
+        </div>
+        <div>
+            <table style="width: 100%">
+                <thead>
+                <th style="width: 100px">Key</th>
+                <th>Value</th>
+                </thead>
+                <tbody id="instance-variables">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div id="top" class="top">
         <div id="show-left" class="show-left">
             <div class="btn btn-default btn-xs text-center">&rang;</div>
         </div>
@@ -119,6 +119,17 @@
                     </div>
                 </div>
                 <div class="field">
+                    <div class="field-label">ScriptType</div>
+                    <div class="field-content">
+                        <select id="node-script-type" class="form-control">
+                            <option value=""></option>
+                            <option value="java">java</option>
+                            <option value="js">js</option>
+                            <option value="jsfile">jsfile</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field">
                     <div class="field-label">Execute</div>
                     <div class="field-content">
                         <textarea id="node-execute" class="form-control" rows="5"></textarea>
@@ -198,87 +209,87 @@
 <script>
     var bpm = undefined;
     var linker = undefined;
-    window.__updateInstanceState__ = function(result){
-    		var _instance = result.instance;
-    		$("#run-status-dialog").removeClass("hidden");
-    		$("#instance-id").text(_instance.id);
-    		$("#instance-state").text(_instance.done ==true?"complete":"running");
-    		var variableMap = _instance.variableMap;
-    		var html = [];
-    		for(var key in variableMap){
-    			html.push("<tr>");
-    			html.push("<td>");
-    			html.push(key);
-    			html.push("</td>");
-    			html.push("<td>");
-    			if(typeof(variableMap[key])==="object"){
-    				html.push(JSON.stringify(variableMap[key]));
-    			}else{
-    				html.push(variableMap[key]);    				
-    			}
-    			html.push("</td>");
-    			html.push("</tr>");
-    		}
-    		$("#instance-variables").html(html.join(""));
-    		for(var i=0;i<_instance.executeHistories.length;i++){
-    			var _history = _instance.executeHistories[i];
-    			$(".linker_node.node_"+_history.node).removeClass("enter finished").addClass(_history.status);
-    		}
-    		html=[];
-    		for(var i=0;i<_instance.tokenNodes.length;i++){
-    			var _nodeId = _instance.tokenNodes[i];
-    			var _bnode = bpm.__nodes__[_nodeId];
-    			html.push('<div class="btn btn-default btn-sm btn-token ml-5" data-id='+_nodeId+'>'+_bnode.name+'</div>');
-    		}
-    		$("#instance-token-nodes").html(html.join(""));
+    window.__updateInstanceState__ = function (result) {
+        var _instance = result.instance;
+        $("#run-status-dialog").removeClass("hidden");
+        $("#instance-id").text(_instance.id);
+        $("#instance-state").text(_instance.done == true ? "complete" : "running");
+        var variableMap = _instance.variableMap;
+        var html = [];
+        for (var key in variableMap) {
+            html.push("<tr>");
+            html.push("<td>");
+            html.push(key);
+            html.push("</td>");
+            html.push("<td>");
+            if (typeof(variableMap[key]) === "object") {
+                html.push(JSON.stringify(variableMap[key]));
+            } else {
+                html.push(variableMap[key]);
+            }
+            html.push("</td>");
+            html.push("</tr>");
+        }
+        $("#instance-variables").html(html.join(""));
+        for (var i = 0; i < _instance.executeHistories.length; i++) {
+            var _history = _instance.executeHistories[i];
+            $(".linker_node.node_" + _history.node).removeClass("enter finished").addClass(_history.status);
+        }
+        html = [];
+        for (var i = 0; i < _instance.tokenNodes.length; i++) {
+            var _nodeId = _instance.tokenNodes[i];
+            var _bnode = bpm.__nodes__[_nodeId];
+            html.push('<div class="btn btn-default btn-sm btn-token ml-5" data-id=' + _nodeId + '>' + _bnode.name + '</div>');
+        }
+        $("#instance-token-nodes").html(html.join(""));
     };
-    window.__signal__= function(nodeId){
-	    	itAjax().action("/srv/workflow/signal_workflow_instance").params({
-	    		node:nodeId
-			}).success(function (result) {
-	    			if(result.errorCode != 0){
-	    				bpms.dialog.error(result.errorMessage);
-	    				return;
-	    			}
-	    			window.__refresh__();
-	        }).error(function () {
-	            bpms.dialog.error("发生错误,请稍后重试");
-	        }).complete(function () {
-	        }).invoke();	
-    };
-    window.__run__= function(){
-    		var _name = $("#proc-name").text();
-    		itAjax().action("/srv/workflow/start_workflow_instance").params({
-    			name:_name
-    		}).success(function (result) {
-	    			if(result.errorCode != 0){
-	    				bpms.dialog.error(result.errorMessage);
-	    				return;
-	    			}
-    				window.__updateInstanceState__(result);
-            }).error(function () {
-                bpms.dialog.error("发生错误,请稍后重试");
-            }).complete(function () {
-            }).invoke();	
-    };
-    window.__refresh__ = function(){
-    		var _name = $("#proc-name").text();
-		itAjax().action("/srv/workflow/get_workflow_instance").params({
-			name:_name
-		}).success(function (result) {
-    			if(result.errorCode != 0){
-    				bpms.dialog.error(result.errorMessage);
-    				return;
-    			}
-			window.__updateInstanceState__(result);
+    window.__signal__ = function (nodeId) {
+        itAjax().action("/srv/workflow/signal_workflow_instance").params({
+            node: nodeId
+        }).success(function (result) {
+            if (result.errorCode != 0) {
+                bpms.dialog.error(result.errorMessage);
+                return;
+            }
+            window.__refresh__();
         }).error(function () {
             bpms.dialog.error("发生错误,请稍后重试");
         }).complete(function () {
-        }).invoke();	
+        }).invoke();
+    };
+    window.__run__ = function () {
+        var _name = $("#proc-name").text();
+        itAjax().action("/srv/workflow/start_workflow_instance").params({
+            name: _name
+        }).success(function (result) {
+            if (result.errorCode != 0) {
+                bpms.dialog.error(result.errorMessage);
+                return;
+            }
+            window.__updateInstanceState__(result);
+        }).error(function () {
+            bpms.dialog.error("发生错误,请稍后重试");
+        }).complete(function () {
+        }).invoke();
+    };
+    window.__refresh__ = function () {
+        var _name = $("#proc-name").text();
+        itAjax().action("/srv/workflow/get_workflow_instance").params({
+            name: _name
+        }).success(function (result) {
+            if (result.errorCode != 0) {
+                bpms.dialog.error(result.errorMessage);
+                return;
+            }
+            window.__updateInstanceState__(result);
+        }).error(function () {
+            bpms.dialog.error("发生错误,请稍后重试");
+        }).complete(function () {
+        }).invoke();
     }
     window.__render__ = function (procObj) {
         $("#linker").html("");
-        linker = $("#linker").linker({settingIcon:false});
+        linker = $("#linker").linker({settingIcon: false});
         bpm = new Bpm(linker, procObj.name, procObj.name);
         bpm.setIdCounter(procObj.counter);
         for (var i = 0; i < procObj.nodes.length; i++) {
@@ -331,11 +342,25 @@
             event.preventDefault();
             $("#bpms").addClass("with-left");
         }).on("change", "#node-taskid", function () {
-        		bpm.activeNode.taskId = $(this).val();
+            if (!bpm || !bpm.activeNode) {
+                return;
+            }
+            bpm.activeNode.taskId = $(this).val();
+        }).on("change", "#node-script-type", function () {
+            if (!bpm || !bpm.activeNode) {
+                return;
+            }
+            bpm.activeNode.scriptType = $(this).val();
         }).on("input", "#node-execute", function () {
-        		bpm.activeNode.execute = $(this).val();
+            if (!bpm || !bpm.activeNode) {
+                return;
+            }
+            bpm.activeNode.execute = $(this).val();
         }).on("input", "#node-name", function () {
-        		bpm.activeNode.refreshName($(this).val());
+            if (!bpm || !bpm.activeNode) {
+                return;
+            }
+            bpm.activeNode.refreshName($(this).val());
         }).on("click", "#left .close", function () {
             var event = arguments[0] || window.event;
             event.preventDefault();
@@ -382,7 +407,7 @@
             var _type = $this.data("type");
             bpm.add("未命名", _type);
         }).on("click", "#btn-groups .btn.btn-run", function () {
-        		window.__run__();
+            window.__run__();
         }).on("click", "#btn-groups .btn.btn-create", function () {
             var event = arguments[0] || window.event;
             event.preventDefault();
@@ -393,22 +418,22 @@
                 $("#linker").html("");
             }
             bpms.dialog.prompt("请输入流程名称", "不能少于1一个字符", function (result) {
-                linker = $("#linker").linker({settingIcon:false})
+                linker = $("#linker").linker({settingIcon: false})
                 bpm = new Bpm(linker, result, result);
                 $("#bpms").addClass("with-right");
                 $("#btn-groups").find(".btn.btn-save").removeClass("disabled");
                 $("#proc-name").text(result);
             }, "string", true, 2);
         }).on("click", ".btn-halt", function () {
-        		$(".linker_node").removeClass("enter finished");
-        		$("#run-status-dialog").addClass("hidden");
+            $(".linker_node").removeClass("enter finished");
+            $("#run-status-dialog").addClass("hidden");
         }).on("click", ".btn-zoomin", function () {
         }).on("click", ".btn-zoomout", function () {
-        		
+
         }).on("click", ".btn-token", function () {
             var $this = $(this);
-			var _nodeId = $this.data("id");      
-			window.__signal__(_nodeId);
+            var _nodeId = $this.data("id");
+            window.__signal__(_nodeId);
         }).on("click", "#btn-groups .btn.btn-save", function () {
             var event = arguments[0] || window.event;
             event.preventDefault();

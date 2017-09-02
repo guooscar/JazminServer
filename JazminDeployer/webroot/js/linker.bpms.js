@@ -1219,6 +1219,7 @@
             $("#node-id").val(_this.id);
             $("#node-name").val(_this.name);
             $("#node-type").val(_this.type);
+            $("#node-script-type").val(_this.scriptType);
             $("#node-execute").val(_this.execute);
             $("#node-taskid").val(_this.taskId);
         };
@@ -1241,6 +1242,7 @@
         _this.name = undefined;
         _this.__transtions__ = {};
         _this.execute = undefined;
+        _this.scriptType = undefined;
         _this.taskId = undefined;
         _this.type = undefined;
         _this.x = 0;
