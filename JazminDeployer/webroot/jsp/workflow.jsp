@@ -391,7 +391,9 @@
             if (!bpm || !bpm.activeNode) {
                 return;
             }
-            editor.setValue(bpm.activeNode.execute);
+            if(!!bpm.activeNode.execute){
+                editor.setValue(bpm.activeNode.execute);
+            }
             $("#code-dialog").modal({
                 backdrop: "static",
                 keyboard: false
