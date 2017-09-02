@@ -8,7 +8,6 @@ import java.io.IOException;
 import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.workflow.definition.WorkflowProcess;
 import jazmin.deploy.workflow.execute.ProcessInstance;
-import jazmin.server.web.mvc.AfterService;
 import jazmin.server.web.mvc.Context;
 import jazmin.server.web.mvc.Controller;
 import jazmin.server.web.mvc.HttpMethod;
@@ -20,22 +19,7 @@ import jazmin.server.web.mvc.Service;
  * @author yama 6 Jan, 2015
  */
 @Controller(id = "workflow")
-public class WorkflowController {
-	
-    @AfterService
-    public void afterInvoke(Context ctx, Throwable e) {
-        ctx.put("errorCode", 0);
-        if (e == null) {
-            return;
-        }
-        ctx.put("errorCode", -1);
-        ctx.put("errorMessage", e.getMessage());
-        ctx.clearException();
-        if (ctx.view() == null) {
-            ctx.view(new JsonView());
-        }
-    }
-	
+public class WorkflowController extends AuthBaseController{
 	//
 	@Service(id = "editor")
 	public void editor(Context ctx) {
@@ -93,7 +77,30 @@ public class WorkflowController {
 		ctx.put("instance", instance);
 		ctx.view(new JsonView());
 	}
-
+	//
+	@Service(id = "attach_workflow_instance", method = HttpMethod.POST)
+	public void attachWorkflow(Context ctx) throws IOException {
+		String name = ctx.getString("id", true);
+		ProcessInstance instance = DeployManager.getAttachedWorkflowProcessInstance(name);
+		ctx.request().session().setAttribute("WorkflowInstance", instance);
+		ctx.put("instance", instance);
+		ctx.view(new JsonView());
+	}
+	//
+	//
+	@Service(id = "remove_attach_workflow_instance", method = HttpMethod.POST)
+	public void removeAttachWorkflow(Context ctx) throws IOException {
+		String name = ctx.getString("id", true);
+		DeployManager.detachWorkflowProcessInstance(name);
+		ctx.view(new JsonView());
+	}
+	//
+	//
+	@Service(id = "get_workflow_attach_list", method = HttpMethod.POST)
+	public void getWorkflowAttachList(Context ctx) {
+		ctx.put("list", DeployManager.getAttachedWorkflowProcessInstances());
+		ctx.view(new JsonView());
+	}
 	//
 	@Service(id = "get_workflow_instance", method = HttpMethod.POST)
 	public void getWorkflowInstance(Context ctx) throws IOException {

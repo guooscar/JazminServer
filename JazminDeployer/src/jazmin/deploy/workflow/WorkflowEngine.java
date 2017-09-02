@@ -14,10 +14,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import jazmin.deploy.workflow.definition.Node;
 import jazmin.deploy.workflow.definition.TaskTemplate;
 import jazmin.deploy.workflow.definition.WorkflowProcess;
-import jazmin.deploy.workflow.execute.Execute;
 import jazmin.deploy.workflow.execute.EventHandler;
+import jazmin.deploy.workflow.execute.Execute;
 import jazmin.deploy.workflow.execute.JavaScriptClassExecute;
 import jazmin.deploy.workflow.execute.ProcessInstance;
 import jazmin.log.Logger;
@@ -135,9 +136,9 @@ public class WorkflowEngine {
 	public WorkflowEngine() {
 		executeFactorys=new HashMap<>();
 		threadPool=new DefaultThreadPool();
-		executeFactorys.put("java", new JavaClassExecuteFactory());
-		executeFactorys.put("jsfile",new JavaScriptFileExecuteFactory());
-		executeFactorys.put("js",new JavaScriptExecuteFactory());
+		executeFactorys.put(Node.SCRIPT_TYPE_JAVA, new JavaClassExecuteFactory());
+		executeFactorys.put(Node.SCRIPT_TYPE_JSFILE,new JavaScriptFileExecuteFactory());
+		executeFactorys.put(Node.SCRIPT_TYPE_JS,new JavaScriptExecuteFactory());
 		eventListeners=new ArrayList<>();
 		taskTemplateMap=new LinkedHashMap<>();
 	}
@@ -187,16 +188,10 @@ public class WorkflowEngine {
 	 * @param execute
 	 * @return
 	 */
-	public Execute loadExecute(String execute){
-		int t=execute.indexOf(":");
-		if(t==-1){
-			return null;
-		}
-		String type=execute.substring(0,t).trim();
-		String value=execute.substring(t+1).trim();
-		ExecuteFactory factory=executeFactorys.get(type);
+	public Execute loadExecute(String scriptType,String execute){
+		ExecuteFactory factory=executeFactorys.get(scriptType);
 		if(factory!=null){
-			return factory.getExecute(value);
+			return factory.getExecute(execute);
 		}
 		return null;
 	}

@@ -17,14 +17,21 @@ public class Node implements Comparable<Node>{
 	public static final String TYPE_FORK="fork";
 	public static final String TYPE_JOIN="join";
 	public static final String TYPE_DECISION="decision";
+	//
+	public static final String SCRIPT_TYPE_JAVA="java";
+	public static final String SCRIPT_TYPE_JS="js";
+	public static final String SCRIPT_TYPE_JSFILE="jsfile";
+	//
 	//info
 	public String type;
 	public String name;
 	public String id;
 	public String taskId;
 	//
+	//
 	public List<Transtion>transtions=new LinkedList<>();
 	//
+	public String scriptType;
 	public String execute;
 	//graphics
 	public int x;
