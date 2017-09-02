@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import jazmin.deploy.workflow.WorkflowEngine;
 import jazmin.deploy.workflow.WorkflowEvent;
@@ -45,6 +46,7 @@ public class ProcessInstance {
 	//
 	private Set<String>tokenNodes;
 	EventHandler eventHandler;
+	private static AtomicInteger instanceCounter=new AtomicInteger(0);
 	//
 	public ProcessInstance(WorkflowProcess process,WorkflowEngine engine) {
 		nodeMap=new HashMap<>();
@@ -53,7 +55,7 @@ public class ProcessInstance {
 		endNodes=new TreeSet<>();
 		context=new ExecuteContext(this);
 		load(process);
-		id=UUID.randomUUID().toString();
+		id=process.id+"-"+instanceCounter.incrementAndGet();
 		tokenNodes=new TreeSet<>();
 	}
 	//
@@ -137,8 +139,8 @@ public class ProcessInstance {
 			}
 			nodeMap.put(n.id,n);
 			//load execute
-			if(n.execute!=null&&!n.execute.trim().isEmpty()){
-				Execute execute=engine.loadExecute(n.execute);
+			if(n.scriptType!=null&&n.execute!=null&&!n.execute.trim().isEmpty()){
+				Execute execute=engine.loadExecute(n.scriptType,n.execute);
 				if(execute==null){
 					throw new IllegalArgumentException("can not load execute with express:"+n.execute);
 				}

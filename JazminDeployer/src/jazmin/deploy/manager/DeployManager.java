@@ -26,7 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
-import jazmin.deploy.workflow.definition.TaskTemplate;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.tmatesoft.svn.core.SVNException;
@@ -54,6 +53,8 @@ import jazmin.deploy.manager.RobotDeployManagerContext.RobotDeployManagerContext
 import jazmin.deploy.manager.RobotWorkflowEngineContext.RobotWorkflowEngineContextImpl;
 import jazmin.deploy.util.DateUtil;
 import jazmin.deploy.workflow.WorkflowEngine;
+import jazmin.deploy.workflow.definition.TaskTemplate;
+import jazmin.deploy.workflow.execute.ProcessInstance;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.web.WebServer;
@@ -92,7 +93,9 @@ public class DeployManager {
     //
     private static Map<String, BenchmarkSession> benchmarkSessions = new ConcurrentHashMap<>();
     public static WorkflowEngine workflowEngine;
-
+    //
+    public static Map<String,ProcessInstance> attachedProcessInstance = new ConcurrentHashMap<>();
+    
     //
     static {
         instanceMap = new ConcurrentHashMap<String, Instance>();
@@ -134,13 +137,14 @@ public class DeployManager {
         }
         workflowEngine = new WorkflowEngine();
         TaskTemplate template = new TaskTemplate();
-        template.id = "test";
-        template.name = "test-name";
+        template.id = "robot-function";
+        template.name = "robot-function";
         workflowEngine.registerTaskTemplate(template);
         //
         startJobCronThread();
         startHealthCheckThread();
     }
+    //
 
     //
     private static void startHealthCheckThread() {
@@ -239,7 +243,22 @@ public class DeployManager {
             }
         }
     }
-
+    //
+    public static void attachWorkflowProcessInstance(ProcessInstance instacne){
+    	attachedProcessInstance.put(instacne.getId(), instacne);
+    }
+    //
+    public static void detachWorkflowProcessInstance(String id){
+    	attachedProcessInstance.remove(id);
+    }
+    //
+    public static  ProcessInstance getAttachedWorkflowProcessInstance(String id){
+    	return attachedProcessInstance.get(id);
+    }
+    //
+    public static List<String>getAttachedWorkflowProcessInstances(){
+    	return new ArrayList<>(attachedProcessInstance.keySet());
+    }
     //
     public static BenchmarkSession addBenchmarkSession() {
         List<String> finishedSessions = new ArrayList<>();
