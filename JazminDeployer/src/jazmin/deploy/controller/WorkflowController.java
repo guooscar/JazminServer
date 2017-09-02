@@ -54,6 +54,9 @@ public class WorkflowController extends AuthBaseController{
 	public void saveWorkflowContent(Context ctx) throws IOException {
 		String name = ctx.getString("name", true);
 		String content = ctx.getString("content", true);
+		if(name.trim().isEmpty()){
+			throw new IllegalArgumentException("name required");
+		}
 		DeployManager.saveWorkflowScript(name, content);
 		ctx.view(new JsonView());
 	}
@@ -62,6 +65,9 @@ public class WorkflowController extends AuthBaseController{
 	@Service(id = "delete_workflow_content", method = HttpMethod.POST)
 	public void deleteWorkflowContent(Context ctx) throws IOException {
 		String name = ctx.getString("name", true);
+		if(name.trim().isEmpty()){
+			throw new IllegalArgumentException("name required");
+		}
 		DeployManager.deleteWorkflowScript(name);
 		ctx.view(new JsonView());
 	}

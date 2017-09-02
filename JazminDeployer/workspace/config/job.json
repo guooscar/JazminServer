@@ -3,6 +3,6 @@
 		"id":"test",
 		"machine":"demo",
 		"robot":"test_job.js",
-		"cron":"0/10 * * * * ? "
+		"cron":"0/10 * 5 * * ? "
 	}
 ]

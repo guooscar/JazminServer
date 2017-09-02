@@ -11278,7 +11278,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .dashboard .dashboard-view.dashboard-view .dashboard-panels[height-range~="441px-"] .dashboard-panel-slot {
-	height: 50%;
+	height: 100%;
 }
 
 .dashboard .dashboard-view.dashboard-view .dashboard-panels .dashboard-panel-slot.max {

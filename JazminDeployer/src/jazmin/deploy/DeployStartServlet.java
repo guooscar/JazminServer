@@ -70,7 +70,7 @@ public class DeployStartServlet extends VaadinServlet{
 		*/
 		
 		
-		ws.addResource("/","/tmp/release/JazminDeployer");
+		ws.addResource("/","release/JazminDeployer");
 		Jazmin.addServer(ws);
 		Jazmin.addServer(new WebSshServer());
 		Jazmin.addServer(new WebsockifyServer());
