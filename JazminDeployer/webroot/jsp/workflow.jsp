@@ -292,6 +292,7 @@
         linker = $("#linker").linker({settingIcon: false});
         bpm = new Bpm(linker, procObj.name, procObj.name);
         bpm.setIdCounter(procObj.counter);
+        bpm.setLastPosition(procObj.lastX,procObj.lastY);
         for (var i = 0; i < procObj.nodes.length; i++) {
             var _node = procObj.nodes[i];
             var bnode = bpm.addCustomer(_node.id, _node.name, _node.type, _node.x, _node.y);
@@ -307,7 +308,7 @@
                 bpm.connect(_node.id, _node.transtions[j].to);
             }
         }
-        $("#proc-name").text(procObj.name);
+        $("#proc-name").text(procObj.name).data("name", procObj.name);
         $("#btn-groups").find(".btn.btn-save").removeClass("disabled");
         $("#bpms").addClass("with-right");
     };
@@ -337,7 +338,12 @@
         (function () {
             window.__loadWorkflowInstances__();
         })();
-        $("body").on("click", "#show-left", function () {
+        $("body").on("changed.bpms", function () {
+            var event = arguments[0] || window.event;
+            event.preventDefault();
+            var $procName = $("#proc-name");
+            $procName.text($procName.data("name") + "*");
+        }).on("click", "#show-left", function () {
             var event = arguments[0] || window.event;
             event.preventDefault();
             $("#bpms").addClass("with-left");
@@ -377,10 +383,10 @@
             var event = arguments[0] || window.event;
             event.preventDefault();
             var $this = $(this);
-            if (!!bpm && !confirm("当前有未保存流程，是否切换")) {
+            if ($this.hasClass("checked")) {
                 return;
             }
-            if ($this.hasClass("checked")) {
+            if (!!bpm && !confirm("当前有未保存流程，是否切换")) {
                 return;
             }
             $("#process.items").find(".item.checked").removeClass("checked");
@@ -422,7 +428,8 @@
                 bpm = new Bpm(linker, result, result);
                 $("#bpms").addClass("with-right");
                 $("#btn-groups").find(".btn.btn-save").removeClass("disabled");
-                $("#proc-name").text(result + "*").data("name", result);
+                $("#proc-name").text(result).data("name", result);
+                $("body").trigger("changed.bpms");
             }, "string", true, 2);
         }).on("click", ".btn-halt", function () {
             $(".linker_node").removeClass("enter finished");
@@ -455,7 +462,7 @@
                 if (result.errorCode != 0) {
                     return;
                 }
-                $("#proc-name").text(_name);
+                $("#proc-name").text(_name).data("name", _name);
             }).error(function () {
                 bpms.dialog.error("发生错误,请稍后重试");
             }).complete(function () {
