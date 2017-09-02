@@ -386,7 +386,7 @@ body {
     margin-bottom: 0 !important;
 }
 
-input, textarea,select {
+input, textarea, select {
     -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
@@ -919,6 +919,36 @@ img.responsive {
     height: 280px;
     width: 500px;
     z-index: 101;
-    background-color: #f3f3f3;
+    background-color: #ffffff;
     padding: 10px 20px;
+    overflow: auto;
+}
+
+.run-status-dialog .instance-info,
+.run-status-dialog .instance-token-nodes {
+    position: relative;
+    height: 44px;
+    line-height: 44px;
+    border-bottom: solid 1px #cdcdcd;
+}
+
+.run-status-dialog .instance-info .state {
+    background-color: #bcbcbc;
+    color: #323232;
+    padding: 2px 6px;
+    text-align: center;
+}
+
+.run-status-dialog .instance-info .state.running {
+    background-color: #38925e;
+    color: #ffffff;
+}
+
+.run-status-dialog .instance-info .state.complete {
+    background-color: #f70044;
+    color: #ffffff;
+}
+
+.run-status-dialog .instance-info .btn-halt {
+    float: right;
 }

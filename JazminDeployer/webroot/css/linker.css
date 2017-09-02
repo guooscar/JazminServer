@@ -21,11 +21,9 @@
 }
 
 .linker_container .linker_board {
+    position: relative;
     width: 19200px;
     height: 19200px;
-    position: absolute;
-    top: 0;
-    left: 0
 }
 
 .linker_container svg#linker_paths {

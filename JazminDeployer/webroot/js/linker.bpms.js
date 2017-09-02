@@ -389,21 +389,6 @@
             }
             window.alert(message);
         },
-        confirm: function (message, callback) {
-            message = message || "确定执行该操作吗?";
-            var $dialog = $("#confirm-dialog");
-            $dialog.find(".modal-body").html(message);
-            $dialog.modal({
-                backdrop: "static",
-                keyboard: false
-            });
-            if (typeof(callback) !== "function") {
-                return;
-            }
-            $dialog.off("confirmed.dialog.bpms").one("confirmed.dialog.bpms", function () {
-                callback.apply(null);
-            });
-        },
         /**
          *
          * @param message
@@ -499,66 +484,6 @@
     Date.format = function (jsondate, fmt) {
         return new Date(jsondate).format(fmt);
     };
-    /**
-     * 秒时间格式化
-     *
-     * @param seconds
-     * @returns {string}
-     */
-    Date.formatSecond = function (value) {
-        var _diff = "-:-";
-        if (typeof(value) !== "number") {
-            return _diff;
-        }
-        var _val = [];
-        var _second = value % 60;
-        var _minute = parseInt(value / 60) % 60;
-        var _hour = parseInt(value / 60 / 60) % 60;
-        if (_hour > 0) {
-            if (_hour < 10) {
-                _val.push("0");
-            }
-            _val.push(_hour);
-            _val.push(":");
-        }
-        if (_minute < 10) {
-            _val.push("0");
-        }
-        _val.push(_minute);
-        _val.push(":");
-        if (_second < 10) {
-            _val.push("0");
-        }
-        _val.push(_second);
-        _diff = _val.join("");
-        return _diff;
-    };
-    Date.dateDiff = function (jsonDate, now) {
-        now = now || new Date();
-        var date = new Date(parseInt(jsonDate, 10));
-        var diffDay = Math.floor((now.getTime() - date.getTime()) / 1000);
-        var _diff = Date.format(jsonDate, "yyyy-MM-dd hh:mm");
-        if (diffDay < 60) {
-            _diff = "一分钟前"
-        } else if (diffDay < 5 * 60) {
-            _diff = "五分钟前"
-        } else if (diffDay < 10 * 60) {
-            _diff = "十分钟前"
-        } else if (diffDay < 20 * 60) {
-            _diff = "二十分钟前"
-        } else if (diffDay < 30 * 60) {
-            _diff = "三十分钟前"
-        } else if (diffDay < 60 * 60) {
-            _diff = "一小时前"
-        } else if (diffDay < 2 * 60 * 60) {
-            _diff = "两小时前"
-        } else if (diffDay < 3 * 60 * 60) {
-            _diff = "三小时前"
-        } else if (diffDay < 12 * 60 * 60) {
-            _diff = "半天前"
-        }
-        return _diff;
-    };
     Object.keys = (function () {
         var hasOwnProperty = Object.prototype.hasOwnProperty,
             hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString'),
@@ -652,11 +577,7 @@
  * @date: 2016-05-25 23:39
  */
 !!(function (window, $, bpms) {
-    $("body").on("hidden.bs.modal", "#confirm-dialog", function () {
-        var event = arguments[0] || window.event;
-        event.preventDefault();
-        $(this).find(".modal-body").html("");
-    }).on("hidden.bs.modal", "#prompt-dialog", function () {
+    $("body").on("hidden.bs.modal", "#prompt-dialog", function () {
         var event = arguments[0] || window.event;
         event.preventDefault();
         var $dialog = $("#prompt-dialog");
@@ -687,52 +608,47 @@
         if (_type === "int") {
             _val = window.parseInt(_oval);
             if (isNaN(_val) || _val != _oval) {
-                $input.parent().append('<div class="v-error pt-5">请输入整数</div>');
+                $input.parent().append('<div class="v-error pt-5">please input number</div>');
                 return;
             }
             if (_min > -1 && _val < _min) {
-                $input.parent().append('<div class="v-error pt-5">最小值不能小于' + _min + '</div>');
+                $input.parent().append('<div class="v-error pt-5">min value must gt' + _min + '</div>');
                 return;
             }
             if (_max > -1 && _val > _max) {
-                $input.parent().append('<div class="v-error pt-5">最大值不能大于' + _max + '</div>');
+                $input.parent().append('<div class="v-error pt-5">max value must lt' + _max + '</div>');
                 return;
             }
         } else if (_type === "float") {
             _val = window.parseFloat(_oval);
             if (isNaN(_val) || _val != _oval) {
-                $input.parent().append('<div class="v-error pt-5">请输入数字</div>');
+                $input.parent().append('<div class="v-error pt-5">please input number</div>');
                 return;
             }
             if (_min > -1 && _val < _min) {
-                $input.parent().append('<div class="v-error pt-5">最小值不能小于' + _min + '</div>');
+                $input.parent().append('<div class="v-error pt-5">min value must gt' + _min + '</div>');
                 return;
             }
             if (_max > -1 && _val > _max) {
-                $input.parent().append('<div class="v-error pt-5">最大值不能大于' + _max + '</div>');
+                $input.parent().append('<div class="v-error pt-5">max value must lt' + _max + '</div>');
                 return;
             }
         } else if (_type === "string") {
             _val = _oval;
             if (_required && String.isEmpty(_val)) {
-                $input.parent().append('<div class="v-error pt-5">请填写内容</div>');
+                $input.parent().append('<div class="v-error pt-5">please input content</div>');
                 return;
             }
             if (_min > -1 && _val.length < _min) {
-                $input.parent().append('<div class="v-error pt-5">输入字符长度不能小于' + _min + '</div>');
+                $input.parent().append('<div class="v-error pt-5">input content char length gt ' + _min + '</div>');
                 return;
             }
             if (_max > -1 && _val.length > _max) {
-                $input.parent().append('<div class="v-error pt-5">输入字符长度不能大于' + _max + '</div>');
+                $input.parent().append('<div class="v-error pt-5">input content char length lt ' + _max + '</div>');
                 return;
             }
         }
         $dialog.modal("hide").trigger("prompted.dialog.bpms", [_val]);
-    }).on("click", "#confirm-dialog .modal-footer .btn-confirm", function () {
-        var event = arguments[0] || window.event;
-        event.preventDefault();
-        var $dialog = $("#confirm-dialog");
-        $dialog.modal("hide").trigger("confirmed.dialog.bpms");
     });
 
 })(window, jQuery, window.bpms);
@@ -850,7 +766,7 @@
                 if (checked) {
                     return;
                 }
-                alert("发生错误：" + errorThrown + "\r\nurl : " + _url + "");
+                alert("error：" + errorThrown + "\r\nurl : " + _url + "");
             },
             complete: function (xhr, textStatus, statusCode) {
 
@@ -1201,7 +1117,6 @@
  */
 !!(function (window, $, bpms) {
     var $codes = {
-        900001: "参数错误"
     };
 
     /**
@@ -1237,7 +1152,7 @@
             _message = data.message;
         }
         if (_message !== 0 && !_message) {
-            _message = "系统错误:(CODE:" + _code + ")";
+            _message = "System Error:(CODE:" + _code + ")";
         }
         bpms.dialog.error(_message);
         return true;
@@ -1442,20 +1357,6 @@
         End: "end"
     };
     BNode.config = {
-        lang: {
-            type: {
-                name: "类型",
-                type: "static"
-            },
-            name: {
-                name: "节点名称",
-                type: "input"
-            },
-            execute: {
-                name: "执行任务",
-                type: "input"
-            }
-        },
         default: {
             type: "",
             execute: "",
@@ -1465,30 +1366,30 @@
         },
         start: {
             type: "start",
-            name: "开始",
+            name: "start",
             noInput: true
         },
         fork: {
             type: "fork",
-            name: "分支"
+            name: "fork"
         },
         join: {
             type: "join",
-            name: "合并"
+            name: "join"
         },
         task: {
             type: "task",
             execute: "",
-            name: "执行任务"
+            name: "task"
         },
         decision: {
             type: "decision",
             execute: "",
-            name: "选择"
+            name: "decision"
         },
         end: {
             type: "end",
-            name: "结束",
+            name: "end",
             noOutput: true
         }
     };
