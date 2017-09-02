@@ -386,7 +386,7 @@ body {
     margin-bottom: 0 !important;
 }
 
-input, textarea, select {
+input, textarea {
     -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
@@ -401,12 +401,6 @@ input, textarea, select {
 
 input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill {
     background-color: transparent !important;
-}
-
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
 }
 
 .line {

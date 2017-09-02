@@ -60,7 +60,7 @@
 }
 
 .linker_container .linker_node.active {
-    border: 1px solid #2d9f19;
+    border: 3px solid #2d9f19;
 }
 
 .linker_container .linker_node.enter {
