@@ -46,7 +46,7 @@
             <div class="btn btn-default btn-sm btn-zoomin ml-10">ZoomIn</div>
             <div class="btn btn-default btn-sm btn-zoomout ml-10">ZoomOut</div>
         </div>
-        <div id="proc-name" class="proc-name" data-rate="1"></div>
+        <div id="proc-name" class="proc-name" data-name="" data-rate="1"></div>
     </div>
     <div id="left" class="processes">
         <div class="header">
@@ -258,7 +258,7 @@
         }).invoke();
     };
     window.__run__ = function () {
-        var _name = $("#proc-name").text();
+        var _name = $("#proc-name").data("name");
         itAjax().action("/srv/workflow/start_workflow_instance").params({
             name: _name
         }).success(function (result) {
@@ -273,7 +273,7 @@
         }).invoke();
     };
     window.__refresh__ = function () {
-        var _name = $("#proc-name").text();
+        var _name = $("#proc-name").data("name");
         itAjax().action("/srv/workflow/get_workflow_instance").params({
             name: _name
         }).success(function (result) {
@@ -422,7 +422,7 @@
                 bpm = new Bpm(linker, result, result);
                 $("#bpms").addClass("with-right");
                 $("#btn-groups").find(".btn.btn-save").removeClass("disabled");
-                $("#proc-name").text(result);
+                $("#proc-name").text(result + "*").data("name", result);
             }, "string", true, 2);
         }).on("click", ".btn-halt", function () {
             $(".linker_node").removeClass("enter finished");
@@ -445,14 +445,17 @@
                 bpms.dialog.warn("正在保存,请稍后");
                 return;
             }
-            var _name = $("#proc-name").text();
+            var _name = $("#proc-name").data("name");
             var data = bpm.data();
             $this.addClass("requesting");
             itAjax().action("/srv/workflow/save_workflow_content").params({
                 name: _name,
                 content: JSON.stringify(data)
             }).success(function (result) {
-                bpms.dialog.success("流程保存成功");
+                if (result.errorCode != 0) {
+                    return;
+                }
+                $("#proc-name").text(_name);
             }).error(function () {
                 bpms.dialog.error("发生错误,请稍后重试");
             }).complete(function () {

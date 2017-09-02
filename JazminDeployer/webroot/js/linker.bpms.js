@@ -3,19 +3,19 @@
  * @author GinKo.Wang
  * @mail <a href='mailTo:yingosen@gmaiil.com'>GinKo.Wang</a>
  * @date 2016-01-04 20:57
- * 
+ *
  */
 !!(function (window) {
 
     /**
-	 * 日志打印
-	 * 
-	 * @name Logger
-	 * @author GinKo.Wang
-	 * @mail <a href='mailTo:yingosen@gmaiil.com'>GinKo.Wang</a>
-	 * @date 2015-11-10 17:22
-	 * 
-	 */
+     * 日志打印
+     *
+     * @name Logger
+     * @author GinKo.Wang
+     * @mail <a href='mailTo:yingosen@gmaiil.com'>GinKo.Wang</a>
+     * @date 2015-11-10 17:22
+     *
+     */
     var Logger = function (name, level, enable) {
         this.__name__ = name;
         this.__logLevel__ = isNaN(parseInt(level)) ? Logger.Level.ALL : level;
@@ -25,17 +25,17 @@
     };
 
     /**
-	 * 定义类版本
-	 * 
-	 * @type {string}
-	 */
+     * 定义类版本
+     *
+     * @type {string}
+     */
     Logger.prototype.version = "1.0.2.1";
 
     /**
-	 * 初始化
-	 * 
-	 * @private
-	 */
+     * 初始化
+     *
+     * @private
+     */
     Logger.prototype.__init__ = function () {
         this.__systemSupport__ = !!(window.console);
         if (!this.__systemSupport__) {
@@ -44,18 +44,18 @@
     }
 
     /**
-	 * 日志是否可以使用
-	 * 
-	 * @private
-	 */
+     * 日志是否可以使用
+     *
+     * @private
+     */
     Logger.prototype.__isAvailable__ = function () {
         return this.__systemSupport__ && this.__available__;
     };
 
 
     /**
-	 * 日志输出级别
-	 */
+     * 日志输出级别
+     */
     Logger.Level = {
         ALL: 0,
         DEBUG: 1,
@@ -65,20 +65,20 @@
     };
 
     /**
-	 * 更新日志级别
-	 * 
-	 * @param level
-	 */
+     * 更新日志级别
+     *
+     * @param level
+     */
     Logger.prototype.level = function (level) {
         this.__logLevel__ = isNaN(parseInt(level)) ? Logger.Level.ALL : level;
     };
 
     /**
-	 * 输出当前时间
-	 * 
-	 * @returns {string}
-	 * @private
-	 */
+     * 输出当前时间
+     *
+     * @returns {string}
+     * @private
+     */
     Logger.prototype.__time__ = function () {
         var now = new Date();
         var year = now.getFullYear();
@@ -139,11 +139,11 @@
     };
 
     /**
-	 * 格式化参数
-	 * 
-	 * @returns {Array}
-	 * @private
-	 */
+     * 格式化参数
+     *
+     * @returns {Array}
+     * @private
+     */
     Logger.prototype.__formatMessage__ = function () {
         var array = Array.prototype.slice.call(arguments);
         var buffer = [];
@@ -159,10 +159,10 @@
         return buffer;
     }
     /**
-	 * 是否启用日志
-	 * 
-	 * @param enable
-	 */
+     * 是否启用日志
+     *
+     * @param enable
+     */
     Logger.prototype.enable = function (enable) {
         if (typeof(enable) !== "boolean") {
             return;
@@ -170,8 +170,8 @@
         this.__available__ = enable;
     };
     /**
-	 * debug输出日志
-	 */
+     * debug输出日志
+     */
     Logger.prototype.debug = function () {
         if (!this.__isAvailable__()) {
             return;
@@ -195,8 +195,8 @@
     };
 
     /**
-	 * info输出日志
-	 */
+     * info输出日志
+     */
     Logger.prototype.info = function (message, args) {
         if (!this.__isAvailable__()) {
             return;
@@ -220,8 +220,8 @@
     };
 
     /**
-	 * warn输出日志
-	 */
+     * warn输出日志
+     */
     Logger.prototype.warn = function () {
         if (!this.__isAvailable__()) {
             return;
@@ -245,8 +245,8 @@
     };
 
     /**
-	 * error输出日志
-	 */
+     * error输出日志
+     */
     Logger.prototype.error = function (message, args) {
         if (!this.__isAvailable__()) {
             return;
@@ -270,8 +270,8 @@
     };
 
     /**
-	 * 清除console输出的日志
-	 */
+     * 清除console输出的日志
+     */
     Logger.prototype.clear = function () {
         window.console.clear();
     };
@@ -405,17 +405,17 @@
             });
         },
         /**
-		 * 
-		 * @param message
-		 * @param valueTip
-		 * @param callback
-		 * @param type
-		 *            int float string
-		 * @param required
-		 *            必填
-		 * @param min
-		 * @param max
-		 */
+         *
+         * @param message
+         * @param valueTip
+         * @param callback
+         * @param type
+         *            int float string
+         * @param required
+         *            必填
+         * @param min
+         * @param max
+         */
         prompt: function (message, valueTip, callback, type, required, min, max) {
             var $dialog = $("#prompt-dialog");
             $dialog.data("type", type || "string");
@@ -500,11 +500,11 @@
         return new Date(jsondate).format(fmt);
     };
     /**
-	 * 秒时间格式化
-	 * 
-	 * @param seconds
-	 * @returns {string}
-	 */
+     * 秒时间格式化
+     *
+     * @param seconds
+     * @returns {string}
+     */
     Date.formatSecond = function (value) {
         var _diff = "-:-";
         if (typeof(value) !== "number") {
@@ -754,9 +754,9 @@
         this.__init__();
     }
     /**
-	 * 全局配置项
-	 * 
-	 * @type {{defaults: {timeout: number, method: string, dataType: string,
+     * 全局配置项
+     *
+     * @type {{defaults: {timeout: number, method: string, dataType: string,
 	 *       async: boolean, params: {}, headers: {}, method: string, codes:
 	 *       {1000: string, 100: string, 101: string, 102: string, 200: string,
 	 *       201: string, 202: string, 203: string, 204: string, 205: string,
@@ -773,7 +773,7 @@
 	 *       _this.options.defaults.success, error:
 	 *       _this.options.defaults.error, complete:
 	 *       _this.options.defaults.complete}}}
-	 */
+     */
     ITAjax.options = {
         defaults: {
             silentd: false,
@@ -825,11 +825,11 @@
     };
 
     /**
-	 * 设定地址前缀
-	 * 
-	 * @param resBase
-	 * @returns {ITAjax.resBase|*}
-	 */
+     * 设定地址前缀
+     *
+     * @param resBase
+     * @returns {ITAjax.resBase|*}
+     */
     ITAjax.prototype.resBase = function (baseRes) {
         var _this = this;
         if (!!baseRes) {
@@ -847,10 +847,10 @@
     };
 
     /**
-	 * 初始化
-	 * 
-	 * @private
-	 */
+     * 初始化
+     *
+     * @private
+     */
     ITAjax.prototype.__init__ = function () {
         var _this = this;
         _this.baseRes = "";
@@ -872,20 +872,20 @@
     };
 
     /**
-	 * 设定url
-	 * 
-	 * @param url
-	 */
+     * 设定url
+     *
+     * @param url
+     */
     ITAjax.prototype.action = function (url) {
         var _this = this;
         _this.url = url;
         return _this;
     };
     /**
-	 * 设定url
-	 * 
-	 * @param url
-	 */
+     * 设定url
+     *
+     * @param url
+     */
     ITAjax.prototype.reqHeaders = function (headers) {
         var _this = this;
         if (typeof(headers) !== "object") {
@@ -896,10 +896,10 @@
     };
 
     /**
-	 * 设定Ajax请求沉默状态
-	 * 
-	 * @param silentd
-	 */
+     * 设定Ajax请求沉默状态
+     *
+     * @param silentd
+     */
     ITAjax.prototype.silent = function (silentd) {
         var _this = this;
         if (silentd !== true && silentd !== false) {
@@ -910,10 +910,10 @@
     };
 
     /**
-	 * 设定查询参数
-	 * 
-	 * @param args
-	 */
+     * 设定查询参数
+     *
+     * @param args
+     */
     ITAjax.prototype.params = function (args) {
         var _this = this;
         _this.args = $.extend(_this.args, args);
@@ -921,10 +921,10 @@
     };
 
     /**
-	 * 设定请求方法
-	 * 
-	 * @param type
-	 */
+     * 设定请求方法
+     *
+     * @param type
+     */
     ITAjax.prototype.method = function (type) {
         var _this = this;
         _this.type = type;
@@ -932,20 +932,20 @@
     };
 
     /**
-	 * 设置返回数据类型
-	 * 
-	 * @param resDataType
-	 */
+     * 设置返回数据类型
+     *
+     * @param resDataType
+     */
     ITAjax.prototype.dataType = function (resDataType) {
         var _this = this;
         _this.resDataType = resDataType;
         return _this;
     };
     /**
-	 * 执行成功回调
-	 * 
-	 * @param callback
-	 */
+     * 执行成功回调
+     *
+     * @param callback
+     */
     ITAjax.prototype.success = function (callback) {
         var _this = this;
         _this.onsuccess = callback;
@@ -953,10 +953,10 @@
     };
 
     /**
-	 * 调用报错回调
-	 * 
-	 * @param callback
-	 */
+     * 调用报错回调
+     *
+     * @param callback
+     */
     ITAjax.prototype.error = function (callback) {
         var _this = this;
         _this.onerror = callback;
@@ -964,10 +964,10 @@
     };
 
     /**
-	 * 调用完成回调
-	 * 
-	 * @param callback
-	 */
+     * 调用完成回调
+     *
+     * @param callback
+     */
     ITAjax.prototype.complete = function (callback) {
         var _this = this;
         _this.oncomplete = callback;
@@ -975,10 +975,10 @@
     };
 
     /**
-	 * 调用完成回调
-	 * 
-	 * @param callback
-	 */
+     * 调用完成回调
+     *
+     * @param callback
+     */
     ITAjax.prototype.progress = function (callback) {
         var _this = this;
         _this.onprogress = callback;
@@ -986,10 +986,10 @@
     };
 
     /**
-	 * 调用完成回调
-	 * 
-	 * @param callback
-	 */
+     * 调用完成回调
+     *
+     * @param callback
+     */
     ITAjax.prototype.beforeInvoke = function (callback) {
         var _this = this;
         _this.onbeforeInvoke = callback;
@@ -997,8 +997,8 @@
     };
 
     /**
-	 * 发起接口调用
-	 */
+     * 发起接口调用
+     */
     ITAjax.prototype.invoke = function () {
         var _this = this;
         var _url = _this.resBase() + _this.url;
@@ -1124,11 +1124,11 @@
     };
 
     /**
-	 * 调用完成
-	 * 
-	 * @returns {ITAjax}
-	 * @private
-	 */
+     * 调用完成
+     *
+     * @returns {ITAjax}
+     * @private
+     */
     ITAjax.prototype.__done__ = function () {
         var _this = this;
         _this.__init__();
@@ -1136,10 +1136,10 @@
     };
 
     /**
-	 * 将局部变量绑定到全局
-	 * 
-	 * @type {ITAjax}
-	 */
+     * 将局部变量绑定到全局
+     *
+     * @type {ITAjax}
+     */
     window.ITAjax = ITAjax;
 
     window.itAjax = function () {
@@ -1174,7 +1174,7 @@
  * 
  */
 /**
- * 
+ *
  * @author ginko.wang
  * @date 2017-08-31 20:54
  */
@@ -1207,15 +1207,13 @@
                 _this.disconnect(input);
             };
         }
-        // when the node position change
         _this.linkerNode.onDrag = function (x, y) {
             _this.drag(x, y);
         };
-        // when the node position change
         _this.linkerNode.onActive = function () {
-        		if(!!bpm){
-        			bpm.activeNode = _this;
-        		}
+            if (!!bpm) {
+                bpm.activeNode = _this;
+            }
             $("#node-id").val(_this.id);
             $("#node-name").val(_this.name);
             $("#node-type").val(_this.type);
@@ -1223,16 +1221,13 @@
             $("#node-execute").val(_this.execute);
             $("#node-taskid").val(_this.taskId);
         };
-        // trigger when delete the node
         _this.linkerNode.onRemove = function () {
             console.log(this); // print the node object
             delete bpm.__nodes__[_this.linkerNode.id];
-            //
-            for(var key in bpm.__nodes__){
-            		var _node = bpm.__nodes__[key];
-            		delete _node.__transtions__[_this.linkerNode.id];
+            for (var key in bpm.__nodes__) {
+                var _node = bpm.__nodes__[key];
+                delete _node.__transtions__[_this.linkerNode.id];
             }
-            //
         };
     };
     BNode.prototype.__init__ = function () {
@@ -1305,6 +1300,7 @@
             name: _this.name,
             enterThreshold: _this.enterThreshold,
             execute: _this.execute,
+            scriptType: _this.scriptType,
             transtions: _transtions,
             taskId: _this.taskId,
             type: _this.type,
@@ -1315,32 +1311,32 @@
 
     BNode.Types = {
         /**
-		 * 普通节点
-		 */
+         * 普通节点
+         */
         Normal: "normal",
         /**
-		 * 开始
-		 */
+         * 开始
+         */
         Start: "start",
         /**
-		 * 分支
-		 */
+         * 分支
+         */
         Fork: "fork",
         /**
-		 * 合并
-		 */
+         * 合并
+         */
         Join: "join",
         /**
-		 * 任务节点
-		 */
+         * 任务节点
+         */
         Task: "task",
         /**
-		 * 选择节点
-		 */
+         * 选择节点
+         */
         Decision: "decision",
         /**
-		 * 结束节点
-		 */
+         * 结束节点
+         */
         End: "end"
     };
     BNode.config = {
@@ -1425,7 +1421,7 @@
  * 
  */
 /**
- * 
+ *
  * @author ginko.wang
  * @date 2017-08-31 22:47
  */
@@ -1440,36 +1436,57 @@
         this.id = undefined;
         this.name = undefined;
         this.activeNode = undefined;
+        this.__lastX__ = 50;
+        this.__lastY__ = 50;
         this.__idCounter__ = 0;
         this.__nodes__ = {};
     };
     /**
-	 * 生成id
-	 * 
-	 * @returns {string}
-	 */
+     * 生成id
+     *
+     * @returns {string}
+     */
     Bpm.prototype.generateId = function () {
         return "bpm-node-" + (this.__idCounter__++);
     };
     /**
-	 * 当前id
-	 * 
-	 * @returns {string}
-	 */
+     * 当前id
+     *
+     * @returns {string}
+     */
     Bpm.prototype.currentId = function () {
         return "bpm-node-" + (this.__idCounter__);
     };
-    
-    Bpm.prototype.setIdCounter = function(counter){
-    		this.__idCounter__ = counter;
-    };
-    
+
     /**
-	 * 新增节点
-	 * 
-	 * @param name
-	 * @param type
-	 */
+     * 设置id生成器
+     * @param counter
+     */
+    Bpm.prototype.setIdCounter = function (counter) {
+        this.__idCounter__ = counter;
+    };
+
+    /**
+     * 设置元素最后位置
+     * @param x
+     * @param y
+     */
+    Bpm.prototype.setLastPosition = function (x, y) {
+        var _this = this;
+        if (!isNaN(parseInt(x))) {
+            _this.__lastX__ = x;
+        }
+        if (!isNaN(parseInt(y))) {
+            _this.__lastY__ = y;
+        }
+    };
+
+    /**
+     * 新增节点
+     *
+     * @param name
+     * @param type
+     */
     Bpm.prototype.add = function (name, type) {
         var _this = this;
         var _id = _this.generateId();
@@ -1477,14 +1494,14 @@
         return _this.addCustomer(_id, name, type, _position.x, _position.y);
     };
     /**
-	 * 新增节点
-	 * 
-	 * @param id
-	 * @param name
-	 * @param type
-	 * @param x
-	 * @param y
-	 */
+     * 新增节点
+     *
+     * @param id
+     * @param name
+     * @param type
+     * @param x
+     * @param y
+     */
     Bpm.prototype.addCustomer = function (id, name, type, x, y) {
         var _this = this;
         var _lnode = _this.__linker__.node({id: id, name: name, type: type, x: x, y: y});
@@ -1493,13 +1510,13 @@
         return bnode;
     };
     /**
-	 * 
-	 * @param id
-	 * @param name
-	 * @param type
-	 * @param x
-	 * @param y
-	 */
+     *
+     * @param id
+     * @param name
+     * @param type
+     * @param x
+     * @param y
+     */
     Bpm.prototype.connect = function (fromId, toId) {
         var _this = this;
         var _from = _this.__nodes__[fromId];
@@ -1507,20 +1524,20 @@
         _from.connectTo(_to);
     };
     /**
-	 * 移除节点
-	 * 
-	 * @param id
-	 */
+     * 移除节点
+     *
+     * @param id
+     */
     Bpm.prototype.remove = function (id) {
         var _this = this;
         delete _this.__nodes__[id];
     };
     /**
-	 * 计算位置
-	 * 
-	 * @returns {{x: number, y: number}}
-	 * @private
-	 */
+     * 计算位置
+     *
+     * @returns {{x: number, y: number}}
+     * @private
+     */
     Bpm.prototype.__position__ = function () {
         var _this = this;
         var _nodes = [];
@@ -1534,10 +1551,10 @@
         };
     };
     /**
-	 * 获取bpm配置数据
-	 * 
-	 * @returns {{id: *, name: *, nodes: Array}}
-	 */
+     * 获取bpm配置数据
+     *
+     * @returns {{id: *, name: *, nodes: Array}}
+     */
     Bpm.prototype.data = function () {
         var _this = this;
         var _nodes = [];
@@ -1547,7 +1564,7 @@
         return {
             id: _this.id,
             name: _this.name,
-            counter:_this.__idCounter__,
+            counter: _this.__idCounter__,
             nodes: _nodes
         };
     };
