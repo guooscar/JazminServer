@@ -261,7 +261,6 @@ public class ProcessInstance {
 		if(node.type.equals(Node.TYPE_JOIN)){
 			boolean allPresent=true;
 			for(Node dependNode:findDependNodes(node.id)){
-				System.err.println(dependNode.id);
 				if(!history.fromNodes.contains(dependNode.id)){
 					allPresent=false;
 				}
@@ -369,7 +368,7 @@ public class ProcessInstance {
 	//
 	void leave(Node node){
 		if(!tokenNodes.contains(node.id)){
-			throw new IllegalArgumentException("node "+node.id+" doesnot have token");
+			throw new IllegalArgumentException("node "+node.id+"["+node.name+"]"+" doesnot have token");
 		}
 		if(node.type.equals(Node.TYPE_END)){
 			isDone=true;
