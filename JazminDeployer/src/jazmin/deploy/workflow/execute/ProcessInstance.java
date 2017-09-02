@@ -155,14 +155,15 @@ public class ProcessInstance {
 			}
 			nodeMap.put(n.id,n);
 			//load execute
-			if(n.scriptType!=null&&n.execute!=null&&!n.execute.trim().isEmpty()){
-				Execute execute=engine.loadExecute(n.scriptType,n.execute);
-				if(execute==null){
-					throw new IllegalArgumentException("can not load execute with express:"+n.execute);
+			if(n.scriptType!=null&&!n.scriptType.trim().isEmpty()){
+				if(n.execute!=null&&!n.execute.trim().isEmpty()){
+					Execute execute=engine.loadExecute(n.scriptType,n.execute);
+					if(execute==null){
+						throw new IllegalArgumentException("can not load execute with express:"+n.execute);
+					}
+					executeMap.put(n.execute,execute);
 				}
-				executeMap.put(n.execute,execute);
 			}
-			
 			//only one start node allowed
 			if(n.type.equals(Node.TYPE_START)){
 				if(startNode!=null){

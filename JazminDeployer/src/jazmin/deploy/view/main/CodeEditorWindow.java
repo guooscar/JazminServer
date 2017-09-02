@@ -38,7 +38,7 @@ public class CodeEditorWindow extends Window{
 		this.callback=callback;
         Responsive.makeResponsive(this);
         setCaption("Code Editor");
-        setWidth("800px");
+        setWidth("600px");
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);
         setResizable(true);

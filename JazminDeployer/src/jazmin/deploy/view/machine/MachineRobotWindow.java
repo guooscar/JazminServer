@@ -43,7 +43,7 @@ public class MachineRobotWindow extends Window{
 	public MachineRobotWindow() {
 		Responsive.makeResponsive(this);
 		setCaption("Robots");
-        setWidth(90.0f, Unit.PERCENTAGE);
+        setWidth("750px");
         setHeight(90.0f, Unit.PERCENTAGE);
         center();
         setCloseShortcut(KeyCode.ESCAPE, null);
@@ -55,7 +55,7 @@ public class MachineRobotWindow extends Window{
         setContent(content);
         table = new BeanTable<JavaScriptSource>(null,JavaScriptSource.class);
 		content.addComponent(table);
-		table.setWidth("300px");
+		table.setWidth("200px");
 		table.setHeight("100%");
 		//
         editor= new AceEditor();

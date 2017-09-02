@@ -499,18 +499,27 @@ public class DeployManager {
 
     //
     public static void deleteWorkflowScript(String name) {
+    	if(name.startsWith(".")){
+    		throw new IllegalArgumentException("bad name");
+    	}
         File scriptFile = new File(workSpaceDir + "workflow/" + name);
         scriptFile.delete();
     }
 
     //
     public static void deleteBenchmarkScript(String name) {
+    	if(name.startsWith(".")){
+    		throw new IllegalArgumentException("bad name");
+    	}
         File scriptFile = new File(workSpaceDir + "benchmark/" + name);
         scriptFile.delete();
     }
 
     //
     public static void deleteScript(String name) {
+    	if(name.startsWith(".")){
+    		throw new IllegalArgumentException("bad name");
+    	}
         File scriptFile = new File(workSpaceDir + "script/" + name);
         scriptFile.delete();
     }
@@ -612,6 +621,9 @@ public class DeployManager {
 
     //
     private static void saveScript0(String dir, String name, String content) throws IOException {
+    	if(name.startsWith(".")){
+    		throw new IllegalArgumentException("bad name:"+name);
+    	}
         File scriptFile = new File(workSpaceDir + dir + "/" + name);
         if (!scriptFile.exists()) {
             scriptFile.createNewFile();

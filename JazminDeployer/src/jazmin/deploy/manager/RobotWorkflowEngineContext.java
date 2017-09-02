@@ -31,8 +31,7 @@ public interface RobotWorkflowEngineContext {
 			try {
 				String content=DeployManager.getWorkflowScriptContent(name);
 				WorkflowProcess p=engine.loadProcess(content);
-				ProcessInstance pi= engine.startProcess(p,handler);
-				pi.setExceptionHandler(errorHandler);
+				ProcessInstance pi= engine.startProcess(p,handler,errorHandler);
 				return pi;
 			} catch (IOException e) {
 				throw new RuntimeException(e);

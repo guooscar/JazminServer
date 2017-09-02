@@ -32,6 +32,7 @@ import jazmin.deploy.ui.StaticBeanForm;
 public class DashboardView extends Panel{
 	private VerticalLayout root;
 	private Label healthCheckLabel;
+	TimerTask refreshTask;
 	public DashboardView() {
 		super();
 		addStyleName(ValoTheme.PANEL_BORDERLESS);
@@ -51,7 +52,7 @@ public class DashboardView extends Panel{
         reloadDataMachine();
         reloadDataInstance();
         //
-        TimerTask t=new TimerTask() {
+        refreshTask=new TimerTask() {
 			@Override
 			public void run() {
 				if(getUI()==null){
@@ -68,8 +69,14 @@ public class DashboardView extends Panel{
 			}
 		};
 		Timer tt = new Timer(true);
-		tt.scheduleAtFixedRate(t, 5000, 10*1000);
+		tt.scheduleAtFixedRate(refreshTask, 5000, 10*1000);
     }
+	//
+	@Override
+	public void detach() {
+		super.detach();
+		refreshTask.cancel();
+	}
 	//
 	private Component buildHeader(){
 		HorizontalLayout header = new HorizontalLayout();

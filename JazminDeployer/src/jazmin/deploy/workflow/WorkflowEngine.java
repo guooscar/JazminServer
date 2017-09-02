@@ -18,6 +18,7 @@ import jazmin.deploy.workflow.definition.Node;
 import jazmin.deploy.workflow.definition.TaskTemplate;
 import jazmin.deploy.workflow.definition.WorkflowProcess;
 import jazmin.deploy.workflow.execute.EventHandler;
+import jazmin.deploy.workflow.execute.ExceptionHandler;
 import jazmin.deploy.workflow.execute.Execute;
 import jazmin.deploy.workflow.execute.JavaScriptClassExecute;
 import jazmin.deploy.workflow.execute.ProcessInstance;
@@ -205,7 +206,7 @@ public class WorkflowEngine {
 	 * @return
 	 */
 	public ProcessInstance startProcess(WorkflowProcess process){
-		return startProcess(process, null);
+		return startProcess(process, null,null);
 	}
 	/**
 	 * 
@@ -213,9 +214,10 @@ public class WorkflowEngine {
 	 * @param handler
 	 * @return
 	 */
-	public ProcessInstance startProcess(WorkflowProcess process,EventHandler handler){
+	public ProcessInstance startProcess(WorkflowProcess process,EventHandler handler,ExceptionHandler exceptionHandler){
 		ProcessInstance instance=new ProcessInstance(process,this);
 		instance.setEventHandler(handler);
+		instance.setExceptionHandler(exceptionHandler);
 		instance.start();
 		return instance;
 	}
