@@ -1,0 +1,227 @@
+@charset "UTF-8";
+/*!
+ * Linker, Node Editor Library v0.0.1
+ * https://github.com/m-reda/linker
+ *
+ *
+ * Released under the MIT license
+ *
+ * Date: 2017-03-19
+ */
+.linker_container {
+    background-color: #313749;
+    position: relative;
+    height: 100%;
+    overflow: auto;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none
+}
+
+.linker_container .linker_board {
+    width: 19200px;
+    height: 19200px;
+    position: absolute;
+    top: 0;
+    left: 0
+}
+
+.linker_container svg#linker_paths {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0
+}
+
+.linker_container svg#linker_paths path {
+    stroke-dasharray: 34, 4, 4, 4;
+    fill: transparent;
+    stroke: #86d530;
+    stroke-width: 2;
+}
+
+.linker_container svg#linker_paths path:hover {
+    stroke-width: 4;
+    stroke: #a8b938;
+    cursor: cell;
+}
+
+.linker_container .linker_node {
+    background-color: #364156;
+    border-radius: 5px;
+    width: 100px;
+    height: 80px;
+    position: absolute;
+    box-shadow: 3px 3px 5px #2a3344;
+    transition: box-shadow 0.2s
+}
+
+.linker_container .linker_node.active {
+    border: 1px solid #2d9f19;
+}
+
+.linker_container .linker_node.enter {
+    border: 3px dashed #EE451F;
+}
+
+.linker_container .linker_node.finished {
+    border: 3px solid #EE451F;
+}
+
+.linker_container .linker_node:hover {
+    -webkit-box-shadow: 3px 3px 5px #222836;
+    -moz-box-shadow: 3px 3px 5px #222836;
+    box-shadow: 3px 3px 5px #222836;
+}
+
+.linker_container .linker_node > h3 {
+    background-color: #45536e;
+    color: #ffffff;
+    font-size: 11px;
+    text-align: center;
+    border-radius: 5px 5px 0 0;
+    margin: 0;
+    padding: 5px 0;
+    cursor: move
+}
+
+.linker_container .linker_node > h3 .remove,
+.linker_container .linker_node > h3 .setting {
+    position: absolute;
+    top: 5px;
+    right: 4px;
+    display: block;
+    height: 18px;
+    width: 18px;
+    line-height: 18px;
+    text-align: center;
+    background-color: #323c50;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    -webkit-transition: background-color 0.3s;
+    -moz-transition: background-color 0.3s;
+    -ms-transition: background-color 0.3s;
+    -o-transition: background-color 0.3s;
+    transition: background-color 0.3s;
+    color: #ffffff;
+}
+
+.linker_container .linker_node > h3 .remove:after,
+.linker_container .linker_node > h3 .setting:after {
+    content: "X";
+    display: block;
+}
+
+.linker_container .linker_node > h3 .remove:hover,
+.linker_container .linker_node > h3 .setting:hover {
+    background-color: #a30f0f;
+}
+
+.linker_container .linker_node > h3 .setting {
+    right: auto;
+    left: 3px;
+    padding: 4px;
+    fill: #ffffff;
+}
+
+.linker_container .linker_node > h3 .setting:after {
+    display: none;
+}
+
+.linker_container .linker_node > h3 .setting:hover {
+    background-color: #8396bb;
+    fill: #2e3542;
+}
+
+.linker_container .linker_node:after {
+    content: " ";
+    height: 1px;
+    display: block;
+    clear: both
+}
+
+.linker_container .linker_inputs {
+    margin-left: -5px;
+    float: left
+}
+
+.linker_container .linker_inputs .linker_point {
+    margin: 2px 4px 0 0;
+    float: left
+}
+
+.linker_container .linker_outputs {
+    margin-right: -5px;
+    float: right;
+    text-align: right
+}
+
+.linker_container .linker_outputs .linker_point {
+    margin: 2px 0 0 4px;
+    cursor: pointer;
+    float: right
+}
+
+.linker_container .linker_label {
+    margin: 20px 0;
+    font-size: 12px;
+    font-family: sans-serif;
+    color: #697690;
+    cursor: default
+}
+
+.linker_container .linker_point {
+    background-color: #00d91d;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%
+}
+
+.linker_container .linker_point.selected {
+    background-color: #ffe63f
+}
+
+.linker_container.drag_path .linker_inputs .linker_point {
+    cursor: pointer
+}
+
+.linker_container .linker_node.linker_node_start {
+    background: url("/image/bpms/start.png") center 10px no-repeat #364156;
+    -webkit-background-size: 80px;
+    background-size: 80px;
+}
+
+.linker_container .linker_node.linker_node_fork {
+    background: url("/image/bpms/fork.png") center 10px no-repeat #364156;
+    -webkit-background-size: 80px;
+    background-size: 80px;
+}
+
+.linker_container .linker_node.linker_node_join {
+    background: url("/image/bpms/join.png") center 10px no-repeat #364156;
+    -webkit-background-size: 80px;
+    background-size: 80px;
+}
+
+.linker_container .linker_node.linker_node_task {
+    background: url("/image/bpms/task.png") center 10px no-repeat #364156;
+    -webkit-background-size: 80px;
+    background-size: 80px;
+}
+
+.linker_container .linker_node.linker_node_decision {
+    background: url("/image/bpms/decision.png") center 10px no-repeat #364156;
+    -webkit-background-size: 80px;
+    background-size: 80px;
+}
+
+.linker_container .linker_node.linker_node_end {
+    background: url("/image/bpms/end.png") center 10px no-repeat #364156;
+    -webkit-background-size: 80px;
+    background-size: 80px;
+}

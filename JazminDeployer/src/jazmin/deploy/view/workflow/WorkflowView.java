@@ -42,7 +42,7 @@ public class WorkflowView extends VerticalLayout{
 	//
 	private Component createMainView(){
 		frame = new BrowserFrame(null,
-				new ExternalResource("/p/workflow/editor"));
+				new ExternalResource("/srv/workflow/editor"));
 		frame.setImmediate(true);
 		frame.setSizeFull();
 		return frame;

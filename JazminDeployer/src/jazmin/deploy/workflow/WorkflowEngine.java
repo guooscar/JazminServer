@@ -17,7 +17,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import jazmin.deploy.workflow.definition.TaskTemplate;
 import jazmin.deploy.workflow.definition.WorkflowProcess;
 import jazmin.deploy.workflow.execute.Execute;
-import jazmin.deploy.workflow.execute.ExecuteHandler;
+import jazmin.deploy.workflow.execute.EventHandler;
 import jazmin.deploy.workflow.execute.JavaScriptClassExecute;
 import jazmin.deploy.workflow.execute.ProcessInstance;
 import jazmin.log.Logger;
@@ -218,9 +218,9 @@ public class WorkflowEngine {
 	 * @param handler
 	 * @return
 	 */
-	public ProcessInstance startProcess(WorkflowProcess process,ExecuteHandler handler){
+	public ProcessInstance startProcess(WorkflowProcess process,EventHandler handler){
 		ProcessInstance instance=new ProcessInstance(process,this);
-		instance.setExecuteHandler(handler);
+		instance.setEventHandler(handler);
 		instance.start();
 		return instance;
 	}
