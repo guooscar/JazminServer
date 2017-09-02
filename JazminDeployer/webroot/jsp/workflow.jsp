@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/css/linker.css">
     <link rel="stylesheet" href="/css/workflow.css">
     <style>
+    
         #editor {
             border: solid 1px #cdcdcd;
         }
