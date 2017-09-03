@@ -12,6 +12,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
 
+import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.Application;
 import jazmin.deploy.domain.Instance;
 import jazmin.deploy.domain.Machine;
@@ -23,10 +24,13 @@ import jazmin.deploy.domain.Machine;
 public interface DeployerManagerContext {
 	public void compile(String appId);
 	public void start(String instanceId);
+	public void startAndWait(String instanceId,int counter);
+	public void restartAndWait(String instanceId,int time);
 	public void stop(String instanceId);
-	public List<Application> getApplications();
-	public List<Instance> getInstances() ;
-	public List<Machine> getMachines();
+	public List<Application> getApplications(String query);
+	public List<Instance> getInstances(String query) ;
+	public List<Machine> getMachines(String query);
+	
 	//
 	//-------------------------------------------------------------------------
 	public static interface OutputHandler{
@@ -61,12 +65,17 @@ public interface DeployerManagerContext {
 		}
 		//
 		public void start(String instanceId){
-			Instance instnce=DeployManager.getInstanceById(instanceId);
-			if(instnce==null){
+			Instance instance=DeployManager.getInstanceById(instanceId);
+			if(instance==null){
 				handler.onOutput("can not find instance "+instanceId+"\n");
 				return;
 			}
 			info("start instance:"+instanceId);
+			try {
+				DeployManager.startInstance(instance);
+			} catch (Exception e) {
+				info(e.getMessage());
+			}
 		}
 		//
 		public void startAndWait(String instanceId,int counter){
@@ -104,21 +113,25 @@ public interface DeployerManagerContext {
 			}
 		}
 		//
-		//
-		
-		public List<Machine> getMachines() {
-			return DeployManager.getMachines();
+		public void restartAndWait(String instanceId,int time){
+			stop(instanceId);
+			startAndWait(instanceId, time);
 		}
 		//
-		public List<Instance> getInstances() {
-			return DeployManager.getInstances();
+		public List<Machine> getMachines(String query) {
+			return DeployManager.getMachines(DeploySystemUI.getUser().id,query);
 		}
 		//
-		public List<Application> getApplications() {
-			return DeployManager.getApplications();
+		public List<Instance> getInstances(String query) {
+			return DeployManager.getInstances(DeploySystemUI.getUser().id,query);
 		}
 		//
-		public void run(String source)throws ScriptException{
+		public List<Application> getApplications(String query) {
+			return DeployManager.getApplications(DeploySystemUI.getUser().id,query);
+		}
+		//
+		public void run(String name,String source)throws ScriptException{
+			info("run deploy plan:"+name);
 			ScriptEngineManager engineManager = new ScriptEngineManager();
 			ScriptEngine engine = engineManager.getEngineByName("nashorn");
 			SimpleScriptContext ssc=new SimpleScriptContext();
@@ -131,6 +144,7 @@ public interface DeployerManagerContext {
 						"load('nashorn:mozilla_compat.js');"+
 						"importPackage(Packages.jazmin.deploy.manager);\n";
 			engine.eval(commonScript+source, ssc); 
+			info("run deploy plan:"+name+" complete");
 		}
 	}
 }

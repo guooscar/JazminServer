@@ -3,6 +3,7 @@
  */
 package jazmin.deploy.view.deployplan;
 
+import jazmin.core.Jazmin;
 import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.manager.DeployerManagerContext.DeployerManagerContextContextImpl;
 
@@ -76,14 +77,14 @@ public class DeployPlanView extends VerticalLayout{
 	}
 	//
 	private void runPlan(String name){
-		DeployerManagerContextContextImpl impl=new DeployerManagerContextContextImpl(this::appendOut);
-		try {
-			appendOut("run deploy plan:"+name+"\n");
-			impl.run(DeployManager.getScriptContent(name,"deployplan"));
-			appendOut("run deploy plan:"+name+" complete"+"\n");
-		} catch (Exception e) {
-			appendOut(e.getMessage());
-		}
+		Jazmin.execute(()->{
+			DeployerManagerContextContextImpl impl=new DeployerManagerContextContextImpl(this::appendOut);
+			try {
+				impl.run(name,DeployManager.getScriptContent(name,"deployplan"));
+			} catch (Exception e) {
+				appendOut(e.getMessage());
+			}
+		});
 	}
 	//
 	private void appendOut(String out){

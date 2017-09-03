@@ -839,7 +839,7 @@ public class DeployManager {
     }
 
     //
-    public static List<Instance> getInstances(String uid, String search) throws Exception {
+    public static List<Instance> getInstances(String uid, String search){
         if (search == null || search.trim().isEmpty()) {
             return new ArrayList<Instance>();
         }
