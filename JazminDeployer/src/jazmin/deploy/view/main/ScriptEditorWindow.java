@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jazmin.deploy.view.machine;
+package jazmin.deploy.view.main;
 
 import java.io.IOException;
 
@@ -9,7 +9,6 @@ import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.JavaScriptSource;
 import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.ui.BeanTable;
-import jazmin.deploy.view.main.InputWindow;
 
 import org.vaadin.aceeditor.AceEditor;
 import org.vaadin.aceeditor.AceMode;
@@ -34,15 +33,17 @@ import com.vaadin.ui.themes.ValoTheme;
  * 6 Jan, 2015
  */
 @SuppressWarnings("serial")
-public class MachineRobotWindow extends Window{
+public class ScriptEditorWindow extends Window{
 
 	BeanTable<JavaScriptSource> table;
 	AceEditor editor ;
 	JavaScriptSource currentScript;
+	String type="";
 	//
-	public MachineRobotWindow() {
+	public ScriptEditorWindow(String type) {
+		this.type=type;
 		Responsive.makeResponsive(this);
-		setCaption("Robots");
+		setCaption(type);
         setWidth("750px");
         setHeight(90.0f, Unit.PERCENTAGE);
         center();
@@ -53,7 +54,7 @@ public class MachineRobotWindow extends Window{
         VerticalLayout content = new VerticalLayout();
         content.setSizeFull();
         setContent(content);
-        table = new BeanTable<JavaScriptSource>(null,JavaScriptSource.class);
+        table = new BeanTable<JavaScriptSource>(null,JavaScriptSource.class,"lastModifiedTime");
 		content.addComponent(table);
 		table.setWidth("200px");
 		table.setHeight("100%");
@@ -120,41 +121,48 @@ public class MachineRobotWindow extends Window{
 	private void showScriptContent(JavaScriptSource script){
 		try {
 			currentScript=script;
-			editor.setValue(DeployManager.getRobotScriptContent(script.name));
+			editor.setValue(DeployManager.getScriptContent(script.name,type));
 		} catch(Exception e) {
 			DeploySystemUI.showNotificationInfo("ERROR", e.getMessage());
 		}
 	}
 	//
 	private void loadData(){
-		table.setBeanData(DeployManager.getRobotScripts());
+		table.setBeanData(DeployManager.getScripts(type));
 	}
 	//
 	private void deleteScript(){
 		JavaScriptSource script=table.getSelectValue();
 		if(script==null){
-			DeploySystemUI.showNotificationInfo("INFO", "Choose robot to delete");
+			DeploySystemUI.showNotificationInfo("INFO", "Choose "+type+" to delete");
 			return;
 		}
-		DeployManager.deleteScript(script.name);
-		loadData();
+		ConfirmWindow cw=new ConfirmWindow((c)->{
+
+			DeployManager.deleteScript(script.name,type);
+			loadData();
+		});
+		cw.setCaption("Confirm");
+		cw.setInfo("Confirm delete "+type+" ?");
+		UI.getCurrent().addWindow(cw);
+		
 	}
 	//
 	private void newScript(){
 		final InputWindow sw=new InputWindow(window->{
 			String name=window.getInputValue();
 			try {
-				DeployManager.saveRobotScript(name,"");
+				DeployManager.saveScript(name,"",type);
 				DeploySystemUI.showNotificationInfo("INFO", "Create complete");
 				loadData();
-				currentScript=DeployManager.getRobotScript(name);
+				currentScript=DeployManager.getScript(name,type);
 				window.close();
 			} catch (Exception e) {
 				DeploySystemUI.showNotificationInfo("ERROR", e.getMessage());
 			}
 		});
-		sw.setCaption("Create new robot");
-		sw.setInfo("input robot name");
+		sw.setCaption("Create new "+type);
+		sw.setInfo("input "+type+" name");
 		UI.getCurrent().addWindow(sw);
 	}
 	//
@@ -163,7 +171,11 @@ public class MachineRobotWindow extends Window{
 			return;
 		}
 		try {
-			DeployManager.saveRobotScript(currentScript.name,editor.getValue());
+			String t=editor.getValue();
+			if(t==null){
+				t="";
+			}
+			DeployManager.saveScript(currentScript.name,t,type);
 			DeploySystemUI.showNotificationInfo("INFO", "Save complete");
 		} catch (IOException e) {
 			DeploySystemUI.showNotificationInfo("ERROR", e.getMessage());

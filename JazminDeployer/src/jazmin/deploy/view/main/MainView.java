@@ -7,7 +7,7 @@ import jazmin.deploy.domain.User;
 import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.view.app.ApplicationInfoView;
 import jazmin.deploy.view.benchmark.BenchmarkView;
-import jazmin.deploy.view.console.ConsoleView;
+import jazmin.deploy.view.deployplan.DeployPlanView;
 import jazmin.deploy.view.instance.InstanceInfoView;
 import jazmin.deploy.view.job.JobInfoView;
 import jazmin.deploy.view.machine.MachineInfoView;
@@ -33,7 +33,6 @@ import com.vaadin.ui.VerticalLayout;
 public class MainView extends HorizontalLayout {
 	private VerticalLayout content ;
 	private MainMenu menuView;
-	private ConsoleView consoleView;
      
     public MainView() {
         setSizeFull();
@@ -82,15 +81,11 @@ public class MainView extends HorizontalLayout {
         if(DeploySystemUI.getUser().id.equals(User.ADMIN)){
     		menuView.addMenuItem("Package", FontAwesome.FOLDER_O,new PackageInfoView());	
         	menuView.addMenuItem("Repo", FontAwesome.CLOUD_UPLOAD,new RepoInfoView());
-        	consoleView=new ConsoleView();
     	}
-     	menuView.addMenuItem("Console", FontAwesome.CODE,consoleView);
+     	menuView.addMenuItem("DeployPlan", FontAwesome.CODE,new DeployPlanView());
      	menuView.addMenuItem("Job", FontAwesome.CUBES,new JobInfoView());
      	menuView.addMenuItem("Benchmark", FontAwesome.CAB,new BenchmarkView());
      	menuView.addMenuItem("Workflow", FontAwesome.GEARS,new WorkflowView());
     }
-    //
-    public ConsoleView getConsoleView(){
-    	return consoleView;
-    }
+    
 }

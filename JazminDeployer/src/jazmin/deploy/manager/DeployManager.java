@@ -465,20 +465,8 @@ public class DeployManager {
         }
     }
 
-    //
-    public static List<JavaScriptSource> getRobotScripts() {
-        return getScripts0("script");
-    }
-
-    //
-    //
-    public static List<JavaScriptSource> getWorkflowScripts() {
-        return getScripts0("workflow");
-    }
-
-    //
-    public static List<JavaScriptSource> getBenchmarkScripts() {
-        return getScripts0("benchmark");
+    public static List<JavaScriptSource> getScripts(String type) {
+        return getScripts0(type);
     }
 
     //
@@ -498,64 +486,30 @@ public class DeployManager {
     }
 
     //
-    public static void deleteWorkflowScript(String name) {
+    public static void deleteScript(String name,String type) {
     	if(name.startsWith(".")){
     		throw new IllegalArgumentException("bad name");
     	}
-        File scriptFile = new File(workSpaceDir + "workflow/" + name);
+        File scriptFile = new File(workSpaceDir + type+"/" + name);
         scriptFile.delete();
     }
-
+   
     //
-    public static void deleteBenchmarkScript(String name) {
-    	if(name.startsWith(".")){
-    		throw new IllegalArgumentException("bad name");
-    	}
-        File scriptFile = new File(workSpaceDir + "benchmark/" + name);
-        scriptFile.delete();
-    }
-
-    //
-    public static void deleteScript(String name) {
-    	if(name.startsWith(".")){
-    		throw new IllegalArgumentException("bad name");
-    	}
-        File scriptFile = new File(workSpaceDir + "script/" + name);
-        scriptFile.delete();
-    }
-
-    //
-    public static boolean existsRobotScript(String name) {
-        File scriptFile = new File(workSpaceDir + "script/" + name);
+    public static boolean existsScript(String name,String type) {
+        File scriptFile = new File(workSpaceDir + type+"/" + name);
         return scriptFile.exists();
     }
-
+  
     //
-    public static boolean existsWorlflowScript(String name) {
-        File scriptFile = new File(workSpaceDir + "workflow/" + name);
-        return scriptFile.exists();
-    }
-
-    //
-    public static String getRobotScriptContent(String name) throws IOException {
-        File scriptFile = new File(workSpaceDir + "script/" + name);
+    public static String getScriptContent(String name,String type) throws IOException {
+        File scriptFile = new File(workSpaceDir + type+"/" + name);
         return FileUtil.getContent(scriptFile);
     }
-
-    public static String getBenchmarkScriptContent(String name) throws IOException {
-        File scriptFile = new File(workSpaceDir + "benchmark/" + name);
-        return FileUtil.getContent(scriptFile);
-    }
-
-    //
-    public static String getWorkflowScriptContent(String name) throws IOException {
-        File scriptFile = new File(workSpaceDir + "workflow/" + name);
-        return FileUtil.getContent(scriptFile);
-    }
+   
 
     //
     public static String getRobotScriptRunContent(String name) throws IOException {
-        String fileContent = getRobotScriptContent(name);
+        String fileContent = getScriptContent(name,"robot");
         StringBuilder result = new StringBuilder();
         StringReader sr = new StringReader(fileContent);
         BufferedReader br = new BufferedReader(sr);
@@ -565,7 +519,7 @@ public class DeployManager {
             if (line.startsWith("//include")) {
                 String includeName = line.substring(10);
                 includeName = includeName.trim();
-                result.append("\n" + getRobotScriptContent(includeName) + "\n");
+                result.append("\n" + getScriptContent(includeName,"robot") + "\n");
             }
         }
         result.append(fileContent);
@@ -573,20 +527,10 @@ public class DeployManager {
     }
 
     //
-    public static JavaScriptSource getWorkflowScript(String name) throws IOException {
-        return getScript0("workflow", name);
+    public static JavaScriptSource getScript(String name,String type) throws IOException {
+        return getScript0(type, name);
     }
-
     //
-    public static JavaScriptSource getRobotScript(String name) throws IOException {
-        return getScript0("script", name);
-    }
-
-    //
-    public static JavaScriptSource getBenchmarkScript(String name) throws IOException {
-        return getScript0("benchmark", name);
-    }
-
     public static JavaScriptSource getScript0(String dirName, String name) throws IOException {
         String configDir = workSpaceDir + dirName;
         File dir = new File(configDir);
@@ -605,19 +549,11 @@ public class DeployManager {
     }
 
     //
-    public static void saveWorkflowScript(String name, String content) throws IOException {
-        saveScript0("workflow", name, content);
+    public static void saveScript(String name, String content,String type) throws IOException {
+        saveScript0(type, name, content);
     }
 
-    //
-    public static void saveRobotScript(String name, String content) throws IOException {
-        saveScript0("script", name, content);
-    }
-
-    //
-    public static void saveBenhmarkScript(String name, String content) throws IOException {
-        saveScript0("benchmark", name, content);
-    }
+    
 
     //
     private static void saveScript0(String dir, String name, String content) throws IOException {
@@ -1434,9 +1370,10 @@ public class DeployManager {
         createDirs("template");
         createDirs("repo");
         createDirs("package");
-        createDirs("script");
+        createDirs("robot");
         createDirs("workflow");
         createDirs("benchmark");
+        createDirs("deployplan");
         
         //
         createFile("config/application.json");

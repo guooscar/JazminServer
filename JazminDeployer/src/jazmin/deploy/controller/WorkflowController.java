@@ -30,7 +30,7 @@ public class WorkflowController extends AuthBaseController{
 	//
 	@Service(id = "get_workflow_list", method = HttpMethod.POST)
 	public void getWorkflowList(Context ctx) {
-		ctx.put("list", DeployManager.getWorkflowScripts());
+		ctx.put("list", DeployManager.getScripts("workflow"));
 		ctx.view(new JsonView());
 	}
 
@@ -44,7 +44,7 @@ public class WorkflowController extends AuthBaseController{
 	//
 	@Service(id = "get_workflow_content", method = HttpMethod.POST)
 	public void getWorkflowContent(Context ctx) throws IOException {
-		String source = DeployManager.getWorkflowScriptContent(ctx.getString("name", true));
+		String source = DeployManager.getScriptContent(ctx.getString("name", true),"workflow");
 		ctx.put("content", source);
 		ctx.view(new JsonView());
 	}
@@ -57,7 +57,7 @@ public class WorkflowController extends AuthBaseController{
 		if(name.trim().isEmpty()){
 			throw new IllegalArgumentException("name required");
 		}
-		DeployManager.saveWorkflowScript(name, content);
+		DeployManager.saveScript(name, content,"workflow");
 		ctx.view(new JsonView());
 	}
 
@@ -68,7 +68,7 @@ public class WorkflowController extends AuthBaseController{
 		if(name.trim().isEmpty()){
 			throw new IllegalArgumentException("name required");
 		}
-		DeployManager.deleteWorkflowScript(name);
+		DeployManager.deleteScript(name,"workflow");
 		ctx.view(new JsonView());
 	}
 
@@ -76,7 +76,7 @@ public class WorkflowController extends AuthBaseController{
 	@Service(id = "start_workflow_instance", method = HttpMethod.POST)
 	public void startWorkflow(Context ctx) throws IOException {
 		String name = ctx.getString("name", true);
-		String script = DeployManager.getWorkflowScriptContent(name);
+		String script = DeployManager.getScriptContent(name,"workflow");
 		WorkflowProcess process = DeployManager.workflowEngine.loadProcess(script);
 		ProcessInstance instance = DeployManager.workflowEngine.startProcess(process);
 		ctx.request().session().setAttribute("WorkflowInstance", instance);

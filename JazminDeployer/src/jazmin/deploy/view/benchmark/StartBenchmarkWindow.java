@@ -97,7 +97,7 @@ public class StartBenchmarkWindow extends Window{
         footer.setComponentAlignment(ok, Alignment.TOP_RIGHT);
         content.addComponent(footer);
         //
-        DeployManager.getBenchmarkScripts().forEach(robot->{
+        DeployManager.getScripts("beanchmark").forEach(robot->{
         	Object itemId=scriptCombox.addItem(robot.name);
         	scriptCombox.setItemCaption(itemId, robot.name);
         });
