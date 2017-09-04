@@ -17,5 +17,5 @@ public interface ScriptExecuteContext {
 	void setVariable(String key,Object value);
 	//
 	Node getNode();
-	void transtion(String toNodeId);
+	void transition(String toNodeId);
 }

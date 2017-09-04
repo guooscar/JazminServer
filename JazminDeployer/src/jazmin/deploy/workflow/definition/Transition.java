@@ -7,13 +7,13 @@ package jazmin.deploy.workflow.definition;
  * @author yama
  *
  */
-public class Transtion {
+public class Transition {
 	public String name;
 	public String to;
-	public Transtion(){
+	public Transition(){
 		
 	}
-	public Transtion(String name,String to){
+	public Transition(String name,String to){
 		this.name=name;
 		this.to=to;
 	}

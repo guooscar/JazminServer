@@ -1191,7 +1191,7 @@
  * @date 2017-08-31 20:54
  */
 ;(function (window, $) {
-    var Transtion = function (name, to) {
+    var Transition = function (name, to) {
         this.name = name;
         this.to = to;
     };
@@ -1241,7 +1241,7 @@
             delete bpm.__nodes__[_this.linkerNode.id];
             for (var key in bpm.__nodes__) {
                 var _node = bpm.__nodes__[key];
-                delete _node.__transtions__[_this.linkerNode.id];
+                delete _node.__transitions__[_this.linkerNode.id];
             }
             $("body").trigger("changed.bpms");
         };
@@ -1251,7 +1251,7 @@
         _this.linkerNode = undefined;
         _this.id = undefined;
         _this.name = undefined;
-        _this.__transtions__ = {};
+        _this.__transitions__ = {};
         _this.execute = undefined;
         _this.scriptType = undefined;
         _this.taskId = undefined;
@@ -1265,7 +1265,7 @@
             return;
         }
         var _this = this;
-        var _isExisted = _this.__transtions__[node.id];
+        var _isExisted = _this.__transitions__[node.id];
         if (!!_isExisted) {
             return;
         }
@@ -1277,7 +1277,7 @@
             return;
         }
         var _this = this;
-        _this.__transtions__[input.node.id] = ({
+        _this.__transitions__[input.node.id] = ({
             name: input.node.name(),
             to: input.node.id
         });
@@ -1287,7 +1287,7 @@
             return;
         }
         var _this = this;
-        delete _this.__transtions__[input.node.id];
+        delete _this.__transitions__[input.node.id];
     };
 
     BNode.prototype.drag = function (x, y) {
@@ -1307,9 +1307,9 @@
 
     BNode.prototype.data = function () {
         var _this = this;
-        var _transtions = [];
-        for (var key in _this.__transtions__) {
-            _transtions.push(_this.__transtions__[key]);
+        var _transitions = [];
+        for (var key in _this.__transitions__) {
+        	_transitions.push(_this.__transitions__[key]);
         }
         return {
             id: _this.id,
@@ -1317,7 +1317,7 @@
             enterThreshold: _this.enterThreshold,
             execute: _this.execute,
             scriptType: _this.scriptType,
-            transtions: _transtions,
+            transitions: _transitions,
             taskId: _this.taskId,
             type: _this.type,
             x: _this.x,

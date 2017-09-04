@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import jazmin.deploy.workflow.WorkflowEngine;
 import jazmin.deploy.workflow.WorkflowEvent;
 import jazmin.deploy.workflow.definition.Node;
-import jazmin.deploy.workflow.definition.Transtion;
+import jazmin.deploy.workflow.definition.Transition;
 import jazmin.deploy.workflow.definition.WorkflowProcess;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -174,7 +174,7 @@ public class ProcessInstance {
 			//must have one end node at least
 			if(n.type.equals(Node.TYPE_END)){
 				endNodes.add(n);
-				if(n.transtions.size()>0){
+				if(n.transitions.size()>0){
 					throw new IllegalArgumentException(n.type+" node allow no out "+n.id);
 				}
 			}
@@ -184,7 +184,7 @@ public class ProcessInstance {
 					||n.type.equals(Node.TYPE_START)
 					||n.type.equals(Node.TYPE_TASK)
 					){
-				if(n.transtions.size()>1){
+				if(n.transitions.size()>1){
 					throw new IllegalArgumentException(n.type+" node allow one out "+n.id);
 				}
 			}
@@ -286,7 +286,7 @@ public class ProcessInstance {
 	private List<Node>findDependNodes(String nodeId){
 		List<Node>result=new ArrayList<>();
 		nodeMap.forEach((k,v)->{
-			for(Transtion t:v.transtions){
+			for(Transition t:v.transitions){
 				if(t.to!=null&&t.to.equals(nodeId)){
 					result.add(v);
 				}
@@ -303,7 +303,7 @@ public class ProcessInstance {
 		leave(node);
 		if(toNodeId!=null){
 			Node toNode=null;
-			for(Transtion t:node.transtions){
+			for(Transition t:node.transitions){
 				if(t.to.equals(toNodeId)){
 					toNode=getNode(t.to);
 				}
@@ -316,7 +316,7 @@ public class ProcessInstance {
 				signal(toNode.id);
 			}
 		}else{
-			for(Transtion t:node.transtions){
+			for(Transition t:node.transitions){
 				Node toNode=getNode(t.to);
 				enter(node, toNode);
 				if(!toNode.type.equals(Node.TYPE_TASK)){

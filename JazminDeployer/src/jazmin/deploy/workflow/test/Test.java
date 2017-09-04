@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 import jazmin.deploy.workflow.WorkflowEngine;
 import jazmin.deploy.workflow.definition.Node;
-import jazmin.deploy.workflow.definition.Transtion;
+import jazmin.deploy.workflow.definition.Transition;
 import jazmin.deploy.workflow.definition.WorkflowProcess;
 import jazmin.deploy.workflow.execute.ProcessInstance;
 import jazmin.util.JSONUtil;
@@ -29,18 +29,18 @@ public class Test {
 		process.nodes=new ArrayList<>();
 		//
 		process.nodes.add(new Node("start","start",Node.TYPE_START,null,
-				new Transtion("add","add")
+				new Transition("add","add")
 		));
 		process.nodes.add(new Node("add","add",Node.TYPE_TASK,"jsfile:script/add.js",
-				new Transtion("cond","cond")
+				new Transition("cond","cond")
 		));
 		process.nodes.add(new Node("cond","cond",Node.TYPE_DECISION,"jsfile:script/cond.js",
-				new Transtion(">5","print"),
-				new Transtion("<5","add")				
+				new Transition(">5","print"),
+				new Transition("<5","add")				
 		));
 		//
 		process.nodes.add(new Node("print","print",Node.TYPE_TASK,"java:io.itit.workflow.builtin.PrintNodeExecute",
-				new Transtion("end","end")
+				new Transition("end","end")
 		));
 		//
 		process.nodes.add(new Node("end","end",Node.TYPE_END,null));
