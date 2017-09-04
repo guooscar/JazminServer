@@ -26,7 +26,6 @@ public class Node implements Comparable<Node>{
 	public String type;
 	public String name;
 	public String id;
-	public String taskId;
 	//
 	//
 	public List<Transtion>transtions=new LinkedList<>();

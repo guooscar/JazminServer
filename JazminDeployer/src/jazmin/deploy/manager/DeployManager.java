@@ -53,7 +53,6 @@ import jazmin.deploy.manager.RobotDeployManagerContext.RobotDeployManagerContext
 import jazmin.deploy.manager.RobotWorkflowEngineContext.RobotWorkflowEngineContextImpl;
 import jazmin.deploy.util.DateUtil;
 import jazmin.deploy.workflow.WorkflowEngine;
-import jazmin.deploy.workflow.definition.TaskTemplate;
 import jazmin.deploy.workflow.execute.ProcessInstance;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -136,10 +135,6 @@ public class DeployManager {
             websockifyServer.setHostInfoProvider(DeployManager::getOneTimeVncInfo);
         }
         workflowEngine = new WorkflowEngine();
-        TaskTemplate template = new TaskTemplate();
-        template.id = "robot-function";
-        template.name = "robot-function";
-        workflowEngine.registerTaskTemplate(template);
         //
         startJobCronThread();
         startHealthCheckThread();
