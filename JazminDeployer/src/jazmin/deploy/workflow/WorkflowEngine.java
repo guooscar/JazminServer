@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
@@ -15,7 +14,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import jazmin.deploy.workflow.definition.Node;
-import jazmin.deploy.workflow.definition.TaskTemplate;
 import jazmin.deploy.workflow.definition.WorkflowProcess;
 import jazmin.deploy.workflow.execute.EventHandler;
 import jazmin.deploy.workflow.execute.ExceptionHandler;
@@ -132,7 +130,6 @@ public class WorkflowEngine {
 	ThreadPool threadPool;
 	//
 	List<WorkflowEventListener>eventListeners;
-	Map<String,TaskTemplate> taskTemplateMap;
 	//
 	public WorkflowEngine() {
 		executeFactorys=new HashMap<>();
@@ -141,16 +138,8 @@ public class WorkflowEngine {
 		executeFactorys.put(Node.SCRIPT_TYPE_JSFILE,new JavaScriptFileExecuteFactory());
 		executeFactorys.put(Node.SCRIPT_TYPE_JS,new JavaScriptExecuteFactory());
 		eventListeners=new ArrayList<>();
-		taskTemplateMap=new LinkedHashMap<>();
 	}
-	//
-	public void registerTaskTemplate(TaskTemplate t){
-		taskTemplateMap.put(t.id,t);
-	}
-	//
-	public List<TaskTemplate>getTaskTemplates(){
-		return new ArrayList<>(taskTemplateMap.values());
-	}
+	
 	//
 	public ExecuteFactory getExecuteFactory(String id){
 		return executeFactorys.get(id);

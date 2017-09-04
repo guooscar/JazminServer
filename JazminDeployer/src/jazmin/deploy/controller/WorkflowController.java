@@ -23,7 +23,6 @@ public class WorkflowController extends AuthBaseController{
 	//
 	@Service(id = "editor")
 	public void editor(Context ctx) {
-		ctx.put("tasks", DeployManager.workflowEngine.getTaskTemplates());
 		ctx.view(new ResourceView("/jsp/workflow.jsp"));
 	}
 
@@ -34,12 +33,6 @@ public class WorkflowController extends AuthBaseController{
 		ctx.view(new JsonView());
 	}
 
-	//
-	@Service(id = "get_workflow_task_templates", method = HttpMethod.POST)
-	public void getWorkflowTaskTemplates(Context ctx) {
-		ctx.put("list", DeployManager.workflowEngine.getTaskTemplates());
-		ctx.view(new JsonView());
-	}
 
 	//
 	@Service(id = "get_workflow_content", method = HttpMethod.POST)
