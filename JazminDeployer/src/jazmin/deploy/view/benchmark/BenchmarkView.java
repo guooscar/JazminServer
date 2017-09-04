@@ -58,7 +58,7 @@ public class BenchmarkView extends VerticalLayout{
 	//
 	private void startBenchmark0(BenchmarkInfo info){
 		try{
-			String file=DeployManager.getBenchmarkScriptContent(info.script);
+			String file=DeployManager.getScriptContent(info.script,"benchmark");
 			session=DeployManager.addBenchmarkSession();
 			RobotFactory rf=()->{
 				try {

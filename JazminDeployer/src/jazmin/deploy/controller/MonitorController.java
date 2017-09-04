@@ -31,7 +31,7 @@ import jazmin.util.JSONUtil;
  *
  */
 @Controller(id = "monitor")
-public class MonitorController extends AuthBaseController{
+public class MonitorController{
 	//
 	@Service(id = "report", method = HttpMethod.ALL)
 	public void report(Context c) {

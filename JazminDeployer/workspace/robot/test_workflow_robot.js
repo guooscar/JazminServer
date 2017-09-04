@@ -4,7 +4,18 @@ function executeHandler(ctx,type){
     //invoke function
     if(ctx.getNode().type=='task'&&type=='enter'){
         var functionName=ctx.getNode().name;
-        ctx.signal();
+        var fn=robotScript[functionName];
+        var nodeId=ctx.getNode().id;
+        if(fn){
+        	fn(ctx,function(){
+        		ctx.signal(nodeId);
+        	});
+        }else{
+        	robot.sendc('can not find func:'+functionName+"\r\n");
+        }
+    }
+    if(ctx.getNode().type=='end'){
+        robot.close();
     }
 }
 //
@@ -12,10 +23,8 @@ function exceptionHandler(ctx,error){
     robot.sendc(error.getMessage()+"\r\n");
 }
 //
-var workflowInstance;
-//
 robot.open(function(){	
-    workflow.startWorkflow("testworkflow",executeHandler,exceptionHandler);
+    workflow.startWorkflow("loginlsworkflow",executeHandler,exceptionHandler);
 });
 
 //
@@ -27,15 +36,16 @@ var robotScript={};
 /*
  * get running user
  */
-robotScript.getUser=function (success){
-	workflowInstance.setVariable('user',robot.user());
+robotScript.getUser=function (ctx,success){
+	ctx.setVariable('user',robot.user());
 	success();
 }
 /*
  * list temp files
  */
-robotScript.listFile=function(success){
+robotScript.listFile=function(ctx,success){
 	robot.expect(".*",function(msg){
+	    robot.expectClear();
 		success();
 	});
 	robot.sends("ls /tmp \n");
