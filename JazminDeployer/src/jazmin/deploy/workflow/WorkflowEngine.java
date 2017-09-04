@@ -195,7 +195,29 @@ public class WorkflowEngine {
 	 * @return
 	 */
 	public ProcessInstance startProcess(WorkflowProcess process){
-		return startProcess(process, null,null);
+		return startProcess(process, null,null,null);
+	}
+	/**
+	 * 
+	 * @param process
+	 * @param eventHandler
+	 * @return
+	 */
+	public ProcessInstance startProcess(WorkflowProcess process,EventHandler eventHandler){
+		return startProcess(process, eventHandler,null,null);
+	}
+	/**
+	 * 
+	 * @param process
+	 * @param eventHandler
+	 * @param eh
+	 * @return
+	 */
+	public ProcessInstance startProcess(
+			WorkflowProcess process,
+			EventHandler eventHandler,
+			ExceptionHandler eh){
+		return startProcess(process, eventHandler,eh,null);
 	}
 	/**
 	 * 
@@ -203,10 +225,19 @@ public class WorkflowEngine {
 	 * @param handler
 	 * @return
 	 */
-	public ProcessInstance startProcess(WorkflowProcess process,EventHandler handler,ExceptionHandler exceptionHandler){
+	public ProcessInstance startProcess(
+			WorkflowProcess process,
+			EventHandler handler,
+			ExceptionHandler exceptionHandler,
+			Map<String,Object>vars){
 		ProcessInstance instance=new ProcessInstance(process,this);
 		instance.setEventHandler(handler);
 		instance.setExceptionHandler(exceptionHandler);
+		if(vars!=null){
+			vars.forEach((k,v)->{
+				instance.setVariable(k, v);
+			});
+		}
 		instance.start();
 		return instance;
 	}
