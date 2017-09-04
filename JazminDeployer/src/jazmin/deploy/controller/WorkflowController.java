@@ -90,6 +90,7 @@ public class WorkflowController extends AuthBaseController{
 		ProcessInstance instance = DeployManager.getAttachedWorkflowProcessInstance(name);
 		ctx.request().session().setAttribute("WorkflowInstance", instance);
 		ctx.put("instance", instance);
+		DeployManager.detachWorkflowProcessInstance(name);
 		ctx.view(new JsonView());
 	}
 	//
