@@ -1208,10 +1208,10 @@
         _this.linkerNode = lknode;
         var _nodeConfig = $.extend({}, BNode.config.default, BNode.config[type]);
         if (_nodeConfig.noInput !== true) {
-            _this.linkIn = _this.linkerNode.input(_this.inId, "In");
+            _this.linkIn = _this.linkerNode.input(_this.inId, "in");
         }
         if (_nodeConfig.noOutput !== true) {
-            _this.linkerOut = _this.linkerNode.output(_this.outId, "Out");
+            _this.linkerOut = _this.linkerNode.output(_this.outId, "out");
             _this.linkerOut.onConnect = function (input) {
                 _this.connect(input);
                 $("body").trigger("changed.bpms");
@@ -1236,7 +1236,6 @@
             $("#node-name").val(_this.name);
             $("#node-type").val(_this.type);
             $("#node-script-type").val(_this.scriptType);
-            $("#node-taskid").val(_this.taskId);
         };
         _this.linkerNode.onRemove = function () {
             delete bpm.__nodes__[_this.linkerNode.id];

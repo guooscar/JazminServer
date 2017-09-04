@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/css/linker.css">
     <link rel="stylesheet" href="/css/workflow.css">
     <style>
-    
+
         #editor {
             border: solid 1px #cdcdcd;
         }
@@ -17,27 +17,6 @@
 <body>
 <div id="bpms" class="bpms">
     <div id="linker"></div>
-    <div id="run-status-dialog" class="run-status-dialog hidden">
-        <div class="instance-info">
-            <b>InstanceId:</b>
-            <span id="instance-id" style="padding: 0 5px"></span>
-            <span id="instance-state" class="state"></span>
-            <div class="btn btn-default btn-xs btn-halt">Halt</div>
-        </div>
-        <div class="instance-token-nodes">
-            <b>TokenNodes:</b><span id="instance-token-nodes"></span>
-        </div>
-        <div class="instance-variables">
-            <table class="table">
-                <thead>
-                <th>Key</th>
-                <th>Value</th>
-                </thead>
-                <tbody id="instance-variables">
-                </tbody>
-            </table>
-        </div>
-    </div>
     <div id="top" class="top">
         <div id="show-left" class="show-left">
             <div class="btn btn-default btn-xs text-center">&rang;</div>
@@ -49,8 +28,7 @@
             <div class="btn btn-default btn-sm btn-create">New</div>
             <div class="btn btn-default btn-sm btn-save ml-10 disabled">Save</div>
             <div class="btn btn-default btn-sm btn-run ml-10">Start</div>
-            <div class="btn btn-default btn-sm btn-zoomin ml-10">ZoomIn</div>
-            <div class="btn btn-default btn-sm btn-zoomout ml-10">ZoomOut</div>
+            <div class="btn btn-default btn-sm btn-attach ml-10">Attach</div>
         </div>
         <div id="proc-name" class="proc-name" data-name="" data-rate="1"></div>
     </div>
@@ -140,19 +118,6 @@
                         </div><!-- /input-group -->
                     </div>
                 </div>
-                <div class="field">
-                    <div class="field-label">TaskId</div>
-                    <div class="field-content">
-                        <select id="node-taskid" class="form-control">
-                            <option value=""></option>
-                            <c:forEach var="item" items="${tasks}">
-                                <option value="${item.id}">
-                                    <c:out value="${item.name}"/>
-                                </option>
-                            </c:forEach>
-                        </select>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -205,6 +170,58 @@
             </div>
         </div>
     </div>
+    <div id="run-attach-dialog" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Code Editor</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center pv-10">No Attach</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="run-status-dialog" class="run-status-dialog hidden">
+        <div class="instance-summary">
+            <div class="instance-info">
+                <div class="instance-state">
+                    <b>InstanceId:</b>
+                    <span id="instance-id" style="padding: 0 5px"></span>
+                    <span id="instance-state" class="state"></span>
+                </div>
+                <div class="instance-halt">
+                    <div class="btn btn-default btn-xs btn-halt">Halt</div>
+                </div>
+            </div>
+            <div class="instance-refresh">
+                <div class="checkbox">
+                    <label for="chk-auto-refresh">
+                        <input id="chk-auto-refresh" type="checkbox"> Auto Refresh
+                    </label>
+                </div>
+            </div>
+            <div class="instance-token-nodes">
+                <b>TokenNodes:</b><span id="instance-token-nodes"></span>
+            </div>
+        </div>
+        <div class="instance-variables">
+            <table class="table">
+                <thead>
+                <th>Key</th>
+                <th>Value</th>
+                </thead>
+                <tbody id="instance-variables">
+                </tbody>
+            </table>
+        </div>
+    </div>
 </section>
 <script src="/js/jquery.js"></script>
 <script src="/js/bootstrap.min.js"></script>
@@ -214,17 +231,16 @@
 <script>
     var bpm = undefined;
     var linker = undefined;
-    var editor = ace.edit("editor");
-    editor.setTheme("ace/theme/chrome");
-    editor.setHighlightActiveLine(true);
-    editor.setShowPrintMargin(true);
-    editor.getSession().setUseWrapMode(true);
-    editor.getSession().setMode("ace/mode/javascript");
+    var editor = undefined;
     window.__updateInstanceState__ = function (result) {
         var _instance = result.instance;
         $("#run-status-dialog").removeClass("hidden");
         $("#instance-id").text(_instance.id);
-        var _state = _instance.done == true ? "complete" : "running";
+        var _state = "running";
+        if (_state == true) {
+            window.clearInterval(window.__refreshId__);
+            _state = "complete";
+        }
         $("#instance-state").text(_state).removeClass("running complete").addClass(_state);
         var variableMap = _instance.variableMap;
         var html = [];
@@ -255,6 +271,7 @@
         }
         $("#instance-token-nodes").html(html.join(""));
     };
+    window.__refreshId__ = 0;
     window.__signal__ = function (nodeId) {
         itAjax().action("/srv/workflow/signal_workflow_instance").params({
             node: nodeId
@@ -264,6 +281,40 @@
                 return;
             }
             window.__refresh__();
+        }).error(function () {
+            bpms.dialog.error("error try later");
+        }).complete(function () {
+        }).invoke();
+    };
+    window.__attach__ = function () {
+        itAjax().action("/srv/workflow/get_workflow_attach_list").params({}).success(function (result) {
+            if (result.errorCode != 0) {
+                bpms.dialog.error(result.errorMessage);
+                return;
+            }
+            var html = [];
+            var _list = Array.isArray(result.list) ? result.list : [];
+            var _len = _list.length;
+            html.push("<div id='attach-list' class='attach-list'>");
+            for (var i = 0; i < _len; i++) {
+                html.push("<div class='attach-item'>");
+                html.push("<div class='attach-item-title'>");
+                html.push(_list[i]);
+                html.push("</div>");
+                html.push("<div class='attach-item-btn'>");
+                html.push("<div class='btn btn-default btn-xs btn-run-attach' data-id='" + _list[i] + "'>Attch</div>");
+                html.push("</div>");
+                html.push("</div>");
+            }
+            html.push("</div>");
+            var $dialog = $("#run-attach-dialog");
+            if (_len > 0) {
+                $dialog.find(".modal-body").html(html.join(""));
+            }
+            $dialog.modal({
+                backdrop: "static",
+                keyboard: false
+            });
         }).error(function () {
             bpms.dialog.error("error try later");
         }).complete(function () {
@@ -299,7 +350,7 @@
         }).complete(function () {
         }).invoke();
     }
-    window.__render__ = function (procObj) {
+    window.__render__ = function (procObj, callback) {
         $("#linker").html("");
         linker = $("#linker").linker({settingIcon: false});
         bpm = new Bpm(linker, procObj.name, procObj.name);
@@ -325,6 +376,9 @@
         $("#proc-name").text(procObj.name).data("name", procObj.name).removeClass("unsave");
         $("#bpms").addClass("with-right");
         $("#btn-groups").find(".btn.btn-save").addClass("disabled");
+        if (typeof(callback) === "function") {
+            callback.apply(null);
+        }
     };
     window.__loadWorkflowInstances__ = function () {
         itAjax().action("/srv/workflow/get_workflow_list").params({}).success(function (result) {
@@ -354,7 +408,9 @@
         $("body").on("hidden.bs.modal", "#code-dialog", function () {
             var event = arguments[0] || window.event;
             event.preventDefault();
-            editor.setValue("");
+            if(!!editor){
+                editor.destroy();
+            }
         }).on("changed.bpms", function () {
             var event = arguments[0] || window.event;
             event.preventDefault();
@@ -365,12 +421,16 @@
             var event = arguments[0] || window.event;
             event.preventDefault();
             $("#bpms").addClass("with-left");
-        }).on("change", "#node-taskid", function () {
-            if (!bpm || !bpm.activeNode) {
-                return;
+        }).on("change", "#chk-auto-refresh", function () {
+            var $this = $(this);
+            var _checked = $this.prop("checked");
+            if (_checked) {
+                window.__refreshId__ = window.setInterval(function () {
+                    window.__refresh__();
+                }, 5000);
+            } else {
+                window.clearInterval(window.__refreshId__);
             }
-            bpm.activeNode.taskId = $(this).val();
-            $("body").trigger("changed.bpms");
         }).on("change", "#node-script-type", function () {
             if (!bpm || !bpm.activeNode) {
                 return;
@@ -383,8 +443,8 @@
             if (!bpm || !bpm.activeNode) {
                 return;
             }
-            $("#code-dialog").modal("hide");
             bpm.activeNode.execute = editor.getValue();
+            $("#code-dialog").modal("hide");
             $("body").trigger("changed.bpms");
         }).on("click", "#btn-script-code", function () {
             var event = arguments[0] || window.event;
@@ -392,7 +452,13 @@
             if (!bpm || !bpm.activeNode) {
                 return;
             }
-            if(!!bpm.activeNode.execute){
+            editor = ace.edit("editor");
+            editor.setTheme("ace/theme/chrome");
+            editor.setHighlightActiveLine(true);
+            editor.setShowPrintMargin(true);
+            editor.getSession().setUseWrapMode(true);
+            editor.getSession().setMode("ace/mode/javascript");
+            if (!!bpm.activeNode.execute) {
                 editor.setValue(bpm.activeNode.execute);
             }
             $("#code-dialog").modal({
@@ -420,10 +486,9 @@
         }).on("click", "#process.items .item", function () {
             var event = arguments[0] || window.event;
             event.preventDefault();
+            var _callback = arguments[1];
             var $this = $(this);
-            if ($this.hasClass("checked")) {
-                return;
-            }
+            $("#run-status-dialog").find(".btn-halt").trigger("click");
             if ($("#proc-name").hasClass("unsave")) {
                 if (!!bpm && !confirm("current workflow have change,discard?")) {
                     return;
@@ -436,7 +501,11 @@
                 name: _name
             }).success(function (result) {
                 var content = result.content;
-                window.__render__(JSON.parse(content));
+                window.__render__(JSON.parse(content), function () {
+                    if (typeof(_callback) === "function") {
+                        _callback.apply(null);
+                    }
+                });
             }).error(function () {
                 bpms.dialog.error("error try later");
             }).complete(function () {
@@ -453,6 +522,53 @@
             bpm.add(_type, _type);
         }).on("click", "#btn-groups .btn.btn-run", function () {
             window.__run__();
+        }).on("click", "#btn-groups .btn.btn-attach", function () {
+            window.__attach__();
+        }).on("click", "#attach-list .btn.btn-run-attach", function () {
+            var event = arguments[0] || window.event;
+            event.preventDefault();
+            var $this = $(this);
+            if ($this.hasClass("disabled")) {
+                return;
+            }
+            var _id = $this.data("id");
+            if (!_id || _id.trim().length === 0) {
+                bpms.dialog.error("error try later");
+                return;
+            }
+            if ($this.hasClass("requesting")) {
+                bpms.dialog.warn("attaching please wait");
+                return;
+            }
+            $this.addClass("requesting");
+            itAjax().action("/srv/workflow/attach_workflow_instance").params({
+                id: _id
+            }).success(function (result) {
+                if (result.errorCode != 0) {
+                    return;
+                }
+                $("#run-attach-dialog").modal("hide");
+                var _instance = result.instance;
+                if (!_instance || !_instance.workflowProcess) {
+                    bpms.dialog.error("error load attach info for [" + _id + "]");
+                    return;
+                }
+                $("#bpms").addClass("with-left");
+                var _aname = _instance.workflowProcess.id;
+                $("#process").find(".item").each(function (index, el) {
+                    var $el = $(el);
+                    var _name = $el.data("name");
+                    if (_name === _aname) {
+                        $el.trigger("click", [function () {
+                            window.__updateInstanceState__(result);
+                        }]);
+                    }
+                });
+            }).error(function () {
+                bpms.dialog.error("error try later");
+            }).complete(function () {
+                $this.removeClass("requesting");
+            }).invoke();
         }).on("click", "#btn-groups .btn.btn-create", function () {
             var event = arguments[0] || window.event;
             event.preventDefault();
@@ -470,14 +586,14 @@
                 bpm = new Bpm(linker, result, result);
                 $("#bpms").addClass("with-right");
                 $("#proc-name").text(result).data("name", result);
+                $("#run-status-dialog").find(".btn-halt").trigger("click");
                 $("body").trigger("changed.bpms");
             }, "string", true, 2);
-        }).on("click", ".btn-halt", function () {
+        }).on("click", "#run-status-dialog .btn-halt", function () {
             $(".linker_node").removeClass("enter finished");
             $("#run-status-dialog").addClass("hidden");
-        }).on("click", ".btn-zoomin", function () {
-        }).on("click", ".btn-zoomout", function () {
-
+            $("#chk-auto-refresh").prop("checked", false);
+            window.clearInterval(window.__refreshId__);
         }).on("click", ".btn-token", function () {
             var $this = $(this);
             var _nodeId = $this.data("id");

@@ -1,11 +1,11 @@
 [
 	{
 		"id":"demo",
-		"privateHost":"localhost",
-		"publicHost":"localhost",
-		"rootSshPassword":"77585211",
-		"sshUser":"yama",
-		"sshPassword":"77585211",
+		"privateHost":"10.0.0.22",
+		"publicHost":"10.0.0.22",
+		"rootSshPassword":"$yingo@90W.com",
+		"sshUser":"ginko.wang",
+		"sshPassword":"$yingo@90W.com",
 		"sshPort":22,
 		"vncPort":5900,
 		"vncPassword":"123456",

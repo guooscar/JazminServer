@@ -24,8 +24,8 @@
     position: absolute;
     width: 19200px;
     height: 19200px;
-    top:0;
-    left:0;
+    top: 0;
+    left: 0;
 }
 
 .linker_container svg#linker_paths {
@@ -69,7 +69,7 @@
 }
 
 .linker_container .linker_node.finished {
-    border: 3px solid #EE451F;
+    border: 3px solid #b11a21;
 }
 
 .linker_container .linker_node:hover {
@@ -181,15 +181,17 @@
     margin: 20px 0;
     font-size: 12px;
     font-family: sans-serif;
-    color: #697690;
-    cursor: default
+    color: #2e3542;
+    cursor: default;
 }
 
 .linker_container .linker_point {
     background-color: #00d91d;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%
+    width: 16px;
+    height: 16px;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border-radius: 50%;
 }
 
 .linker_container .linker_point.selected {
@@ -201,37 +203,37 @@
 }
 
 .linker_container .linker_node.linker_node_start {
-    background: url("/image/bpms/start-small.png") center 30px no-repeat #364156;
+    background: url("/image/bpms/start-small.png") center 30px no-repeat #1794a5;
     -webkit-background-size: 40px;
     background-size: 40px;
 }
 
 .linker_container .linker_node.linker_node_fork {
-    background: url("/image/bpms/fork-small.png") center 30px no-repeat #364156;
+    background: url("/image/bpms/fork-small.png") center 30px no-repeat #2e7866;
     -webkit-background-size: 40px;
     background-size: 40px;
 }
 
 .linker_container .linker_node.linker_node_join {
-    background: url("/image/bpms/join-small.png") center 30px no-repeat #364156;
+    background: url("/image/bpms/join-small.png") center 30px no-repeat #f2c640;
     -webkit-background-size: 40px;
     background-size: 40px;
 }
 
 .linker_container .linker_node.linker_node_task {
-    background: url("/image/bpms/task-small.png") center 30px no-repeat #364156;
+    background: url("/image/bpms/task-small.png") center 30px no-repeat #d0dfe6;
     -webkit-background-size: 40px;
     background-size: 40px;
 }
 
 .linker_container .linker_node.linker_node_decision {
-    background: url("/image/bpms/decision-small.png") center 30px no-repeat #364156;
+    background: url("/image/bpms/decision-small.png") center 30px no-repeat #7f95d1;
     -webkit-background-size: 40px;
     background-size: 40px;
 }
 
 .linker_container .linker_node.linker_node_end {
-    background: url("/image/bpms/end-small.png") center 30px no-repeat #364156;
+    background: url("/image/bpms/end-small.png") center 30px no-repeat #e25d6e;
     -webkit-background-size: 40px;
     background-size: 40px;
 }
