@@ -117,7 +117,6 @@ public class DeployManager {
 
     //
     public static void setup() throws Exception {
-    	System.setProperty("sun.jnu.encoding","utf-8");
     	//
         workSpaceDir = Jazmin.environment.getString("deploy.workspace", "./workspace/");
         deployHostname = Jazmin.environment.getString("deploy.hostname", "localhost");

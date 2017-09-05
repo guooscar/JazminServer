@@ -137,13 +137,13 @@ public class ScriptEditorWindow extends Window{
 			DeploySystemUI.showNotificationInfo("INFO", "Choose "+type+" to delete");
 			return;
 		}
-		ConfirmWindow cw=new ConfirmWindow((c)->{
-
+		final ConfirmWindow cw=new ConfirmWindow((c)->{
 			DeployManager.deleteScript(script.name,type);
 			loadData();
+			c.close();
 		});
 		cw.setCaption("Confirm");
-		cw.setInfo("Confirm delete "+type+" ?");
+		cw.setInfo("Confirm delete "+type+":"+script.name+" ?");
 		UI.getCurrent().addWindow(cw);
 		
 	}
