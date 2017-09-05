@@ -4,20 +4,25 @@
 package jazmin.deploy.controller;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import jazmin.core.Jazmin;
 import jazmin.deploy.domain.Instance;
+import jazmin.deploy.domain.WebHook;
 import jazmin.deploy.manager.DeployManager;
+import jazmin.deploy.manager.DeployerManagerContext.DeployerManagerContextContextImpl;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.web.mvc.Context;
 import jazmin.server.web.mvc.Controller;
 import jazmin.server.web.mvc.ErrorView;
 import jazmin.server.web.mvc.FileView;
+import jazmin.server.web.mvc.HttpMethod;
 import jazmin.server.web.mvc.PlainTextView;
 import jazmin.server.web.mvc.ResourceView;
 import jazmin.server.web.mvc.Service;
@@ -89,7 +94,10 @@ public class DeployController {
 			c.view(new PlainTextView("can not find template for instance:"+instanceName));	
 		}
 	}
-	//
+	/**
+	 * download package 
+	 * @param c
+	 */
 	@Service(id = "pkg")
 	public void downloadInstancePackage(Context c) {
 		List<String> querys = c.request().querys();
@@ -108,7 +116,10 @@ public class DeployController {
 	}
 	//--------------------------------------------------------------------------
 
-	//
+	/**
+	 * web ssh view
+	 * @param c
+	 */
 	@Service(id="webssh")
 	public void webssh(Context c){
 		if(!checkMachine(c,"")){
@@ -117,7 +128,10 @@ public class DeployController {
 		c.put("token",c.getString("token", true));
 		c.view(new ResourceView("/jsp/webssh.jsp"));
 	}
-	//
+	/**
+	 * web vnc view
+	 * @param c
+	 */
 	@Service(id="webvnc")
 	public void webvnc(Context c){
 		if(!checkMachine(c,"")){
@@ -126,7 +140,10 @@ public class DeployController {
 		c.put("token",c.getString("token", true));
 		c.view(new ResourceView("/jsp/webvnc.jsp"));
 	}
-	//
+	/**
+	 * show system graph
+	 * @param c
+	 */
 	@Service(id="sysgraph")
 	public void getSystemGraph(Context c){
 		if(!checkMachine(c,"")){
@@ -141,7 +158,10 @@ public class DeployController {
 		c.put("dot_string",result);
 		c.view(new ResourceView("/jsp/graph.jsp"));
 	}
-	//
+	/**
+	 * show instance graph
+	 * @param c
+	 */
 	@Service(id="insgraph")
 	public void getInstanceGraph(Context c){
 		if(!checkMachine(c,"")){
@@ -157,7 +177,10 @@ public class DeployController {
 		c.put("dot_string",result);
 		c.view(new ResourceView("/jsp/graph.jsp"));
 	}
-	//
+	/**
+	 * download package
+	 * @param c
+	 */
 	@Service(id="download")
 	public void downloadPackage(Context c){
 		if(!checkMachine(c,"")){
@@ -173,7 +196,10 @@ public class DeployController {
 			c.view(new FileView(result.file));
 		}
 	}	
-	//
+	/**
+	 * download jazmin jar
+	 * @param c
+	 */
 	@Service(id="download_jazmin")
 	public void downloadJazmin(Context c){
 		String path=Jazmin.environment.getString("deploy.ant.lib","");
@@ -181,5 +207,41 @@ public class DeployController {
 		if(jazminFile.exists()){
 			c.view(new FileView(jazminFile.getAbsolutePath()));
 		}
+	}
+	/**
+	 * webhook 
+	 * @param ctx
+	 */
+	@Service(id="webhook",queryCount=4,method=HttpMethod.ALL)
+	public void webhook(Context ctx){
+		String id=ctx.request().querys().get(2);
+		String secure=ctx.request().querys().get(3);
+		WebHook wh=DeployManager.getWebHook(id);
+		if(wh==null){
+			ctx.view(new ErrorView(404));
+			return;
+		}
+		if(!wh.secure.equals(secure)){
+			ctx.view(new ErrorView(503));
+			return;
+		}
+		Map<String,String>vars=new HashMap<>();
+		ctx.request().queryParams().forEach(s->{
+			vars.put(s, ctx.request().queryParams(s));
+		});
+		Jazmin.execute(()->{
+			DeployerManagerContextContextImpl impl=new DeployerManagerContextContextImpl(this::appendOut,vars);
+			try {
+				impl.run(wh.deployplan,DeployManager.getScriptContent(
+						wh.deployplan,"deployplan"));
+			} catch (Exception e) {
+				appendOut(e.getMessage());
+			}
+		});
+		ctx.view(new PlainTextView("success"));
+	}
+	//
+	private void appendOut(String out){
+		logger.info(out);
 	}
 }

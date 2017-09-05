@@ -102,6 +102,7 @@ public final class MainMenu extends CustomComponent {
             settingsItem.addItem("Instance Config", (selectedItem)->showConfig("instance.json"));
             settingsItem.addItem("Iptables Config", (selectedItem)->showConfig("iptables.rule"));
             settingsItem.addItem("Job Config", (selectedItem)->showConfig("job.json"));
+            settingsItem.addItem("Webhook Config", (selectedItem)->showConfig("webhook.json"));
             settingsItem.addSeparator();
         }
         settingsItem.addItem("Robots", (selectedItem)->{

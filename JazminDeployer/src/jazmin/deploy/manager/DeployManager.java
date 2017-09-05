@@ -34,7 +34,6 @@ import com.alibaba.fastjson.JSON;
 
 import jazmin.core.Jazmin;
 import jazmin.core.job.CronExpression;
-import jazmin.deploy.DeployStartServlet;
 import jazmin.deploy.domain.AppPackage;
 import jazmin.deploy.domain.Application;
 import jazmin.deploy.domain.GraphVizRenderer;
@@ -47,6 +46,7 @@ import jazmin.deploy.domain.PackageDownloadInfo;
 import jazmin.deploy.domain.RepoItem;
 import jazmin.deploy.domain.TopSearch;
 import jazmin.deploy.domain.User;
+import jazmin.deploy.domain.WebHook;
 import jazmin.deploy.domain.ant.AntManager;
 import jazmin.deploy.domain.svn.WorkingCopy;
 import jazmin.deploy.manager.RobotDeployManagerContext.RobotDeployManagerContextImpl;
@@ -67,7 +67,6 @@ import jazmin.server.webssh.WebSshChannel;
 import jazmin.server.webssh.WebSshServer;
 import jazmin.util.BeanUtil;
 import jazmin.util.FileUtil;
-import jazmin.util.IOUtil;
 import jazmin.util.JSONUtil;
 import jazmin.util.SshUtil;
 
@@ -78,6 +77,7 @@ import jazmin.util.SshUtil;
 public class DeployManager {
     private static Logger logger = LoggerFactory.get(DeployManager.class);
     //
+    private static Map<String, WebHook> webhookMap;
     private static Map<String, Instance> instanceMap;
     private static Map<String, User> userMap;
     private static Map<String, Machine> machineMap;
@@ -89,14 +89,14 @@ public class DeployManager {
     private static StringBuffer errorMessage;
     private static Map<String, ConnectionInfo> oneTimeSSHConnectionMap = new ConcurrentHashMap<>();
     private static Map<String, HostInfo> oneTimeVncHostInfoMap = new ConcurrentHashMap<>();
-    //
     private static Map<String, BenchmarkSession> benchmarkSessions = new ConcurrentHashMap<>();
     public static WorkflowEngine workflowEngine;
-    //
     public static Map<String,ProcessInstance> attachedProcessInstance = new ConcurrentHashMap<>();
+    //
     
     //
     static {
+    	webhookMap=new ConcurrentHashMap<>();
         instanceMap = new ConcurrentHashMap<String, Instance>();
         machineMap = new ConcurrentHashMap<String, Machine>();
         packageMap = new ConcurrentHashMap<String, AppPackage>();
@@ -358,7 +358,10 @@ public class DeployManager {
         oneTimeVncHostInfoMap.remove(token);
         return info;
     }
-
+    //
+    public static WebHook getWebHook(String id){
+    	return webhookMap.get(id);
+    }
     //
     public static String createOneTimeSSHToken(
             Machine machine,
@@ -433,6 +436,7 @@ public class DeployManager {
             errorMessage = new StringBuffer();
             reloadUserConfig(configDir);
             reloadApplicationConfig(configDir);
+            reloadWebHookConfig(configDir);
             checkApplicationConfig();
             reloadMachineConfig(configDir);
             reloadInstanceConfig(configDir);
@@ -939,15 +943,36 @@ public class DeployManager {
             logger.info("load user from:" + configFile.getAbsolutePath());
             String ss = FileUtil.getContent(configFile);
             List<User> apps = JSONUtil.fromJsonList(ss, User.class);
-            apps.forEach(in -> {
-                logger.debug("add user:" + in.id);
-                userMap.put(in.id, in);
-            });
+            if(apps!=null){
+            	 apps.forEach(in -> {
+                     logger.debug("add user:" + in.id);
+                     userMap.put(in.id, in);
+                 });
+            }
+           
         } else {
             logErrorMessage("can not find :" + configFile);
         }
     }
-
+    //
+    //
+    private static void reloadWebHookConfig(String configDir) throws Exception {
+        File configFile = new File(configDir, "webhook.json");
+        if (configFile.exists()) {
+            webhookMap.clear();
+            logger.info("load webhook from:" + configFile.getAbsolutePath());
+            String ss = FileUtil.getContent(configFile);
+            List<WebHook> apps = JSONUtil.fromJsonList(ss, WebHook.class);
+            if(apps!=null){
+                apps.forEach(in -> {
+                    logger.debug("add webhook:" + in.id);
+                    webhookMap.put(in.id, in);
+                });
+            }
+        } else {
+            logErrorMessage("can not find :" + configFile);
+        }
+    }
     //
     private static void reloadJobConfig(String configDir) throws Exception {
         File configFile = new File(configDir, "job.json");
@@ -956,9 +981,12 @@ public class DeployManager {
             logger.info("load job from:" + configFile.getAbsolutePath());
             String ss = FileUtil.getContent(configFile);
             List<MachineJob> jobs = JSONUtil.fromJsonList(ss, MachineJob.class);
-            jobs.forEach(in -> {
-                jobMap.put(in.id, in);
-            });
+            if(jobs!=null){
+            	jobs.forEach(in -> {
+                    jobMap.put(in.id, in);
+                });
+            }
+            
         } else {
             logErrorMessage("can not find :" + configFile);
         }
@@ -1361,7 +1389,7 @@ public class DeployManager {
     }
 
     //
-    public static void checkWorkspace() {
+    private static void checkWorkspace() {
         createDirs("config");
         createDirs("template");
         createDirs("repo");
@@ -1376,6 +1404,8 @@ public class DeployManager {
         createFile("config/instance.json");
         createFile("config/machine.json");
         createFile("config/user.json");
+        createFile("config/job.json");
+        createFile("config/webhook.json"); 
         createFile("config/iptables.rule");
         createFile("template/Default.vm");
 
@@ -1384,12 +1414,12 @@ public class DeployManager {
     //
     private static void createFile(String path) {
         try {
-            logger.info("create new file {}", path);
-            String s = IOUtil.getContent(DeployStartServlet.class.getResourceAsStream("workspace/" + path));
-            File configFile = new File(workSpaceDir, path);
+        	String file=workSpaceDir+path;
+            logger.info("check file {}", file);
+            File configFile = new File(file);
             if (!configFile.exists()) {
+            	logger.info("create file {}", file);
                 configFile.createNewFile();
-                FileUtil.saveContent(s, configFile);
             }
         } catch (IOException e) {
             logger.catching(e);
@@ -1436,4 +1466,5 @@ public class DeployManager {
         }
         return -1;
     }
+    //
 }

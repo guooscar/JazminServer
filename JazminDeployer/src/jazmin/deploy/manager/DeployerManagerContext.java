@@ -4,6 +4,7 @@
 package jazmin.deploy.manager;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
@@ -30,7 +31,9 @@ public interface DeployerManagerContext {
 	public List<Application> getApplications(String query);
 	public List<Instance> getInstances(String query) ;
 	public List<Machine> getMachines(String query);
-	
+	//
+	public String getVar(String key);
+	public void log(String info);
 	//
 	//-------------------------------------------------------------------------
 	public static interface OutputHandler{
@@ -39,8 +42,10 @@ public interface DeployerManagerContext {
 	//
 	public  class DeployerManagerContextContextImpl implements DeployerManagerContext{
 		OutputHandler handler;
-		public DeployerManagerContextContextImpl(OutputHandler handler) {
+		Map<String,String>vars;
+		public DeployerManagerContextContextImpl(OutputHandler handler,Map<String,String>vars) {
 			this.handler=handler;
+			this.vars=vars;
 		}
 		//
 		private void info(String info){
@@ -145,6 +150,16 @@ public interface DeployerManagerContext {
 						"importPackage(Packages.jazmin.deploy.manager);\n";
 			engine.eval(commonScript+source, ssc); 
 			info("run deploy plan:"+name+" complete");
+		}
+		//
+		@Override
+		public String getVar(String key) {
+			return vars.get(key);
+		}
+		//
+		@Override
+		public void log(String info) {
+			info(info);
 		}
 	}
 }
