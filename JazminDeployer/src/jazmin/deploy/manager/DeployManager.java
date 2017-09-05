@@ -117,6 +117,7 @@ public class DeployManager {
 
     //
     public static void setup() throws Exception {
+    	//
         workSpaceDir = Jazmin.environment.getString("deploy.workspace", "./workspace/");
         deployHostname = Jazmin.environment.getString("deploy.hostname", "localhost");
         repoPath = Jazmin.environment.getString("deploy.repo.dir", "./repo");
