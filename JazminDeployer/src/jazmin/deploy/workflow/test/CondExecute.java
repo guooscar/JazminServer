@@ -20,9 +20,9 @@ public class CondExecute implements Execute{
 		}
 		System.err.println("CondExecute:"+vv);
 		if(vv>5){
-			ctx.transtion("print");
+			ctx.transition("print");
 		}else{
-			ctx.transtion("add");
+			ctx.transition("add");
 		}
 		
 	}

@@ -37,7 +37,7 @@ public class ExecuteContext {
 		instance.signal(nodeId);
 	}
 	//
-	public void transtion(String toNodeId){
+	public void transition(String toNodeId){
 		instance.transition(currentNode, toNodeId);
 	}
 }

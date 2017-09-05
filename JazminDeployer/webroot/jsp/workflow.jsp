@@ -365,11 +365,11 @@
         }
         for (i = 0; i < procObj.nodes.length; i++) {
             _node = procObj.nodes[i];
-            if (!_node.transtions) {
+            if (!_node.transitions) {
                 continue;
             }
-            for (var j = 0; j < _node.transtions.length; j++) {
-                bpm.connect(_node.id, _node.transtions[j].to);
+            for (var j = 0; j < _node.transitions.length; j++) {
+                bpm.connect(_node.id, _node.transitions[j].to);
             }
         }
         $("#proc-name").text(procObj.name).data("name", procObj.name).removeClass("unsave");

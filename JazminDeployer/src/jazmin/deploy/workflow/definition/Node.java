@@ -28,7 +28,7 @@ public class Node implements Comparable<Node>{
 	public String id;
 	//
 	//
-	public List<Transtion>transtions=new LinkedList<>();
+	public List<Transition>transitions=new LinkedList<>();
 	//
 	public String scriptType;
 	public String execute;
@@ -39,14 +39,14 @@ public class Node implements Comparable<Node>{
 	public Node(){
 		
 	}
-	public Node(String id,String name,String type,String execute,Transtion ...t){
+	public Node(String id,String name,String type,String execute,Transition ...t){
 		this.id=id;
 		this.name=name;
 		this.type=type;
 		this.execute=execute;
 		if(t!=null){
-			for(Transtion tt:t){
-				transtions.add(tt);
+			for(Transition tt:t){
+				transitions.add(tt);
 			}
 		}
 	}

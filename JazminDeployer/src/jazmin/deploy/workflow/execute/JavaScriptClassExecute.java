@@ -66,7 +66,7 @@ public class JavaScriptClassExecute implements Execute,ScriptExecuteContext{
 		return ctx.getNode();
 	}
 	@Override
-	public void transtion(String toNodeId) {
-		ctx.transtion(toNodeId);
+	public void transition(String toNodeId) {
+		ctx.transition(toNodeId);
 	}
 }
