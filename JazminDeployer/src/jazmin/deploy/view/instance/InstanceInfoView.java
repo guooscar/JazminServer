@@ -3,9 +3,7 @@
  */
 package jazmin.deploy.view.instance;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +32,6 @@ import jazmin.deploy.domain.Instance;
 import jazmin.deploy.domain.Machine;
 import jazmin.deploy.domain.monitor.MonitorInfo;
 import jazmin.deploy.domain.optlog.OptLog;
-import jazmin.deploy.domain.svn.WorkingCopy;
 import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.manager.MonitorManager;
 import jazmin.deploy.manager.OptLogManager;
@@ -155,7 +152,6 @@ public class InstanceInfoView extends DeployBaseView {
 		addOptButton("Test", null, (e) -> testInstance());
 		//
 		addOptButton("SetVer", ValoTheme.BUTTON_PRIMARY, (e) -> setPackageVersion());
-		addOptButton("SetTag", ValoTheme.BUTTON_PRIMARY, (e) -> setScmTag());
 		//
 		addOptButton("Create", ValoTheme.BUTTON_DANGER, (e) -> createInstance());
 		addOptButton("Start", ValoTheme.BUTTON_DANGER, (e) -> startInstance());
@@ -583,28 +579,7 @@ public class InstanceInfoView extends DeployBaseView {
 		sw.setInfo("Change " + getOptInstances().size() + " instance(s) package version");
 		UI.getCurrent().addWindow(sw);
 	}
-	
-	private void setScmTag() {
-		List<Instance> instances=getOptInstances();
-		if(instances.size()==0||instances.size()>1){
-			DeploySystemUI.showInfo("Please select one instance");
-			return;
-		}
-		Instance instance=instances.get(0);
-		Application app=DeployManager.getApplicationById(instance.appId);
-		if(app.scmPath==null||app.scmPath.isEmpty()){
-			DeploySystemUI.showInfo("This instance scmPath is null");
-			return;
-		}
-		SimpleDateFormat sdf=new SimpleDateFormat("yyyyMMddhhmmss");
-		String targetUrl="svn://web1.itit.io/repo/Tags/"+app.id+sdf.format(new Date());
-		WorkingCopy wc=new WorkingCopy(
-				app.scmUser, 
-				app.scmPassword,
-				app.scmPath,null);
-		wc.copy(targetUrl,"setScmTag");
-		DeploySystemUI.showInfo("scmPath success targetUrl:"+targetUrl);
-	}
+
 
 	private void viewMonitor() {
 		List<Instance> instanceList = this.table.getSelectValues();
