@@ -156,7 +156,7 @@ public class ApplicationInfoView extends DeployBaseView{
 			DeploySystemUI.showInfo("set scm tag success target path:"+targetUrl);
 			window.close();
 		});
-		sw.setWidth("650px");
+		sw.setWidth("750px");
 		sw.setCaption("Set scm tag - "+app.id);
 		sw.setInfo("Current scm path:"+app.scmPath+" \n"+"Input tag path");
 		UI.getCurrent().addWindow(sw);
