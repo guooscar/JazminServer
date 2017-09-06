@@ -136,6 +136,7 @@ public interface DeployerManagerContext {
 		}
 		//
 		public void run(String name,String source)throws ScriptException{
+			DeployManager.log("run deploy plan:"+name);
 			info("run deploy plan:"+name);
 			ScriptEngineManager engineManager = new ScriptEngineManager();
 			ScriptEngine engine = engineManager.getEngineByName("nashorn");

@@ -33,6 +33,7 @@ public class DashboardView extends Panel{
 	private VerticalLayout root;
 	private Label healthCheckLabel;
 	TimerTask refreshTask;
+	Timer timer;
 	public DashboardView() {
 		super();
 		addStyleName(ValoTheme.PANEL_BORDERLESS);
@@ -68,14 +69,15 @@ public class DashboardView extends Panel{
 				});
 			}
 		};
-		Timer tt = new Timer(true);
-		tt.scheduleAtFixedRate(refreshTask, 5000, 10*1000);
+		timer = new Timer(true);
+		timer.scheduleAtFixedRate(refreshTask, 5000, 10*1000);
     }
 	//
 	@Override
 	public void detach() {
 		super.detach();
 		refreshTask.cancel();
+		timer.cancel();
 	}
 	//
 	private Component buildHeader(){

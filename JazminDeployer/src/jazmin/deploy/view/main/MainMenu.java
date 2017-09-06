@@ -124,6 +124,12 @@ public final class MainMenu extends CustomComponent {
         });
         //
         settingsItem.addSeparator();
+        settingsItem.addItem("DebugLog", (selectedItem)->{
+        	DebugLogWindow dw=new DebugLogWindow();
+      		UI.getCurrent().addWindow(dw);
+      		dw.focus();
+        });
+        settingsItem.addSeparator();
         //
         settingsItem.addItem("Sign Out", (selectedItem)->{
         	DeploySystemUI.setUser(null);

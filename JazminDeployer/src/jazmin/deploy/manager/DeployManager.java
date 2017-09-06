@@ -92,10 +92,12 @@ public class DeployManager {
     private static Map<String, BenchmarkSession> benchmarkSessions = new ConcurrentHashMap<>();
     public static WorkflowEngine workflowEngine;
     public static Map<String,ProcessInstance> attachedProcessInstance = new ConcurrentHashMap<>();
+    private static List<String>debugLogs;
     //
     
     //
     static {
+    	debugLogs=new LinkedList<>();
     	webhookMap=new ConcurrentHashMap<>();
         instanceMap = new ConcurrentHashMap<String, Instance>();
         machineMap = new ConcurrentHashMap<String, Machine>();
@@ -221,16 +223,14 @@ public class DeployManager {
             }
         });
     }
-
+    
     //
     private static class FileOutputStreamWrapper extends FileOutputStream {
         OutputListener ol;
-
         public FileOutputStreamWrapper(String path, OutputListener ol) throws FileNotFoundException {
             super(path);
             this.ol = ol;
         }
-
         @Override
         public void write(byte[] b) throws IOException {
             super.write(b);
@@ -240,11 +240,27 @@ public class DeployManager {
         }
     }
     //
+    public static void log(String msg){
+    	SimpleDateFormat sdf=new SimpleDateFormat("MM-dd HH:mm:ss");
+    	synchronized (debugLogs) {
+			debugLogs.add(sdf.format(new Date())+":\t"+msg);
+			if(debugLogs.size()>1000){
+				debugLogs.remove(0);
+			}
+		}
+    }
+    //
+    public static List<String>getDebugLogs(){
+    	return new ArrayList<>(debugLogs);
+    }
+    //
     public static void attachWorkflowProcessInstance(ProcessInstance instacne){
+    	log("attach workflow process instance:"+instacne.getId());
     	attachedProcessInstance.put(instacne.getId(), instacne);
     }
     //
     public static void detachWorkflowProcessInstance(String id){
+    	log("deattach workflow process instance:"+id);
     	attachedProcessInstance.remove(id);
     }
     //
@@ -267,6 +283,7 @@ public class DeployManager {
         BenchmarkSession session = new BenchmarkSession();
         session.id = UUID.randomUUID().toString();
         benchmarkSessions.put(session.id, session);
+        log("add benchmark session:"+session.id);
         return session;
     }
 
@@ -304,6 +321,7 @@ public class DeployManager {
 
     //
     public static void runJob(MachineJob job, OutputListener ol) throws Exception {
+    	log("runjob:"+job.id+" "+job.machine);
         job.runTimes++;
         job.lastRunTime = new Date();
         WebSshServer webSshServer = Jazmin.getServer(WebSshServer.class);
@@ -344,6 +362,7 @@ public class DeployManager {
         if (machine.vncPort == 0) {
             throw new IllegalArgumentException("vnc info not set");
         }
+        log("create onetime vnc token:"+machine.id);
         HostInfo info = new HostInfo();
         info.host = machine.publicHost;
         info.port = machine.vncPort;
@@ -373,6 +392,7 @@ public class DeployManager {
                 machine.sshUser.isEmpty()) {
             throw new IllegalArgumentException("ssh info not set");
         }
+        log("create onetime ssh token:"+machine.id);
         ConnectionInfo info = new ConnectionInfo();
         info.name = machine.id;
         info.host = machine.publicHost;
@@ -398,6 +418,7 @@ public class DeployManager {
                 machine.sshUser.isEmpty()) {
             throw new IllegalArgumentException("ssh info not set");
         }
+        log("create onetime ssh robot token:"+machine.id+" robot:"+robot+" root:"+root);
         ConnectionInfo info = new ConnectionInfo();
         info.name = machine.id;
         info.host = machine.publicHost;
@@ -1160,6 +1181,7 @@ public class DeployManager {
     //
     public static String runCmdOnMachine(Machine m, boolean root, String cmd) {
         StringBuilder sb = new StringBuilder();
+        log("run cmd on machine:"+m.id+" cmd:"+cmd);
         try {
             SshUtil.execute(
                     m.publicHost,
@@ -1227,6 +1249,7 @@ public class DeployManager {
 
     //
     public static String createInstance(Instance instance) throws Exception {
+    	log("create instacne:"+instance.id);
         StringBuilder sb = new StringBuilder();
         if (instance.application.type.startsWith("jazmin")) {
             String instanceDir = instance.machine.jazminHome + "/instance/" + instance.id;
@@ -1260,6 +1283,7 @@ public class DeployManager {
 
     //
     public static String startInstance(Instance instance) throws Exception {
+    	log("start instacne:"+instance.id);
         StringBuilder sb = new StringBuilder();
         if (instance.application.type.startsWith("jazmin")) {
             sb.append(exec(instance, false,
@@ -1308,6 +1332,7 @@ public class DeployManager {
 
     //
     public static String stopInstance(Instance instance) throws Exception {
+    	log("stop instacne:"+instance.id);
         StringBuilder sb = new StringBuilder();
         if (instance.application.type.startsWith("jazmin")) {
             sb.append(exec(instance, false,
@@ -1428,6 +1453,7 @@ public class DeployManager {
     //
 
     public static int compileApp(Application app, OutputListener listener) {
+    	log("compile application:"+app.id);
         if (app.scmUser == null) {
             return -1;
         }

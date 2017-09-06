@@ -70,6 +70,7 @@ public class LoginView extends VerticalLayout {
 		signin.addClickListener((event)->{
 			String u=username.getValue()+"";
 			String p=password.getValue()+"";
+			DeployManager.log("user login:"+u);
 			p=MD5Util.encodeMD5(p);
 			User uu=DeployManager.validate(u, p);
 			if(uu!=null){
