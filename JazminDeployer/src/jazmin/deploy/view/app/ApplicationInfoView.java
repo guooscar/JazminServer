@@ -3,9 +3,7 @@
  */
 package jazmin.deploy.view.app;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -135,19 +133,33 @@ public class ApplicationInfoView extends DeployBaseView{
 			DeploySystemUI.showInfo("Please select one application");
 			return;
 		}
-		Application app=applications.get(0);
+		Application app=apps.get(0);
 		if(app.scmPath==null||app.scmPath.isEmpty()){
-			DeploySystemUI.showInfo("This instance scmPath is null");
+			DeploySystemUI.showInfo("This application scmPath is null");
 			return;
 		}
-		SimpleDateFormat sdf=new SimpleDateFormat("yyyyMMddhhmmss");
-		String targetUrl="svn://web1.itit.io/repo/Tags/"+app.id+sdf.format(new Date());
-		WorkingCopy wc=new WorkingCopy(
-				app.scmUser, 
-				app.scmPassword,
-				app.scmPath,null);
-		wc.copy(targetUrl,"setScmTag");
-		DeploySystemUI.showInfo("set scm tag success targetUrl:"+targetUrl);
+		showConfirmWindow(app);	
+	}
+	//
+	private void showConfirmWindow(Application app){
+		InputWindow sw = new InputWindow(window -> {
+			String scmTag = window.getInputValue();
+			String parentPath=app.scmPath.substring(0,app.scmPath.lastIndexOf('/'));
+			
+			String targetUrl=parentPath+"/tags/"+app.id+"/"+scmTag;
+			WorkingCopy wc=new WorkingCopy(
+					app.scmUser, 
+					app.scmPassword,
+					app.scmPath,null);
+			wc.copy(targetUrl,"jazmin deploy set scm tag");
+			DeployManager.log("set scm tag "+app.id+" "+app.scmPath+" to "+targetUrl);
+			DeploySystemUI.showInfo("set scm tag success target path:"+targetUrl);
+			window.close();
+		});
+		sw.setWidth("650px");
+		sw.setCaption("Set scm tag - "+app.id);
+		sw.setInfo("Current scm path:"+app.scmPath+" \n"+"Input tag path");
+		UI.getCurrent().addWindow(sw);
 	}
 	//
 	private void viewTemplate0(String appId){
