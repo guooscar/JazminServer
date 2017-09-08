@@ -62,9 +62,9 @@ public class DefaultCodecFactory implements CodecFactory{
 			payload=encodeJson(msg);
 		}else if(msg.messageType==FORMAT_ZJSON){
 			payload=encodeZJson(msg);
-		}else if(msg.messageType==FORMAT_RAW){
-			payload=encodeAmf3(msg);
 		}else if(msg.messageType==FORMAT_AMF){
+			payload=encodeAmf3(msg);
+		}else if(msg.messageType==FORMAT_RAW){
 			payload=msg.rawData;
 		}else{
 			throw new CorruptedFrameException("bad message type:"+msg.messageType);

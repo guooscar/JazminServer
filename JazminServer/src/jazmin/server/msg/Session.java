@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.RateLimiter;
+import jazmin.server.msg.codec.DefaultCodecFactory;
 import jazmin.server.msg.codec.RequestMessage;
 import jazmin.server.msg.codec.ResponseMessage;
 
@@ -311,6 +312,9 @@ public class Session {
 		if(channel!=null){
 			sentMessageCount++;
 			responseMessage.messageType=messageType;
+			if(responseMessage.rawData!=null){
+				responseMessage.messageType=DefaultCodecFactory.FORMAT_RAW;
+			}
 			if(responseMessage.responseObject==null){
 				responseMessage.responseObject=ResponseMessage.emptyHashMap;
 			}
