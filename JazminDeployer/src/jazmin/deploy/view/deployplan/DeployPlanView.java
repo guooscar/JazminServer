@@ -7,6 +7,8 @@ import jazmin.core.Jazmin;
 import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.manager.DeployerManagerContext.DeployerManagerContextContextImpl;
 
+import java.util.HashMap;
+
 import org.vaadin.aceeditor.AceEditor;
 import org.vaadin.aceeditor.AceMode;
 import org.vaadin.aceeditor.AceTheme;
@@ -78,7 +80,8 @@ public class DeployPlanView extends VerticalLayout{
 	//
 	private void runPlan(String name){
 		Jazmin.execute(()->{
-			DeployerManagerContextContextImpl impl=new DeployerManagerContextContextImpl(this::appendOut);
+			DeployerManagerContextContextImpl impl=
+					new DeployerManagerContextContextImpl(this::appendOut,new HashMap<>());
 			try {
 				impl.run(name,DeployManager.getScriptContent(name,"deployplan"));
 			} catch (Exception e) {

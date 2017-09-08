@@ -26,6 +26,7 @@
         <div id="btn-groups" class="group">
             <div class="btn btn-default btn-sm btn-create">New</div>
             <div class="btn btn-default btn-sm btn-save ml-10 disabled">Save</div>
+            <div class="btn btn-default btn-sm btn-layout ml-10">Layout</div>
             <div class="btn btn-default btn-sm btn-run ml-10">Start</div>
             <div class="btn btn-default btn-sm btn-attach ml-10">Attach</div>
         </div>
@@ -213,8 +214,10 @@
         <div class="instance-variables">
             <table class="table">
                 <thead>
+                <tr>
                 <th>Key</th>
                 <th>Value</th>
+                </tr>
                 </thead>
                 <tbody id="instance-variables">
                 </tbody>
@@ -227,6 +230,9 @@
 <script src="/js/linker.js"></script>
 <script src="/js/ace/ace.js"></script>
 <script src="/js/linker.bpms.js"></script>
+<script type="text/javascript" src="/js/raphael-min.js"></script>
+<script type="text/javascript" src="/js/graffle.js"></script>
+<script type="text/javascript" src="/js/graph.js"></script>
 <script>
     var bpm = undefined;
     var linker = undefined;
@@ -401,6 +407,14 @@
         }).invoke();
     };
     $(function () {
+    	
+    	
+    	
+    	$('.btn-layout').click(function(e){
+    		layoutGraph();
+    	});
+    	
+    	//
         (function () {
             window.__loadWorkflowInstances__();
         })();
@@ -626,6 +640,46 @@
             }).invoke();
         });
     });
+    //
+    function layoutGraph(){
+    	 var data = bpm.data();
+    	 var g = new Graph();
+    	 var nodeMap=[];
+    	 for(var i=0;i<data.nodes.length;i++){
+    		 var node=data.nodes[i];
+    		 nodeMap[node.id]=node;
+    		 for(var j=0;j<data.nodes[i].transitions.length;j++){
+    			 var t=node.transitions[j];
+    			 g.addEdge(data.nodes[i].id, t.to);
+    		 }
+    	 }
+    	 var layouter = new Graph.Layout.Spring(g);
+    	 layouter.layout();
+    	 //
+    	 var minX=0;
+    	 var minY=0;
+    	 var scale=60;
+    	 for(var i=0;i<g.nodes.length;i++){
+    		 var n=g.nodes[i];
+    		 var q=Math.abs(n.layoutPosX*scale);
+    		 if(minX<q){
+    			 minX=q;
+    		 }
+    		 q=Math.abs(n.layoutPosX*scale);
+    		 if(minY<q){
+    			 minY=q;
+    		 }
+    	 }
+    	 //
+    	 for(var i=0;i<g.nodes.length;i++){
+    		 var n=g.nodes[i];
+    		 //n.id; n.layoutPosX n.layoutPosY
+    		 nodeMap[n.id].x=n.layoutPosX*scale+minX+50;
+    		 nodeMap[n.id].y=n.layoutPosY*scale+minY+50;
+    	 }
+    	 //
+    	 __render__(data);
+    }
 </script>
 </body>
 </html>

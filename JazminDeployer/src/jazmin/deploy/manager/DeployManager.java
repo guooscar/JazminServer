@@ -34,7 +34,6 @@ import com.alibaba.fastjson.JSON;
 
 import jazmin.core.Jazmin;
 import jazmin.core.job.CronExpression;
-import jazmin.deploy.DeployStartServlet;
 import jazmin.deploy.domain.AppPackage;
 import jazmin.deploy.domain.Application;
 import jazmin.deploy.domain.GraphVizRenderer;
@@ -47,6 +46,7 @@ import jazmin.deploy.domain.PackageDownloadInfo;
 import jazmin.deploy.domain.RepoItem;
 import jazmin.deploy.domain.TopSearch;
 import jazmin.deploy.domain.User;
+import jazmin.deploy.domain.WebHook;
 import jazmin.deploy.domain.ant.AntManager;
 import jazmin.deploy.domain.svn.WorkingCopy;
 import jazmin.deploy.manager.RobotDeployManagerContext.RobotDeployManagerContextImpl;
@@ -67,7 +67,6 @@ import jazmin.server.webssh.WebSshChannel;
 import jazmin.server.webssh.WebSshServer;
 import jazmin.util.BeanUtil;
 import jazmin.util.FileUtil;
-import jazmin.util.IOUtil;
 import jazmin.util.JSONUtil;
 import jazmin.util.SshUtil;
 
@@ -78,6 +77,7 @@ import jazmin.util.SshUtil;
 public class DeployManager {
     private static Logger logger = LoggerFactory.get(DeployManager.class);
     //
+    private static Map<String, WebHook> webhookMap;
     private static Map<String, Instance> instanceMap;
     private static Map<String, User> userMap;
     private static Map<String, Machine> machineMap;
@@ -89,14 +89,16 @@ public class DeployManager {
     private static StringBuffer errorMessage;
     private static Map<String, ConnectionInfo> oneTimeSSHConnectionMap = new ConcurrentHashMap<>();
     private static Map<String, HostInfo> oneTimeVncHostInfoMap = new ConcurrentHashMap<>();
-    //
     private static Map<String, BenchmarkSession> benchmarkSessions = new ConcurrentHashMap<>();
     public static WorkflowEngine workflowEngine;
-    //
     public static Map<String,ProcessInstance> attachedProcessInstance = new ConcurrentHashMap<>();
+    private static List<String>debugLogs;
+    //
     
     //
     static {
+    	debugLogs=new LinkedList<>();
+    	webhookMap=new ConcurrentHashMap<>();
         instanceMap = new ConcurrentHashMap<String, Instance>();
         machineMap = new ConcurrentHashMap<String, Machine>();
         packageMap = new ConcurrentHashMap<String, AppPackage>();
@@ -221,16 +223,14 @@ public class DeployManager {
             }
         });
     }
-
+    
     //
     private static class FileOutputStreamWrapper extends FileOutputStream {
         OutputListener ol;
-
         public FileOutputStreamWrapper(String path, OutputListener ol) throws FileNotFoundException {
             super(path);
             this.ol = ol;
         }
-
         @Override
         public void write(byte[] b) throws IOException {
             super.write(b);
@@ -240,11 +240,27 @@ public class DeployManager {
         }
     }
     //
+    public static void log(String msg){
+    	SimpleDateFormat sdf=new SimpleDateFormat("MM-dd HH:mm:ss");
+    	synchronized (debugLogs) {
+			debugLogs.add(sdf.format(new Date())+":\t"+msg);
+			if(debugLogs.size()>1000){
+				debugLogs.remove(0);
+			}
+		}
+    }
+    //
+    public static List<String>getDebugLogs(){
+    	return new ArrayList<>(debugLogs);
+    }
+    //
     public static void attachWorkflowProcessInstance(ProcessInstance instacne){
+    	log("attach workflow process instance:"+instacne.getId());
     	attachedProcessInstance.put(instacne.getId(), instacne);
     }
     //
     public static void detachWorkflowProcessInstance(String id){
+    	log("deattach workflow process instance:"+id);
     	attachedProcessInstance.remove(id);
     }
     //
@@ -267,6 +283,7 @@ public class DeployManager {
         BenchmarkSession session = new BenchmarkSession();
         session.id = UUID.randomUUID().toString();
         benchmarkSessions.put(session.id, session);
+        log("add benchmark session:"+session.id);
         return session;
     }
 
@@ -304,6 +321,7 @@ public class DeployManager {
 
     //
     public static void runJob(MachineJob job, OutputListener ol) throws Exception {
+    	log("runjob:"+job.id+" "+job.machine);
         job.runTimes++;
         job.lastRunTime = new Date();
         WebSshServer webSshServer = Jazmin.getServer(WebSshServer.class);
@@ -344,6 +362,7 @@ public class DeployManager {
         if (machine.vncPort == 0) {
             throw new IllegalArgumentException("vnc info not set");
         }
+        log("create onetime vnc token:"+machine.id);
         HostInfo info = new HostInfo();
         info.host = machine.publicHost;
         info.port = machine.vncPort;
@@ -358,7 +377,10 @@ public class DeployManager {
         oneTimeVncHostInfoMap.remove(token);
         return info;
     }
-
+    //
+    public static WebHook getWebHook(String id){
+    	return webhookMap.get(id);
+    }
     //
     public static String createOneTimeSSHToken(
             Machine machine,
@@ -370,6 +392,7 @@ public class DeployManager {
                 machine.sshUser.isEmpty()) {
             throw new IllegalArgumentException("ssh info not set");
         }
+        log("create onetime ssh token:"+machine.id);
         ConnectionInfo info = new ConnectionInfo();
         info.name = machine.id;
         info.host = machine.publicHost;
@@ -395,6 +418,7 @@ public class DeployManager {
                 machine.sshUser.isEmpty()) {
             throw new IllegalArgumentException("ssh info not set");
         }
+        log("create onetime ssh robot token:"+machine.id+" robot:"+robot+" root:"+root);
         ConnectionInfo info = new ConnectionInfo();
         info.name = machine.id;
         info.host = machine.publicHost;
@@ -433,6 +457,7 @@ public class DeployManager {
             errorMessage = new StringBuffer();
             reloadUserConfig(configDir);
             reloadApplicationConfig(configDir);
+            reloadWebHookConfig(configDir);
             checkApplicationConfig();
             reloadMachineConfig(configDir);
             reloadInstanceConfig(configDir);
@@ -939,15 +964,36 @@ public class DeployManager {
             logger.info("load user from:" + configFile.getAbsolutePath());
             String ss = FileUtil.getContent(configFile);
             List<User> apps = JSONUtil.fromJsonList(ss, User.class);
-            apps.forEach(in -> {
-                logger.debug("add user:" + in.id);
-                userMap.put(in.id, in);
-            });
+            if(apps!=null){
+            	 apps.forEach(in -> {
+                     logger.debug("add user:" + in.id);
+                     userMap.put(in.id, in);
+                 });
+            }
+           
         } else {
             logErrorMessage("can not find :" + configFile);
         }
     }
-
+    //
+    //
+    private static void reloadWebHookConfig(String configDir) throws Exception {
+        File configFile = new File(configDir, "webhook.json");
+        if (configFile.exists()) {
+            webhookMap.clear();
+            logger.info("load webhook from:" + configFile.getAbsolutePath());
+            String ss = FileUtil.getContent(configFile);
+            List<WebHook> apps = JSONUtil.fromJsonList(ss, WebHook.class);
+            if(apps!=null){
+                apps.forEach(in -> {
+                    logger.debug("add webhook:" + in.id);
+                    webhookMap.put(in.id, in);
+                });
+            }
+        } else {
+            logErrorMessage("can not find :" + configFile);
+        }
+    }
     //
     private static void reloadJobConfig(String configDir) throws Exception {
         File configFile = new File(configDir, "job.json");
@@ -956,9 +1002,12 @@ public class DeployManager {
             logger.info("load job from:" + configFile.getAbsolutePath());
             String ss = FileUtil.getContent(configFile);
             List<MachineJob> jobs = JSONUtil.fromJsonList(ss, MachineJob.class);
-            jobs.forEach(in -> {
-                jobMap.put(in.id, in);
-            });
+            if(jobs!=null){
+            	jobs.forEach(in -> {
+                    jobMap.put(in.id, in);
+                });
+            }
+            
         } else {
             logErrorMessage("can not find :" + configFile);
         }
@@ -1132,6 +1181,7 @@ public class DeployManager {
     //
     public static String runCmdOnMachine(Machine m, boolean root, String cmd) {
         StringBuilder sb = new StringBuilder();
+        log("run cmd on machine:"+m.id+" cmd:"+cmd);
         try {
             SshUtil.execute(
                     m.publicHost,
@@ -1199,6 +1249,7 @@ public class DeployManager {
 
     //
     public static String createInstance(Instance instance) throws Exception {
+    	log("create instacne:"+instance.id);
         StringBuilder sb = new StringBuilder();
         if (instance.application.type.startsWith("jazmin")) {
             String instanceDir = instance.machine.jazminHome + "/instance/" + instance.id;
@@ -1232,6 +1283,7 @@ public class DeployManager {
 
     //
     public static String startInstance(Instance instance) throws Exception {
+    	log("start instacne:"+instance.id);
         StringBuilder sb = new StringBuilder();
         if (instance.application.type.startsWith("jazmin")) {
             sb.append(exec(instance, false,
@@ -1280,6 +1332,7 @@ public class DeployManager {
 
     //
     public static String stopInstance(Instance instance) throws Exception {
+    	log("stop instacne:"+instance.id);
         StringBuilder sb = new StringBuilder();
         if (instance.application.type.startsWith("jazmin")) {
             sb.append(exec(instance, false,
@@ -1361,7 +1414,7 @@ public class DeployManager {
     }
 
     //
-    public static void checkWorkspace() {
+    private static void checkWorkspace() {
         createDirs("config");
         createDirs("template");
         createDirs("repo");
@@ -1376,6 +1429,8 @@ public class DeployManager {
         createFile("config/instance.json");
         createFile("config/machine.json");
         createFile("config/user.json");
+        createFile("config/job.json");
+        createFile("config/webhook.json"); 
         createFile("config/iptables.rule");
         createFile("template/Default.vm");
 
@@ -1384,12 +1439,12 @@ public class DeployManager {
     //
     private static void createFile(String path) {
         try {
-            logger.info("create new file {}", path);
-            String s = IOUtil.getContent(DeployStartServlet.class.getResourceAsStream("workspace/" + path));
-            File configFile = new File(workSpaceDir, path);
+        	String file=workSpaceDir+path;
+            logger.info("check file {}", file);
+            File configFile = new File(file);
             if (!configFile.exists()) {
+            	logger.info("create file {}", file);
                 configFile.createNewFile();
-                FileUtil.saveContent(s, configFile);
             }
         } catch (IOException e) {
             logger.catching(e);
@@ -1398,6 +1453,7 @@ public class DeployManager {
     //
 
     public static int compileApp(Application app, OutputListener listener) {
+    	log("compile application:"+app.id);
         if (app.scmUser == null) {
             return -1;
         }
@@ -1436,4 +1492,5 @@ public class DeployManager {
         }
         return -1;
     }
+    //
 }

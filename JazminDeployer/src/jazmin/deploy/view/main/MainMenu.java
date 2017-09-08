@@ -102,6 +102,7 @@ public final class MainMenu extends CustomComponent {
             settingsItem.addItem("Instance Config", (selectedItem)->showConfig("instance.json"));
             settingsItem.addItem("Iptables Config", (selectedItem)->showConfig("iptables.rule"));
             settingsItem.addItem("Job Config", (selectedItem)->showConfig("job.json"));
+            settingsItem.addItem("Webhook Config", (selectedItem)->showConfig("webhook.json"));
             settingsItem.addSeparator();
         }
         settingsItem.addItem("Robots", (selectedItem)->{
@@ -122,6 +123,12 @@ public final class MainMenu extends CustomComponent {
       		bfw.focus();
         });
         //
+        settingsItem.addSeparator();
+        settingsItem.addItem("DebugLog", (selectedItem)->{
+        	DebugLogWindow dw=new DebugLogWindow();
+      		UI.getCurrent().addWindow(dw);
+      		dw.focus();
+        });
         settingsItem.addSeparator();
         //
         settingsItem.addItem("Sign Out", (selectedItem)->{

@@ -8,17 +8,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-import jazmin.core.Jazmin;
-import jazmin.deploy.DeploySystemUI;
-import jazmin.deploy.domain.Application;
-import jazmin.deploy.manager.DeployManager;
-import jazmin.deploy.ui.BeanTable;
-import jazmin.deploy.view.main.CodeEditorCallback;
-import jazmin.deploy.view.main.CodeEditorWindow;
-import jazmin.deploy.view.main.DeployBaseView;
-import jazmin.deploy.view.main.InputWindow;
-import jazmin.deploy.view.main.TaskProgressWindow;
-
 import org.vaadin.aceeditor.AceMode;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
@@ -32,6 +21,18 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.themes.ValoTheme;
+
+import jazmin.core.Jazmin;
+import jazmin.deploy.DeploySystemUI;
+import jazmin.deploy.domain.Application;
+import jazmin.deploy.domain.svn.WorkingCopy;
+import jazmin.deploy.manager.DeployManager;
+import jazmin.deploy.ui.BeanTable;
+import jazmin.deploy.view.main.CodeEditorCallback;
+import jazmin.deploy.view.main.CodeEditorWindow;
+import jazmin.deploy.view.main.DeployBaseView;
+import jazmin.deploy.view.main.InputWindow;
+import jazmin.deploy.view.main.TaskProgressWindow;
 
 /**
  * @author yama
@@ -120,9 +121,47 @@ public class ApplicationInfoView extends DeployBaseView{
 		addOptButton("View Template",null, (e)->viewTemplate());
 		addOptButton("System Graph",null, (e)->viewSystemGraph());
 		addOptButton("Instance Graph",null, (e)->viewInstanceGraph());
+		addOptButton("SetScmTag", ValoTheme.BUTTON_PRIMARY, (e) -> setScmTag());
 		//
 		addOptButton("Compile",ValoTheme.BUTTON_PRIMARY, (e)->compileApp());
 	}
+	//
+	
+	private void setScmTag() {
+		List<Application> apps=getOptApps();
+		if(apps.size()==0||apps.size()>1){
+			DeploySystemUI.showInfo("Please select one application");
+			return;
+		}
+		Application app=apps.get(0);
+		if(app.scmPath==null||app.scmPath.isEmpty()){
+			DeploySystemUI.showInfo("This application scmPath is null");
+			return;
+		}
+		showConfirmWindow(app);	
+	}
+	//
+	private void showConfirmWindow(Application app){
+		InputWindow sw = new InputWindow(window -> {
+			String scmTag = window.getInputValue();
+			String parentPath=app.scmPath.substring(0,app.scmPath.lastIndexOf('/'));
+			
+			String targetUrl=parentPath+"/tags/"+app.id+"/"+scmTag;
+			WorkingCopy wc=new WorkingCopy(
+					app.scmUser, 
+					app.scmPassword,
+					app.scmPath,null);
+			wc.copy(targetUrl,"jazmin deploy set scm tag");
+			DeployManager.log("set scm tag "+app.id+" "+app.scmPath+" to "+targetUrl);
+			DeploySystemUI.showInfo("set scm tag success target path:"+targetUrl);
+			window.close();
+		});
+		sw.setWidth("750px");
+		sw.setCaption("Set scm tag - "+app.id);
+		sw.setInfo("Current scm path:"+app.scmPath+" \n"+"Input tag path");
+		UI.getCurrent().addWindow(sw);
+	}
+	//
 	private void viewTemplate0(String appId){
 		String result=DeployManager.getTemplate(appId);
 		if(result==null){

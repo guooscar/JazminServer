@@ -10,6 +10,7 @@ import jazmin.core.Jazmin;
 import jazmin.core.Lifecycle;
 import jazmin.core.LifecycleAdapter;
 import jazmin.deploy.manager.DeployManager;
+import jazmin.log.LoggerFactory;
 import jazmin.server.console.ConsoleServer;
 import jazmin.server.web.WebServer;
 import jazmin.server.websockify.WebsockifyServer;
@@ -70,7 +71,8 @@ public class DeployStartServlet extends VaadinServlet{
 		*/
 		
 		
-		ws.addResource("/","/tmp/release/JazminDeployer");
+		ws.addResource("/","release/JazminDeployer");
+		LoggerFactory.setLevel("DEBUG");
 		Jazmin.addServer(ws);
 		Jazmin.addServer(new WebSshServer());
 		Jazmin.addServer(new WebsockifyServer());
