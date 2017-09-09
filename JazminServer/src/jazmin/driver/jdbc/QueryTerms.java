@@ -23,8 +23,8 @@ public class QueryTerms {
 		}
 	}
 	//
-	List<Where>wheres;
-	List<String>orderBys;
+	public List<Where>wheres;
+	public List<String>orderBys;
 	int limitStart=0;
 	int limitEnd=-1;
 	public QueryTerms() {
