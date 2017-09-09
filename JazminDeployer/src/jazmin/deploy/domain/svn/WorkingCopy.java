@@ -160,8 +160,7 @@ public class WorkingCopy {
         	SVNCopySource[] copySources = new SVNCopySource[1];
             copySources[0] = new SVNCopySource(SVNRevision.HEAD,
             		SVNRevision.HEAD,repositoryURL);
-            	
-        	client.doCopy(copySources, repositoryTrgtUrl, false, true, false, commit, null);
+        	client.doCopy(copySources, repositoryTrgtUrl, false, true, true, commit, null);
 		} catch (Exception e) {
 			logger.error(e);
 		}
