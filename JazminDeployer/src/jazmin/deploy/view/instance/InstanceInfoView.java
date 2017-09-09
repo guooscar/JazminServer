@@ -32,7 +32,6 @@ import jazmin.deploy.domain.Instance;
 import jazmin.deploy.domain.Machine;
 import jazmin.deploy.domain.monitor.MonitorInfo;
 import jazmin.deploy.domain.optlog.OptLog;
-import jazmin.deploy.domain.svn.WorkingCopy;
 import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.manager.MonitorManager;
 import jazmin.deploy.manager.OptLogManager;
@@ -153,7 +152,6 @@ public class InstanceInfoView extends DeployBaseView {
 		addOptButton("Test", null, (e) -> testInstance());
 		//
 		addOptButton("SetVer", ValoTheme.BUTTON_PRIMARY, (e) -> setPackageVersion());
-		addOptButton("SetTag", ValoTheme.BUTTON_PRIMARY, (e) -> setScmTag());
 		//
 		addOptButton("Create", ValoTheme.BUTTON_DANGER, (e) -> createInstance());
 		addOptButton("Start", ValoTheme.BUTTON_DANGER, (e) -> startInstance());
@@ -579,52 +577,6 @@ public class InstanceInfoView extends DeployBaseView {
 		});
 		sw.setCaption("Change instance package version");
 		sw.setInfo("Change " + getOptInstances().size() + " instance(s) package version");
-		UI.getCurrent().addWindow(sw);
-	}
-	
-	private void setScmTag() {
-		List<Instance> instances=getOptInstances();
-		if(instances.size()==0){
-			DeploySystemUI.showInfo("Please select instances");
-			return;
-		}
-		for (Instance instance : instances) {
-			Application app=DeployManager.getApplicationById(instance.appId);
-			if(app.scmPath==null||app.scmPath.isEmpty()){
-				DeploySystemUI.showInfo(app.id+" scmPath cannot be null");
-				return;
-			}
-			if(app.scmPath.lastIndexOf("/")==-1){
-				DeploySystemUI.showInfo(app.id+" scmPath error."+app.scmPath);
-				return;
-			}
-		}
-		//
-		InputWindow sw = new InputWindow(window -> {
-			String tag = window.getInputValue();
-			if(tag==null||tag.trim().length()==0){
-				DeploySystemUI.showInfo("tag cannot be null");
-				return;
-			}
-			try {
-				for (Instance instance : instances) {
-					Application app=DeployManager.getApplicationById(instance.appId);
-					String targetUrl=app.scmPath.substring(0,app.scmPath.lastIndexOf("/"))+"/JazminTags/"+app.id+"/"+tag;
-					WorkingCopy wc=new WorkingCopy(
-							app.scmUser, 
-							app.scmPassword,
-							app.scmPath,null);
-					wc.copy(targetUrl,"setScmTag "+tag);
-				}
-				DeploySystemUI.showNotificationInfo("info", "set tag success." + tag);
-				
-			} catch (Exception e) {
-				DeploySystemUI.showNotificationInfo("error", e.getMessage());
-			}
-			window.close();
-		});
-		sw.setCaption("SetScmTag");
-		sw.setInfo("Set " + getOptInstances().size() + " instance(s) scmTag");
 		UI.getCurrent().addWindow(sw);
 	}
 

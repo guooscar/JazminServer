@@ -82,7 +82,7 @@ public class MachineRunRobotWindow extends Window{
         content.addComponent(footer);
         content.setExpandRatio(cmdLayout, 1);
         //
-        DeployManager.getRobotScripts().forEach(robot->{
+        DeployManager.getScripts("robot").forEach(robot->{
         	Object itemId=robotCombox.addItem(robot.name);
         	robotCombox.setItemCaption(itemId, robot.name);
         });

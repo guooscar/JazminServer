@@ -1,11 +1,11 @@
 [
 	{
 		"id":"demo",
-		"privateHost":"localhost",
-		"publicHost":"localhost",
-		"rootSshPassword":"77585211",
-		"sshUser":"yama",
-		"sshPassword":"77585211",
+		"privateHost":"10.0.0.22",
+		"publicHost":"10.0.0.22",
+		"rootSshPassword":"",
+		"sshUser":"ginko.wang",
+		"sshPassword":"",
 		"sshPort":22,
 		"vncPort":5900,
 		"vncPassword":"123456",
@@ -13,8 +13,44 @@
 		"memcachedHome":"/home/appadmin/memcached/",
 		"haproxyHome":"/home/appadmin/haproxy/"		
 	},
-		{
+	{
 		"id":"demo1",
+		"privateHost":"192.168.0.12",
+		"publicHost":"192.168.0.12",
+		"rootSshPassword":"kp123456kp",
+		"sshUser":"appadmin",
+		"sshPassword":"appadmin",
+		"sshPort":22,
+		"jazminHome":"/home/appadmin/jazmin_server/",
+		"memcachedHome":"/home/appadmin/memcached/",
+		"haproxyHome":"/home/appadmin/haproxy/"		
+	},
+	{
+		"id":"demo3",
+		"privateHost":"192.168.0.12",
+		"publicHost":"192.168.0.12",
+		"rootSshPassword":"kp123456kp",
+		"sshUser":"appadmin",
+		"sshPassword":"appadmin",
+		"sshPort":22,
+		"jazminHome":"/home/appadmin/jazmin_server/",
+		"memcachedHome":"/home/appadmin/memcached/",
+		"haproxyHome":"/home/appadmin/haproxy/"		
+	},
+	{
+		"id":"demo4",
+		"privateHost":"192.168.0.12",
+		"publicHost":"192.168.0.12",
+		"rootSshPassword":"kp123456kp",
+		"sshUser":"appadmin",
+		"sshPassword":"appadmin",
+		"sshPort":22,
+		"jazminHome":"/home/appadmin/jazmin_server/",
+		"memcachedHome":"/home/appadmin/memcached/",
+		"haproxyHome":"/home/appadmin/haproxy/"		
+	},
+	{
+		"id":"demo5",
 		"privateHost":"192.168.0.12",
 		"publicHost":"192.168.0.12",
 		"rootSshPassword":"kp123456kp",

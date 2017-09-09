@@ -16,6 +16,7 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.shared.Position;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -122,11 +123,12 @@ public class DeploySystemUI extends UI {
 	}
 	//
 	public static void showInfo(String content){
-		Notification success = new Notification(content);
+		
+		Notification success = new Notification(content,Type.TRAY_NOTIFICATION);
 		success.setHtmlContentAllowed(true);
         success.setDelayMsec(2000);
-        success.setStyleName("warning system");
-        success.setPosition(Position.MIDDLE_CENTER);
+        //success.setStyleName();
+        success.setPosition(Position.TOP_RIGHT);
         success.show(Page.getCurrent());
 	}
 	//

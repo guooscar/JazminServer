@@ -6,8 +6,6 @@ import java.util.List;
 import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.User;
 import jazmin.deploy.manager.DeployManager;
-import jazmin.deploy.view.benchmark.BenchmarkRobotWindow;
-import jazmin.deploy.view.machine.MachineRobotWindow;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 
@@ -104,20 +102,33 @@ public final class MainMenu extends CustomComponent {
             settingsItem.addItem("Instance Config", (selectedItem)->showConfig("instance.json"));
             settingsItem.addItem("Iptables Config", (selectedItem)->showConfig("iptables.rule"));
             settingsItem.addItem("Job Config", (selectedItem)->showConfig("job.json"));
+            settingsItem.addItem("Webhook Config", (selectedItem)->showConfig("webhook.json"));
             settingsItem.addSeparator();
         }
         settingsItem.addItem("Robots", (selectedItem)->{
-        	MachineRobotWindow bfw = new MachineRobotWindow();
+        	ScriptEditorWindow bfw = new ScriptEditorWindow("robot");
       		UI.getCurrent().addWindow(bfw);
       		bfw.focus();
         });
         //
         settingsItem.addItem("Benchmarks", (selectedItem)->{
-        	BenchmarkRobotWindow bfw = new BenchmarkRobotWindow();
+        	ScriptEditorWindow bfw = new ScriptEditorWindow("benchmark");
       		UI.getCurrent().addWindow(bfw);
       		bfw.focus();
         });
         //
+        settingsItem.addItem("Deployplans", (selectedItem)->{
+        	ScriptEditorWindow bfw = new ScriptEditorWindow("deployplan");
+      		UI.getCurrent().addWindow(bfw);
+      		bfw.focus();
+        });
+        //
+        settingsItem.addSeparator();
+        settingsItem.addItem("DebugLog", (selectedItem)->{
+        	DebugLogWindow dw=new DebugLogWindow();
+      		UI.getCurrent().addWindow(dw);
+      		dw.focus();
+        });
         settingsItem.addSeparator();
         //
         settingsItem.addItem("Sign Out", (selectedItem)->{

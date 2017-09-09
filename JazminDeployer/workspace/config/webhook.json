@@ -1,0 +1,7 @@
+[
+    {
+        id:"siri",
+        secure:"123",
+        deployplan:"siriplan"
+    }    
+]
