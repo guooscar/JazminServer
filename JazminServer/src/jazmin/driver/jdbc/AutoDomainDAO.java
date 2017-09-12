@@ -189,7 +189,7 @@ public class AutoDomainDAO extends JazminDAO{
 			}
 			String op=query.operators.get(k);
 			if(op==null) {
-				qt.where(convertFieldName(k),op,v);
+				qt.where(convertFieldName(k),v);
 			}else {
 				qt.where(convertFieldName(k),op,v);
 			}
