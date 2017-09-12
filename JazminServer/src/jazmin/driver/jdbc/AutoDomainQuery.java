@@ -1,9 +1,8 @@
 package jazmin.driver.jdbc;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 
@@ -29,11 +28,27 @@ public class AutoDomainQuery{
 		public int sort;
 	}
 	
+	public static class AutoDomainWhere{
+		public String fieldName;
+		public Object value;
+		public String operator;
+		//
+		public AutoDomainWhere() {
+			
+		}
+		public AutoDomainWhere(String fieldName,Object value) {
+			this(fieldName, "=", value);
+		}
+		public AutoDomainWhere(String fieldName,String operator,Object value) {
+			this.fieldName=fieldName;
+			this.operator=operator;
+			this.value=value;
+		}
+	}
+	
 	public Class<?> domainClass;
 	
-	public Map<String,Object> queryParams;
-	
-	public Map<String,String> operators;
+	public List<AutoDomainWhere> queryParams;
 	
 	public int pageIndex=0;
 	
@@ -42,8 +57,7 @@ public class AutoDomainQuery{
 	public List<AutoDomainOrderBy> autoDomainOrderBies;
 	//
 	public AutoDomainQuery() {
-		queryParams=new LinkedHashMap<>();
-		operators=new LinkedHashMap<>();
+		queryParams=new LinkedList<>();
 		autoDomainOrderBies=new ArrayList<>();
 	}
 }
