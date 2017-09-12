@@ -183,15 +183,15 @@ public class AutoDomainDAO extends JazminDAO{
 	
 	private QueryTerms createQueryTerms(AutoDomainQuery query) {
 		QueryTerms qt=QueryTerms.create();
-		query.queryParams.forEach((k,v)->{
-			if(!haveField(query.domainClass,k)) {
+		query.queryParams.forEach((where)->{
+			String key=where.fieldName;
+			if(!haveField(query.domainClass,key)) {
 				return;
 			}
-			String op=query.operators.get(k);
-			if(op==null) {
-				qt.where(convertFieldName(k),v);
+			if(where.operator==null) {
+				qt.where(convertFieldName(key),where.value);
 			}else {
-				qt.where(convertFieldName(k),op,v);
+				qt.where(convertFieldName(key),where.operator,where.value);
 			}
 		});
 		query.autoDomainOrderBies.forEach(order->{
