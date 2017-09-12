@@ -580,7 +580,6 @@ public class InstanceInfoView extends DeployBaseView {
 		UI.getCurrent().addWindow(sw);
 	}
 
-
 	private void viewMonitor() {
 		List<Instance> instanceList = this.table.getSelectValues();
 		if (instanceList == null) {

@@ -20,7 +20,7 @@ import jazmin.core.app.AutoWired;
  * 27 Dec, 2014
  */
 public class JazminDAO {
-	private int limitMaxRows=-1;
+	protected int limitMaxRows=-1;
 	@AutoWired
 	protected ConnectionDriver connectionDriver;
 	//
