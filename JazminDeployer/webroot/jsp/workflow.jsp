@@ -509,6 +509,13 @@
             }
             $("#process.items").find(".item.checked").removeClass("checked");
             $this.addClass("checked");
+            $("#node-id").val("");
+            $("#node-name").val("");
+            $("#node-type").val("");
+            $("#node-script-type").val("");
+            if(!!editor){
+            		editor.setValue(""); 	
+            }
             var _name = $this.data("name");
             itAjax().action("/srv/workflow/get_workflow_content").params({
                 name: _name
