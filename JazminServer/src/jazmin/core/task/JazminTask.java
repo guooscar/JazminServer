@@ -28,9 +28,9 @@ public class JazminTask implements Runnable{
 	public void run() {
 		runTimes++;
 		if(runInThreadPool){
-			Jazmin.dispatcher.invokeInPool("",instance, method);
+			Jazmin.dispatcher.invokeInPool("JazminTask",instance, method);
 		}else{
-			Jazmin.dispatcher.invokeInCaller("",instance, method);
+			Jazmin.dispatcher.invokeInCaller("JazminTask",instance, method);
 		}
 	}
 }

@@ -51,6 +51,6 @@ public class JazminJob {
 	public void run(){
 		lastRunTime=new Date();
 		runTimes++;
-		Jazmin.dispatcher.invokeInPool("",instance, method);
+		Jazmin.dispatcher.invokeInPool("JazminJob",instance, method);
 	}
 }

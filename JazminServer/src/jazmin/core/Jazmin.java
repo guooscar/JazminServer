@@ -39,6 +39,7 @@ import jazmin.core.boot.BootScriptLoader;
 import jazmin.core.job.JobStore;
 import jazmin.core.monitor.JazminMonitorAgent;
 import jazmin.core.monitor.Monitor;
+import jazmin.core.notification.NotificationCenter;
 import jazmin.core.task.TaskStore;
 import jazmin.core.thread.Dispatcher;
 import jazmin.log.Logger;
@@ -114,6 +115,7 @@ public class Jazmin {
 	public static  TaskStore taskStore=new TaskStore();
 	public static  JobStore jobStore=new JobStore();
 	public static  Monitor mointor=new Monitor();
+	public static  NotificationCenter notificationCenter=new NotificationCenter();
 	//
 	private static List<Lifecycle>lifecycles;
 	private static Map<String,Driver>drivers;
@@ -413,6 +415,7 @@ public class Jazmin {
 		lifecycles.addAll(servers.values());
 		lifecycles.addAll(drivers.values());
 		lifecycles.add(taskStore);
+		lifecycles.add(notificationCenter);
 		lifecycles.add(jobStore);
 		lifecycles.add(mointor);
 		if(application!=null){
