@@ -12,13 +12,13 @@ import jazmin.driver.mq.TopicSubscriberDefine;
  */
 public class SimpleSubscriber {
 	//
-	@TopicSubscriberDefine(topic="test1")
+	@TopicSubscriberDefine(topic="test1",name=1)
 	public void test1(MessageEvent e){
 		System.err.println("test1:"+e.message.delieverTimes+"-"+e.message.payload);
 		e.messageQueueDriver.accept("test1",e.message.id);
 	}
 	
-	@TopicSubscriberDefine(topic="test1")
+	@TopicSubscriberDefine(topic="test1",name=2)
 	public void test12(MessageEvent e){
 		System.err.println("test11:"+e.message.delieverTimes+"-"+e.message.payload);
 		e.messageQueueDriver.reject("test1",e.message.id);
@@ -26,10 +26,5 @@ public class SimpleSubscriber {
 			e.messageQueueDriver.accept("test1",e.message.id);
 		}
 	}
-	//
-	@TopicSubscriberDefine(topic="test2")
-	public void test2(MessageEvent e){
-		System.err.println("test2:"+e.message.payload);
-		e.messageQueueDriver.accept("test2",e.message.id);
-	}
+	
 }

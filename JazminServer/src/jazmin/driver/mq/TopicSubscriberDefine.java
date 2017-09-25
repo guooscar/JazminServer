@@ -16,6 +16,7 @@ import java.lang.annotation.Target;
 @Documented
 @Inherited  
 public @interface TopicSubscriberDefine{
+	short name();
 	/**
 	 * name of notification 
 	 */

@@ -26,7 +26,7 @@ public class MemoryTopicQueue extends TopicQueue{
 	private long maxTtl;
 	private long redelieverInterval;
 	private LinkedList<TopicMessage>topicQueue;
-	private Set<String> topicSubscribers;
+	private Set<Short> topicSubscribers;
 	//
 	private Set<String>acceptSet;
 	private Set<String>rejectSet;
@@ -40,7 +40,7 @@ public class MemoryTopicQueue extends TopicQueue{
 		redelieverInterval=1000*5;//5 seconds redeliever 
 		payloadMap=new ConcurrentHashMap<>();
 		topicQueue=new LinkedList<>();
-		topicSubscribers=new TreeSet<String>();
+		topicSubscribers=new TreeSet<Short>();
 		//
 		acceptSet=new TreeSet<String>();
 		rejectSet=new TreeSet<String>();
@@ -53,7 +53,7 @@ public class MemoryTopicQueue extends TopicQueue{
 		}
 	}
 	//
-	public void subscribe(String name){
+	public void subscribe(short name){
 		if(topicSubscribers.contains(name)){
 			throw new IllegalArgumentException(name+" already exists");
 		}
@@ -109,14 +109,16 @@ public class MemoryTopicQueue extends TopicQueue{
 			if(rejectSet.contains(message.id)){
 				message.lastDeliverTime=System.currentTimeMillis();
 				rejectSet.remove(message.id);
-				return new Message();
+				return  MessageQueueDriver.takeNext;
 			}
 			//
-			if((System.currentTimeMillis()-message.lastDeliverTime)>maxTtl){
-				//max ttl 
-				topicQueue.removeFirst();
-				logger.warn("remove message for max ttl reached:"+message.id+" "+maxTtl);
-				return MessageQueueDriver.takeNext;
+			if(message.lastDeliverTime>0){
+				if((System.currentTimeMillis()-message.lastDeliverTime)>maxTtl){
+					//max ttl 
+					topicQueue.removeFirst();
+					logger.warn("remove message for max ttl reached:"+message.id+" "+maxTtl);
+					return MessageQueueDriver.takeNext;
+				}	
 			}
 			//
 			if((System.currentTimeMillis()-message.lastDeliverTime)<redelieverInterval){

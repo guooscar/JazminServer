@@ -3,8 +3,6 @@
  */
 package jazmin.test.driver.mq;
 
-import java.util.Random;
-
 import jazmin.core.Jazmin;
 import jazmin.driver.mq.MessageQueueDriver;
 import jazmin.log.LoggerFactory;
@@ -22,13 +20,13 @@ public class MessageQueueTest {
 		ConsoleServer cs=new ConsoleServer();
 		cs.setPort(2222);
 		Jazmin.addServer(cs);
+		mq.setWorkDir("/Users/yama/Desktop/mq_test");
 		//
-		mq.createTopic("test1",MessageQueueDriver.TOPIC_QUEUE_TYPE_MEMORY);
-		mq.createTopic("test2",MessageQueueDriver.TOPIC_QUEUE_TYPE_MEMORY);
+		mq.createTopic("test1",MessageQueueDriver.TOPIC_QUEUE_TYPE_FILE);
 		mq.subscribe(new SimpleSubscriber());
 		//
 		Jazmin.start();
-		for(int i=0;i<1000;i++){
+		/*for(int i=0;i<1000;i++){
 			try {
 				Thread.sleep(new Random().nextInt(1000));
 				mq.publish("test1", "xxxx");
@@ -36,7 +34,9 @@ public class MessageQueueTest {
 				e.printStackTrace();
 			}
 			
-		}
+		}*/
+		for(int i=0;i<1000;i++)
+		mq.publish("test1", "xxxx");
 		
 		
 	}

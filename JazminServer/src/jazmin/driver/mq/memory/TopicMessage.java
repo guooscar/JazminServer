@@ -8,7 +8,7 @@ package jazmin.driver.mq.memory;
  *
  */
 public class TopicMessage {
-	public String subscriber;
+	public short subscriber;
 	public long lastDeliverTime;
 	public int deliverTimes;
 	public String payloadId;

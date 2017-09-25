@@ -9,7 +9,7 @@ package jazmin.driver.mq;
  */
 public class Message {
 	public String id;
-	public String subscriber;
+	public short subscriber;
 	public Object payload;
 	public int delieverTimes;
 }

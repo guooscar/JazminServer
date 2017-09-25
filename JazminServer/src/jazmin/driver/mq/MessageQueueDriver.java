@@ -118,11 +118,14 @@ public class MessageQueueDriver extends Driver{
 			TopicQueue queue=topicQueues.get(td.topic());
 			//
 			TopicSubscriber l=new TopicSubscriber();
-			l.id=m.getDeclaringClass().getSimpleName()+"."+m.getName();
+			l.id=td.name();
 			l.method=m;
 			l.topic=td.topic();
 			l.instance=object;
-			subscribers.put(l.id, l);
+			if(subscribers.containsKey(l.topic+"-"+l.id)){
+				throw new IllegalArgumentException("subscriber already exists with name:"+l.id+" on topic:"+l.topic);
+			}
+			subscribers.put(l.topic+"-"+l.id, l);
 			queue.subscribe(l.id);
 			logger.info("resister subscribe {} topic:{}",l.id,l.topic);
 		}
@@ -176,7 +179,7 @@ public class MessageQueueDriver extends Driver{
 					messageCount++;
 					if(message!=takeNext){
 						try{
-							sendMessage(message);
+							sendMessage(e.getKey(),message);
 						}catch (Exception ee) {
 							logger.catching(ee);
 						}
@@ -190,8 +193,8 @@ public class MessageQueueDriver extends Driver{
 		}
 	}
 	//
-	private void sendMessage(Message message){
-		TopicSubscriber subscriber=subscribers.get(message.subscriber);
+	private void sendMessage(String topic,Message message){
+		TopicSubscriber subscriber=subscribers.get(topic+"-"+message.subscriber);
 		subscriber.sentCount++;
 		subscriber.lastSentTime=System.currentTimeMillis();
 		MessageEvent event=new MessageEvent();

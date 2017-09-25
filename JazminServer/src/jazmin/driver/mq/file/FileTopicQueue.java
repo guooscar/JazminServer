@@ -4,32 +4,47 @@
 package jazmin.driver.mq.file;
 
 import java.io.File;
+import java.io.FilenameFilter;
+import java.io.UnsupportedEncodingException;
+import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
+
+import com.mysql.fabric.xmlrpc.base.Data;
 
 import jazmin.driver.mq.Message;
 import jazmin.driver.mq.MessageQueueDriver;
 import jazmin.driver.mq.TopicQueue;
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
+import jazmin.util.JSONUtil;
 
 /**
  * @author yama
  *
  */
 public class FileTopicQueue extends TopicQueue{
+	private static Logger logger=LoggerFactory.get(FileTopicQueue.class);
+	//
 	private long maxTtl;
 	private long redelieverInterval;
 	private String workDir;
-	private Set<String> topicSubscribers;
-	//
-	private int logFileMaxMessageCount;
-	//
+	private Set<Short> topicSubscribers;
+	private int indexFileCapacity;
 	File workDirFile;
+	private Object lockObject=new Object();
+	//
+	LinkedList<IndexFile>indexFiles;
+	//
 	public FileTopicQueue(String id) {
 		this.id=id;
 		this.type=MessageQueueDriver.TOPIC_QUEUE_TYPE_FILE;
 		maxTtl=1000*60*60;//1 hour
-		logFileMaxMessageCount=1000;
-		topicSubscribers=new TreeSet<String>();
+		indexFileCapacity=1000;
+		topicSubscribers=new TreeSet<>();
+		indexFiles=new LinkedList<IndexFile>();
 	}
 	//
 	@Override
@@ -41,9 +56,20 @@ public class FileTopicQueue extends TopicQueue{
 			if(!r){
 				throw new IllegalArgumentException("can not create work dir:"+workDirFile.getAbsolutePath());
 			}
+			logger.info("create work dir:{}",workDirFile.getAbsoluteFile());
 		}
 		//
-		
+		File files[]=workDirFile.listFiles((dir,name)->{
+			return name.endsWith(".index")&&name.startsWith(id+"-");
+		});
+	
+		for(File f:files){
+			logger.info("load index file:{}",f.getAbsoluteFile());
+			IndexFile file=IndexFile.get(f.getAbsolutePath(),indexFileCapacity);
+			if(file!=null){
+				indexFiles.add(file);
+			}
+		}
 	}
 	/**
 	 * @return the workDir
@@ -61,12 +87,11 @@ public class FileTopicQueue extends TopicQueue{
 	//
 	@Override
 	public int length() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public void subscribe(String name) {
+	public void subscribe(short name) {
 		if(topicSubscribers.contains(name)){
 			throw new IllegalArgumentException(name+" already exists");
 		}
@@ -75,12 +100,81 @@ public class FileTopicQueue extends TopicQueue{
 
 	@Override
 	public void publish(Object obj) {
-		
+		if(obj==null){
+			throw new NullPointerException("publish message can not be null");
+		}
+		if(topicSubscribers.isEmpty()){
+			throw new IllegalArgumentException("no topic subscriber");
+		}
 		//
-		
-		
+		IndexFile currentIndexFile;
+		synchronized (indexFiles) {
+			if(indexFiles.isEmpty()){
+				currentIndexFile=newIndexFile(0);
+				indexFiles.add(currentIndexFile);
+			}else{
+				currentIndexFile=indexFiles.getLast();
+			}
+		}
+		//
+		DataItem item=getDataItem(obj);
+		synchronized (lockObject) {
+			long currentOffset=0;
+			for(short subscriber :topicSubscribers){
+				if(currentIndexFile.space()==0){
+					currentIndexFile.flush();
+					//full add new index
+					int nextIndex=(currentIndexFile.index+1);
+					currentIndexFile=newIndexFile(nextIndex);
+					indexFiles.add(currentIndexFile);
+					//new file save data
+					currentOffset=currentIndexFile.dataFile.append(item);
+				}
+				if(currentOffset==0){
+					currentOffset=currentIndexFile.dataFile.append(item);
+				}
+				IndexFileItem idxItem=new IndexFileItem();
+				idxItem.dataOffset=currentOffset;
+				idxItem.flag=IndexFileItem.FLAG_READY;
+				idxItem.magic=IndexFileItem.MAGIC;
+				idxItem.subscriber=subscriber;
+				idxItem.uuid=UUID.randomUUID().toString().replace("-","");
+				currentIndexFile.addItem(idxItem);
+			}
+			
+		}
 	}
-
+	//
+	private IndexFile newIndexFile(int index){
+		File newIdxFile=new File(workDirFile.getAbsoluteFile(),id+"-"+index+".index");
+		IndexFile file=new IndexFile(newIdxFile.getAbsolutePath(), indexFileCapacity);
+		file.index=index;
+		file.open();
+		return file;
+	}
+	//
+	private DataItem getDataItem(Object obj){
+		DataItem item=new DataItem();
+		item.payloadType=DataItem.PAYLOAD_TYPE_JSON;
+		if(obj instanceof byte[]){
+			item.payloadType=DataItem.PAYLOAD_TYPE_RAW;
+			item.payload=(byte[])obj;
+		}else{
+			try {
+				item.payload=JSONUtil.toJson(obj).getBytes("UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				throw new IllegalArgumentException(e);
+			}
+		}
+		if(item.payload.length>Short.MAX_VALUE){
+			throw new IllegalArgumentException("payload length should less than "
+					+Short.MAX_VALUE+" but "+item.payload.length);
+		}
+		item.payloadLength=(short) item.payload.length;
+		item.magic=DataItem.MAGIC;
+		return item;
+	}
+	//
 	@Override
 	public Message take() {
 		// TODO Auto-generated method stub

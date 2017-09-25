@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
  *
  */
 public class TopicSubscriber {
-	public String id;
+	public short id;
 	public String topic;
 	public Object instance;
 	public Method method;

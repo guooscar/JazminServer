@@ -3,7 +3,6 @@
  */
 package jazmin.driver.mq;
 
-import java.io.File;
 
 /**
  * @author yama
@@ -25,7 +24,7 @@ public abstract class TopicQueue {
 	}
 	//
 	public abstract int length();
-	public abstract void subscribe(String name);
+	public abstract void subscribe(short id);
 	public abstract void publish(Object obj);
 	public abstract Message take();
 	public abstract void reject(String id);
