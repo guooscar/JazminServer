@@ -3,6 +3,8 @@
  */
 package jazmin.driver.mq;
 
+import java.io.File;
+
 /**
  * @author yama
  *
@@ -17,6 +19,9 @@ public abstract class TopicQueue {
 	//
 	public String getType() {
 		return type;
+	}
+	//
+	public void start(){
 	}
 	//
 	public abstract int length();

@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import jazmin.core.Driver;
 import jazmin.core.Jazmin;
 import jazmin.core.thread.Dispatcher;
+import jazmin.driver.mq.file.FileTopicQueue;
 import jazmin.driver.mq.memory.MemoryTopicQueue;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -29,20 +30,25 @@ public class MessageQueueDriver extends Driver{
 	private static Logger logger=LoggerFactory.get(MessageQueueDriver.class);
 	//
 	public static final String TOPIC_QUEUE_TYPE_MEMORY="memory";
+	public static final String TOPIC_QUEUE_TYPE_FILE="file";
+	//
+	public static Message takeNext=new Message();
 	//
 	Map<String,TopicQueue>topicQueues;
 	Map<String,TopicSubscriber>subscribers;
 	Thread takeMessageThread;
 	boolean stopTakeThread=false;
+	String workDir;
 	//
 	private Object lockObject=new Object();
 	//
 	public MessageQueueDriver() {
 		topicQueues=new ConcurrentHashMap<>();
 		subscribers=new ConcurrentHashMap<>();
-		//
-		
+		workDir="./jazmin_mq_work";
 	}
+	//
+	
 	//
 	public void createTopic(String name,String type){
 		if(topicQueues.containsKey(name)){
@@ -52,8 +58,28 @@ public class MessageQueueDriver extends Driver{
 			topicQueues.put(name,new MemoryTopicQueue(name));
 			return;
 		}
+		if(type.equals(TOPIC_QUEUE_TYPE_FILE)){
+			FileTopicQueue queue=new FileTopicQueue(name);
+			topicQueues.put(name,queue);
+			queue.setWorkDir(workDir);
+			return;
+		}
 		throw new IllegalArgumentException("bad topic type:"+type);
 	}
+	/**
+	 * @return the workDir
+	 */
+	public String getWorkDir() {
+		return workDir;
+	}
+
+	/**
+	 * @param workDir the workDir to set
+	 */
+	public void setWorkDir(String workDir) {
+		this.workDir = workDir;
+	}
+
 	//
 	public List<TopicQueue>getTopicQueues(){
 		return new ArrayList<TopicQueue>(topicQueues.values());
@@ -148,8 +174,12 @@ public class MessageQueueDriver extends Driver{
 				Message message=e.getValue().take();
 				if(message!=null){
 					messageCount++;
-					if(message.id!=null){
-						sendMessage(message);
+					if(message!=takeNext){
+						try{
+							sendMessage(message);
+						}catch (Exception ee) {
+							logger.catching(ee);
+						}
 					}
 				}
 			}
@@ -181,6 +211,10 @@ public class MessageQueueDriver extends Driver{
 		takeMessageThread.setName("MessageQueueDriverTakeThread");
 		takeMessageThread.start();
 		//
+		topicQueues.forEach((k,v)->{
+			v.start();
+		});
+		//
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
 			cs.registerCommand(MessageQueueDriverCommand.class);
@@ -197,7 +231,7 @@ public class MessageQueueDriver extends Driver{
 		InfoBuilder ib=InfoBuilder.create();
 		ib.section("topicQueues").format("%-30s:%-30s\n");
 		topicQueues.forEach((k,v)->{
-			ib.print(k,v);
+			ib.print(k,v.getId()+"["+v.getType()+"]");
 		});
 		ib.section("subscribers").format("%-30s subscribe topic: %-30s\n");
 		subscribers.forEach((k,v)->{

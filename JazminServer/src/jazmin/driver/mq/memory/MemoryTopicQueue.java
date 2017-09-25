@@ -72,7 +72,7 @@ public class MemoryTopicQueue extends TopicQueue{
 		}
 		//
 		MessagePayload payload=new MessagePayload();
-		payload.id=UUID.randomUUID().toString();
+		payload.id=UUID.randomUUID().toString().replaceAll("-", "");
 		payload.payload=obj;
 		payload.subscriberCount=topicSubscribers.size();
 		payloadMap.put(payload.id, payload);
@@ -82,8 +82,6 @@ public class MemoryTopicQueue extends TopicQueue{
 			m.id=UUID.randomUUID().toString();
 			m.payloadId=payload.id;
 			m.subscriber=s;
-			m.sendTime=System.currentTimeMillis();
-			m.ttl=maxTtl;
 			synchronized (topicQueue) {
 				topicQueue.add(m);
 			}
@@ -105,7 +103,7 @@ public class MemoryTopicQueue extends TopicQueue{
 				}
 				acceptSet.remove(message.id);
 				topicQueue.removeFirst();
-				return new Message();
+				return MessageQueueDriver.takeNext;
 			}
 			//
 			if(rejectSet.contains(message.id)){
@@ -114,15 +112,15 @@ public class MemoryTopicQueue extends TopicQueue{
 				return new Message();
 			}
 			//
-			if((System.currentTimeMillis()-message.sendTime)>maxTtl){
+			if((System.currentTimeMillis()-message.lastDeliverTime)>maxTtl){
 				//max ttl 
 				topicQueue.removeFirst();
 				logger.warn("remove message for max ttl reached:"+message.id+" "+maxTtl);
-				return new Message();
+				return MessageQueueDriver.takeNext;
 			}
 			//
 			if((System.currentTimeMillis()-message.lastDeliverTime)<redelieverInterval){
-				return new Message();
+				return MessageQueueDriver.takeNext;
 			}
 			message.deliverTimes++;
 			message.lastDeliverTime=System.currentTimeMillis();
