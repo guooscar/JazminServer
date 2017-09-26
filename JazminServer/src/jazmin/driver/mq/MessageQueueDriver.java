@@ -195,12 +195,7 @@ public class MessageQueueDriver extends Driver{
 		if(sub.type!=TopicSubscriberType.pull){
 			throw new IllegalArgumentException("only pull subscriber can perform this action");
 		}
-		while(true){
-			msg=queue.take(subscriber);
-			if(msg!=takeNext){
-				break;
-			}
-		}
+		
 		return msg;
 	}
 	//
@@ -208,7 +203,7 @@ public class MessageQueueDriver extends Driver{
 		while(!stopTakeThread){
 			int messageCount=0;
 			for(Entry<String,TopicQueue>e : topicQueues.entrySet()){
-				Message message=e.getValue().take((short) 0);
+				Message message=e.getValue().take();
 				if(message!=null){
 					messageCount++;
 					if(message!=takeNext){

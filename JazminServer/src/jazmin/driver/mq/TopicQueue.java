@@ -69,7 +69,7 @@ public abstract class TopicQueue {
 	 * @param subscriber
 	 * @return
 	 */
-	public abstract Message take(short subscriber);
+	public abstract Message take();
 	public abstract void reject(String id);
 	public abstract void accept(String id);
 		

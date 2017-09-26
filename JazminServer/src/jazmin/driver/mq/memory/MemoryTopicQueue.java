@@ -74,16 +74,13 @@ public class MemoryTopicQueue extends TopicQueue{
 		});
 	}
 	//
-	public Message take(short subscriber){
+	public Message take(){
 		synchronized (topicQueue) {
 			if(topicQueue.isEmpty()){
 				return null;
 			}
 			
 			TopicMessage message=topicQueue.getFirst();
-			if(subscriber!=0&&message.subscriber!=subscriber){
-				return MessageQueueDriver.takeNext;
-			}
 			MessagePayload payload=payloadMap.get(message.payloadId);
 			if(acceptSet.contains(message.id)){
 				payload.subscriberCount--;

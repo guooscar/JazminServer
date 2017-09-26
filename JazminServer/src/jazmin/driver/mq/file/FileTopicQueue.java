@@ -156,7 +156,7 @@ public class FileTopicQueue extends TopicQueue{
 	}
 	//
 	@Override
-	public Message take(short subscriber) {
+	public Message take() {
 		// TODO Auto-generated method stub
 		return null;
 	}
