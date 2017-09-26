@@ -16,9 +16,18 @@ import java.lang.annotation.Target;
 @Documented
 @Inherited  
 public @interface TopicSubscriberDefine{
+	/**
+	 * name of subscriber
+	 * @return
+	 */
 	short name();
 	/**
-	 * name of notification 
+	 * name of topic 
 	 */
 	String topic();
+	/**
+	 * type of subscriber
+	 * @return
+	 */
+	TopicSubscriberType type() default TopicSubscriberType.push;
 }

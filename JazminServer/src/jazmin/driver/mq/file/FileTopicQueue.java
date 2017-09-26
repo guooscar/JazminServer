@@ -4,15 +4,10 @@
 package jazmin.driver.mq.file;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
-
-import com.mysql.fabric.xmlrpc.base.Data;
 
 import jazmin.driver.mq.Message;
 import jazmin.driver.mq.MessageQueueDriver;
@@ -31,7 +26,6 @@ public class FileTopicQueue extends TopicQueue{
 	private long maxTtl;
 	private long redelieverInterval;
 	private String workDir;
-	private Set<Short> topicSubscribers;
 	private int indexFileCapacity;
 	File workDirFile;
 	private Object lockObject=new Object();
@@ -39,8 +33,7 @@ public class FileTopicQueue extends TopicQueue{
 	LinkedList<IndexFile>indexFiles;
 	//
 	public FileTopicQueue(String id) {
-		this.id=id;
-		this.type=MessageQueueDriver.TOPIC_QUEUE_TYPE_FILE;
+		super(id, MessageQueueDriver.TOPIC_QUEUE_TYPE_FILE);
 		maxTtl=1000*60*60;//1 hour
 		indexFileCapacity=1000;
 		topicSubscribers=new TreeSet<>();
@@ -91,21 +84,8 @@ public class FileTopicQueue extends TopicQueue{
 	}
 
 	@Override
-	public void subscribe(short name) {
-		if(topicSubscribers.contains(name)){
-			throw new IllegalArgumentException(name+" already exists");
-		}
-		topicSubscribers.add(name);
-	}
-
-	@Override
 	public void publish(Object obj) {
-		if(obj==null){
-			throw new NullPointerException("publish message can not be null");
-		}
-		if(topicSubscribers.isEmpty()){
-			throw new IllegalArgumentException("no topic subscriber");
-		}
+		super.publish(obj);
 		//
 		IndexFile currentIndexFile;
 		synchronized (indexFiles) {
@@ -176,7 +156,7 @@ public class FileTopicQueue extends TopicQueue{
 	}
 	//
 	@Override
-	public Message take() {
+	public Message take(short subscriber) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -47,8 +47,7 @@ public class MessageQueueDriver extends Driver{
 		subscribers=new ConcurrentHashMap<>();
 		workDir="./jazmin_mq_work";
 	}
-	//
-	
+
 	//
 	public void createTopic(String name,String type){
 		if(topicQueues.containsKey(name)){
@@ -81,12 +80,16 @@ public class MessageQueueDriver extends Driver{
 	}
 
 	//
-	public List<TopicQueue>getTopicQueues(){
+	List<TopicQueue>getTopicQueues(){
 		return new ArrayList<TopicQueue>(topicQueues.values());
 	}
 	//
 	//
-	public List<TopicSubscriber>getTopicSubscribers(){
+	TopicQueue getTopicQueue(String topic){
+		return topicQueues.get(topic);
+	}
+	//
+	List<TopicSubscriber>getTopicSubscribers(){
 		return new ArrayList<TopicSubscriber>(subscribers.values());
 	}
 	/**
@@ -115,12 +118,18 @@ public class MessageQueueDriver extends Driver{
 			if(!topicQueues.containsKey(td.topic())){
 				throw new IllegalArgumentException("can not find topic queue with name:"+td.topic());
 			}
+			//
+			if(td.name()<=0){
+				throw new IllegalArgumentException("subscriber name must > 0");
+			}
+			//
 			TopicQueue queue=topicQueues.get(td.topic());
 			//
 			TopicSubscriber l=new TopicSubscriber();
 			l.id=td.name();
 			l.method=m;
 			l.topic=td.topic();
+			l.type=td.type();
 			l.instance=object;
 			if(subscribers.containsKey(l.topic+"-"+l.id)){
 				throw new IllegalArgumentException("subscriber already exists with name:"+l.id+" on topic:"+l.topic);
@@ -169,12 +178,34 @@ public class MessageQueueDriver extends Driver{
 			}
 		}
 	}
+	/**
+	 * pull message
+	 * @return
+	 */
+	public Message pullMessage(String topic,short subscriber){
+		Message msg=null;
+		TopicQueue queue=topicQueues.get(topic);
+		if(queue==null){
+			throw new IllegalArgumentException("can not find topic queue:"+topic);
+		}
+		TopicSubscriber sub=subscribers.get(topic+"-"+subscriber);
+		if(sub.type!=TopicSubscriberType.pull){
+			throw new IllegalArgumentException("only pull subscriber can perform this action");
+		}
+		while(true){
+			msg=queue.take(subscriber);
+			if(msg!=takeNext){
+				break;
+			}
+		}
+		return msg;
+	}
 	//
-	public void takeMessage(){
+	private void takeMessage(){
 		while(!stopTakeThread){
 			int messageCount=0;
 			for(Entry<String,TopicQueue>e : topicQueues.entrySet()){
-				Message message=e.getValue().take();
+				Message message=e.getValue().take((short) 0);
 				if(message!=null){
 					messageCount++;
 					if(message!=takeNext){
@@ -198,7 +229,10 @@ public class MessageQueueDriver extends Driver{
 		subscriber.sentCount++;
 		subscriber.lastSentTime=System.currentTimeMillis();
 		MessageEvent event=new MessageEvent();
-		event.message=message;
+		if(subscriber.type==TopicSubscriberType.push){
+			//push mode
+			event.message=message;
+		}
 		event.messageQueueDriver=this;
 		Jazmin.dispatcher.invokeInPool(
 				"MessageQueueDriver",

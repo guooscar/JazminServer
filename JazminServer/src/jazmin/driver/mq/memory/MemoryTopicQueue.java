@@ -26,21 +26,18 @@ public class MemoryTopicQueue extends TopicQueue{
 	private long maxTtl;
 	private long redelieverInterval;
 	private LinkedList<TopicMessage>topicQueue;
-	private Set<Short> topicSubscribers;
 	//
 	private Set<String>acceptSet;
 	private Set<String>rejectSet;
 	//
 	//
 	public MemoryTopicQueue(String id) {
-		this.id=id;
-		this.type=MessageQueueDriver.TOPIC_QUEUE_TYPE_MEMORY;
+		super(id,MessageQueueDriver.TOPIC_QUEUE_TYPE_MEMORY);
 		maxQueueSize=10240;
 		maxTtl=1000*60;//1 min
 		redelieverInterval=1000*5;//5 seconds redeliever 
 		payloadMap=new ConcurrentHashMap<>();
 		topicQueue=new LinkedList<>();
-		topicSubscribers=new TreeSet<Short>();
 		//
 		acceptSet=new TreeSet<String>();
 		rejectSet=new TreeSet<String>();
@@ -52,21 +49,10 @@ public class MemoryTopicQueue extends TopicQueue{
 			return topicQueue.size();
 		}
 	}
-	//
-	public void subscribe(short name){
-		if(topicSubscribers.contains(name)){
-			throw new IllegalArgumentException(name+" already exists");
-		}
-		topicSubscribers.add(name);
-	}
+
 	//
 	public void publish(Object obj){
-		if(obj==null){
-			throw new NullPointerException("publish message can not be null");
-		}
-		if(topicSubscribers.isEmpty()){
-			throw new IllegalArgumentException("no topic subscriber");
-		}
+		super.publish(obj);
 		if(topicQueue.size()>maxQueueSize){
 			throw new IllegalStateException("topic queue "+id+" full "+maxQueueSize);
 		}
@@ -88,13 +74,16 @@ public class MemoryTopicQueue extends TopicQueue{
 		});
 	}
 	//
-	public Message take(){
+	public Message take(short subscriber){
 		synchronized (topicQueue) {
 			if(topicQueue.isEmpty()){
 				return null;
 			}
 			
 			TopicMessage message=topicQueue.getFirst();
+			if(subscriber!=0&&message.subscriber!=subscriber){
+				return MessageQueueDriver.takeNext;
+			}
 			MessagePayload payload=payloadMap.get(message.payloadId);
 			if(acceptSet.contains(message.id)){
 				payload.subscriberCount--;
