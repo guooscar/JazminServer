@@ -5,15 +5,12 @@ package jazmin.driver.mq.file;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
-import java.util.Set;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
-import jazmin.util.JSONUtil;
 
 /**
  * @author yama
@@ -142,33 +139,39 @@ public class IndexFile {
 	}
 	//
 	public boolean addItem(IndexFileItem item){
-		synchronized (buffer) {
-			if(size>=capacity){
-				return false;
-			}
-			int writeOffset=size*IndexFileItem.FILE_ITEM_SIZE;
-			buffer.position(writeOffset);
-			buffer.mark();
-			buffer.put(IndexFileItem.get(item));
-			size++;
-			return true;
+		if(size>=capacity){
+			return false;
 		}
-	}
-	public void updateFlag(int index,byte flag){
-		synchronized (buffer) {
-			int position=index*IndexFileItem.FILE_ITEM_SIZE;
-			buffer.position(position+1+32+8);
-			buffer.mark();
-			buffer.put(flag);
-		}
+		int writeOffset=size*IndexFileItem.FILE_ITEM_SIZE;
+		buffer.position(writeOffset);
+		buffer.mark();
+		buffer.put(IndexFileItem.get(item));
+		size++;
+		return true;
 	}
 	//
-	public void updateLastDelieverTime(int index,long time){
-		synchronized (buffer) {
-			int position=index*IndexFileItem.FILE_ITEM_SIZE;
-			buffer.position(position+1+32+8+1);
-			buffer.mark();
-			buffer.putLong(time);
-		}
+	public IndexFileItem getItem(int index){
+		int position=index*IndexFileItem.FILE_ITEM_SIZE;
+		buffer.position(position);
+		buffer.mark();
+		byte contentBytes[]=new byte[IndexFileItem.FILE_ITEM_SIZE];
+		buffer.get(contentBytes);
+		return IndexFileItem.get(contentBytes);
 	}
+	//
+	public void updateFlag(int index,byte flag){
+		int position=index*IndexFileItem.FILE_ITEM_SIZE;
+		buffer.position(position+1+32+8+2);
+		buffer.mark();
+		buffer.put(flag);
+	}
+	//
+	public void updateLastDelieverTime(int index,long time,short times){
+		int position=index*IndexFileItem.FILE_ITEM_SIZE;
+		buffer.position(position+1+32+8+2+1);
+		buffer.mark();
+		buffer.putLong(time);
+		buffer.putShort(times);
+	}
+	
 }

@@ -13,4 +13,7 @@ public class TopicMessage {
 	public int deliverTimes;
 	public String payloadId;
 	public String id;
+	//
+	public TopicMessage next;
+	public TopicMessage prior;
 }

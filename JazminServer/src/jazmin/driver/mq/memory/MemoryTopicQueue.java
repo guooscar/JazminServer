@@ -95,6 +95,7 @@ public class MemoryTopicQueue extends TopicQueue{
 			if(rejectSet.contains(message.id)){
 				message.lastDeliverTime=System.currentTimeMillis();
 				rejectSet.remove(message.id);
+				topicQueue.add(topicQueue.removeFirst());//move to last
 				return  MessageQueueDriver.takeNext;
 			}
 			//
@@ -102,12 +103,17 @@ public class MemoryTopicQueue extends TopicQueue{
 				if((System.currentTimeMillis()-message.lastDeliverTime)>maxTtl){
 					//max ttl 
 					topicQueue.removeFirst();
+					payload.subscriberCount--;
+					if(payload.subscriberCount<=0){
+						payloadMap.remove(payload.id);
+					}
 					logger.warn("remove message for max ttl reached:"+message.id+" "+maxTtl);
 					return MessageQueueDriver.takeNext;
 				}	
 			}
 			//
 			if((System.currentTimeMillis()-message.lastDeliverTime)<redelieverInterval){
+				topicQueue.add(topicQueue.removeFirst());
 				return MessageQueueDriver.takeNext;
 			}
 			message.deliverTimes++;

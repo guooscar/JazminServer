@@ -43,7 +43,7 @@ public class DataFile {
 			readChannel=fis.getChannel();
 			//
 			fos=new FileOutputStream(dataFile,true);
-			writeChannel=fis.getChannel();
+			writeChannel=fos.getChannel();
 		}catch (Exception e) {
 			throw new IllegalStateException(e);
 		}	
@@ -77,13 +77,14 @@ public class DataFile {
 		}
 	}
 	//
-	public DataItem get(int offset){
+	public DataItem get(long offset){
 		DataItem item=new DataItem();
 		byte headBytes[]=new byte[DataItem.HEAD_LENGTH];
 		ByteBuffer headBuffer=ByteBuffer.wrap(headBytes);
 		try{
 			readChannel.position(offset);;
 			readChannel.read(headBuffer);
+			headBuffer.flip();
 			item.magic=headBuffer.get();
 			item.payloadType=headBuffer.get();
 			item.payloadLength=headBuffer.getShort();
@@ -107,6 +108,8 @@ public class DataFile {
 			buffer.put(item.payloadType);
 			buffer.putShort(item.payloadLength);
 			buffer.put(item.payload);
+			buffer.flip();
+			writeChannel.write(buffer);
 			return offset;
 		}catch(Exception e){
 			throw new RuntimeException(e);

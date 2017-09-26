@@ -3,6 +3,8 @@
  */
 package jazmin.test.driver.mq;
 
+import java.util.Scanner;
+
 import jazmin.core.Jazmin;
 import jazmin.driver.mq.MessageQueueDriver;
 import jazmin.log.LoggerFactory;
@@ -23,6 +25,7 @@ public class MessageQueueTest {
 		mq.setWorkDir("/Users/yama/Desktop/mq_test");
 		//
 		mq.createTopic("test1",MessageQueueDriver.TOPIC_QUEUE_TYPE_FILE);
+		//mq.createTopic("test1",MessageQueueDriver.TOPIC_QUEUE_TYPE_MEMORY);
 		mq.subscribe(new SimpleSubscriber());
 		//
 		Jazmin.start();
@@ -35,8 +38,13 @@ public class MessageQueueTest {
 			}
 			
 		}*/
-		for(int i=0;i<1000;i++)
-		mq.publish("test1", "xxxx");
+		Scanner sc=new Scanner(System.in);
+		while(true){
+			sc.nextInt();
+			for(int i=0;i<1;i++)
+			mq.publish("test1", "xxxaddddddddddddddddddddddddx".getBytes());
+		}
+		
 		
 		
 	}

@@ -10,12 +10,12 @@ import java.nio.ByteBuffer;
  *
  */
 public class IndexFileItem {
-	public static byte FLAG_READY=0;
-	public static byte FLAG_REJECTED=1;
-	public static byte FLAG_ACCEPTED=2;
-	public static byte FLAG_EXPRIED=3;
+	public static byte FLAG_READY=1;
+	public static byte FLAG_REJECTED=2;
+	public static byte FLAG_ACCEPTED=3;
+	public static byte FLAG_EXPRIED=4;
 	//
-	public static final int FILE_ITEM_SIZE=1+32+8+2+1+8;
+	public static final int FILE_ITEM_SIZE=1+32+8+2+1+8+2;
 	//
 	public static final byte MAGIC=(byte) 0xff;
 	//
@@ -25,6 +25,7 @@ public class IndexFileItem {
 	public short subscriber;//2byte
 	public byte flag;//accept //reject //not send 
 	public long lastDelieverTime;// 8 byte
+	public short delieverTimes;
 	//
 	public static IndexFileItem get(byte[]bytes){
 		ByteBuffer buf=ByteBuffer.wrap(bytes);
@@ -37,6 +38,7 @@ public class IndexFileItem {
 		item.subscriber=buf.getShort();
 		item.flag=buf.get();
 		item.lastDelieverTime=buf.getLong();
+		item.delieverTimes=buf.getShort();
 		return item;
 	}
 	//
@@ -49,6 +51,7 @@ public class IndexFileItem {
 		buf.putShort(item.subscriber);
 		buf.put(item.flag);
 		buf.putLong(item.lastDelieverTime);
+		buf.putShort(item.delieverTimes);
 		return bb;
 	}
 }

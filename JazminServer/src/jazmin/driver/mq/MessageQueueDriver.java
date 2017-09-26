@@ -175,7 +175,7 @@ public class MessageQueueDriver extends Driver{
 	private void waitTake(){
 		synchronized (lockObject) {
 			try {
-				lockObject.wait();
+				lockObject.wait(1000*10);//wait for 10 seconds
 			} catch (InterruptedException e) {
 				logger.catching(e);
 			}
