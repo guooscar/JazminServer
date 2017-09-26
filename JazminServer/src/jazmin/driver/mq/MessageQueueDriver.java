@@ -6,6 +6,7 @@ package jazmin.driver.mq;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,6 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import jazmin.core.Driver;
 import jazmin.core.Jazmin;
+import jazmin.core.monitor.Monitor;
+import jazmin.core.monitor.MonitorAgent;
 import jazmin.core.thread.Dispatcher;
 import jazmin.driver.mq.file.FileTopicQueue;
 import jazmin.driver.mq.memory.MemoryTopicQueue;
@@ -256,6 +259,7 @@ public class MessageQueueDriver extends Driver{
 		if(cs!=null){
 			cs.registerCommand(MessageQueueDriverCommand.class);
 		}
+		Jazmin.mointor.registerAgent(new MessageQueueDriverMonitorAgent());
 	}
 	//
 	@Override
@@ -266,6 +270,9 @@ public class MessageQueueDriver extends Driver{
 	//
 	public String info() {
 		InfoBuilder ib=InfoBuilder.create();
+		ib.section("info").format("%-30s:%-30s\n");
+		ib.print("workDir",workDir);
+		
 		ib.section("topicQueues").format("%-30s:%-30s\n");
 		topicQueues.forEach((k,v)->{
 			ib.print(k,v.getId()+"["+v.getType()+"]");
@@ -275,6 +282,35 @@ public class MessageQueueDriver extends Driver{
 			ib.print(k,v.topic);
 		});
 		return ib.toString();
+	}
+	//
+	//--------------------------------------------------------------------------
+	//
+	private class MessageQueueDriverMonitorAgent implements MonitorAgent{
+		@Override
+		public void sample(int idx,Monitor monitor) {
+			for(TopicQueue queue :getTopicQueues()){
+				Map<String,String>info1=new HashMap<String, String>();
+				info1.put("publishCount", queue.getPublishCount()+"");
+				monitor.sample("MessageQueueDriver.PublishCount."+queue.id,
+								Monitor.CATEGORY_TYPE_COUNT,info1);
+			}
+			for(TopicQueue queue :getTopicQueues()){
+				Map<String,String>info1=new HashMap<String, String>();
+				info1.put("queueLength", queue.length()+"");
+				monitor.sample("MessageQueueDriver.QueueLength."+queue.id,
+								Monitor.CATEGORY_TYPE_COUNT,info1);
+			}
+		}
+		//
+		@Override
+		public void start(Monitor monitor) {
+			Map<String,String>info=new HashMap<String, String>();
+			for(TopicQueue q:getTopicQueues()){
+				info.put("TopicQueue-"+q.id, q.getType());
+			}
+			monitor.sample("MessageQueueDriver.Info",Monitor.CATEGORY_TYPE_KV,info);
+		}
 	}
 	
 }
