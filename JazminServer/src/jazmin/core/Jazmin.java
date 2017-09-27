@@ -484,6 +484,7 @@ public class Jazmin {
 			if(appLc.lifecycleListener!=null){
 				appLc.lifecycleListener.beforeStart(appLc);
 			}
+			application.wiredApplicationAndregister();
 			application.start();
 			if(appLc.lifecycleListener!=null){
 				appLc.lifecycleListener.afterStart(appLc);

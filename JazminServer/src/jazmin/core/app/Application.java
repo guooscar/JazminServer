@@ -51,7 +51,9 @@ public class Application extends Lifecycle {
 		return instance;
 	} 
 	//
-	public void register(){
+	public void wiredApplicationAndregister() throws Exception{
+		createWired(this);
+		//
 		for(Lifecycle lc:Jazmin.getLifecycles()){
 			for(AutoWiredObject obj :getAutoWiredObjects()){
 				if(lc instanceof Registerable){
@@ -60,20 +62,11 @@ public class Application extends Lifecycle {
 			}	
 		}
 	}
-	// 
-	/**
-	 * create auto wired object
-	 * @param clazz the auto wired object class
-	 * @return the auto wired object
-	 * @throws Exception 
-	 */
+	//
 	@SuppressWarnings("unchecked")
-	public <T> T createWired(Class<T>clazz)throws Exception{
-		if(autoWiredMap.containsKey(clazz)){
-			return (T) autoWiredMap.get(clazz).instance;
-		}
-		T instance =clazz.newInstance();
+	public void createWired(Object instance)throws Exception{
 		AutoWiredObject autoWiredObject=new AutoWiredObject();
+		Class<?> clazz=instance.getClass();
 		autoWiredObject.clazz=clazz;
 		autoWiredObject.instance=instance;
 		autoWiredMap.put(clazz,autoWiredObject);
@@ -138,7 +131,21 @@ public class Application extends Lifecycle {
 				f.invoke(instance);
 			}
 		}
-		//
+	}
+	// 
+	/**
+	 * create auto wired object
+	 * @param clazz the auto wired object class
+	 * @return the auto wired object
+	 * @throws Exception 
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T createWired(Class<T>clazz)throws Exception{
+		if(autoWiredMap.containsKey(clazz)){
+			return (T) autoWiredMap.get(clazz).instance;
+		}
+		T instance =clazz.newInstance();
+		createWired(instance);
 		return instance;
 	}
 	//

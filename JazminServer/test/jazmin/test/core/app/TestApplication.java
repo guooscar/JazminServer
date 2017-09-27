@@ -15,12 +15,11 @@ import jazmin.test.core.app.TestAction.TestActionImpl;
  */
 public class TestApplication extends Application {
 	@AutoWired
-	static TestActionImpl testAction;
+	TestActionImpl testAction;
 	//
 	@Override
 	public void init() throws Exception {
-		createWired(TestApplication.class);
-		register();
+		
 	}
 	//
 	public void start() {
