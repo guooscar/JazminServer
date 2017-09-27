@@ -58,7 +58,6 @@ public class DataFile {
 	}
 	//
 	public void close(){
-		flush();
 		try{
 			writeChannel.close();
 			readChannel.close();

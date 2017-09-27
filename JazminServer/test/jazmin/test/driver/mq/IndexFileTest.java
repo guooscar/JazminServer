@@ -24,9 +24,7 @@ public class IndexFileTest {
 		IndexFileItem item=new IndexFileItem();
 		item.uuid=UUID.randomUUID().toString().replaceAll("-", "");
 		item.dataOffset=1;
-		while(file.addItem(item)){
-			System.err.println(file.size());
-		}
+		file.addItem(item);
 		file.close();
 		//
 	}

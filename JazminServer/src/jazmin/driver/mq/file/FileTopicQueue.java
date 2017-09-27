@@ -28,6 +28,7 @@ public class FileTopicQueue extends TopicQueue{
 	File workDirFile;
 	
 	LinkedList<IndexFile>indexSegmentFiles;
+	LinkedList<IndexFile>takeIndexSegmentFiles;
 	private int currentIndex=0;
 	
 	//
@@ -35,10 +36,11 @@ public class FileTopicQueue extends TopicQueue{
 	public FileTopicQueue(String id) {
 		super(id, MessageQueueDriver.TOPIC_QUEUE_TYPE_FILE);
 		maxTtl=1000*60*60;//1 hour
-		indexFileCapacity=10000*10;
+		indexFileCapacity=10;
 		redelieverInterval=1000*5;//5 seconds redeliever 
 		topicSubscribers=new TreeSet<>();
 		indexSegmentFiles=new LinkedList<IndexFile>();
+		takeIndexSegmentFiles=new LinkedList<IndexFile>();
 	}
 	//
 	@Override
@@ -62,6 +64,7 @@ public class FileTopicQueue extends TopicQueue{
 			IndexFile file=IndexFile.get(f.getAbsolutePath(),indexFileCapacity);
 			if(file!=null){
 				indexSegmentFiles.add(file);
+				takeIndexSegmentFiles.add(file);
 			}
 		}
 	}
@@ -81,7 +84,7 @@ public class FileTopicQueue extends TopicQueue{
 	//
 	@Override
 	public int length() {
-		synchronized (indexSegmentFiles) {
+		synchronized (lockObject) {
 			int total=0;
 			for(IndexFile file:indexSegmentFiles){
 				total+=file.size();
@@ -95,17 +98,15 @@ public class FileTopicQueue extends TopicQueue{
 		super.publish(obj);
 		//
 		IndexFile currentIndexFile;
-		synchronized (indexSegmentFiles) {
+		synchronized (lockObject) {
 			if(indexSegmentFiles.isEmpty()){
 				currentIndexFile=newIndexFile(0);
 				indexSegmentFiles.add(currentIndexFile);
-			}else{
-				currentIndexFile=indexSegmentFiles.getLast();
+				takeIndexSegmentFiles.add(currentIndexFile);
 			}
-		}
-		//
-		DataItem item=getDataItem(obj);
-		synchronized (lockObject) {
+			currentIndexFile=indexSegmentFiles.getLast();
+			//
+			DataItem item=getDataItem(obj);
 			long currentOffset=0;
 			for(short subscriber :topicSubscribers){
 				if(currentIndexFile.space()==0){
@@ -114,6 +115,7 @@ public class FileTopicQueue extends TopicQueue{
 					int nextIndex=(currentIndexFile.index+1);
 					currentIndexFile=newIndexFile(nextIndex);
 					indexSegmentFiles.add(currentIndexFile);
+					takeIndexSegmentFiles.add(currentIndexFile);
 					//new file save data
 					currentOffset=currentIndexFile.dataFile.append(item);
 				}
@@ -128,7 +130,6 @@ public class FileTopicQueue extends TopicQueue{
 				idxItem.uuid=UUID.randomUUID().toString().replace("-","");
 				currentIndexFile.addItem(idxItem);
 			}
-			
 		}
 	}
 	//
@@ -159,73 +160,89 @@ public class FileTopicQueue extends TopicQueue{
 	//
 	@Override
 	public Message take() {
-		synchronized (indexSegmentFiles) {
-			if(indexSegmentFiles.isEmpty()){
+		synchronized (lockObject) {
+			if(takeIndexSegmentFiles.isEmpty()){
 				return null;
 			}
 			Message retMessage=null;
-			IndexFile indexFile=indexSegmentFiles.getFirst();
-			synchronized (lockObject) {
-				IndexFileItem item=indexFile.getItem(currentIndex);
-				//System.err.println("take"+DumpUtil.dump(item));
-				//
-				if(acceptSet.containsKey(item.uuid)){
-					item.flag=IndexFileItem.FLAG_ACCEPTED;
+			IndexFile indexFile=takeIndexSegmentFiles.getFirst();
+			if(currentIndex==0){
+				//reset remove count
+				indexFile.removedCount=0;
+			}
+			IndexFileItem item=indexFile.getItem(currentIndex);
+			//System.err.println("take"+DumpUtil.dump(item));
+			if(item.flag==IndexFileItem.FLAG_ACCEPTED||item.flag==IndexFileItem.FLAG_EXPRIED){
+				indexFile.removedCount++;
+			}
+			//
+			if(acceptSet.containsKey(item.uuid)){
+				item.flag=IndexFileItem.FLAG_ACCEPTED;
+				indexFile.updateFlag(currentIndex, item.flag);
+				acceptSet.remove(item.uuid);
+			}
+			if(rejectSet.containsKey(item.uuid)){
+				item.flag=IndexFileItem.FLAG_REJECTED;
+				indexFile.updateFlag(currentIndex, item.flag);
+				rejectSet.remove(item.uuid);
+			}
+			//
+			if(item.lastDelieverTime>0){
+				if((System.currentTimeMillis()-item.lastDelieverTime)>maxTtl){
+					//max ttl 
+					item.flag=IndexFileItem.FLAG_EXPRIED;
 					indexFile.updateFlag(currentIndex, item.flag);
-					acceptSet.remove(item.uuid);
+					retMessage=MessageQueueDriver.takeNext;
+				}	
+			}
+			//
+			if((System.currentTimeMillis()-item.lastDelieverTime)<redelieverInterval){
+				retMessage=MessageQueueDriver.takeNext;
+			}
+			//
+			if(retMessage!=MessageQueueDriver.takeNext){
+				if(item.flag==IndexFileItem.FLAG_READY){
+					retMessage=getMessage(indexFile,item);
+					item.delieverTimes++;
+					indexFile.updateLastDelieverTime(currentIndex,
+							System.currentTimeMillis(),(short) (item.delieverTimes));
+					retMessage.delieverTimes=item.delieverTimes;
 				}
-				if(rejectSet.containsKey(item.uuid)){
-					item.flag=IndexFileItem.FLAG_REJECTED;
-					indexFile.updateFlag(currentIndex, item.flag);
-					rejectSet.remove(item.uuid);
+				if(item.flag==IndexFileItem.FLAG_REJECTED){
+					retMessage=getMessage(indexFile,item);
+					item.delieverTimes++;
+					indexFile.updateLastDelieverTime(currentIndex,
+							System.currentTimeMillis(),(short) (item.delieverTimes));
+					retMessage.delieverTimes=item.delieverTimes;
 				}
-				//
-				if(item.lastDelieverTime>0){
-					if((System.currentTimeMillis()-item.lastDelieverTime)>maxTtl){
-						//max ttl 
-						item.flag=IndexFileItem.FLAG_EXPRIED;
-						indexFile.updateFlag(currentIndex, item.flag);
-						retMessage=MessageQueueDriver.takeNext;
-					}	
-				}
-				//
-				if((System.currentTimeMillis()-item.lastDelieverTime)<redelieverInterval){
+				if(item.flag==IndexFileItem.FLAG_ACCEPTED){
 					retMessage=MessageQueueDriver.takeNext;
 				}
-				//
-				if(retMessage!=MessageQueueDriver.takeNext){
-					if(item.flag==IndexFileItem.FLAG_READY){
-						retMessage=getMessage(indexFile,item);
-						item.delieverTimes++;
-						indexFile.updateLastDelieverTime(currentIndex,
-								System.currentTimeMillis(),(short) (item.delieverTimes));
-						retMessage.delieverTimes=item.delieverTimes;
-					}
-					if(item.flag==IndexFileItem.FLAG_REJECTED){
-						retMessage=getMessage(indexFile,item);
-						item.delieverTimes++;
-						indexFile.updateLastDelieverTime(currentIndex,
-								System.currentTimeMillis(),(short) (item.delieverTimes));
-						retMessage.delieverTimes=item.delieverTimes;
-					}
-					if(item.flag==IndexFileItem.FLAG_ACCEPTED){
-						retMessage=MessageQueueDriver.takeNext;
-					}
-					if(item.flag==IndexFileItem.FLAG_EXPRIED){
-						retMessage=MessageQueueDriver.takeNext;
-					}
+				if(item.flag==IndexFileItem.FLAG_EXPRIED){
+					retMessage=MessageQueueDriver.takeNext;
 				}
-				
-				//
-				currentIndex++;
-				if(currentIndex>=indexFileCapacity){
-					currentIndex=0;
-					indexSegmentFiles.add(indexSegmentFiles.removeFirst());
+			}
+			
+			//
+			currentIndex++;
+			if(currentIndex>=indexFileCapacity){
+				currentIndex=0;
+				if(indexFile.removedCount>=indexFileCapacity){
+					indexFile.delete();
+					takeIndexSegmentFiles.removeFirst();
+					indexSegmentFiles.remove(indexFile);
+					logger.info("delete index file {}",indexFile.indexFile.getAbsoluteFile());
+				}else{
+					IndexFile head=takeIndexSegmentFiles.removeFirst();
+					takeIndexSegmentFiles.add(head);
 				}
-				//
-				if(retMessage==null){
-					//rewind
-					currentIndex=0;
+			}
+			//
+			if(retMessage==null){
+				//rewind
+				currentIndex=0;
+				if(indexFile!=null){
+					indexFile.removedCount=0;
 				}
 			}
 			return retMessage;

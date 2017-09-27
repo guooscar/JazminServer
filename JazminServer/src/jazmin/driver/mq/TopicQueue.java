@@ -11,6 +11,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
+
 import com.ning.http.client.providers.netty.chmv8.LongAdder;
 
 /**
@@ -18,6 +21,8 @@ import com.ning.http.client.providers.netty.chmv8.LongAdder;
  *
  */
 public abstract class TopicQueue {
+	private static Logger logger=LoggerFactory.get(TopicQueue.class);
+	//
 	protected String id;
 	protected String type;
 	protected LongAdder publishCount;
@@ -68,13 +73,13 @@ public abstract class TopicQueue {
 	 * @param obj
 	 */
 	public void publish(Object obj){
-		publishCount.add(1);
 		if(obj==null){
 			throw new NullPointerException("publish message can not be null");
 		}
 		if(topicSubscribers.isEmpty()){
 			throw new IllegalArgumentException("no topic subscriber");
 		}
+		publishCount.add(1);
 	}
 	/**
 	 * 
@@ -108,7 +113,9 @@ public abstract class TopicQueue {
 		List<String>removedKeys=new LinkedList<>();
 		for(Entry<String,Long>e:rejectSet.entrySet()){
 			if((now-e.getValue())>accpetRejectExpiredTime){
-				removedKeys.add(e.getKey());
+				String uuid=e.getKey();
+				removedKeys.add(uuid);
+				logger.warn("bad message id {} {}",id,uuid);
 			}
 		}
 		//

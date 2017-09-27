@@ -28,6 +28,8 @@ public class IndexFile implements Comparable<IndexFile>{
 	//
 	DataFile dataFile;
 	//
+	int removedCount=0;
+	//
 	public IndexFile(String file,int capacity){
 		indexFile=new File(file);
 		this.capacity=capacity;	
@@ -138,16 +140,15 @@ public class IndexFile implements Comparable<IndexFile>{
 		return capacity-size;
 	}
 	//
-	public boolean addItem(IndexFileItem item){
+	public void addItem(IndexFileItem item){
 		if(size>=capacity){
-			return false;
+			throw new IllegalArgumentException("index file full "+capacity);
 		}
 		int writeOffset=size*IndexFileItem.FILE_ITEM_SIZE;
 		buffer.position(writeOffset);
 		buffer.mark();
 		buffer.put(IndexFileItem.get(item));
 		size++;
-		return true;
 	}
 	//
 	public IndexFileItem getItem(int index){
