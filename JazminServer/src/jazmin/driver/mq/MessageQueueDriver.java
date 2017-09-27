@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import jazmin.core.Driver;
 import jazmin.core.Jazmin;
+import jazmin.core.Registerable;
 import jazmin.core.monitor.Monitor;
 import jazmin.core.monitor.MonitorAgent;
 import jazmin.core.thread.Dispatcher;
@@ -28,7 +29,7 @@ import jazmin.server.console.ConsoleServer;
  * @author yama
  *
  */
-public class MessageQueueDriver extends Driver{
+public class MessageQueueDriver extends Driver implements Registerable{
 	//
 	private static Logger logger=LoggerFactory.get(MessageQueueDriver.class);
 	//
@@ -95,11 +96,9 @@ public class MessageQueueDriver extends Driver{
 	List<TopicSubscriber>getTopicSubscribers(){
 		return new ArrayList<TopicSubscriber>(subscribers.values());
 	}
-	/**
-	 * 
-	 * @param object
-	 */
-	public void subscribe(Object object){
+	//
+	@Override
+	public void register(Object object) {
 		if(isStarted()){
 			throw new IllegalStateException("register before started.");
 		}
@@ -142,6 +141,7 @@ public class MessageQueueDriver extends Driver{
 			logger.info("resister subscribe {} topic:{}",l.id,l.topic);
 		}
 	}
+	//
 	//
 	private TopicQueue getQueue(String topic){
 		TopicQueue queue=topicQueues.get(topic);

@@ -332,6 +332,9 @@ public class Jazmin {
 		return new ArrayList<Server>(servers.values());
 	}
 	//
+	public static List<Lifecycle>getLifecycles(){
+		return new ArrayList<>(lifecycles);
+	}
 	// --------------------------------------------------------------------------
 	//task
 	/**

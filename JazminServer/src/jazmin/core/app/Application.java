@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import jazmin.core.Driver;
 import jazmin.core.Jazmin;
 import jazmin.core.Lifecycle;
+import jazmin.core.Registerable;
 import jazmin.core.Server;
 import jazmin.core.app.AutoWiredObject.AutoWiredField;
 import jazmin.log.Logger;
@@ -49,6 +50,17 @@ public class Application extends Lifecycle {
 		T instance =(T) ao.instance;
 		return instance;
 	} 
+	//
+	public void register(){
+		for(Lifecycle lc:Jazmin.getLifecycles()){
+			for(AutoWiredObject obj :getAutoWiredObjects()){
+				if(lc instanceof Registerable){
+					((Registerable) lc).register(obj.instance);
+				}
+			}	
+		}
+	}
+	// 
 	/**
 	 * create auto wired object
 	 * @param clazz the auto wired object class
@@ -57,6 +69,9 @@ public class Application extends Lifecycle {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T createWired(Class<T>clazz)throws Exception{
+		if(autoWiredMap.containsKey(clazz)){
+			return (T) autoWiredMap.get(clazz).instance;
+		}
 		T instance =clazz.newInstance();
 		AutoWiredObject autoWiredObject=new AutoWiredObject();
 		autoWiredObject.clazz=clazz;

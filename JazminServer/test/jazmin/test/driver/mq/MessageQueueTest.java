@@ -26,7 +26,7 @@ public class MessageQueueTest {
 		//
 		mq.createTopic("test1",MessageQueueDriver.TOPIC_QUEUE_TYPE_FILE);
 		//mq.createTopic("test1",MessageQueueDriver.TOPIC_QUEUE_TYPE_MEMORY);
-		mq.subscribe(new SimpleSubscriber());
+		mq.register(new SimpleSubscriber());
 		//
 		Jazmin.start();
 		/*for(int i=0;i<1000;i++){

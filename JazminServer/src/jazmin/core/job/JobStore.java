@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 import jazmin.core.Jazmin;
 import jazmin.core.Lifecycle;
+import jazmin.core.Registerable;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
@@ -22,13 +23,19 @@ import jazmin.misc.InfoBuilder;
  * @author yama
  * 25 Dec, 2014
  */
-public class JobStore extends Lifecycle{
+public class JobStore extends Lifecycle implements Registerable{
 	private static Logger logger=LoggerFactory.get(JobStore.class);
 	//
 	private Map<String, JazminJob>jobMap;
 	public JobStore() {
 		jobMap=new ConcurrentHashMap<String, JazminJob>();
 	}
+	//
+	@Override
+	public void register(Object object) {
+		registerJob(object);
+	}
+	//
 	/**
 	 * register new job
 	 */

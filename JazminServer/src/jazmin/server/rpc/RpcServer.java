@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
 
 import jazmin.core.Jazmin;
+import jazmin.core.Registerable;
 import jazmin.core.Server;
 import jazmin.core.app.AppException;
 import jazmin.core.monitor.Monitor;
@@ -52,7 +53,7 @@ import jazmin.server.rpc.codec.zjson.CompressedJSONEncoder;
  * @author yama
  * 23 Dec, 2014
  */
-public class RpcServer extends Server{
+public class RpcServer extends Server implements Registerable{
 	private static Logger logger=LoggerFactory.get(RpcServer.class);
 	//
 	private int port=6001;
@@ -99,6 +100,13 @@ public class RpcServer extends Server{
 		privateKeyPhrase="";
 	}
 	//--------------------------------------------------------------------------
+	@Override
+	public void register(Object object) {
+		Class<?>implClass=object.getClass();
+		if(implClass.getAnnotation(RpcService.class)!=null){
+			registerService(object);
+		}
+	}
 	//instance
 	/**
 	 * register remote service,remote service object must have an interface of 
