@@ -16,7 +16,7 @@ import jazmin.log.LoggerFactory;
  * @author yama
  *
  */
-public class IndexFile {
+public class IndexFile implements Comparable<IndexFile>{
 	private static Logger logger=LoggerFactory.get(IndexFile.class);
 	//
 	int index;
@@ -172,6 +172,11 @@ public class IndexFile {
 		buffer.mark();
 		buffer.putLong(time);
 		buffer.putShort(times);
+	}
+	//
+	@Override
+	public int compareTo(IndexFile o) {
+		return this.index-o.index;
 	}
 	
 }

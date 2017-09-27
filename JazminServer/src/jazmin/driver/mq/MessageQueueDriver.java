@@ -224,6 +224,11 @@ public class MessageQueueDriver extends Driver{
 	//
 	private void sendMessage(String topic,Message message){
 		TopicSubscriber subscriber=subscribers.get(topic+"-"+message.subscriber);
+		if(subscriber==null){
+			logger.warn("drop message {} {} ",topic+"-"+message.subscriber,message.id);
+			accept(topic, message.id);
+			return;
+		}
 		subscriber.sentCount++;
 		subscriber.lastSentTime=System.currentTimeMillis();
 		MessageEvent event=new MessageEvent();
@@ -238,6 +243,19 @@ public class MessageQueueDriver extends Driver{
 				subscriber.method, Dispatcher.EMPTY_CALLBACK,
 				event);
 	}
+	//
+	private void checkSet(){
+		while(true){
+			try {
+				Thread.sleep(1000*10);
+				for(Entry<String,TopicQueue>e : topicQueues.entrySet()){
+					e.getValue().checkSet();
+				}
+			} catch (Exception e1) {
+				logger.catching(e1);
+			}	
+		}
+	}
 	//--------------------------------------------------------------------------
 	@Override
 	public void start() throws Exception {
@@ -245,6 +263,10 @@ public class MessageQueueDriver extends Driver{
 		takeMessageThread=new Thread(this::takeMessage);
 		takeMessageThread.setName("MessageQueueDriverTakeThread");
 		takeMessageThread.start();
+		//
+		Thread checkSetThread=new Thread(this::checkSet);
+		checkSetThread.setName("MessageQueueDriverCheckThread");
+		checkSetThread.start();
 		//
 		topicQueues.forEach((k,v)->{
 			v.start();

@@ -38,11 +38,12 @@ public class MessageQueueTest {
 			}
 			
 		}*/
+		byte payload[]=new byte[1024];
 		Scanner sc=new Scanner(System.in);
 		while(true){
 			sc.nextInt();
-			for(int i=0;i<1;i++)
-			mq.publish("test1", "xxxaddddddddddddddddddddddddx".getBytes());
+			for(int i=0;i<10000;i++)
+			mq.publish("test1", payload);
 		}
 		
 		

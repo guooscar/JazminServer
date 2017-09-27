@@ -5,7 +5,6 @@ package jazmin.driver.mq.file;
 
 import java.io.File;
 import java.util.LinkedList;
-import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
@@ -27,23 +26,19 @@ public class FileTopicQueue extends TopicQueue{
 	private String workDir;
 	private int indexFileCapacity;
 	File workDirFile;
-	private Object lockObject=new Object();
-	LinkedList<IndexFile>indexFiles;
+	
+	LinkedList<IndexFile>indexSegmentFiles;
 	private int currentIndex=0;
+	
 	//
-	private Set<String>acceptSet;
-	private Set<String>rejectSet;
 	//
 	public FileTopicQueue(String id) {
 		super(id, MessageQueueDriver.TOPIC_QUEUE_TYPE_FILE);
 		maxTtl=1000*60*60;//1 hour
 		indexFileCapacity=10000*10;
 		redelieverInterval=1000*5;//5 seconds redeliever 
-		
 		topicSubscribers=new TreeSet<>();
-		indexFiles=new LinkedList<IndexFile>();
-		acceptSet=new TreeSet<String>();
-		rejectSet=new TreeSet<String>();
+		indexSegmentFiles=new LinkedList<IndexFile>();
 	}
 	//
 	@Override
@@ -66,7 +61,7 @@ public class FileTopicQueue extends TopicQueue{
 			logger.info("load index file:{}",f.getAbsoluteFile());
 			IndexFile file=IndexFile.get(f.getAbsolutePath(),indexFileCapacity);
 			if(file!=null){
-				indexFiles.add(file);
+				indexSegmentFiles.add(file);
 			}
 		}
 	}
@@ -86,9 +81,9 @@ public class FileTopicQueue extends TopicQueue{
 	//
 	@Override
 	public int length() {
-		synchronized (indexFiles) {
+		synchronized (indexSegmentFiles) {
 			int total=0;
-			for(IndexFile file:indexFiles){
+			for(IndexFile file:indexSegmentFiles){
 				total+=file.size();
 			}
 			return total;
@@ -100,12 +95,12 @@ public class FileTopicQueue extends TopicQueue{
 		super.publish(obj);
 		//
 		IndexFile currentIndexFile;
-		synchronized (indexFiles) {
-			if(indexFiles.isEmpty()){
+		synchronized (indexSegmentFiles) {
+			if(indexSegmentFiles.isEmpty()){
 				currentIndexFile=newIndexFile(0);
-				indexFiles.add(currentIndexFile);
+				indexSegmentFiles.add(currentIndexFile);
 			}else{
-				currentIndexFile=indexFiles.getLast();
+				currentIndexFile=indexSegmentFiles.getLast();
 			}
 		}
 		//
@@ -118,7 +113,7 @@ public class FileTopicQueue extends TopicQueue{
 					//full add new index
 					int nextIndex=(currentIndexFile.index+1);
 					currentIndexFile=newIndexFile(nextIndex);
-					indexFiles.add(currentIndexFile);
+					indexSegmentFiles.add(currentIndexFile);
 					//new file save data
 					currentOffset=currentIndexFile.dataFile.append(item);
 				}
@@ -164,22 +159,22 @@ public class FileTopicQueue extends TopicQueue{
 	//
 	@Override
 	public Message take() {
-		synchronized (indexFiles) {
-			if(indexFiles.isEmpty()){
+		synchronized (indexSegmentFiles) {
+			if(indexSegmentFiles.isEmpty()){
 				return null;
 			}
 			Message retMessage=null;
-			IndexFile indexFile=indexFiles.getFirst();
+			IndexFile indexFile=indexSegmentFiles.getFirst();
 			synchronized (lockObject) {
 				IndexFileItem item=indexFile.getItem(currentIndex);
 				//System.err.println("take"+DumpUtil.dump(item));
 				//
-				if(acceptSet.contains(item.uuid)){
+				if(acceptSet.containsKey(item.uuid)){
 					item.flag=IndexFileItem.FLAG_ACCEPTED;
 					indexFile.updateFlag(currentIndex, item.flag);
 					acceptSet.remove(item.uuid);
 				}
-				if(rejectSet.contains(item.uuid)){
+				if(rejectSet.containsKey(item.uuid)){
 					item.flag=IndexFileItem.FLAG_REJECTED;
 					indexFile.updateFlag(currentIndex, item.flag);
 					rejectSet.remove(item.uuid);
@@ -225,7 +220,7 @@ public class FileTopicQueue extends TopicQueue{
 				currentIndex++;
 				if(currentIndex>=indexFileCapacity){
 					currentIndex=0;
-					indexFiles.add(indexFiles.removeFirst());
+					indexSegmentFiles.add(indexSegmentFiles.removeFirst());
 				}
 				//
 				if(retMessage==null){
@@ -248,19 +243,6 @@ public class FileTopicQueue extends TopicQueue{
 		message.payload=data.payload;
 		message.delieverTimes=item.delieverTimes;
 		return message;
-	}
-	//
-	//
-	public void reject(String id){
-		synchronized (lockObject) {
-			rejectSet.add(id);
-		}
-	}
-	//
-	public void accept(String id){
-		synchronized (lockObject) {
-			acceptSet.add(id);
-		}
 	}
 
 }

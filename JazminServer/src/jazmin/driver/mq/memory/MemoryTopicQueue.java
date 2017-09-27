@@ -1,9 +1,8 @@
 package jazmin.driver.mq.memory;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,8 +26,6 @@ public class MemoryTopicQueue extends TopicQueue{
 	private long redelieverInterval;
 	private LinkedList<TopicMessage>topicQueue;
 	//
-	private Set<String>acceptSet;
-	private Set<String>rejectSet;
 	//
 	//
 	public MemoryTopicQueue(String id) {
@@ -39,13 +36,13 @@ public class MemoryTopicQueue extends TopicQueue{
 		payloadMap=new ConcurrentHashMap<>();
 		topicQueue=new LinkedList<>();
 		//
-		acceptSet=new TreeSet<String>();
-		rejectSet=new TreeSet<String>();
+		acceptSet=new HashMap<>();
+		rejectSet=new HashMap<>();
 	}
 
 	//
 	public int length(){
-		synchronized (topicQueue) {
+		synchronized (lockObject) {
 			return topicQueue.size();
 		}
 	}
@@ -68,21 +65,21 @@ public class MemoryTopicQueue extends TopicQueue{
 			m.id=UUID.randomUUID().toString();
 			m.payloadId=payload.id;
 			m.subscriber=s;
-			synchronized (topicQueue) {
+			synchronized (lockObject) {
 				topicQueue.add(m);
 			}
 		});
 	}
 	//
 	public Message take(){
-		synchronized (topicQueue) {
+		synchronized (lockObject) {
 			if(topicQueue.isEmpty()){
 				return null;
 			}
 			
 			TopicMessage message=topicQueue.getFirst();
 			MessagePayload payload=payloadMap.get(message.payloadId);
-			if(acceptSet.contains(message.id)){
+			if(acceptSet.containsKey(message.id)){
 				payload.subscriberCount--;
 				if(payload.subscriberCount<=0){
 					payloadMap.remove(payload.id);
@@ -92,7 +89,7 @@ public class MemoryTopicQueue extends TopicQueue{
 				return MessageQueueDriver.takeNext;
 			}
 			//
-			if(rejectSet.contains(message.id)){
+			if(rejectSet.containsKey(message.id)){
 				message.lastDeliverTime=System.currentTimeMillis();
 				rejectSet.remove(message.id);
 				topicQueue.add(topicQueue.removeFirst());//move to last
@@ -128,18 +125,6 @@ public class MemoryTopicQueue extends TopicQueue{
 			return msg;
 		}
 	}
-	//
-	public void reject(String id){
-		synchronized (topicQueue) {
-			rejectSet.add(id);
-		}
-	}
-	//
-	public void accept(String id){
-		synchronized (topicQueue) {
-			acceptSet.add(id);
-		}
-	}
-
+	
 	
 }
