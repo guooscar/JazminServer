@@ -27,9 +27,12 @@ public abstract class TopicQueue {
 	protected String type;
 	protected LongAdder publishCount;
 	protected Set<Short> topicSubscribers;
-	protected Map<String,Long>acceptSet;
-	protected Map<String,Long>rejectSet;
+	protected Map<Long,Long>acceptSet;
+	protected Map<Long,Long>rejectSet;
 	protected Object lockObject=new Object();
+	protected LongAdder delieverCount;
+	protected LongAdder acceptCount;
+	protected LongAdder rejectCount;
 	//
 	protected long accpetRejectExpiredTime=1000*60*10;
 	//
@@ -38,6 +41,9 @@ public abstract class TopicQueue {
 		this.type=type;
 		topicSubscribers=new TreeSet<>();
 		publishCount=new LongAdder();
+		delieverCount=new LongAdder();
+		acceptCount=new LongAdder();
+		rejectCount=new LongAdder();
 		acceptSet=new HashMap<>();
 		rejectSet=new HashMap<>();
 	}
@@ -48,6 +54,18 @@ public abstract class TopicQueue {
 	//
 	public String getType() {
 		return type;
+	}
+	//
+	public long getDelieverCount(){
+		return delieverCount.longValue();
+	}
+	//
+	public long getRejectCount(){
+		return rejectCount.longValue();
+	}
+	//
+	public long getAcceptCount(){
+		return acceptCount.longValue();
 	}
 	//
 	public void start(){
@@ -89,13 +107,13 @@ public abstract class TopicQueue {
 	public abstract Message take();
 	//
 	//
-	public void reject(String id){
+	public void reject(long id){
 		synchronized (lockObject) {
 			rejectSet.put(id, System.currentTimeMillis());
 		}
 	}
 	//
-	public void accept(String id){
+	public void accept(long id){
 		synchronized (lockObject) {
 			acceptSet.put(id, System.currentTimeMillis());
 		}
@@ -108,12 +126,12 @@ public abstract class TopicQueue {
 		}
 	}
 	//
-	void checkMap(Map<String,Long>map){
+	void checkMap(Map<Long,Long>map){
 		long now=System.currentTimeMillis();
-		List<String>removedKeys=new LinkedList<>();
-		for(Entry<String,Long>e:rejectSet.entrySet()){
+		List<Long>removedKeys=new LinkedList<>();
+		for(Entry<Long,Long>e:rejectSet.entrySet()){
 			if((now-e.getValue())>accpetRejectExpiredTime){
-				String uuid=e.getKey();
+				long uuid=e.getKey();
 				removedKeys.add(uuid);
 				logger.warn("bad message id {} {}",id,uuid);
 			}

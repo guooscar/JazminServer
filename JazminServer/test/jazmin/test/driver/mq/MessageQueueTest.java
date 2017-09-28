@@ -42,7 +42,7 @@ public class MessageQueueTest {
 		Scanner sc=new Scanner(System.in);
 		while(true){
 			sc.nextInt();
-			for(int i=0;i<2;i++)
+			for(int i=0;i<9;i++)
 			mq.publish("test1", payload);
 		}
 		

@@ -14,7 +14,7 @@ public class SimpleSubscriber {
 	//
 	@TopicSubscriberDefine(topic="test1",name=2)
 	public void test1(MessageEvent e){
-		System.err.println("test1:"+e.message.delieverTimes+"-"+e.message.payload);
+		System.err.println("test1:"+e.message.id+"--"+e.message.delieverTimes+"-");
 		e.messageQueueDriver.accept("test1",e.message.id);
 	}
 	

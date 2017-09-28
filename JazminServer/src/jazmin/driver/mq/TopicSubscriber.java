@@ -15,8 +15,6 @@ public class TopicSubscriber {
 	public Object instance;
 	public Method method;
 	//
-	public TopicSubscriberType type;
-	//
-	public long sentCount;
-	public long lastSentTime;
+	public long delieverCount;
+	public long lastDelieverTime;
 }

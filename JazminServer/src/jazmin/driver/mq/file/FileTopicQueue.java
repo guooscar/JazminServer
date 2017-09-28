@@ -6,7 +6,6 @@ package jazmin.driver.mq.file;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.TreeSet;
-import java.util.UUID;
 
 import jazmin.driver.mq.Message;
 import jazmin.driver.mq.MessageQueueDriver;
@@ -109,7 +108,7 @@ public class FileTopicQueue extends TopicQueue{
 			DataItem item=getDataItem(obj);
 			long currentOffset=0;
 			for(short subscriber :topicSubscribers){
-				if(currentIndexFile.space()==0){
+				if(currentIndexFile.space()<=0){
 					currentIndexFile.flush();
 					//full add new index
 					int nextIndex=(currentIndexFile.index+1);
@@ -127,7 +126,6 @@ public class FileTopicQueue extends TopicQueue{
 				idxItem.flag=IndexFileItem.FLAG_READY;
 				idxItem.magic=IndexFileItem.MAGIC;
 				idxItem.subscriber=subscriber;
-				idxItem.uuid=UUID.randomUUID().toString().replace("-","");
 				currentIndexFile.addItem(idxItem);
 			}
 		}
@@ -143,7 +141,6 @@ public class FileTopicQueue extends TopicQueue{
 	//
 	private DataItem getDataItem(Object obj){
 		DataItem item=new DataItem();
-		item.payloadType=DataItem.PAYLOAD_TYPE_JSON;
 		if(!(obj instanceof byte[])){
 			throw new IllegalArgumentException("payload type must be byte[]");
 		}

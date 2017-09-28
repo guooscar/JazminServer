@@ -11,13 +11,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 
 import jazmin.core.Driver;
 import jazmin.core.Jazmin;
 import jazmin.core.Registerable;
 import jazmin.core.monitor.Monitor;
 import jazmin.core.monitor.MonitorAgent;
-import jazmin.core.thread.Dispatcher;
+import jazmin.core.thread.DispatcherCallbackAdapter;
 import jazmin.driver.mq.file.FileTopicQueue;
 import jazmin.driver.mq.memory.MemoryTopicQueue;
 import jazmin.log.Logger;
@@ -43,15 +45,27 @@ public class MessageQueueDriver extends Driver implements Registerable{
 	Thread takeMessageThread;
 	boolean stopTakeThread=false;
 	String workDir;
+	private int maxDelieverWorker;
+	private Semaphore workerSemaphore;
 	//
 	private Object lockObject=new Object();
 	//
 	public MessageQueueDriver() {
 		topicQueues=new ConcurrentHashMap<>();
 		subscribers=new ConcurrentHashMap<>();
+		maxDelieverWorker=5;
 		workDir="./jazmin_mq_work";
+		workerSemaphore=new Semaphore(maxDelieverWorker);
 	}
-
+	//
+	public void setMaxDelieverWorker(int count){
+		maxDelieverWorker=count;
+		workerSemaphore=new Semaphore(maxDelieverWorker);
+	}
+	//
+	public int getMaxDelieverWorker(){
+		return maxDelieverWorker;
+	}
 	//
 	public void createTopic(String name,String type){
 		if(topicQueues.containsKey(name)){
@@ -131,7 +145,6 @@ public class MessageQueueDriver extends Driver implements Registerable{
 			l.id=td.name();
 			l.method=m;
 			l.topic=td.topic();
-			l.type=td.type();
 			l.instance=object;
 			if(subscribers.containsKey(l.topic+"-"+l.id)){
 				throw new IllegalArgumentException("subscriber already exists with name:"+l.id+" on topic:"+l.topic);
@@ -156,13 +169,17 @@ public class MessageQueueDriver extends Driver implements Registerable{
 		notifyTake();
 	}
 	//
-	public void accept(String topic,String messageId){
-		getQueue(topic).accept(messageId);
+	public void accept(String topic,long messageId){
+		TopicQueue queue=getQueue(topic);
+		queue.accept(messageId);
+		queue.acceptCount.increment();
 		notifyTake();
 	}
 	//
-	public void reject(String topic,String messageId){
-		getQueue(topic).reject(messageId);
+	public void reject(String topic,long messageId){
+		TopicQueue queue=getQueue(topic);
+		queue.reject(messageId);
+		queue.rejectCount.increment();
 		notifyTake();
 	}
 	//
@@ -175,28 +192,11 @@ public class MessageQueueDriver extends Driver implements Registerable{
 	private void waitTake(){
 		synchronized (lockObject) {
 			try {
-				lockObject.wait(1000*10);//wait for 10 seconds
+				lockObject.wait(10);//wait for 1 seconds
 			} catch (InterruptedException e) {
 				logger.catching(e);
 			}
 		}
-	}
-	/**
-	 * pull message
-	 * @return
-	 */
-	public Message pullMessage(String topic,short subscriber){
-		Message msg=null;
-		TopicQueue queue=topicQueues.get(topic);
-		if(queue==null){
-			throw new IllegalArgumentException("can not find topic queue:"+topic);
-		}
-		TopicSubscriber sub=subscribers.get(topic+"-"+subscriber);
-		if(sub.type!=TopicSubscriberType.pull){
-			throw new IllegalArgumentException("only pull subscriber can perform this action");
-		}
-		
-		return msg;
 	}
 	//
 	private void takeMessage(){
@@ -208,7 +208,7 @@ public class MessageQueueDriver extends Driver implements Registerable{
 					messageCount++;
 					if(message!=takeNext){
 						try{
-							sendMessage(e.getKey(),message);
+							delieverMessage(e.getKey(),message);
 						}catch (Exception ee) {
 							logger.catching(ee);
 						}
@@ -222,25 +222,33 @@ public class MessageQueueDriver extends Driver implements Registerable{
 		}
 	}
 	//
-	private void sendMessage(String topic,Message message){
+	private void delieverMessage(String topic,Message message){
+		/*try {
+			workerSemaphore.acquire();
+		} catch (InterruptedException e) {
+			logger.catching(e);
+		}*/
 		TopicSubscriber subscriber=subscribers.get(topic+"-"+message.subscriber);
 		if(subscriber==null){
 			logger.warn("drop message {} {} ",topic+"-"+message.subscriber,message.id);
 			accept(topic, message.id);
 			return;
 		}
-		subscriber.sentCount++;
-		subscriber.lastSentTime=System.currentTimeMillis();
+		subscriber.delieverCount++;
+		subscriber.lastDelieverTime=System.currentTimeMillis();
+		TopicQueue queue=getQueue(topic);
+		queue.delieverCount.increment();
 		MessageEvent event=new MessageEvent();
-		if(subscriber.type==TopicSubscriberType.push){
-			//push mode
-			event.message=message;
-		}
+		event.message=message;
 		event.messageQueueDriver=this;
+		//
+		DelieverWorkCallback callback=new DelieverWorkCallback();
+		callback.driver=this;
 		Jazmin.dispatcher.invokeInPool(
 				"MessageQueueDriver",
 				subscriber.instance,
-				subscriber.method, Dispatcher.EMPTY_CALLBACK,
+				subscriber.method, 
+				callback,
 				event);
 	}
 	//
@@ -289,6 +297,7 @@ public class MessageQueueDriver extends Driver implements Registerable{
 		InfoBuilder ib=InfoBuilder.create();
 		ib.section("info").format("%-30s:%-30s\n");
 		ib.print("workDir",workDir);
+		ib.print("maxDelieverWorker",maxDelieverWorker);
 		
 		ib.section("topicQueues").format("%-30s:%-30s\n");
 		topicQueues.forEach((k,v)->{
@@ -301,6 +310,16 @@ public class MessageQueueDriver extends Driver implements Registerable{
 		return ib.toString();
 	}
 	//
+	//--------------------------------------------------------------------------
+	private static class DelieverWorkCallback extends DispatcherCallbackAdapter{
+		MessageQueueDriver driver;
+		@Override
+		public void end(Object instance, Method method, Object[] args, Object ret, Throwable e) {
+			//driver.workerSemaphore.release();
+		}
+		
+	}
+	
 	//--------------------------------------------------------------------------
 	//
 	private class MessageQueueDriverMonitorAgent implements MonitorAgent{

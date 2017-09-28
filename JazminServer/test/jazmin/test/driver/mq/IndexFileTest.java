@@ -3,8 +3,6 @@
  */
 package jazmin.test.driver.mq;
 
-import java.util.UUID;
-
 import jazmin.driver.mq.file.IndexFile;
 import jazmin.driver.mq.file.IndexFileItem;
 
@@ -22,7 +20,7 @@ public class IndexFileTest {
 		file.open();
 		//
 		IndexFileItem item=new IndexFileItem();
-		item.uuid=UUID.randomUUID().toString().replaceAll("-", "");
+		item.uuid=1;
 		item.dataOffset=1;
 		file.addItem(item);
 		file.close();

@@ -8,7 +8,7 @@ package jazmin.driver.mq;
  *
  */
 public class Message {
-	public String id;
+	public long id;
 	public short subscriber;
 	public Object payload;
 	public int delieverTimes;

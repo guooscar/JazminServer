@@ -25,9 +25,4 @@ public @interface TopicSubscriberDefine{
 	 * name of topic 
 	 */
 	String topic();
-	/**
-	 * type of subscriber
-	 * @return
-	 */
-	TopicSubscriberType type() default TopicSubscriberType.push;
 }

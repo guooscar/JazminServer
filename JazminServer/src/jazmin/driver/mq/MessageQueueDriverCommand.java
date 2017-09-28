@@ -81,18 +81,21 @@ public class MessageQueueDriverCommand extends ConsoleCommand {
 
 	//
     private void showQueue(String args){
-    	String format="%-5s : %-20s %-20s %-10s %-10s\n";
+    	String format="%-5s : %-20s %-20s %-10s %-10s %-10s %-10s %-10s\n";
 		int i=1;
 		List<TopicQueue>queues=messageQueueDriver.getTopicQueues();
 		out.println("total "+queues.size()+" queues");
 		//
-		out.format(format,"#","ID","TYPE","LENGTH","PUBLISHCOUNT");	
+		out.format(format,"#","ID","TYPE","LENGTH","PUBLISH","ACCEPT","REJECT","DELIEVER");	
 		for(TopicQueue q:queues){
 			out.format(format,i++,
 					q.getId(),
 					q.getType(),
 					q.length(),
-					q.getPublishCount());
+					q.getPublishCount(),
+					q.getAcceptCount(),
+					q.getRejectCount(),
+					q.getDelieverCount());
 		};
     }
     //
@@ -104,14 +107,14 @@ public class MessageQueueDriverCommand extends ConsoleCommand {
 		List<TopicSubscriber>queues=messageQueueDriver.getTopicSubscribers();
 		out.println("total "+queues.size()+" subscriber");
 		//
-		out.format(format,"#","ID","TOPIC","SENTCOUNT","LASTSENTTIME");	
+		out.format(format,"#","ID","TOPIC","DELIEVER-COUNT","LAST-DELIEVER");	
 		SimpleDateFormat sdf=new SimpleDateFormat("MM-dd HH:mm:ss");
 		for(TopicSubscriber q:queues){
 			out.format(format,i++,
 					q.id,
 					q.topic,
-					q.sentCount,
-					sdf.format(new Date(q.lastSentTime)));
+					q.delieverCount,
+					sdf.format(new Date(q.lastDelieverTime)));
 		};
     }
     

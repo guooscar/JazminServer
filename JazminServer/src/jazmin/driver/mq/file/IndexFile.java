@@ -73,6 +73,13 @@ public class IndexFile implements Comparable<IndexFile>{
 			} catch (IOException e) {
 				throw new IllegalArgumentException("can not create index file:"+indexFile.getAbsolutePath(),e);
 			}
+		}else{
+			long fileLength=indexFile.length();
+			long expectLength=IndexFileItem.FILE_ITEM_SIZE*capacity;
+			if(fileLength!=IndexFileItem.FILE_ITEM_SIZE*capacity){
+				throw new IllegalArgumentException(
+						"index file length should be "+expectLength+" but "+fileLength+" "+indexFile);
+			}
 		}
 		try{
 			channel=FileChannel.open(indexFile.toPath(),StandardOpenOption.READ,StandardOpenOption.WRITE);
@@ -144,6 +151,8 @@ public class IndexFile implements Comparable<IndexFile>{
 		if(size>=capacity){
 			throw new IllegalArgumentException("index file full "+capacity);
 		}
+		long temp=index;
+		item.uuid=temp<<32|size;
 		int writeOffset=size*IndexFileItem.FILE_ITEM_SIZE;
 		buffer.position(writeOffset);
 		buffer.mark();
@@ -162,14 +171,14 @@ public class IndexFile implements Comparable<IndexFile>{
 	//
 	public void updateFlag(int index,byte flag){
 		int position=index*IndexFileItem.FILE_ITEM_SIZE;
-		buffer.position(position+1+32+8+2);
+		buffer.position(position+1+8+8+2);
 		buffer.mark();
 		buffer.put(flag);
 	}
 	//
 	public void updateLastDelieverTime(int index,long time,short times){
 		int position=index*IndexFileItem.FILE_ITEM_SIZE;
-		buffer.position(position+1+32+8+2+1);
+		buffer.position(position+1+8+8+2+1);
 		buffer.mark();
 		buffer.putLong(time);
 		buffer.putShort(times);

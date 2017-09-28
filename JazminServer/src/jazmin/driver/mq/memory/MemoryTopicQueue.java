@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.ning.http.client.providers.netty.chmv8.LongAdder;
+
 import jazmin.driver.mq.Message;
 import jazmin.driver.mq.MessageQueueDriver;
 import jazmin.driver.mq.TopicQueue;
@@ -25,6 +27,7 @@ public class MemoryTopicQueue extends TopicQueue{
 	private long maxTtl;
 	private long redelieverInterval;
 	private LinkedList<TopicMessage>topicQueue;
+	private LongAdder messageId;
 	//
 	//
 	//
@@ -35,6 +38,7 @@ public class MemoryTopicQueue extends TopicQueue{
 		redelieverInterval=1000*5;//5 seconds redeliever 
 		payloadMap=new ConcurrentHashMap<>();
 		topicQueue=new LinkedList<>();
+		messageId=new LongAdder();
 		//
 		acceptSet=new HashMap<>();
 		rejectSet=new HashMap<>();
@@ -117,7 +121,8 @@ public class MemoryTopicQueue extends TopicQueue{
 			message.lastDeliverTime=System.currentTimeMillis();
 			//
 			Message msg=new Message();
-			msg.id=message.id;
+			messageId.increment();
+			msg.id=messageId.longValue();
 			msg.delieverTimes=message.deliverTimes;
 			msg.payload=payload.payload;
 			msg.subscriber=message.subscriber;
