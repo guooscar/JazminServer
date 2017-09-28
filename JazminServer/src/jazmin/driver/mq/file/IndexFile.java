@@ -35,6 +35,14 @@ public class IndexFile implements Comparable<IndexFile>{
 		this.capacity=capacity;	
 	}
 	//
+	public int getRemovedCount(){
+		return removedCount;
+	}
+	//
+	public File getIndexFile(){
+		return indexFile;
+	}
+	//
 	public static IndexFile get(String file,int capacity){
 		int index=getFileIndex(file);
 		if(index==-1){
@@ -103,6 +111,7 @@ public class IndexFile implements Comparable<IndexFile>{
 		}catch (IOException e) {
 			logger.catching(e);
 		}
+		logger.info("close index file {}",indexFile);
 		dataFile.close();
 	}
 	//

@@ -3,36 +3,30 @@
  */
 package jazmin.driver.mq;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.LongAdder;
 
-import jazmin.log.Logger;
-import jazmin.log.LoggerFactory;
-
-import com.ning.http.client.providers.netty.chmv8.LongAdder;
 
 /**
  * @author yama
  *
  */
 public abstract class TopicQueue {
-	private static Logger logger=LoggerFactory.get(TopicQueue.class);
 	//
 	protected String id;
 	protected String type;
 	protected LongAdder publishCount;
 	protected Set<Short> topicSubscribers;
-	protected Map<Long,Long>acceptSet;
-	protected Map<Long,Long>rejectSet;
+	
 	protected Object lockObject=new Object();
 	protected LongAdder delieverCount;
 	protected LongAdder acceptCount;
 	protected LongAdder rejectCount;
+	protected LongAdder expriedCount;
+	protected long maxTtl;
+	protected long redelieverInterval;
+	
 	//
 	protected long accpetRejectExpiredTime=1000*60*10;
 	//
@@ -44,8 +38,29 @@ public abstract class TopicQueue {
 		delieverCount=new LongAdder();
 		acceptCount=new LongAdder();
 		rejectCount=new LongAdder();
-		acceptSet=new HashMap<>();
-		rejectSet=new HashMap<>();
+		expriedCount=new LongAdder();
+		
+	}
+	public long getRedelieverInterval() {
+		return redelieverInterval;
+	}
+
+	public void setRedelieverInterval(long redelieverInterval) {
+		if(redelieverInterval<=0){
+			throw new IllegalArgumentException("redelieverInterval should >0");
+		}
+		this.redelieverInterval = redelieverInterval;
+	}
+
+	public long getMaxTtl() {
+		return maxTtl;
+	}
+
+	public void setMaxTtl(long maxTtl) {
+		if(maxTtl<=0){
+			throw new IllegalArgumentException("maxTtl should >0");
+		}
+		this.maxTtl = maxTtl;
 	}
 	//
 	public String getId(){
@@ -56,22 +71,28 @@ public abstract class TopicQueue {
 		return type;
 	}
 	//
-	public long getDelieverCount(){
+	public long getDelieveredCount(){
 		return delieverCount.longValue();
 	}
 	//
-	public long getRejectCount(){
+	public long getRejectedCount(){
 		return rejectCount.longValue();
 	}
 	//
-	public long getAcceptCount(){
+	public long getAcceptedCount(){
 		return acceptCount.longValue();
+	}
+	//
+	public long getExpiredCount(){
+		return expriedCount.longValue();
 	}
 	//
 	public void start(){
 	}
+	public void stop(){
+	}
 	//
-	public long getPublishCount(){
+	public long getPublishedCount(){
 		return publishCount.longValue();
 	}
 	//
@@ -106,37 +127,8 @@ public abstract class TopicQueue {
 	 */
 	public abstract Message take();
 	//
+	public abstract void reject(long id);
+	public abstract void accept(long id);
+	protected void checkSet(){}
 	//
-	public void reject(long id){
-		synchronized (lockObject) {
-			rejectSet.put(id, System.currentTimeMillis());
-		}
-	}
-	//
-	public void accept(long id){
-		synchronized (lockObject) {
-			acceptSet.put(id, System.currentTimeMillis());
-		}
-	}
-	//
-	void checkSet(){
-		synchronized (lockObject) {
-			checkMap(acceptSet);
-			checkMap(rejectSet);
-		}
-	}
-	//
-	void checkMap(Map<Long,Long>map){
-		long now=System.currentTimeMillis();
-		List<Long>removedKeys=new LinkedList<>();
-		for(Entry<Long,Long>e:rejectSet.entrySet()){
-			if((now-e.getValue())>accpetRejectExpiredTime){
-				long uuid=e.getKey();
-				removedKeys.add(uuid);
-				logger.warn("bad message id {} {}",id,uuid);
-			}
-		}
-		//
-		removedKeys.forEach(s->{map.remove(s);});
-	}
 }

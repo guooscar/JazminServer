@@ -2,17 +2,19 @@ package jazmin.driver.mq.memory;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.ning.http.client.providers.netty.chmv8.LongAdder;
 
 import jazmin.driver.mq.Message;
 import jazmin.driver.mq.MessageQueueDriver;
 import jazmin.driver.mq.TopicQueue;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
+
+import com.ning.http.client.providers.netty.chmv8.LongAdder;
 
 /**
  * 
@@ -24,11 +26,11 @@ public class MemoryTopicQueue extends TopicQueue{
 	//
 	private int maxQueueSize;
 	private Map<String, MessagePayload>payloadMap;
-	private long maxTtl;
-	private long redelieverInterval;
 	private LinkedList<TopicMessage>topicQueue;
 	private LongAdder messageId;
 	//
+	protected Map<Long,Long>acceptSet;
+	protected Map<Long,Long>rejectSet;
 	//
 	//
 	public MemoryTopicQueue(String id) {
@@ -42,6 +44,7 @@ public class MemoryTopicQueue extends TopicQueue{
 		//
 		acceptSet=new HashMap<>();
 		rejectSet=new HashMap<>();
+		
 	}
 
 	//
@@ -130,6 +133,39 @@ public class MemoryTopicQueue extends TopicQueue{
 			return msg;
 		}
 	}
-	
+	//
+	//
+	public void reject(long id){
+		synchronized (lockObject) {
+			rejectSet.put(id, System.currentTimeMillis());
+		}
+	}
+	//
+	public void accept(long id){
+		synchronized (lockObject) {
+			acceptSet.put(id, System.currentTimeMillis());
+		}
+	}
+	protected void checkSet(){
+		synchronized (lockObject) {
+			checkMap(acceptSet);
+			checkMap(rejectSet);
+		}
+	}
+	//
+	void checkMap(Map<Long,Long>map){
+		long now=System.currentTimeMillis();
+		List<Long>removedKeys=new LinkedList<>();
+		for(Entry<Long,Long>e:rejectSet.entrySet()){
+			if((now-e.getValue())>accpetRejectExpiredTime){
+				long uuid=e.getKey();
+				removedKeys.add(uuid);
+				logger.warn("bad message id {} {}",id,uuid);
+			}
+		}
+		//
+		removedKeys.forEach(s->{map.remove(s);});
+	}
+
 	
 }

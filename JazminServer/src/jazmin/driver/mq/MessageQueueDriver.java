@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
 import jazmin.core.Driver;
@@ -67,19 +66,20 @@ public class MessageQueueDriver extends Driver implements Registerable{
 		return maxDelieverWorker;
 	}
 	//
-	public void createTopic(String name,String type){
+	public TopicQueue createTopicQueue(String name,String type){
 		if(topicQueues.containsKey(name)){
 			throw new IllegalArgumentException("topic queue already exists with name "+name);
 		}
 		if(type.equals(TOPIC_QUEUE_TYPE_MEMORY)){
-			topicQueues.put(name,new MemoryTopicQueue(name));
-			return;
+			MemoryTopicQueue queue=new MemoryTopicQueue(name);
+			topicQueues.put(name,queue);
+			return queue;
 		}
 		if(type.equals(TOPIC_QUEUE_TYPE_FILE)){
 			FileTopicQueue queue=new FileTopicQueue(name);
 			topicQueues.put(name,queue);
 			queue.setWorkDir(workDir);
-			return;
+			return queue;
 		}
 		throw new IllegalArgumentException("bad topic type:"+type);
 	}
@@ -146,6 +146,7 @@ public class MessageQueueDriver extends Driver implements Registerable{
 			l.method=m;
 			l.topic=td.topic();
 			l.instance=object;
+			
 			if(subscribers.containsKey(l.topic+"-"+l.id)){
 				throw new IllegalArgumentException("subscriber already exists with name:"+l.id+" on topic:"+l.topic);
 			}
@@ -223,11 +224,11 @@ public class MessageQueueDriver extends Driver implements Registerable{
 	}
 	//
 	private void delieverMessage(String topic,Message message){
-		/*try {
+		try {
 			workerSemaphore.acquire();
 		} catch (InterruptedException e) {
 			logger.catching(e);
-		}*/
+		}
 		TopicSubscriber subscriber=subscribers.get(topic+"-"+message.subscriber);
 		if(subscriber==null){
 			logger.warn("drop message {} {} ",topic+"-"+message.subscriber,message.id);
@@ -290,6 +291,9 @@ public class MessageQueueDriver extends Driver implements Registerable{
 	@Override
 	public void stop() throws Exception {
 		super.stop();
+		topicQueues.forEach((k,v)->{
+			v.stop();
+		});
 		stopTakeThread=true;
 	}
 	//
@@ -315,7 +319,7 @@ public class MessageQueueDriver extends Driver implements Registerable{
 		MessageQueueDriver driver;
 		@Override
 		public void end(Object instance, Method method, Object[] args, Object ret, Throwable e) {
-			//driver.workerSemaphore.release();
+			driver.workerSemaphore.release();
 		}
 		
 	}
@@ -327,7 +331,7 @@ public class MessageQueueDriver extends Driver implements Registerable{
 		public void sample(int idx,Monitor monitor) {
 			for(TopicQueue queue :getTopicQueues()){
 				Map<String,String>info1=new HashMap<String, String>();
-				info1.put("publishCount", queue.getPublishCount()+"");
+				info1.put("publishCount", queue.getPublishedCount()+"");
 				monitor.sample("MessageQueueDriver.PublishCount."+queue.id,
 								Monitor.CATEGORY_TYPE_COUNT,info1);
 			}

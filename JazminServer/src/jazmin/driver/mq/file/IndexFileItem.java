@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
  *
  */
 public class IndexFileItem {
+	public static byte FLAG_EMPTY=0;
 	public static byte FLAG_READY=1;
 	public static byte FLAG_REJECTED=2;
 	public static byte FLAG_ACCEPTED=3;
