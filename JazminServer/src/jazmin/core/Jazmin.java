@@ -221,6 +221,7 @@ public class Jazmin {
 		loadApplication(app);
 		try {
 			app.init();
+			app.wiredApplicationAndregister();
 			app.start();
 			logger.info(app.info());
 		} catch (Exception e) {
