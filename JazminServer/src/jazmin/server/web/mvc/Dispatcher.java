@@ -48,7 +48,7 @@ public class Dispatcher {
 		Class<?>controllerClass=obj.getClass();
 		Controller cc=controllerClass.getAnnotation(Controller.class);
 		if(cc==null||cc.id()==null){
-			throw new IllegalArgumentException("can not find Controller annotation");
+			return;
 		}
 		if(controllerMap.containsKey(cc.id())){
 			throw new IllegalStateException("controller :"+cc.id()+" already exists");
