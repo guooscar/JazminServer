@@ -28,20 +28,10 @@ public class MemoryMessageQueueTest {
 		TopicQueue queue=mq.createTopicQueue("test1",MessageQueueDriver.TOPIC_QUEUE_TYPE_MEMORY);
 		queue.setMaxTtl(3600*1000*24);
 		queue.setRedelieverInterval(1000);
-		//mq.createTopic("test1",MessageQueueDriver.TOPIC_QUEUE_TYPE_MEMORY);
 		mq.register(new SimpleSubscriber());
 		//
 		Jazmin.start();
-		/*for(int i=0;i<1000;i++){
-			try {
-				Thread.sleep(new Random().nextInt(1000));
-				mq.publish("test1", "xxxx");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-		}*/
-		
+		//
 		Scanner sc=new Scanner(System.in);
 		while(true){
 			sc.nextInt();

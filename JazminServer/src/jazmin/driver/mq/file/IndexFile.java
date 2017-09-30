@@ -150,7 +150,7 @@ public class IndexFile implements Comparable<IndexFile>{
 	//
 	public void addItem(IndexFileItem item){
 		if(size>=capacity){
-			throw new IllegalArgumentException("index file full "+capacity+"/"+size);
+			throw new IllegalArgumentException(indexFile.getName()+" index file full "+capacity+"/"+size);
 		}
 		long temp=index;
 		item.uuid=temp<<32|size;
@@ -188,6 +188,10 @@ public class IndexFile implements Comparable<IndexFile>{
 	@Override
 	public int compareTo(IndexFile o) {
 		return this.index-o.index;
+	}
+	@Override
+	public String toString() {
+		return "IndexFile [index=" + index + ", indexFile=" + indexFile + "]";
 	}
 	
 }

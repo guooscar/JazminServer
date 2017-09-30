@@ -30,9 +30,8 @@ public class MemoryTopicQueue extends TopicQueue{
 	public void start() {
 		super.start();
 		topicSubscribers.forEach(s->{
-			MemoryTopicChannel c=new MemoryTopicChannel(this);
-			c.setSubscriberId(s);
-			topicChannels.put(s,c);
+			MemoryTopicChannel c=new MemoryTopicChannel(this,s);
+			topicChannels.put(s.id,c);
 		});
 	}
 	//
@@ -50,7 +49,7 @@ public class MemoryTopicQueue extends TopicQueue{
 			messageId.increment();
 			m.id=messageId.longValue();
 			m.payloadId=payload.id;
-			m.subscriber=s;
+			m.subscriber=s.id;
 			((MemoryTopicChannel)topicChannels.get(s)).append(m);
 		});
 	}

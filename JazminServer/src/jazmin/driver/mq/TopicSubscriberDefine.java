@@ -20,7 +20,7 @@ public @interface TopicSubscriberDefine{
 	 * name of subscriber
 	 * @return
 	 */
-	short name();
+	short id();
 	/**
 	 * name of topic 
 	 */

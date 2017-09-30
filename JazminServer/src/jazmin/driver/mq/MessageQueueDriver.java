@@ -120,23 +120,24 @@ public class MessageQueueDriver extends Driver implements Registerable{
 				throw new IllegalArgumentException("can not find topic queue with name:"+td.topic());
 			}
 			//
-			if(td.name()<=0){
-				throw new IllegalArgumentException("subscriber name must > 0");
+			if(td.id()<=0){
+				throw new IllegalArgumentException("subscriber id must > 0");
 			}
 			//
 			TopicQueue queue=topicQueues.get(td.topic());
 			//
 			TopicSubscriber l=new TopicSubscriber();
-			l.id=td.name();
+			l.id=td.id();
 			l.method=m;
 			l.topic=td.topic();
 			l.instance=object;
-			
+			l.name=l.method.getName();
 			if(subscribers.containsKey(l.topic+"-"+l.id)){
 				throw new IllegalArgumentException("subscriber already exists with name:"+l.id+" on topic:"+l.topic);
 			}
+			
 			subscribers.put(l.topic+"-"+l.id, l);
-			queue.subscribe(l.id);
+			queue.subscribe(l);
 			logger.info("resister subscribe {} topic:{}",l.id,l.topic);
 		}
 	}
@@ -152,32 +153,18 @@ public class MessageQueueDriver extends Driver implements Registerable{
 	//
 	public void publish(String topic,Object payload){
 		getQueue(topic).publish(payload);
-		notifyTake(topic);
 	}
 	//
 	public void accept(Message message){
 		TopicQueue queue=getQueue(message.topic);
 		queue.accept(message.subscriber, message.id);
-		notifyTake(message.topic,message.subscriber);
 	}
 	//
 	public void reject(Message message){
 		TopicQueue queue=getQueue(message.topic);
 		queue.reject(message.subscriber, message.id);
-		notifyTake(message.topic,message.subscriber);
 	}
-	//
-	private void notifyTake(String topic){
-		takeThreads.forEach((k,v)->{
-			if(v.subscriber.topic.equals(topic)){
-				v.notifyTake();
-			}
-		});
-	}
-	//
-	private void notifyTake(String topic,short subscriber){
-		takeThreads.get(topic+"-"+subscriber).notifyTake();
-	}
+	
 	//--------------------------------------------------------------------------
 	@Override
 	public void start() throws Exception {
@@ -237,23 +224,27 @@ public class MessageQueueDriver extends Driver implements Registerable{
 		@Override
 		public void run() {
 			while(!stopTakeThread){
-				int messageCount=0;
-				TopicQueue queue=topicQueues.get(subscriber.topic);
-				Message message=queue.take(subscriber.id);
-				if(message!=null){
-					messageCount++;
-					if(message!=takeNext){
-						try{
-							delieverMessage(subscriber,message);
-						}catch (Exception ee) {
-							logger.catching(ee);
-						}
-					}
+				try{
+					takeMessage();
+				}catch(Exception e){
+					logger.catching(e);
 				}
-				//
-				if(messageCount==0){
-					waitTake();
+			}
+		}
+		//
+		private void takeMessage(){
+			int messageCount=0;
+			TopicQueue queue=topicQueues.get(subscriber.topic);
+			Message message=queue.take(subscriber.id);
+			if(message!=null){
+				messageCount++;
+				if(message!=takeNext){
+					delieverMessage(subscriber,message);
 				}
+			}
+			//
+			if(messageCount==0){
+				waitTake();
 			}
 		}
 		//
@@ -267,7 +258,7 @@ public class MessageQueueDriver extends Driver implements Registerable{
 		void waitTake(){
 			synchronized (lockObject) {
 				try {
-					lockObject.wait(10);//wait for 1 seconds
+					lockObject.wait(1000);//wait for 1 seconds
 				} catch (InterruptedException e) {
 					logger.catching(e);
 				}
@@ -295,18 +286,21 @@ public class MessageQueueDriver extends Driver implements Registerable{
 	private class MessageQueueDriverMonitorAgent implements MonitorAgent{
 		@Override
 		public void sample(int idx,Monitor monitor) {
-			/*for(TopicQueue queue :getTopicQueues()){
+			for(TopicQueue queue :getTopicQueues()){
 				Map<String,String>info1=new HashMap<String, String>();
 				info1.put("publishCount", queue.getPublishedCount()+"");
 				monitor.sample("MessageQueueDriver.PublishCount."+queue.id,
 								Monitor.CATEGORY_TYPE_COUNT,info1);
 			}
 			for(TopicQueue queue :getTopicQueues()){
-				Map<String,String>info1=new HashMap<String, String>();
-				info1.put("queueLength", queue.length()+"");
-				monitor.sample("MessageQueueDriver.QueueLength."+queue.id,
-								Monitor.CATEGORY_TYPE_COUNT,info1);
-			}*/
+				for(TopicChannel tc:queue.getChannels()){
+					Map<String,String>info1=new HashMap<String, String>();
+					info1.put("channelLength", tc.length()+"");
+					monitor.sample("MessageQueueDriver.ChannelLength."+queue.id+"-"+tc.subscriber.id,
+									Monitor.CATEGORY_TYPE_COUNT,info1);
+				}
+				
+			}
 		}
 		//
 		@Override

@@ -6,11 +6,14 @@ package jazmin.driver.mq.file;
 import java.io.File;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.Set;
+import java.util.TreeSet;
 
 import jazmin.driver.mq.Message;
 import jazmin.driver.mq.MessageQueueDriver;
 import jazmin.driver.mq.TopicChannel;
 import jazmin.driver.mq.TopicQueue;
+import jazmin.driver.mq.TopicSubscriber;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 
@@ -25,10 +28,26 @@ public class FileTopicChannel extends TopicChannel{
 	LinkedList<IndexFile>takeIndexSegmentFiles;
 	private int currentIndex=0;
 	//
-	public FileTopicChannel(TopicQueue queue) {
-		super(queue);
+	public FileTopicChannel(TopicQueue queue,TopicSubscriber subscriber) {
+		super(queue,subscriber);
 		indexSegmentFiles=new LinkedList<IndexFile>();
 		takeIndexSegmentFiles=new LinkedList<IndexFile>();
+	}
+	//
+	Set<Integer>getUsedDataFileIndex(){
+		synchronized (lockObject) {
+			FileTopicQueue fq=(FileTopicQueue)queue;
+			TreeSet<Integer>ret=new TreeSet<Integer>();
+			for(IndexFile indexFile:indexSegmentFiles){
+				for(int i=0;i<fq.indexFileCapacity;i++){
+					IndexFileItem item=indexFile.getItem(i);
+					if(item.dataFileId>0){
+						ret.add(item.dataFileId);
+					}
+				}
+			}
+			return ret;
+		}
 	}
 	//
 	void load(File files[]){
@@ -44,6 +63,7 @@ public class FileTopicChannel extends TopicChannel{
 		//
 		Collections.sort(indexSegmentFiles);
 		Collections.sort(takeIndexSegmentFiles);
+		//
 	}
 	//
 	private IndexFile newIndexFile(int index,short subscriber){
@@ -59,7 +79,7 @@ public class FileTopicChannel extends TopicChannel{
 		IndexFile currentIndexFile;
 		synchronized (lockObject) {
 			if(indexSegmentFiles.isEmpty()){
-				currentIndexFile=newIndexFile(0,subscriberId);
+				currentIndexFile=newIndexFile(0,subscriber.id);
 				indexSegmentFiles.add(currentIndexFile);
 				takeIndexSegmentFiles.add(currentIndexFile);
 			}
@@ -69,7 +89,7 @@ public class FileTopicChannel extends TopicChannel{
 				currentIndexFile.flush();
 				//full add new index
 				int nextIndex=(currentIndexFile.index+1);
-				currentIndexFile=newIndexFile(nextIndex,subscriberId);
+				currentIndexFile=newIndexFile(nextIndex,subscriber.id);
 				indexSegmentFiles.add(currentIndexFile);
 				takeIndexSegmentFiles.add(currentIndexFile);
 			}
@@ -78,7 +98,7 @@ public class FileTopicChannel extends TopicChannel{
 			idxItem.dataOffset=dataOffset;
 			idxItem.flag=IndexFileItem.FLAG_READY;
 			idxItem.magic=IndexFileItem.MAGIC;
-			idxItem.subscriber=subscriberId;
+			idxItem.subscriber=subscriber.id;
 			idxItem.dataFileId=dataFileId;
 			currentIndexFile.addItem(idxItem);
 		}

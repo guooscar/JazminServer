@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
  */
 public class TopicSubscriber {
 	public short id;
+	public String name;
 	public String topic;
 	public Object instance;
 	public Method method;

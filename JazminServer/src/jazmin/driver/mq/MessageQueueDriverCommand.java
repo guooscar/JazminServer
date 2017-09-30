@@ -93,17 +93,28 @@ public class MessageQueueDriverCommand extends ConsoleCommand {
 
 	//
     private void showQueue(String args){
-    	String format="%-5s : %-20s %-10s  %-10s \n";
+    	String format="%-5s %-25s %-6s %-10s %-10s %-10s %-10s %-10s %-10s\n";
 		int i=1;
 		List<TopicQueue>queues=messageQueueDriver.getTopicQueues();
 		out.println("total "+queues.size()+" queues");
 		//
-		out.format(format,"#","ID","TYPE","PUBLISHED");	
+		out.format(format,"#","ID","TYPE","PUBLISHED","LENGTH","ACCEPTED","REJECTED","DELIEVERED","EXPIRED");	
 		for(TopicQueue q:queues){
 			out.format(format,i++,
 					q.getId(),
 					q.getType(),
-					q.getPublishedCount());
+					q.getPublishedCount(),"","","","","");
+			//
+			for(TopicChannel tc:q.getChannels()){
+				out.format(format,
+						"",
+						" >"+tc.getSubscriber().name+"["+tc.getSubscriber().id+"]","","",
+						tc.length(),
+						tc.getAcceptedCount(),
+						tc.getRejectedCount(),
+						tc.getDelieveredCount(),
+						tc.getExpiredCount());
+			}
 		};
     }
     //

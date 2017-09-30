@@ -12,33 +12,22 @@ public abstract class TopicChannel {
 	protected LongAdder acceptCount;
 	protected LongAdder rejectCount;
 	protected LongAdder expriedCount;
-	//
-	protected short subscriberId;
 	protected Object lockObject=new Object();
-	//
 	protected TopicQueue queue;
-	public TopicChannel(TopicQueue queue) {
+	protected TopicSubscriber subscriber;
+	//
+	public TopicChannel(TopicQueue queue,TopicSubscriber subscriber) {
 		this.queue=queue;
+		this.subscriber=subscriber;
 		delieverCount=new LongAdder();
 		acceptCount=new LongAdder();
 		rejectCount=new LongAdder();
 		expriedCount=new LongAdder();
 	}
 	
-	/**
-	 * @return the subscriberId
-	 */
-	public short getSubscriberId() {
-		return subscriberId;
+	public TopicSubscriber getSubscriber() {
+		return subscriber;
 	}
-
-	/**
-	 * @param subscriberId the subscriberId to set
-	 */
-	public void setSubscriberId(short subscriberId) {
-		this.subscriberId = subscriberId;
-	}
-
 	/**
 	 * 
 	 * @param subscriber

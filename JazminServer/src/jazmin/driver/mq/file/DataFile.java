@@ -101,7 +101,7 @@ public class DataFile {
 			readChannel.read(bodyBuffer);
 			return item;
 		}catch(Exception e){
-			throw new RuntimeException(e);
+			throw new RuntimeException(""+dataFile.getName()+" offset:"+offset,e);
 		}
 	}
 	//

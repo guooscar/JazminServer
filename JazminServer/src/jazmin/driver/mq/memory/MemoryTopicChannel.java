@@ -11,6 +11,7 @@ import jazmin.driver.mq.Message;
 import jazmin.driver.mq.MessageQueueDriver;
 import jazmin.driver.mq.TopicChannel;
 import jazmin.driver.mq.TopicQueue;
+import jazmin.driver.mq.TopicSubscriber;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 
@@ -25,8 +26,8 @@ public class MemoryTopicChannel extends TopicChannel{
 	protected Map<Long,Long>acceptSet;
 	protected Map<Long,Long>rejectSet;
 	//
-	public MemoryTopicChannel(TopicQueue queue) {
-		super(queue);
+	public MemoryTopicChannel(TopicQueue queue,TopicSubscriber subscriber) {
+		super(queue,subscriber);
 		topicQueue=new LinkedList<>();
 		acceptSet=new HashMap<>();
 		rejectSet=new HashMap<>();

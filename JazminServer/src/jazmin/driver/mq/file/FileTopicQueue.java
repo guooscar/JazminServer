@@ -2,9 +2,12 @@ package jazmin.driver.mq.file;
 
 import java.io.File;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import jazmin.driver.mq.MessageQueueDriver;
+import jazmin.driver.mq.TopicChannel;
 import jazmin.driver.mq.TopicQueue;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
@@ -27,12 +30,11 @@ public class FileTopicQueue extends TopicQueue{
 	//
 	public FileTopicQueue(String id) {
 		super(id,MessageQueueDriver.TOPIC_QUEUE_TYPE_FILE);
-		maxTtl=1000*3600*24;//1 day
 		maxDataFileLength= 1024L*1024L*100;//100m
-		redelieverInterval=1000*5;//5 seconds redeliever 
-		indexFileCapacity=10;
+		indexFileCapacity=10000;
 		dataFiles=new ConcurrentHashMap<>();
 	}
+	//
 	//
 	@Override
 	public void start() {
@@ -47,11 +49,10 @@ public class FileTopicQueue extends TopicQueue{
 		}
 		//
 		topicSubscribers.forEach(s->{
-			FileTopicChannel c=new FileTopicChannel(this);
-			c.setSubscriberId(s);
-			topicChannels.put(s,c);
+			FileTopicChannel c=new FileTopicChannel(this,s);
+			topicChannels.put(s.id,c);
 			File files[]=workDirFile.listFiles((dir,name)->{
-				return name.endsWith(".index")&&name.startsWith(s+"-");
+				return name.endsWith(".index")&&name.startsWith(s.id+"-");
 			});
 			c.load(files);
 		});
@@ -74,10 +75,24 @@ public class FileTopicQueue extends TopicQueue{
 			}
 		}
 	}
+	/**
+	 * 
+	 * @return
+	 */
+	public long getMaxDataFileLength() {
+		return maxDataFileLength;
+	}
+	/**
+	 * 
+	 * @param maxDataFileLength
+	 */
+	public void setMaxDataFileLength(long maxDataFileLength) {
+		this.maxDataFileLength = maxDataFileLength;
+	}
 	//
-	public DataFile getDataFile(){
+	DataFile getDataFile(){
 		if(currentDataFile==null){
-			currentDataFile=newDataFile(0);
+			currentDataFile=newDataFile(1);
 		}
 		//
 		long dataFileLength=currentDataFile.dataFile.length();
@@ -92,11 +107,33 @@ public class FileTopicQueue extends TopicQueue{
 	}
 	//
 	private DataFile newDataFile(int index){
+		removeUnusedDataFile();
 		File dataFilePath=new File(workDirFile,index+".data");
 		DataFile df=new DataFile(dataFilePath.getAbsolutePath());
 		df.open();
 		dataFiles.put(df.index, df);
 		return df;
+	}
+	//
+	private void removeUnusedDataFile(){
+		Set<Integer>used=new TreeSet<Integer>();
+		for(TopicChannel tc:topicChannels.values()){
+			FileTopicChannel ftc=(FileTopicChannel) tc;
+			used.addAll(ftc.getUsedDataFileIndex());
+		}
+		//
+		Set<Integer>removedSet=new TreeSet<Integer>();
+		dataFiles.forEach((k,v)->{
+			if(!used.contains(v.index)){
+				removedSet.add(v.index);
+			}
+		});
+		//
+		removedSet.forEach((i)->{
+			DataFile df=dataFiles.remove(i);
+			logger.info("remove unused data file {}",df.dataFile);
+			df.delete();
+		});
 	}
 	//
 	/**
@@ -119,8 +156,8 @@ public class FileTopicQueue extends TopicQueue{
 	}
 	//
 	DataItem getDataItem(int dataFileId,long offset){
-		synchronized (lockObject) {
-			DataFile dataFile=dataFiles.get(dataFileId);
+		DataFile dataFile=dataFiles.get(dataFileId);
+		synchronized (dataFile) {
 			return dataFile.get(offset);		
 		}
 	}
@@ -143,13 +180,21 @@ public class FileTopicQueue extends TopicQueue{
 	//
 	public void publish(Object obj){
 		super.publish(obj);
+		DataItem dataItem=getDataItem(obj);
+		
 		synchronized (lockObject) {
-			DataItem dataItem=getDataItem(obj);
-			long offset=getDataFile().append(dataItem);
+			DataFile dataFile=getDataFile();
+			LongHolder holder=new LongHolder();
+			synchronized (dataFile) {
+				holder.value=dataFile.append(dataItem);
+			}
 			topicSubscribers.forEach(s->{
-				((FileTopicChannel)topicChannels.get(s)).append(currentDataFile.index,offset);
+				((FileTopicChannel)topicChannels.get(s.id)).append(currentDataFile.index,holder.value);
 			});
 		}	
 	}
-	
+	//
+	static class LongHolder{
+		long value;
+	}
 }

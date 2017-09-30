@@ -4,6 +4,8 @@
 package jazmin.driver.mq;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -19,7 +21,7 @@ public abstract class TopicQueue {
 	protected String id;
 	protected String type;
 	protected LongAdder publishCount;
-	protected Set<Short> topicSubscribers;
+	protected List<TopicSubscriber> topicSubscribers;
 	protected long maxTtl;
 	protected long redelieverInterval;
 	protected long accpetRejectExpiredTime=1000*60*10;
@@ -28,44 +30,75 @@ public abstract class TopicQueue {
 	public TopicQueue(String id,String type){
 		this.id=id;
 		this.type=type;
-		topicSubscribers=new TreeSet<>();
+		topicSubscribers=new LinkedList<TopicSubscriber>();
 		publishCount=new LongAdder();
 		topicChannels=new HashMap<>();
-		
+		maxTtl=1000*3600*24;//1 day
+		redelieverInterval=1000*5;//5 seconds redeliever 
 	}
+	/**
+	 * 
+	 */
+	public List<TopicChannel>getChannels(){
+		return new LinkedList<TopicChannel>(topicChannels.values());
+	}
+	/**
+	 * 
+	 * @return
+	 */
 	public long getRedelieverInterval() {
 		return redelieverInterval;
 	}
-
+	/**
+	 * 
+	 * @param redelieverInterval
+	 */
 	public void setRedelieverInterval(long redelieverInterval) {
 		if(redelieverInterval<=0){
 			throw new IllegalArgumentException("redelieverInterval should >0");
 		}
 		this.redelieverInterval = redelieverInterval;
 	}
-
+	/**
+	 * 
+	 * @return
+	 */
 	public long getMaxTtl() {
 		return maxTtl;
 	}
-
+	/**
+	 * 
+	 * @param maxTtl
+	 */
 	public void setMaxTtl(long maxTtl) {
 		if(maxTtl<=0){
 			throw new IllegalArgumentException("maxTtl should >0");
 		}
 		this.maxTtl = maxTtl;
 	}
-	//
+	/**
+	 * 
+	 * @return
+	 */
 	public String getId(){
 		return id;
 	}
-	//
+	/**
+	 * 
+	 * @return
+	 */
 	public String getType() {
 		return type;
 	}
-	//
+	/**
+	 * 
+	 */
 	public void start(){
 		
 	}
+	/**
+	 * 
+	 */
 	public void stop(){
 		
 	}
@@ -77,11 +110,11 @@ public abstract class TopicQueue {
 	 * 
 	 * @param name
 	 */
-	public void subscribe(short name){
-		if(topicSubscribers.contains(name)){
-			throw new IllegalArgumentException(name+" already exists");
+	public void subscribe(TopicSubscriber ts){
+		if(topicSubscribers.contains(ts)){
+			throw new IllegalArgumentException(ts.name+" already exists");
 		}
-		topicSubscribers.add(name);
+		topicSubscribers.add(ts);
 	}
 	/**
 	 * 
@@ -94,7 +127,7 @@ public abstract class TopicQueue {
 		if(topicSubscribers.isEmpty()){
 			throw new IllegalArgumentException("no topic subscriber");
 		}
-		publishCount.add(1);
+		publishCount.increment();
 	}
 	//
 	public Message take(short subscriberId){
@@ -104,8 +137,9 @@ public abstract class TopicQueue {
 					"can not find subscriber ["+subscriberId+"] on topic queue:"+id);
 		}
 		Message message= channel.take();
-		if(message!=null){
+		if(message!=null&&message!=MessageQueueDriver.takeNext){
 			message.topic=id;
+			channel.delieverCount.increment();
 		}
 		return message;
 	}
