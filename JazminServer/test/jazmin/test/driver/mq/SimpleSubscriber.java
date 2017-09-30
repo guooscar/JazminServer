@@ -15,23 +15,19 @@ public class SimpleSubscriber {
 	//
 	@TopicSubscriberDefine(topic="test1",name=2)
 	public void test1(MessageEvent e){
-		System.err.println("test1:"+e.message.id+"--"+e.message.delieverTimes+"-");
+		System.err.println("test12:"+e.message);
 		if(RandomUtil.randomInt(5)==1){
-			e.messageQueueDriver.reject("test1",e.message.id);
+			e.messageQueueDriver.reject(e.message);
 		}else{
-			e.messageQueueDriver.accept("test1",e.message.id);
+			e.messageQueueDriver.accept(e.message);
 		}
 		
 	}
-	
-	/*@TopicSubscriberDefine(topic="test1",name=2)
+	//
+	@TopicSubscriberDefine(topic="test1",name=1)
 	public void reject(MessageEvent e){
-		System.err.println("test11:"+e.message.delieverTimes+"-"+e.message.payload);
-		if(e.message.delieverTimes>5){
-			e.messageQueueDriver.accept("test1",e.message.id);
-		}else{
-			e.messageQueueDriver.reject("test1",e.message.id);
-		}
-	}*/
+		System.err.println("test11:"+e.message);
+		e.messageQueueDriver.accept(e.message);
+	}
 	
 }

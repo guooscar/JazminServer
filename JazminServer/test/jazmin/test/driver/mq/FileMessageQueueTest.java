@@ -16,21 +16,19 @@ import jazmin.util.RandomUtil;
  * @author yama
  *
  */
-public class MessageQueueTest {
+public class FileMessageQueueTest {
 	public static void main(String[] args) {
-		LoggerFactory.setLevel("ERROR");
+		LoggerFactory.setLevel("INFO");
 		MessageQueueDriver mq=new MessageQueueDriver();
 		Jazmin.addDriver(mq);
 		ConsoleServer cs=new ConsoleServer();
 		cs.setPort(2222);
 		Jazmin.addServer(cs);
 		mq.setWorkDir("/Users/yama/Desktop/mq_test");
-		mq.setMaxDelieverWorker(10);
 		//
 		TopicQueue queue=mq.createTopicQueue("test1",MessageQueueDriver.TOPIC_QUEUE_TYPE_FILE);
 		queue.setMaxTtl(3600*1000*24);
 		queue.setRedelieverInterval(1000);
-		//mq.createTopic("test1",MessageQueueDriver.TOPIC_QUEUE_TYPE_MEMORY);
 		mq.register(new SimpleSubscriber());
 		//
 		Jazmin.start();
@@ -48,8 +46,9 @@ public class MessageQueueTest {
 		while(true){
 			sc.nextInt();
 			byte payload[]=new byte[RandomUtil.randomInt(500,2000)];
-			for(int i=0;i<RandomUtil.randomInt(70000, 20000000);i++)
-			mq.publish("test1", payload);
+			//for(int i=0;i<RandomUtil.randomInt(70000, 20000000);i++)
+			//mq.publish("test1", payload);
+			mq.publish("test1",payload);
 		}
 		
 		

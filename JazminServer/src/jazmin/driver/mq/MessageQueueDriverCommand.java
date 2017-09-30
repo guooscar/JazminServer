@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import jazmin.core.Jazmin;
-import jazmin.driver.mq.file.FileTopicQueue;
-import jazmin.driver.mq.file.IndexFile;
-import jazmin.driver.mq.memory.MemoryTopicQueue;
 import jazmin.server.console.ascii.AsciiChart;
 import jazmin.server.console.ascii.TerminalWriter;
 import jazmin.server.console.builtin.ConsoleCommand;
@@ -71,21 +68,7 @@ public class MessageQueueDriverCommand extends ConsoleCommand {
 		out.println("type:"+queue.type);
 		out.println("maxttl:"+queue.getMaxTtl());
 		out.println("redeliever interval:"+queue.getRedelieverInterval());
-		if(queue instanceof FileTopicQueue){
-			FileTopicQueue ft=(FileTopicQueue) queue;
-			out.println("length:"+ft.length());
-			out.println("IndexSegmentFiles:");
-			for(IndexFile f:ft.getIndexSegmentFiles()){
-				out.println(f.getIndexFile().getName()+"\tlength:"+f.size()+"\tremoved:"+f.getRemovedCount());
-			}
-			out.println("TakeSegmentFiles:");
-			for(IndexFile f:ft.getTakeSegmentFiles()){
-				out.println(f.getIndexFile().getName()+"\tlength:"+f.size()+"\tremoved:"+f.getRemovedCount());
-			}
-		}
-		if (queue instanceof MemoryTopicQueue){
-			out.println("length:"+queue.length());
-		}
+		
 	}
 	//
 	private void showQueueTps(AsciiChart chart, TerminalWriter tw,TopicQueue queue) {
@@ -101,10 +84,6 @@ public class MessageQueueDriverCommand extends ConsoleCommand {
 		out.println("queue ["+queue.id+"] publish tps chart. total:" + invokeCount 
 					+ " max:" + maxPublishCount + " current:"
 					+ invokeTps + "/s");
-		out.println("length:\t"+queue.length());
-		out.println("accept:\t"+queue.getAcceptedCount());
-		out.println("reject:\t"+queue.getRejectedCount());
-		out.println("expired:\t"+queue.getExpiredCount());
 		tw.fmagenta();
 		chart.reset();
 		out.println(chart.draw());
@@ -114,22 +93,17 @@ public class MessageQueueDriverCommand extends ConsoleCommand {
 
 	//
     private void showQueue(String args){
-    	String format="%-5s : %-20s %-10s %-10s %-10s %-10s %-10s %-10s %-10s\n";
+    	String format="%-5s : %-20s %-10s  %-10s \n";
 		int i=1;
 		List<TopicQueue>queues=messageQueueDriver.getTopicQueues();
 		out.println("total "+queues.size()+" queues");
 		//
-		out.format(format,"#","ID","TYPE","LENGTH","PUBLISHED","ACCEPTED","REJECTED","EXPIRED","DELIEVERED");	
+		out.format(format,"#","ID","TYPE","PUBLISHED");	
 		for(TopicQueue q:queues){
 			out.format(format,i++,
 					q.getId(),
 					q.getType(),
-					q.length(),
-					q.getPublishedCount(),
-					q.getAcceptedCount(),
-					q.getRejectedCount(),
-					q.getExpiredCount(),
-					q.getDelieveredCount());
+					q.getPublishedCount());
 		};
     }
     //

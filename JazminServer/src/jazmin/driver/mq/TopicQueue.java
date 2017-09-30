@@ -3,6 +3,8 @@
  */
 package jazmin.driver.mq;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.LongAdder;
@@ -18,27 +20,17 @@ public abstract class TopicQueue {
 	protected String type;
 	protected LongAdder publishCount;
 	protected Set<Short> topicSubscribers;
-	
-	protected Object lockObject=new Object();
-	protected LongAdder delieverCount;
-	protected LongAdder acceptCount;
-	protected LongAdder rejectCount;
-	protected LongAdder expriedCount;
 	protected long maxTtl;
 	protected long redelieverInterval;
-	
-	//
 	protected long accpetRejectExpiredTime=1000*60*10;
+	protected Map<Short,TopicChannel>topicChannels;
 	//
 	public TopicQueue(String id,String type){
 		this.id=id;
 		this.type=type;
 		topicSubscribers=new TreeSet<>();
 		publishCount=new LongAdder();
-		delieverCount=new LongAdder();
-		acceptCount=new LongAdder();
-		rejectCount=new LongAdder();
-		expriedCount=new LongAdder();
+		topicChannels=new HashMap<>();
 		
 	}
 	public long getRedelieverInterval() {
@@ -71,32 +63,16 @@ public abstract class TopicQueue {
 		return type;
 	}
 	//
-	public long getDelieveredCount(){
-		return delieverCount.longValue();
-	}
-	//
-	public long getRejectedCount(){
-		return rejectCount.longValue();
-	}
-	//
-	public long getAcceptedCount(){
-		return acceptCount.longValue();
-	}
-	//
-	public long getExpiredCount(){
-		return expriedCount.longValue();
-	}
-	//
 	public void start(){
+		
 	}
 	public void stop(){
+		
 	}
 	//
 	public long getPublishedCount(){
 		return publishCount.longValue();
 	}
-	//
-	public abstract int length();
 	/**
 	 * 
 	 * @param name
@@ -120,15 +96,33 @@ public abstract class TopicQueue {
 		}
 		publishCount.add(1);
 	}
-	/**
-	 * 
-	 * @param subscriber
-	 * @return
-	 */
-	public abstract Message take();
 	//
-	public abstract void reject(long id);
-	public abstract void accept(long id);
-	protected void checkSet(){}
+	public Message take(short subscriberId){
+		TopicChannel channel =topicChannels.get(subscriberId);
+		if(channel==null){
+			throw new IllegalArgumentException(
+					"can not find subscriber ["+subscriberId+"] on topic queue:"+id);
+		}
+		Message message= channel.take();
+		if(message!=null){
+			message.topic=id;
+		}
+		return message;
+	}
 	//
+	public void accept(short subscriberId,long messageId){
+		TopicChannel channel =topicChannels.get(subscriberId);
+		if(channel==null){
+			throw new IllegalArgumentException("can not find subscriber on topic queue:"+id);
+		}
+		channel.accept(messageId);
+	}
+	//
+	public void reject(short subscriberId,long messageId){
+		TopicChannel channel =topicChannels.get(subscriberId);
+		if(channel==null){
+			throw new IllegalArgumentException("can not find subscriber on topic queue:"+id);
+		}
+		channel.reject(messageId);
+	}
 }

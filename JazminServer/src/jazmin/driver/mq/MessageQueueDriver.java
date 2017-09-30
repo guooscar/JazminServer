@@ -9,16 +9,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Semaphore;
 
 import jazmin.core.Driver;
 import jazmin.core.Jazmin;
 import jazmin.core.Registerable;
 import jazmin.core.monitor.Monitor;
 import jazmin.core.monitor.MonitorAgent;
-import jazmin.core.thread.DispatcherCallbackAdapter;
+import jazmin.core.thread.Dispatcher;
 import jazmin.driver.mq.file.FileTopicQueue;
 import jazmin.driver.mq.memory.MemoryTopicQueue;
 import jazmin.log.Logger;
@@ -41,29 +39,16 @@ public class MessageQueueDriver extends Driver implements Registerable{
 	//
 	Map<String,TopicQueue>topicQueues;
 	Map<String,TopicSubscriber>subscribers;
-	Thread takeMessageThread;
+	Map<String,TakeThread>takeThreads;
 	boolean stopTakeThread=false;
 	String workDir;
-	private int maxDelieverWorker;
-	private Semaphore workerSemaphore;
 	//
-	private Object lockObject=new Object();
 	//
 	public MessageQueueDriver() {
 		topicQueues=new ConcurrentHashMap<>();
 		subscribers=new ConcurrentHashMap<>();
-		maxDelieverWorker=5;
+		takeThreads=new ConcurrentHashMap<>();
 		workDir="./jazmin_mq_work";
-		workerSemaphore=new Semaphore(maxDelieverWorker);
-	}
-	//
-	public void setMaxDelieverWorker(int count){
-		maxDelieverWorker=count;
-		workerSemaphore=new Semaphore(maxDelieverWorker);
-	}
-	//
-	public int getMaxDelieverWorker(){
-		return maxDelieverWorker;
 	}
 	//
 	public TopicQueue createTopicQueue(String name,String type){
@@ -167,118 +152,45 @@ public class MessageQueueDriver extends Driver implements Registerable{
 	//
 	public void publish(String topic,Object payload){
 		getQueue(topic).publish(payload);
-		notifyTake();
+		notifyTake(topic);
 	}
 	//
-	public void accept(String topic,long messageId){
-		TopicQueue queue=getQueue(topic);
-		queue.accept(messageId);
-		queue.acceptCount.increment();
-		notifyTake();
+	public void accept(Message message){
+		TopicQueue queue=getQueue(message.topic);
+		queue.accept(message.subscriber, message.id);
+		notifyTake(message.topic,message.subscriber);
 	}
 	//
-	public void reject(String topic,long messageId){
-		TopicQueue queue=getQueue(topic);
-		queue.reject(messageId);
-		queue.rejectCount.increment();
-		notifyTake();
+	public void reject(Message message){
+		TopicQueue queue=getQueue(message.topic);
+		queue.reject(message.subscriber, message.id);
+		notifyTake(message.topic,message.subscriber);
 	}
 	//
-	private void notifyTake(){
-		synchronized (lockObject) {
-			lockObject.notifyAll();
-		}
-	}
-	//
-	private void waitTake(){
-		synchronized (lockObject) {
-			try {
-				lockObject.wait(10);//wait for 1 seconds
-			} catch (InterruptedException e) {
-				logger.catching(e);
+	private void notifyTake(String topic){
+		takeThreads.forEach((k,v)->{
+			if(v.subscriber.topic.equals(topic)){
+				v.notifyTake();
 			}
-		}
+		});
 	}
 	//
-	private void takeMessage(){
-		while(!stopTakeThread){
-			int messageCount=0;
-			for(Entry<String,TopicQueue>e : topicQueues.entrySet()){
-				Message message=e.getValue().take();
-				if(message!=null){
-					messageCount++;
-					if(message!=takeNext){
-						try{
-							delieverMessage(e.getKey(),message);
-						}catch (Exception ee) {
-							logger.catching(ee);
-						}
-					}
-				}
-			}
-			//
-			if(messageCount==0){
-				waitTake();
-			}
-		}
-	}
-	//
-	private void delieverMessage(String topic,Message message){
-		try {
-			workerSemaphore.acquire();
-		} catch (InterruptedException e) {
-			logger.catching(e);
-		}
-		TopicSubscriber subscriber=subscribers.get(topic+"-"+message.subscriber);
-		if(subscriber==null){
-			logger.warn("drop message {} {} ",topic+"-"+message.subscriber,message.id);
-			accept(topic, message.id);
-			return;
-		}
-		subscriber.delieverCount++;
-		subscriber.lastDelieverTime=System.currentTimeMillis();
-		TopicQueue queue=getQueue(topic);
-		queue.delieverCount.increment();
-		MessageEvent event=new MessageEvent();
-		event.message=message;
-		event.messageQueueDriver=this;
-		//
-		DelieverWorkCallback callback=new DelieverWorkCallback();
-		callback.driver=this;
-		Jazmin.dispatcher.invokeInPool(
-				"MessageQueueDriver",
-				subscriber.instance,
-				subscriber.method, 
-				callback,
-				event);
-	}
-	//
-	private void checkSet(){
-		while(true){
-			try {
-				Thread.sleep(1000*10);
-				for(Entry<String,TopicQueue>e : topicQueues.entrySet()){
-					e.getValue().checkSet();
-				}
-			} catch (Exception e1) {
-				logger.catching(e1);
-			}	
-		}
+	private void notifyTake(String topic,short subscriber){
+		takeThreads.get(topic+"-"+subscriber).notifyTake();
 	}
 	//--------------------------------------------------------------------------
 	@Override
 	public void start() throws Exception {
 		super.start();
-		takeMessageThread=new Thread(this::takeMessage);
-		takeMessageThread.setName("MessageQueueDriverTakeThread");
-		takeMessageThread.start();
-		//
-		Thread checkSetThread=new Thread(this::checkSet);
-		checkSetThread.setName("MessageQueueDriverCheckThread");
-		checkSetThread.start();
 		//
 		topicQueues.forEach((k,v)->{
 			v.start();
+		});
+		//
+		subscribers.forEach((k,v)->{
+			TakeThread thread=new TakeThread(v);
+			takeThreads.put(k, thread);
+			thread.start();
 		});
 		//
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
@@ -301,8 +213,6 @@ public class MessageQueueDriver extends Driver implements Registerable{
 		InfoBuilder ib=InfoBuilder.create();
 		ib.section("info").format("%-30s:%-30s\n");
 		ib.print("workDir",workDir);
-		ib.print("maxDelieverWorker",maxDelieverWorker);
-		
 		ib.section("topicQueues").format("%-30s:%-30s\n");
 		topicQueues.forEach((k,v)->{
 			ib.print(k,v.getId()+"["+v.getType()+"]");
@@ -313,15 +223,71 @@ public class MessageQueueDriver extends Driver implements Registerable{
 		});
 		return ib.toString();
 	}
-	//
 	//--------------------------------------------------------------------------
-	private static class DelieverWorkCallback extends DispatcherCallbackAdapter{
-		MessageQueueDriver driver;
-		@Override
-		public void end(Object instance, Method method, Object[] args, Object ret, Throwable e) {
-			driver.workerSemaphore.release();
+	class TakeThread extends Thread{
+		TopicSubscriber subscriber;
+		Object lockObject=new Object();
+
+		public TakeThread(TopicSubscriber subscriber) {
+			super();
+			this.subscriber=subscriber;
+			setName("MessageQueueTakeThread-"+subscriber.topic+"-"+subscriber.id);
 		}
-		
+		//
+		@Override
+		public void run() {
+			while(!stopTakeThread){
+				int messageCount=0;
+				TopicQueue queue=topicQueues.get(subscriber.topic);
+				Message message=queue.take(subscriber.id);
+				if(message!=null){
+					messageCount++;
+					if(message!=takeNext){
+						try{
+							delieverMessage(subscriber,message);
+						}catch (Exception ee) {
+							logger.catching(ee);
+						}
+					}
+				}
+				//
+				if(messageCount==0){
+					waitTake();
+				}
+			}
+		}
+		//
+		//
+		void notifyTake(){
+			synchronized (lockObject) {
+				lockObject.notifyAll();
+			}
+		}
+		//
+		void waitTake(){
+			synchronized (lockObject) {
+				try {
+					lockObject.wait(10);//wait for 1 seconds
+				} catch (InterruptedException e) {
+					logger.catching(e);
+				}
+			}
+		}
+		//
+		private void delieverMessage(TopicSubscriber subscriber,Message message){
+			subscriber.delieverCount++;
+			subscriber.lastDelieverTime=System.currentTimeMillis();
+			MessageEvent event=new MessageEvent();
+			event.message=message;
+			event.messageQueueDriver=MessageQueueDriver.this;
+			//
+			Jazmin.dispatcher.invokeInCaller(
+					"MessageQueueDriver",
+					subscriber.instance,
+					subscriber.method, 
+					Dispatcher.EMPTY_CALLBACK,
+					event);
+		}
 	}
 	
 	//--------------------------------------------------------------------------
@@ -329,7 +295,7 @@ public class MessageQueueDriver extends Driver implements Registerable{
 	private class MessageQueueDriverMonitorAgent implements MonitorAgent{
 		@Override
 		public void sample(int idx,Monitor monitor) {
-			for(TopicQueue queue :getTopicQueues()){
+			/*for(TopicQueue queue :getTopicQueues()){
 				Map<String,String>info1=new HashMap<String, String>();
 				info1.put("publishCount", queue.getPublishedCount()+"");
 				monitor.sample("MessageQueueDriver.PublishCount."+queue.id,
@@ -340,7 +306,7 @@ public class MessageQueueDriver extends Driver implements Registerable{
 				info1.put("queueLength", queue.length()+"");
 				monitor.sample("MessageQueueDriver.QueueLength."+queue.id,
 								Monitor.CATEGORY_TYPE_COUNT,info1);
-			}
+			}*/
 		}
 		//
 		@Override

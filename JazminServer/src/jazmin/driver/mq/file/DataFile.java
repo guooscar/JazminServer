@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
+
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 
@@ -18,16 +19,24 @@ import jazmin.log.LoggerFactory;
  *
  */
 public class DataFile {
-	private static Logger logger=LoggerFactory.get(IndexFile.class);
+	private static Logger logger=LoggerFactory.get(DataFile.class);
 	//
 	File dataFile;
 	FileChannel readChannel;
 	FileChannel writeChannel;
 	FileInputStream fis;
 	FileOutputStream fos;
+	int index;
 	public DataFile(String file){
 		dataFile=new File(file);
-	
+		String name =dataFile.getName();
+		name=name.substring(0,name.indexOf('.'));
+		try{
+			index=Integer.valueOf(name);
+		}catch (Exception e) {
+			throw new IllegalArgumentException("bad data file name :"+
+						dataFile.getAbsolutePath());
+		}
 	}
 	public void open(){
 		if(!dataFile.exists()){

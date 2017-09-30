@@ -12,7 +12,7 @@ public class TopicMessage {
 	public long lastDeliverTime;
 	public int deliverTimes;
 	public String payloadId;
-	public String id;
+	public long id;
 	//
 	public TopicMessage next;
 	public TopicMessage prior;

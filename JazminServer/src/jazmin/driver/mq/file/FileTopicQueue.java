@@ -1,21 +1,16 @@
-/**
- * 
- */
 package jazmin.driver.mq.file;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import jazmin.driver.mq.Message;
 import jazmin.driver.mq.MessageQueueDriver;
 import jazmin.driver.mq.TopicQueue;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 
 /**
+ * 
  * @author yama
  *
  */
@@ -23,26 +18,21 @@ public class FileTopicQueue extends TopicQueue{
 	private static Logger logger=LoggerFactory.get(FileTopicQueue.class);
 	//
 	private String workDir;
-	private int indexFileCapacity;
+	int indexFileCapacity;
 	File workDirFile;
-	
-	LinkedList<IndexFile>indexSegmentFiles;
-	LinkedList<IndexFile>takeIndexSegmentFiles;
-	private int currentIndex=0;
-	
-	//
+	Map<Integer,DataFile>dataFiles;
+	DataFile currentDataFile;
+	long maxDataFileLength;
+	private Object lockObject=new Object();
 	//
 	public FileTopicQueue(String id) {
-		super(id, MessageQueueDriver.TOPIC_QUEUE_TYPE_FILE);
-		indexFileCapacity=100000;
-		maxTtl=1000*60*60;//1 hour
+		super(id,MessageQueueDriver.TOPIC_QUEUE_TYPE_FILE);
+		maxTtl=1000*3600*24;//1 day
+		maxDataFileLength= 1024L*1024L*100;//100m
 		redelieverInterval=1000*5;//5 seconds redeliever 
-		topicSubscribers=new TreeSet<>();
-		indexSegmentFiles=new LinkedList<IndexFile>();
-		takeIndexSegmentFiles=new LinkedList<IndexFile>();
+		indexFileCapacity=10;
+		dataFiles=new ConcurrentHashMap<>();
 	}
-	//
-	
 	//
 	@Override
 	public void start() {
@@ -56,37 +46,57 @@ public class FileTopicQueue extends TopicQueue{
 			logger.info("create work dir:{}",workDirFile.getAbsoluteFile());
 		}
 		//
-		File files[]=workDirFile.listFiles((dir,name)->{
-			return name.endsWith(".index")&&name.startsWith(id+"-");
+		topicSubscribers.forEach(s->{
+			FileTopicChannel c=new FileTopicChannel(this);
+			c.setSubscriberId(s);
+			topicChannels.put(s,c);
+			File files[]=workDirFile.listFiles((dir,name)->{
+				return name.endsWith(".index")&&name.startsWith(s+"-");
+			});
+			c.load(files);
 		});
-	
-		for(File f:files){
-			logger.info("load index file:{}",f.getAbsoluteFile());
-			IndexFile file=IndexFile.get(f.getAbsolutePath(),indexFileCapacity);
-			if(file!=null){
-				indexSegmentFiles.add(file);
-				takeIndexSegmentFiles.add(file);
+		//load datafile
+		File files[]=workDirFile.listFiles((dir,name)->{
+			return name.endsWith(".data");
+		});
+		for(File file : files){
+			DataFile df=new DataFile(file.getAbsolutePath());
+			df.open();
+			dataFiles.put(df.index,df);
+		}
+		//
+		for(DataFile df:dataFiles.values()){
+			if(currentDataFile==null){
+				currentDataFile=df;
+			}
+			if(currentDataFile.index<df.index){
+				currentDataFile=df;
 			}
 		}
 	}
 	//
-	public void stop(){
-		synchronized (lockObject) {
-			for(IndexFile file:indexSegmentFiles){
-				file.close();
-			}
+	public DataFile getDataFile(){
+		if(currentDataFile==null){
+			currentDataFile=newDataFile(0);
 		}
+		//
+		long dataFileLength=currentDataFile.dataFile.length();
+		if(dataFileLength>=maxDataFileLength){
+			logger.info("data file {} size:{}  > maxDataFileLength {}",
+							currentDataFile.dataFile,
+							dataFileLength,
+							maxDataFileLength);
+			currentDataFile=newDataFile(currentDataFile.index+1);
+		}
+		return currentDataFile;
 	}
 	//
-	public List<IndexFile>getIndexSegmentFiles(){
-		synchronized (lockObject) {
-			return new ArrayList<IndexFile>(indexSegmentFiles);
-		}
-	}
-	public List<IndexFile>getTakeSegmentFiles(){
-		synchronized (lockObject) {
-			return new ArrayList<IndexFile>(takeIndexSegmentFiles);
-		}
+	private DataFile newDataFile(int index){
+		File dataFilePath=new File(workDirFile,index+".data");
+		DataFile df=new DataFile(dataFilePath.getAbsolutePath());
+		df.open();
+		dataFiles.put(df.index, df);
+		return df;
 	}
 	//
 	/**
@@ -95,7 +105,6 @@ public class FileTopicQueue extends TopicQueue{
 	public String getWorkDir() {
 		return workDir;
 	}
-
 	/**
 	 * @param workDir the workDir to set
 	 */
@@ -103,62 +112,17 @@ public class FileTopicQueue extends TopicQueue{
 		this.workDir = workDir;
 	}
 	//
-	@Override
-	public int length() {
-		synchronized (lockObject) {
-			int total=0;
-			for(IndexFile file:indexSegmentFiles){
-				total+=file.size();
-			}
-			return total;
-		}
-	}
-
-	@Override
-	public void publish(Object obj) {
-		super.publish(obj);
-		//
-		IndexFile currentIndexFile;
-		synchronized (lockObject) {
-			if(indexSegmentFiles.isEmpty()){
-				currentIndexFile=newIndexFile(0);
-				indexSegmentFiles.add(currentIndexFile);
-				takeIndexSegmentFiles.add(currentIndexFile);
-			}
-			currentIndexFile=indexSegmentFiles.getLast();
-			//
-			DataItem item=getDataItem(obj);
-			long currentOffset=0;
-			for(short subscriber :topicSubscribers){
-				if(currentIndexFile.space()<=0){
-					currentIndexFile.flush();
-					//full add new index
-					int nextIndex=(currentIndexFile.index+1);
-					currentIndexFile=newIndexFile(nextIndex);
-					indexSegmentFiles.add(currentIndexFile);
-					takeIndexSegmentFiles.add(currentIndexFile);
-					//new file save data
-					currentOffset=currentIndexFile.dataFile.append(item);
-				}
-				if(currentOffset==0){
-					currentOffset=currentIndexFile.dataFile.append(item);
-				}
-				IndexFileItem idxItem=new IndexFileItem();
-				idxItem.dataOffset=currentOffset;
-				idxItem.flag=IndexFileItem.FLAG_READY;
-				idxItem.magic=IndexFileItem.MAGIC;
-				idxItem.subscriber=subscriber;
-				currentIndexFile.addItem(idxItem);
-			}
-		}
+	public void stop(){
+		topicChannels.forEach((k,v)->{
+			v.stop();
+		});
 	}
 	//
-	private IndexFile newIndexFile(int index){
-		File newIdxFile=new File(workDirFile.getAbsoluteFile(),id+"-"+index+".index");
-		IndexFile file=new IndexFile(newIdxFile.getAbsolutePath(), indexFileCapacity);
-		file.index=index;
-		file.open();
-		return file;
+	DataItem getDataItem(int dataFileId,long offset){
+		synchronized (lockObject) {
+			DataFile dataFile=dataFiles.get(dataFileId);
+			return dataFile.get(offset);		
+		}
 	}
 	//
 	private DataItem getDataItem(Object obj){
@@ -177,125 +141,15 @@ public class FileTopicQueue extends TopicQueue{
 		return item;
 	}
 	//
-	@Override
-	public void reject(long id) {
+	public void publish(Object obj){
+		super.publish(obj);
 		synchronized (lockObject) {
-			updateFlag(id,IndexFileItem.FLAG_REJECTED);
-		}
-	
-	}
-	//
-	@Override
-	public void accept(long id) {
-		synchronized (lockObject) {
-			updateFlag(id,IndexFileItem.FLAG_ACCEPTED);
-		}
-	}
-	//
-	private void updateFlag(long id,byte flag){
-		int indexSegmentId=(int) (id>>32);
-		int offsetId=(int) (id&0x00000000FFFFFFFF);
-		for(IndexFile file : indexSegmentFiles){
-			if(file.index==indexSegmentId){
-				file.updateFlag(offsetId, flag);
-			}
-		}
-	}
-	//
-	@Override
-	public Message take() {
-		synchronized (lockObject) {
-			if(takeIndexSegmentFiles.isEmpty()){
-				return null;
-			}
-			Message retMessage=null;
-			IndexFile indexFile=takeIndexSegmentFiles.getFirst();
-			if(currentIndex==0){
-				//reset remove count
-				indexFile.removedCount=0;
-			}
-			IndexFileItem item=indexFile.getItem(currentIndex);
-			if(item.flag==IndexFileItem.FLAG_ACCEPTED||item.flag==IndexFileItem.FLAG_EXPRIED){
-				indexFile.removedCount++;
-			}
-			//
-			if(item.lastDelieverTime>0&&item.flag!=IndexFileItem.FLAG_EXPRIED){
-				if((System.currentTimeMillis()-item.lastDelieverTime)>maxTtl){
-					//max ttl 
-					item.flag=IndexFileItem.FLAG_EXPRIED;
-					indexFile.updateFlag(currentIndex, item.flag);
-					expriedCount.increment();
-					retMessage=MessageQueueDriver.takeNext;
-				}	
-			}
-			//
-			if((System.currentTimeMillis()-item.lastDelieverTime)<redelieverInterval){
-				retMessage=MessageQueueDriver.takeNext;
-			}
-			//
-			if(retMessage!=MessageQueueDriver.takeNext){
-				if(item.flag==IndexFileItem.FLAG_READY){
-					retMessage=getMessage(indexFile,item);
-					item.delieverTimes++;
-					indexFile.updateLastDelieverTime(currentIndex,
-							System.currentTimeMillis(),(short) (item.delieverTimes));
-					retMessage.delieverTimes=item.delieverTimes;
-				}
-				if(item.flag==IndexFileItem.FLAG_REJECTED){
-					retMessage=getMessage(indexFile,item);
-					item.delieverTimes++;
-					indexFile.updateLastDelieverTime(currentIndex,
-							System.currentTimeMillis(),(short) (item.delieverTimes));
-					retMessage.delieverTimes=item.delieverTimes;
-				}
-				if(item.flag==IndexFileItem.FLAG_ACCEPTED
-						||item.flag==IndexFileItem.FLAG_EXPRIED){
-					retMessage=MessageQueueDriver.takeNext;
-				}
-			}
-			
-			//
-			currentIndex++;
-			if(currentIndex>=indexFileCapacity){
-				currentIndex=0;
-				if(indexFile.removedCount>=indexFileCapacity){
-					indexFile.delete();
-					takeIndexSegmentFiles.removeFirst();
-					indexSegmentFiles.remove(indexFile);
-					logger.info("delete index file {}",indexFile.indexFile.getAbsoluteFile());
-				}else{
-					IndexFile head=takeIndexSegmentFiles.removeFirst();
-					takeIndexSegmentFiles.add(head);
-				}
-			}
-			//
-			if(retMessage==null){
-				//rewind
-				currentIndex=0;
-				if(indexFile!=null){
-					indexFile.removedCount=0;
-				}
-				if(takeIndexSegmentFiles.size()>1){
-					IndexFile head=takeIndexSegmentFiles.removeFirst();
-					takeIndexSegmentFiles.add(head);
-				}	
-			}
-			return retMessage;
-		}
-	}
-	//
-	private Message getMessage(IndexFile indexFile,IndexFileItem item){
-		Message message=new Message();
-		message.id=item.uuid;
-		message.subscriber=item.subscriber;
-		DataItem data=indexFile.dataFile.get(item.dataOffset);
-		if(data.payloadType==DataItem.PAYLOAD_TYPE_RAW){
-			message.payload=data.payload;
-		}
-		message.payload=data.payload;
-		message.delieverTimes=item.delieverTimes;
-		return message;
+			DataItem dataItem=getDataItem(obj);
+			long offset=getDataFile().append(dataItem);
+			topicSubscribers.forEach(s->{
+				((FileTopicChannel)topicChannels.get(s)).append(currentDataFile.index,offset);
+			});
+		}	
 	}
 	
-
 }

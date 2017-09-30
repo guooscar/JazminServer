@@ -26,8 +26,6 @@ public class IndexFile implements Comparable<IndexFile>{
 	private int size;
 	MappedByteBuffer buffer;
 	//
-	DataFile dataFile;
-	//
 	int removedCount=0;
 	//
 	public IndexFile(String file,int capacity){
@@ -99,9 +97,6 @@ public class IndexFile implements Comparable<IndexFile>{
 			throw new IllegalStateException(e);
 		}	
 		checkSize();
-		//
-		dataFile=new DataFile(indexFile.getAbsolutePath()+".data");
-		dataFile.open();
 	}
 	//
 	public void close(){
@@ -112,7 +107,6 @@ public class IndexFile implements Comparable<IndexFile>{
 			logger.catching(e);
 		}
 		logger.info("close index file {}",indexFile);
-		dataFile.close();
 	}
 	//
 	public void flush(){
@@ -121,7 +115,6 @@ public class IndexFile implements Comparable<IndexFile>{
 		} catch (IOException e) {
 			logger.catching(e);
 		}
-		dataFile.flush();
 	}
 	//
 	public void delete(){
@@ -130,7 +123,6 @@ public class IndexFile implements Comparable<IndexFile>{
 		if(!f){
 			logger.warn("can not delete index file "+indexFile.getAbsolutePath());
 		}
-		dataFile.delete();
 	}
 	//
 	private void checkSize(){
@@ -158,7 +150,7 @@ public class IndexFile implements Comparable<IndexFile>{
 	//
 	public void addItem(IndexFileItem item){
 		if(size>=capacity){
-			throw new IllegalArgumentException("index file full "+capacity);
+			throw new IllegalArgumentException("index file full "+capacity+"/"+size);
 		}
 		long temp=index;
 		item.uuid=temp<<32|size;
@@ -180,14 +172,14 @@ public class IndexFile implements Comparable<IndexFile>{
 	//
 	public void updateFlag(int index,byte flag){
 		int position=index*IndexFileItem.FILE_ITEM_SIZE;
-		buffer.position(position+1+8+8+2);
+		buffer.position(position+1+8+4+8+2);
 		buffer.mark();
 		buffer.put(flag);
 	}
 	//
 	public void updateLastDelieverTime(int index,long time,short times){
 		int position=index*IndexFileItem.FILE_ITEM_SIZE;
-		buffer.position(position+1+8+8+2+1);
+		buffer.position(position+1+8+4+8+2+1);
 		buffer.mark();
 		buffer.putLong(time);
 		buffer.putShort(times);
