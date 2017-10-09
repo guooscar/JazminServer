@@ -54,9 +54,17 @@ public class NotificationCenter extends Lifecycle implements Registerable{
 			if(!m.getParameters()[0].getType().equals(Notification.class)){
 				throw new IllegalArgumentException("notification method parameter must be Notification");
 			}
+			
 			NotificationDefine td= m.getAnnotation(NotificationDefine.class);
 			NotificationListener l=new NotificationListener();
 			l.id=m.getDeclaringClass().getSimpleName()+"."+m.getName();
+			//
+			for(NotificationListener ll :listeners){
+				if(ll.id.equals(l.id)){
+					throw new IllegalArgumentException("notification listener already registered."+ll.id);
+				}
+			}
+			//
 			l.method=m;
 			l.async=td.async();
 			l.event=td.event();

@@ -57,6 +57,9 @@ public class TaskStore extends Lifecycle implements Registerable{
 			task.method=m;
 			task.instance=instance;
 			task.runInThreadPool=td.runInThreadPool();
+			if(taskMap.containsKey(task.id)){
+				throw new IllegalArgumentException("task :"+task.id+" already exists");
+			}
 			taskMap.put(task.id,task);
 		}
 	}

@@ -61,6 +61,9 @@ public class JobStore extends Lifecycle implements Registerable{
 			} catch (Exception e) {
 				throw new IllegalArgumentException(e);
 			}
+			if(jobMap.containsKey(job.id)){
+				throw new IllegalArgumentException("job : "+job.id+" already exists");
+			}
 			jobMap.put(job.id,job);
 		}
 	}
