@@ -32,6 +32,21 @@ public class Application extends Lifecycle {
 	private Map<Class<?>,AutoWiredObject>autoWiredMap=
 			new ConcurrentHashMap<Class<?>, AutoWiredObject>();
 	//
+	private boolean autoRegisterWired;
+	
+	/**
+	 * @return the autoRegisterWired
+	 */
+	public boolean isAutoRegisterWired() {
+		return autoRegisterWired;
+	}
+	/**
+	 * @param autoRegisterWired the autoRegisterWired to set
+	 */
+	public void setAutoRegisterWired(boolean autoRegisterWired) {
+		this.autoRegisterWired = autoRegisterWired;
+	}
+	//
 	@Override
 	public String info() {
 		return "Application class:"+getClass().getName();
