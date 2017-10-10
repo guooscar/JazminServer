@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import jazmin.core.Driver;
 import jazmin.core.Jazmin;
 import jazmin.core.Lifecycle;
+import jazmin.core.Registerable;
 import jazmin.core.Server;
 import jazmin.core.app.AutoWiredObject.AutoWiredField;
 import jazmin.log.Logger;
@@ -30,6 +31,21 @@ public class Application extends Lifecycle {
 	//
 	private Map<Class<?>,AutoWiredObject>autoWiredMap=
 			new ConcurrentHashMap<Class<?>, AutoWiredObject>();
+	//
+	private boolean autoRegisterWired;
+	
+	/**
+	 * @return the autoRegisterWired
+	 */
+	public boolean isAutoRegisterWired() {
+		return autoRegisterWired;
+	}
+	/**
+	 * @param autoRegisterWired the autoRegisterWired to set
+	 */
+	public void setAutoRegisterWired(boolean autoRegisterWired) {
+		this.autoRegisterWired = autoRegisterWired;
+	}
 	//
 	@Override
 	public String info() {
@@ -49,16 +65,23 @@ public class Application extends Lifecycle {
 		T instance =(T) ao.instance;
 		return instance;
 	} 
-	/**
-	 * create auto wired object
-	 * @param clazz the auto wired object class
-	 * @return the auto wired object
-	 * @throws Exception 
-	 */
+	//
+	public void wiredApplicationAndregister() throws Exception{
+		createWired(this);
+		//
+		for(Lifecycle lc:Jazmin.getLifecycles()){
+			for(AutoWiredObject obj :getAutoWiredObjects()){
+				if(lc instanceof Registerable){
+					((Registerable) lc).register(obj.instance);
+				}
+			}	
+		}
+	}
+	//
 	@SuppressWarnings("unchecked")
-	public <T> T createWired(Class<T>clazz)throws Exception{
-		T instance =clazz.newInstance();
+	public void createWired(Object instance)throws Exception{
 		AutoWiredObject autoWiredObject=new AutoWiredObject();
+		Class<?> clazz=instance.getClass();
 		autoWiredObject.clazz=clazz;
 		autoWiredObject.instance=instance;
 		autoWiredMap.put(clazz,autoWiredObject);
@@ -123,7 +146,21 @@ public class Application extends Lifecycle {
 				f.invoke(instance);
 			}
 		}
-		//
+	}
+	// 
+	/**
+	 * create auto wired object
+	 * @param clazz the auto wired object class
+	 * @return the auto wired object
+	 * @throws Exception 
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T createWired(Class<T>clazz)throws Exception{
+		if(autoWiredMap.containsKey(clazz)){
+			return (T) autoWiredMap.get(clazz).instance;
+		}
+		T instance =clazz.newInstance();
+		createWired(instance);
 		return instance;
 	}
 	//

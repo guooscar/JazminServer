@@ -91,7 +91,7 @@ public class ProxyController {
 	 * @param ctx
 	 */
 	@Service(id="invoke",method=HttpMethod.ALL,queryCount=3)
-	public void Invoke(Context ctx){
+	public void invoke(Context ctx){
 		String classAndMethod=ctx.request().querys().get(2);
 		InvokeInfo info=methodMap.get(classAndMethod);
 		if(info==null){

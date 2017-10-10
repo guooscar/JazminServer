@@ -43,6 +43,7 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import jazmin.core.Jazmin;
+import jazmin.core.Registerable;
 import jazmin.core.Server;
 import jazmin.core.app.AppException;
 import jazmin.core.thread.Dispatcher;
@@ -63,7 +64,7 @@ import jazmin.server.msg.codec.ResponseMessage;
  * @author yama
  * 25 Dec, 2014
  */
-public class MessageServer extends Server{
+public class MessageServer extends Server implements Registerable{
 	private static Logger logger=LoggerFactory.get(MessageServer.class);
 	//
 	static final int DEFAULT_PORT=3001;
@@ -490,6 +491,16 @@ public class MessageServer extends Server{
 			}
 		}
 		return true;
+	}
+	/**
+	 * auto register services
+	 */
+	@Override
+	public void register(Object object) {
+		Class<?>interfaceClass=object.getClass();
+		if(interfaceClass.getAnnotation(MessageService.class)!=null){
+			registerService(object);
+		}
 	}
 	/**
 	 * register service to message server

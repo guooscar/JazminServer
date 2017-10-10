@@ -37,16 +37,17 @@ public class FileChannelReader implements BufferReader {
     private final String absolutePath;
     private final FileChannel in;
     private final long fileSize;
+    FileInputStream fis;
 
     public FileChannelReader(final String path) {
         this(new File(path));
     }
 
-    @SuppressWarnings("resource")
-	public FileChannelReader(final File file) {
+    public FileChannelReader(final File file) {
         absolutePath = file.getAbsolutePath();
         try {
-            in = new FileInputStream(file).getChannel();
+        	fis=new FileInputStream(file);
+            in = fis.getChannel();
             fileSize = in.size();
         } catch(Exception e) {
             throw new RuntimeException(e);

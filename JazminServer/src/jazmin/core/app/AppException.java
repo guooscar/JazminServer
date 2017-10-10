@@ -5,7 +5,7 @@ package jazmin.core.app;
  * @author yama
  * 26 Dec, 2014
  */
-public class AppException extends Exception{
+public class AppException extends RuntimeException{
 	/**
 	 * 
 	 */

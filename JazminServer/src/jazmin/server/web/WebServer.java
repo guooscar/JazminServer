@@ -16,6 +16,7 @@ import javax.servlet.jsp.JspApplicationContext;
 import javax.servlet.jsp.JspFactory;
 
 import jazmin.core.Jazmin;
+import jazmin.core.Registerable;
 import jazmin.core.monitor.Monitor;
 import jazmin.core.monitor.MonitorAgent;
 import jazmin.log.Logger;
@@ -50,7 +51,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
  * @author yama
  * 27 Dec, 2014
  */
-public class WebServer extends jazmin.core.Server{
+public class WebServer extends jazmin.core.Server implements Registerable{
 	//
 	private static Logger logger=LoggerFactory.get(WebServer.class);
 	//
@@ -477,6 +478,10 @@ public class WebServer extends jazmin.core.Server{
 			}
 			monitor.sample("WebServer.Info",Monitor.CATEGORY_TYPE_KV,info);
 		}
+	}
+	@Override
+	public void register(Object object) {
+		DispatchServlet.dispatcher.registerController(object);
 	}
 	
 }
