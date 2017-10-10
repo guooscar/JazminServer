@@ -393,8 +393,9 @@ public class SmartBeanDAO<T> extends JazminDAO {
 								 value=JSONUtil.fromJsonList(strValue,(Class<?>) typeArguments[0]);
 							 }
 						 }
+					 }else {
+						 value=JSONUtil.fromJson(strValue,fieldType);
 					 }
-					value=JSONUtil.fromJson(strValue,fieldType);
 				}
 			}
 			f.setAccessible(true);
