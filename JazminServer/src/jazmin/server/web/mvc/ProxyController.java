@@ -6,7 +6,10 @@ package jazmin.server.web.mvc;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -51,14 +54,16 @@ public class ProxyController {
 	/**
 	 * register proxy target
 	 */
-	public void registerProxyTarget(Object target){
+public void registerProxyTarget(Object target){
 		
 		String targetName=target.getClass().getSimpleName();
+		Class<?>targetType=target.getClass();
 		if(targetName.contains("$Proxy")){
 			//proxy class
-			targetName=findProxiedClass(target).getSimpleName();
+			targetType=findProxiedClass(target);
+			targetName=targetType.getSimpleName();
 		}
-		Method methods[]=target.getClass().getDeclaredMethods();
+		Method methods[]=targetType.getDeclaredMethods();
 		for(Method m:methods){
 			if(Modifier.isPublic(m.getModifiers())){
 				String fullName=targetName+"."+m.getName();
@@ -80,8 +85,16 @@ public class ProxyController {
 		return contextThreadLocal.get();
 	}
 	//
-	public Object getParameterValue(Class<?> type,String json){
-		return JSONUtil.fromJson(json, type);
+	public Object getParameterValue(Class<?> clazz,Type type,String json){
+		 if ( type instanceof ParameterizedType ) {  
+			 Type[] typeArguments = ((ParameterizedType)type).getActualTypeArguments();  
+			 if(typeArguments.length==1) {
+				 if(List.class.isAssignableFrom(clazz) && (typeArguments[0] instanceof Class)) {
+					 return JSONUtil.fromJsonList(json, (Class<?>) typeArguments[0]);
+				 }
+			 }
+		 }
+		return JSONUtil.fromJson(json, clazz);
 	}
 	//
 	/**
@@ -91,7 +104,7 @@ public class ProxyController {
 	 * @param ctx
 	 */
 	@Service(id="invoke",method=HttpMethod.ALL,queryCount=3)
-	public void Invoke(Context ctx){
+	public void invoke(Context ctx){
 		String classAndMethod=ctx.request().querys().get(2);
 		InvokeInfo info=methodMap.get(classAndMethod);
 		if(info==null){
@@ -102,12 +115,13 @@ public class ProxyController {
 		Throwable exception=null;
 		try{
 			contextThreadLocal.set(ctx);
-			Class<?> pTypes[]=info.method.getParameterTypes();
+			Class<?>[] pTypes=info.method.getParameterTypes();
+			Type[] types = info.method.getGenericParameterTypes();
 			Object args[]=new Object[pTypes.length];
 			for(int i=0;i<pTypes.length;i++){
 				String pstr=ctx.getString("arg"+i);
 				if(pstr!=null){
-					args[i]=getParameterValue(pTypes[i],pstr);
+					args[i]=getParameterValue(pTypes[i],types[i],pstr);
 				}
 			}
 			ret=info.method.invoke(info.target, args);

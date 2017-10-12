@@ -12,17 +12,24 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import jazmin.core.Jazmin;
 import jazmin.core.Lifecycle;
+import jazmin.core.Registerable;
 import jazmin.misc.InfoBuilder;
 
 /**
  * @author yama
  * 25 Dec, 2014
  */
-public class TaskStore extends Lifecycle{
+public class TaskStore extends Lifecycle implements Registerable{
 	private Map<String,JazminTask>taskMap;
 	public TaskStore() {
 		taskMap=new ConcurrentHashMap<String, JazminTask>();
 	}
+	//
+	@Override
+	public void register(Object object) {
+		registerTask(object);
+	}
+	//
 	/**
 	 * 
 	 * @param instance
@@ -50,6 +57,9 @@ public class TaskStore extends Lifecycle{
 			task.method=m;
 			task.instance=instance;
 			task.runInThreadPool=td.runInThreadPool();
+			if(taskMap.containsKey(task.id)){
+				throw new IllegalArgumentException("task :"+task.id+" already exists");
+			}
 			taskMap.put(task.id,task);
 		}
 	}
