@@ -159,9 +159,14 @@ public class Application extends Lifecycle {
 		if(autoWiredMap.containsKey(clazz)){
 			return (T) autoWiredMap.get(clazz).instance;
 		}
-		T instance =clazz.newInstance();
-		createWired(instance);
-		return instance;
+		try{
+			T instance =clazz.newInstance();
+			createWired(instance);
+			return instance;
+		}catch (Exception e) {
+			logger.fatal("can not create wired object of class "+clazz,e);
+			throw e;
+		}
 	}
 	//
 	private Set<Field> getField(Class<?>clazz){
