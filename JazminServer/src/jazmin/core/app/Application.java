@@ -164,7 +164,7 @@ public class Application extends Lifecycle {
 			createWired(instance);
 			return instance;
 		}catch (Exception e) {
-			logger.fatal("can not create wired object of class "+clazz,e);
+			logger.fatal("can not create wired object of class "+clazz);
 			throw e;
 		}
 	}
