@@ -221,7 +221,9 @@ public class Jazmin {
 		loadApplication(app);
 		try {
 			app.init();
-			app.wiredApplicationAndregister();
+			if(app.isAutoRegisterWired()){
+				app.wiredApplicationAndregister();
+			}
 			app.start();
 			logger.info(app.info());
 		} catch (Exception e) {
@@ -485,7 +487,9 @@ public class Jazmin {
 			if(appLc.lifecycleListener!=null){
 				appLc.lifecycleListener.beforeStart(appLc);
 			}
-			application.wiredApplicationAndregister();
+			if(application.isAutoRegisterWired()){
+				application.wiredApplicationAndregister();
+			}
 			application.start();
 			if(appLc.lifecycleListener!=null){
 				appLc.lifecycleListener.afterStart(appLc);

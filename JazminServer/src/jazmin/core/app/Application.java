@@ -32,6 +32,21 @@ public class Application extends Lifecycle {
 	private Map<Class<?>,AutoWiredObject>autoWiredMap=
 			new ConcurrentHashMap<Class<?>, AutoWiredObject>();
 	//
+	private boolean autoRegisterWired;
+	
+	/**
+	 * @return the autoRegisterWired
+	 */
+	public boolean isAutoRegisterWired() {
+		return autoRegisterWired;
+	}
+	/**
+	 * @param autoRegisterWired the autoRegisterWired to set
+	 */
+	public void setAutoRegisterWired(boolean autoRegisterWired) {
+		this.autoRegisterWired = autoRegisterWired;
+	}
+	//
 	@Override
 	public String info() {
 		return "Application class:"+getClass().getName();
@@ -144,9 +159,14 @@ public class Application extends Lifecycle {
 		if(autoWiredMap.containsKey(clazz)){
 			return (T) autoWiredMap.get(clazz).instance;
 		}
-		T instance =clazz.newInstance();
-		createWired(instance);
-		return instance;
+		try{
+			T instance =clazz.newInstance();
+			createWired(instance);
+			return instance;
+		}catch (Exception e) {
+			logger.fatal("can not create wired object of class "+clazz);
+			throw e;
+		}
 	}
 	//
 	private Set<Field> getField(Class<?>clazz){

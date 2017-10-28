@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Blob;
@@ -384,7 +385,17 @@ public class SmartBeanDAO<T> extends JazminDAO {
 			} else {
 				String strValue=rs.getString(fieldName);
 				if(strValue!=null){
-					value=JSONUtil.fromJson(strValue,fieldType);
+					Type genericType=f.getGenericType();
+					if ( genericType instanceof ParameterizedType ) {  
+						 Type[] typeArguments = ((ParameterizedType)genericType).getActualTypeArguments();  
+						 if(typeArguments.length==1) {
+							 if(List.class.isAssignableFrom(fieldType) && (typeArguments[0] instanceof Class)) {
+								 value=JSONUtil.fromJsonList(strValue,(Class<?>) typeArguments[0]);
+							 }
+						 }
+					 }else {
+						 value=JSONUtil.fromJson(strValue,fieldType);
+					 }
 				}
 			}
 			f.setAccessible(true);
