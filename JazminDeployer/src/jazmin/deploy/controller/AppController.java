@@ -11,7 +11,6 @@ import jazmin.deploy.manager.DeployManager;
 import jazmin.server.web.mvc.BeforeService;
 import jazmin.server.web.mvc.Context;
 import jazmin.server.web.mvc.Controller;
-import jazmin.server.web.mvc.HttpMethod;
 import jazmin.server.web.mvc.JsonView;
 import jazmin.server.web.mvc.Service;
 
@@ -28,41 +27,43 @@ public class AppController {
 		String sign=ctx.getString("sign", true);
 		User t=DeployManager.validate(user, sign);
 		ctx.put("result",true);
+		ctx.view(new JsonView());
 		return t!=null;
 	}
 	/**
 	 *login
 	 */
-	@Service(id="login",method=HttpMethod.POST)
+	@Service(id="login")
 	public void login(Context c){
 		c.put("user", DeployManager.getUser(c.getString("user")));
+		c.view(new JsonView());
 	}
 	//
-	@Service(id="applications",method=HttpMethod.POST)
+	@Service(id="applications")
 	public void applications(Context c){
 		c.put("list",DeployManager.getApplications());
 		c.view(new JsonView());
 	}
 	//
-	@Service(id="instances",method=HttpMethod.POST)
+	@Service(id="instances")
 	public void instances(Context c){
 		c.put("list",DeployManager.getInstances());
 		c.view(new JsonView());		
 	}
 	//
-	@Service(id="machines",method=HttpMethod.POST)
+	@Service(id="machines")
 	public void machines(Context c){
 		c.put("list",DeployManager.getMachines());
 		c.view(new JsonView());
 	}
 	//
-	@Service(id="deploy_plans",method=HttpMethod.POST)
+	@Service(id="deploy_plans")
 	public void deployPlans(Context c){
 		c.put("list",DeployManager.getScripts("deployplan"));
 		c.view(new JsonView());
 	}
 	//
-	@Service(id="compile_app",method=HttpMethod.POST)
+	@Service(id="compile_app")
 	public void compileApp(Context c){
 		String appId=c.getString("id");
 		Application app=DeployManager.getApplicationById(appId);
@@ -78,7 +79,7 @@ public class AppController {
 		c.view(new JsonView());	
 	}
 	//
-	@Service(id="stop_instance",method=HttpMethod.POST)
+	@Service(id="stop_instance")
 	public void stopInstance(Context c){
 		String instanceId=c.getString("id");
 		Instance instance=DeployManager.getInstance(instanceId);
@@ -93,7 +94,7 @@ public class AppController {
 		c.view(new JsonView());
 	}
 	//
-	@Service(id="start_instance",method=HttpMethod.POST)
+	@Service(id="start_instance")
 	public void startInstance(Context c){
 		String instanceId=c.getString("id");
 		Instance instance=DeployManager.getInstance(instanceId);
@@ -108,7 +109,7 @@ public class AppController {
 		c.view(new JsonView());
 	}
 	//
-	@Service(id="test_instance",method=HttpMethod.POST)
+	@Service(id="test_instance")
 	public void testInstance(Context c){
 		String instanceId=c.getString("id");
 		Instance instance=DeployManager.getInstance(instanceId);
