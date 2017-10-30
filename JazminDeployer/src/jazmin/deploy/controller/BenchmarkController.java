@@ -16,7 +16,8 @@ import jazmin.server.web.mvc.Service;
  * @author icecooly
  */
 @Controller(id = "benchmark")
-public class BenchmarkController {
+public class BenchmarkController extends AuthBaseController{
+	//
     @Service(id = "data", method = HttpMethod.POST)
     public void data(Context c) {
         BenchmarkSession session = DeployManager.getBenchmarkSession(c.getString("id"));
