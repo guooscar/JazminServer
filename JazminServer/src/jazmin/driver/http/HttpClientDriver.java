@@ -49,14 +49,13 @@ public class HttpClientDriver extends Driver{
 		clientConfigBuilder.setHostnameVerifier(new AllowAllHostnameVerifier());
 		errorLogs=new LinkedList<String>();
 		requestCounter=new AtomicLong();
+		clientConfigBuilder.setUserAgent(DEFAULT_UA);
+		clientConfig=clientConfigBuilder.build();
+		asyncHttpClient = new AsyncHttpClient(new NettyAsyncHttpProvider(clientConfig),clientConfig);
 	}
 	//
 	@Override
 	public void init() throws Exception {
-		clientConfigBuilder.setUserAgent(DEFAULT_UA);
-		clientConfig=clientConfigBuilder.build();
-		asyncHttpClient = new AsyncHttpClient(new NettyAsyncHttpProvider(clientConfig),clientConfig);
-		//
 	}
 	//
 	@Override
