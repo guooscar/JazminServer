@@ -74,8 +74,8 @@ public class AppController {
 				sb.append(s);
 			}
 		});
-		c.put("success",appId);
-		c.put("output", ret);
+		c.put("success",ret);
+		c.put("output", sb.toString());
 		c.view(new JsonView());	
 	}
 	//
