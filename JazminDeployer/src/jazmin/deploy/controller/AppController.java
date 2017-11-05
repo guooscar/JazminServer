@@ -26,7 +26,7 @@ public class AppController {
 		String user=ctx.getString("user", true);
 		String sign=ctx.getString("sign", true);
 		User t=DeployManager.validate(user, sign);
-		ctx.put("result",true);
+		ctx.put("result",t!=null);
 		ctx.view(new JsonView());
 		return t!=null;
 	}
