@@ -9,8 +9,10 @@
 package jazmin.util;
 
 import java.util.List;
+import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
@@ -65,5 +67,16 @@ public class JSONUtil {
 	@SuppressWarnings("unchecked")
 	public static <T> List<T> fromJsonList(String str,Class<?>t){
 		return  (List<T>) JSON.parseArray(str, t);	
+	}
+	
+	/**
+	 * convert json string to Map
+	 * @param json
+	 * @param keyType
+	 * @param valueType
+	 * @return
+	 */
+	public static <K, V> Map<K, V> fromJsonMap(String json, Class<K> keyType,  Class<V> valueType) {
+	     return JSON.parseObject(json,new TypeReference<Map<K, V>>(keyType, valueType) {});
 	}
 }
