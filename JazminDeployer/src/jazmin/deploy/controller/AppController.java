@@ -3,11 +3,19 @@
  */
 package jazmin.deploy.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
+import jazmin.core.Jazmin;
 import jazmin.deploy.domain.Application;
 import jazmin.deploy.domain.Instance;
 import jazmin.deploy.domain.OutputListener;
 import jazmin.deploy.domain.User;
 import jazmin.deploy.manager.DeployManager;
+import jazmin.deploy.manager.DeployerManagerContext.DeployerManagerContextContextImpl;
+import jazmin.deploy.manager.DeployerManagerContext.OutputHandler;
 import jazmin.server.web.mvc.BeforeService;
 import jazmin.server.web.mvc.Context;
 import jazmin.server.web.mvc.Controller;
@@ -116,5 +124,47 @@ public class AppController {
 		DeployManager.testInstance(instance);
 		c.put("isAlive",instance.isAlive);
 		c.view(new JsonView());
+	}
+	Map<String,DeployOutputHandler>deployOutputHandlers=new ConcurrentHashMap<>();
+	//
+	@Service(id="run_deploy_plan")
+	public void runDeployPlan(Context c){
+		String planId=c.getString("id");
+		DeployOutputHandler h=new DeployOutputHandler();
+		h.id=UUID.randomUUID().toString();
+		Jazmin.execute(()->{
+			DeployerManagerContextContextImpl impl=
+					new DeployerManagerContextContextImpl(h,new HashMap<>());
+			try {
+				impl.run(planId,DeployManager.getScriptContent(planId,"deployplan"));
+			} catch (Exception e) {
+				h.onOutput(e.getMessage());
+			}
+			deployOutputHandlers.remove(h.id);
+		});
+		deployOutputHandlers.put(h.id,h);
+		c.put("outputId",h.id);
+		c.view(new JsonView());
+	}
+	//
+	//
+	@Service(id="get_deploy_plan_log")
+	public void getDeployPlanLog(Context c){
+		String logId=c.getString("id");
+		DeployOutputHandler h=deployOutputHandlers.get(logId);
+		if(h!=null){
+			c.put("log",h.sb.toString());		
+		}
+		c.view(new JsonView());
+	}
+	//
+	static class DeployOutputHandler implements OutputHandler{
+		StringBuffer sb=new StringBuffer();
+		String id;
+		@Override
+		public void onOutput(String out) {
+			sb.append(out);
+		}
+		
 	}
 }
