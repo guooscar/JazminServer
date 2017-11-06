@@ -25,8 +25,8 @@ public class QueryTerms {
 	//
 	public List<Where>wheres;
 	public List<String>orderBys;
-	int limitStart=0;
-	int limitEnd=-1;
+	public int limitStart=0;
+	public int limitEnd=-1;
 	public QueryTerms() {
 		wheres=new LinkedList<Where>();
 		orderBys=new LinkedList<String>();
