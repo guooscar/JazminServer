@@ -68,6 +68,7 @@ import jazmin.server.webssh.WebSshServer;
 import jazmin.util.BeanUtil;
 import jazmin.util.FileUtil;
 import jazmin.util.JSONUtil;
+import jazmin.util.RandomUtil;
 import jazmin.util.SshUtil;
 
 /**
@@ -1493,4 +1494,14 @@ public class DeployManager {
         return -1;
     }
     //
+    private static long lastOtpTime=0;
+    private static int lastOTP;
+    //
+    public static int getOTPToken(){
+    	if((System.currentTimeMillis()-lastOtpTime)>1000*60){
+    		lastOtpTime=System.currentTimeMillis();
+    		lastOTP=RandomUtil.randomInt(100000, 999999);
+    	}
+    	return lastOTP;
+    }
 }

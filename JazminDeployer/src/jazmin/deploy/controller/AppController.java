@@ -148,6 +148,12 @@ public class AppController {
 	}
 	//
 	//
+	@Service(id="get_otp")
+	public void getOtp(Context c){
+		c.put("otp", DeployManager.getOTPToken());
+		c.view(new JsonView());
+	}
+	//
 	@Service(id="get_deploy_plan_log")
 	public void getDeployPlanLog(Context c){
 		String logId=c.getString("id");

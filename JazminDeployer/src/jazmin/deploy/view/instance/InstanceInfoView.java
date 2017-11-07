@@ -36,6 +36,7 @@ import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.manager.MonitorManager;
 import jazmin.deploy.manager.OptLogManager;
 import jazmin.deploy.ui.BeanTable;
+import jazmin.deploy.util.OtpUtil;
 import jazmin.deploy.view.main.CodeEditorCallback;
 import jazmin.deploy.view.main.CodeEditorWindow;
 import jazmin.deploy.view.main.ConfirmWindow;
@@ -158,8 +159,14 @@ public class InstanceInfoView extends DeployBaseView {
 		addOptButton("Stop", ValoTheme.BUTTON_DANGER, (e) -> stopInstance());
 		addOptButton("Restart", ValoTheme.BUTTON_DANGER, (e) -> restartInstance());
 	}
-
-	private void viewConsole() {
+	private void viewConsole(){
+		if(hasPrd()){
+			OtpUtil.call(this::viewConsole0);
+		}else{
+			viewConsole0();
+		}
+	}
+	private void viewConsole0() {
 		Instance instance = table.getSelectValue();
 		if (instance == null) {
 			DeploySystemUI.showNotificationInfo("Info", "Please choose which instance to view.");
@@ -388,9 +395,26 @@ public class InstanceInfoView extends DeployBaseView {
 			DeploySystemUI.showNotificationInfo("Info", "create complete");
 		});
 	}
-
+	//
+	boolean hasPrd(){
+		boolean r=false;
+		for (Instance i : getOptInstances()) {
+			if(i.cluster.endsWith("_prd")){
+				r=true;
+			}
+		}
+		return r;
+	}
 	//
 	private void startInstance() {
+		if(hasPrd()){
+			OtpUtil.call(this::startInstance2);
+		}else{
+			startInstance2();
+		}
+	}
+	//
+	private void startInstance2() {
 		TaskProgressWindow optWindow = new TaskProgressWindow(window -> {
 			Jazmin.execute(() -> {
 				startInstance0(window);
@@ -483,8 +507,15 @@ public class InstanceInfoView extends DeployBaseView {
 	}
 
 	//
-	//
 	private void stopInstance() {
+		if(hasPrd()){
+			OtpUtil.call(this::stopInstance2);
+		}else{
+			stopInstance2();
+		}
+	}
+	//
+	private void stopInstance2() {
 		TaskProgressWindow optWindow = new TaskProgressWindow(window -> {
 			Jazmin.execute(() -> {
 				stopInstance0(window, true);
@@ -531,9 +562,17 @@ public class InstanceInfoView extends DeployBaseView {
 			DeploySystemUI.get().showWebNotification("Info","JazminDeployer complete");
 		});
 	}
-
+	//
 	//
 	private void restartInstance() {
+		if(hasPrd()){
+			OtpUtil.call(this::restartInstance2);
+		}else{
+			restartInstance2();
+		}
+	}
+	//
+	private void restartInstance2() {
 		TaskProgressWindow optWindow = new TaskProgressWindow(window -> {
 			Jazmin.execute(() -> {
 				stopInstance0(window, false);
