@@ -69,6 +69,7 @@ public class OtpWindow extends Window{
         	if(!textField.isValid()){
         		return;
         	}
+        	close();
         	consumer.accept(this);
         });
         ok.focus();
