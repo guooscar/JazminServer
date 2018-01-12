@@ -11,7 +11,7 @@ import java.util.List;
  *
  */
 public class QueryTerms {
-	static class Where{
+	public static class Where{
 		public String key;
 		public Object value;
 		public String operator;

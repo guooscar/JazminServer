@@ -92,7 +92,6 @@ public class ApplicationLoader {
 					try{
 						appClass.add(Class.forName(className,false,appClassLoader));
 					}catch(Throwable e){
-						logger.error(e.getMessage());
 					}
 				}
 			}
