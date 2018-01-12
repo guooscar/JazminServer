@@ -42,9 +42,7 @@ public class Instance{
 	public int port;
 	public String user;
 	public String password;
-	@JSONField(serialize=false)
 	public boolean isAlive;
-	@JSONField(serialize=false)
 	public int priority;
 	public String packageVersion;
 	public Map<String,String>properties;

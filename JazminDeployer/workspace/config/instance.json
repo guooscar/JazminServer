@@ -1,7 +1,7 @@
 [
 	{
 		"appId":"DemoHaproxy",
-		"cluster":"demo",
+		"cluster":"demo_prd",
 		"id":"demo_haproxy_1",
 		"machineId":"demo",
 		"packageVersion":"1.0.0",
@@ -14,7 +14,7 @@
 	},
 	{
 		"appId":"DemoWebSystem",
-		"cluster":"demo",
+		"cluster":"demo_prd",
 		"id":"demo_websystem_1",
 		"machineId":"demo",
 		"packageVersion":"1.0.0",

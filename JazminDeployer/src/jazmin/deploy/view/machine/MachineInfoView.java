@@ -7,18 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import jazmin.core.Jazmin;
-import jazmin.deploy.DeploySystemUI;
-import jazmin.deploy.domain.Machine;
-import jazmin.deploy.manager.DeployManager;
-import jazmin.deploy.ui.BeanTable;
-import jazmin.deploy.view.main.DeployBaseView;
-import jazmin.deploy.view.main.TaskProgressWindow;
-import jazmin.deploy.view.main.WebSshWindow;
-import jazmin.deploy.view.main.WebVncWindow;
-import jazmin.util.DumpUtil;
-import jazmin.util.SshUtil;
-
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.server.FontAwesome;
@@ -31,6 +19,19 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.themes.ValoTheme;
+
+import jazmin.core.Jazmin;
+import jazmin.deploy.DeploySystemUI;
+import jazmin.deploy.domain.Machine;
+import jazmin.deploy.manager.DeployManager;
+import jazmin.deploy.ui.BeanTable;
+import jazmin.deploy.util.OtpUtil;
+import jazmin.deploy.view.main.DeployBaseView;
+import jazmin.deploy.view.main.TaskProgressWindow;
+import jazmin.deploy.view.main.WebSshWindow;
+import jazmin.deploy.view.main.WebVncWindow;
+import jazmin.util.DumpUtil;
+import jazmin.util.SshUtil;
 
 /**
  * @author yama
@@ -148,6 +149,16 @@ public class MachineInfoView extends DeployBaseView{
 		addOptButton("Run Robot",ValoTheme.BUTTON_DANGER, (e)->runRobot());
 	}
 	//
+	boolean hasPrd(){
+		boolean r=false;
+		for (Machine i : getOptMachines()) {
+			if(i.id.endsWith("_prd")){
+				r=true;
+			}
+		}
+		return r;
+	}
+	//
 	private void viewDetail(){
 		Machine machine=table.getSelectValue();
 		if(machine==null){
@@ -186,7 +197,15 @@ public class MachineInfoView extends DeployBaseView{
 		}
 	}
 	//
-	private void sshLogin(){
+	private void sshLogin() {
+		if(hasPrd()){
+			OtpUtil.call(this::sshLogin0);
+		}else{
+			sshLogin0();
+		}
+	}
+	//
+	private void sshLogin0(){
 		Machine machine=table.getSelectValue();
 		if(machine==null){
 			DeploySystemUI.showNotificationInfo("Info",
@@ -200,7 +219,15 @@ public class MachineInfoView extends DeployBaseView{
 		}
 	}
 	//
-	private void vncLogin(){
+	private void vncLogin() {
+		if(hasPrd()){
+			OtpUtil.call(this::vncLogin0);
+		}else{
+			vncLogin0();
+		}
+	}
+	//
+	private void vncLogin0(){
 		Machine machine=table.getSelectValue();
 		if(machine==null){
 			DeploySystemUI.showNotificationInfo("Info",
@@ -214,7 +241,15 @@ public class MachineInfoView extends DeployBaseView{
 		}
 	}
 	//
-	private void rootSshLogin(){
+	private void rootSshLogin() {
+		if(hasPrd()){
+			OtpUtil.call(this::rootSshLogin0);
+		}else{
+			rootSshLogin0();
+		}
+	}
+	//
+	private void rootSshLogin0(){
 		Machine machine=table.getSelectValue();
 		if(machine==null){
 			DeploySystemUI.showNotificationInfo("Info",
@@ -340,8 +375,15 @@ public class MachineInfoView extends DeployBaseView{
 			loadData();
 		});
 	}
+	private void runCmd() {
+		if(hasPrd()){
+			OtpUtil.call(this::runCmd0);
+		}else{
+			runCmd0();
+		}
+	}
 	//
-	private void runCmd(){
+	private void runCmd0(){
 		if(machines.isEmpty()){
 			DeploySystemUI.showNotificationInfo("INFO","Choose machine first.");	
 			return;
@@ -351,7 +393,15 @@ public class MachineInfoView extends DeployBaseView{
 		bfw.focus();
 	}
 	//
-	private void runRobot(){
+	private void runRobot() {
+		if(hasPrd()){
+			OtpUtil.call(this::runRobot0);
+		}else{
+			runRobot0();
+		}
+	}
+	//
+	private void runRobot0(){
 		if(machines.isEmpty()){
 			DeploySystemUI.showNotificationInfo("INFO","Choose machine first.");	
 			return;

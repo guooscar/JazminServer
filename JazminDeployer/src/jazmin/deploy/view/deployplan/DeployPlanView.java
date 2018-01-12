@@ -6,6 +6,7 @@ package jazmin.deploy.view.deployplan;
 import jazmin.core.Jazmin;
 import jazmin.deploy.manager.DeployManager;
 import jazmin.deploy.manager.DeployerManagerContext.DeployerManagerContextContextImpl;
+import jazmin.deploy.util.OtpUtil;
 
 import java.util.HashMap;
 
@@ -77,13 +78,23 @@ public class DeployPlanView extends VerticalLayout{
 	    //
 	    addComponent(opt2Layout);
 	}
+	String currentName=null;
 	//
 	private void runPlan(String name){
+		currentName=name;
+		if(name.endsWith("_prd.js")){
+			OtpUtil.call(this::runPlan0);
+		}else{
+			runPlan0();
+		}
+	}
+	//
+	private void runPlan0(){
 		Jazmin.execute(()->{
 			DeployerManagerContextContextImpl impl=
 					new DeployerManagerContextContextImpl(this::appendOut,new HashMap<>());
 			try {
-				impl.run(name,DeployManager.getScriptContent(name,"deployplan"));
+				impl.run(currentName,DeployManager.getScriptContent(currentName,"deployplan"));
 			} catch (Exception e) {
 				appendOut(e.getMessage());
 			}

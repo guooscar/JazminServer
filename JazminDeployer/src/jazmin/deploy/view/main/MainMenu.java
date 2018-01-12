@@ -6,6 +6,7 @@ import java.util.List;
 import jazmin.deploy.DeploySystemUI;
 import jazmin.deploy.domain.User;
 import jazmin.deploy.manager.DeployManager;
+import jazmin.deploy.util.OtpUtil;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 
@@ -139,21 +140,23 @@ public final class MainMenu extends CustomComponent {
     }
     //
     private void showConfig(String file){
-    	CodeEditorCallback callback=new CodeEditorCallback() {
-			@Override
-			public String reload() {
-				return null;
-			}
-			
-			@Override
-			public void onSave(String value) {
-				DeployManager.saveConfigFile(file,value);
-			}
-		};
-    	CodeEditorWindow cew=new CodeEditorWindow(callback);
-		cew.setValue(file,DeployManager.getConfigFile(file),AceMode.json);
-		UI.getCurrent().addWindow(cew);
-		cew.focus();
+    	OtpUtil.call(()->{
+    		CodeEditorCallback callback=new CodeEditorCallback() {
+    			@Override
+    			public String reload() {
+    				return null;
+    			}
+    			
+    			@Override
+    			public void onSave(String value) {
+    				DeployManager.saveConfigFile(file,value);
+    			}
+    		};
+        	CodeEditorWindow cew=new CodeEditorWindow(callback);
+    		cew.setValue(file,DeployManager.getConfigFile(file),AceMode.json);
+    		UI.getCurrent().addWindow(cew);
+    		cew.focus();
+    	});
     }
     //
     private Component buildToggleButton() {
