@@ -597,7 +597,9 @@ public class SelectProvider extends SqlProvider{
 		//limit
 		if(needPaging) {
 			addPaging(query);
-			sql.append(" limit ").append(qw.getLimitStart()).append(",").append(qw.getLimitEnd());
+			if(qw.getLimitEnd()!=-1) {
+				sql.append(" limit ").append(qw.getLimitStart()).append(",").append(qw.getLimitEnd());
+			}
 		}
 		//for update
 		if(isForUpdate) {
