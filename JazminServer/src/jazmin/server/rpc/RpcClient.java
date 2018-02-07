@@ -99,6 +99,12 @@ public class RpcClient {
 		this.timeout = timeout;
 	}
 
+	/**
+	 * @return the breakerCounter
+	 */
+	public RpcBreaker getRpcBreaker() {
+		return breakerCounter;
+	}
 	//
 	public String getPrincipal(){
 		return principal;
