@@ -6,6 +6,7 @@ package jazmin.test.server.rpc;
 import jazmin.core.Jazmin;
 import jazmin.driver.rpc.JazminRpcDriver;
 import jazmin.log.LoggerFactory;
+import jazmin.server.rpc.RpcServer;
 import jazmin.util.RandomUtil;
 
 
@@ -31,9 +32,10 @@ public class RPCClientTest {
 	//
 	public static void test1(){
 		LoggerFactory.setLevel("OFF");
+		//RpcServer.codec=RpcServer.CODEC_KYRO;
 		Jazmin.setServerName(System.currentTimeMillis()+"");
 		JazminRpcDriver driver=new JazminRpcDriver();
-		driver.addRemoteServer("1","1", "10.0.0.3", 6001,false);
+		driver.addRemoteServer("1","1", "127.0.0.1", 6001,false);
 		Jazmin.addDriver(driver);
 		Jazmin.start();
 		TestRemoteService service=driver.create(TestRemoteService.class,"1");
