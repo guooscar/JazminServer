@@ -29,6 +29,8 @@ import jazmin.server.rpc.codec.fst.FSTDecoder;
 import jazmin.server.rpc.codec.fst.FSTEncoder;
 import jazmin.server.rpc.codec.json.JSONDecoder;
 import jazmin.server.rpc.codec.json.JSONEncoder;
+import jazmin.server.rpc.codec.kyro.KyroDecoder;
+import jazmin.server.rpc.codec.kyro.KyroEncoder;
 import jazmin.server.rpc.codec.zjson.CompressedJSONDecoder;
 import jazmin.server.rpc.codec.zjson.CompressedJSONEncoder;
 
@@ -99,6 +101,12 @@ public class RpcClient {
 		this.timeout = timeout;
 	}
 
+	/**
+	 * @return the breakerCounter
+	 */
+	public RpcBreaker getRpcBreaker() {
+		return breakerCounter;
+	}
 	//
 	public String getPrincipal(){
 		return principal;
@@ -155,6 +163,11 @@ public class RpcClient {
 					sc.pipeline().addLast(
 							new FSTEncoder(networkTrafficStat), 
 							new FSTDecoder(networkTrafficStat),
+							clientHandler);
+				}else if(RpcServer.codec==RpcServer.CODEC_KYRO){
+					sc.pipeline().addLast(
+							new KyroEncoder(networkTrafficStat), 
+							new KyroDecoder(networkTrafficStat),
 							clientHandler);
 				}else{
 					throw new IllegalArgumentException("bad codec type:"+RpcServer.codec);
