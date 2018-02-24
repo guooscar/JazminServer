@@ -29,4 +29,6 @@ public @interface DomainField {
 
 	/**select max() or sum() avg() */
 	String statFunc() default "";
+	/**ignore or not when select*/
+	boolean ignoreWhenSelect() default false;
 }
