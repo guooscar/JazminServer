@@ -9,7 +9,7 @@ import java.util.function.Function;
  * @author skydu
  *
  */
-public class SmartJdbcConfig {
+public class Config {
 	/**
 	 * 
 	 */
@@ -43,7 +43,7 @@ public class SmartJdbcConfig {
 	 * @param tableNameFunc the tableNameFunc to set
 	 */
 	public static void setTableNameFunc(Function<Class<?>, String> tableNameFunc) {
-		SmartJdbcConfig.tableNameFunc = tableNameFunc;
+		Config.tableNameFunc = tableNameFunc;
 	}
 	/**
 	 * @return the convertFieldNameFunc
@@ -55,7 +55,7 @@ public class SmartJdbcConfig {
 	 * @param convertFieldNameFunc the convertFieldNameFunc to set
 	 */
 	public static void setConvertFieldNameFunc(Function<String, String> convertFieldNameFunc) {
-		SmartJdbcConfig.convertFieldNameFunc = convertFieldNameFunc;
+		Config.convertFieldNameFunc = convertFieldNameFunc;
 	}
 	/**
 	 * 
@@ -77,7 +77,7 @@ public class SmartJdbcConfig {
 	 * @param daoInterceptors the daoInterceptors to set
 	 */
 	public static void setDaoInterceptors(List<DAOInterceptor> daoInterceptors) {
-		SmartJdbcConfig.daoInterceptors = daoInterceptors;
+		Config.daoInterceptors = daoInterceptors;
 	}
 	
 	/**

@@ -16,7 +16,7 @@ public class DemoDAO extends SmartDAO{
 	 * 
 	 */
 	@Override
-	public <T> List<T> getList(Query query){
+	public <T> List<T> getList(Query query,String ... excludeFields){
 		Class<T> domainClass=getDomainClass(query);
 		return getList(new BizSelectProvider(domainClass).query(query));
 	}
