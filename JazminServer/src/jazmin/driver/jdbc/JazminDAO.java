@@ -113,47 +113,85 @@ public class JazminDAO {
 	
 	//-------------------------------------------------------------------------
 	//
-	protected final Boolean queryForBoolean(String sql,Object ...parameters){
+	protected Boolean queryForBoolean(String sql,Object ...parameters){
 		return  queryForObject(sql,rs->rs.getBoolean(1), parameters);
 	}
 	//
-	protected final String queryForString(String sql,Object ...parameters){
+	protected String queryForString(String sql,Object ...parameters){
 		return  queryForObject(sql,rs->rs.getString(1), parameters);
 	}
 	//
-	protected final Double queryForDouble(String sql,Object ...parameters){
+	protected Double queryForDouble(String sql,Object ...parameters){
 		return  queryForObject(sql,rs->rs.getDouble(1), parameters);
 	}
 	//
-	protected final Float queryForFloat(String sql,Object ...parameters){
+	protected Float queryForFloat(String sql,Object ...parameters){
 		return  queryForObject(sql,rs->rs.getFloat(1), parameters);
 	}
 	//
-	protected final Integer queryForInteger(String sql,Object ...parameters){
+	protected Integer queryForInteger(String sql,Object ...parameters){
 		return  queryForObject(sql,rs->rs.getInt(1), parameters);
 	}
 	//
-	protected final Long queryForLong(String sql,Object ...parameters){
+	protected Long queryForLong(String sql,Object ...parameters){
 		return  queryForObject(sql,rs->rs.getLong(1), parameters);
 	}
 	//
-	protected final Short queryForShort(String sql,Object ...parameters){
+	protected Short queryForShort(String sql,Object ...parameters){
 		return  queryForObject(sql,rs->rs.getShort(1), parameters);
-		
 	}
 	//
-	protected final BigDecimal queryForBigDecimal(String sql,Object ...parameters){
+	protected BigDecimal queryForBigDecimal(String sql,Object ...parameters){
 		return  queryForObject(sql,rs->rs.getBigDecimal(1), parameters);
-		
 	}
 	//
-	protected final Byte queryForByte(String sql,Object ...parameters){
+	protected Byte queryForByte(String sql,Object ...parameters){
 		return  queryForObject(sql,rs->rs.getByte(1), parameters);
-		
 	}
 	//
-	protected final  Date queryForDate(String sql,Object ...parameters){
+	protected  Date queryForDate(String sql,Object ...parameters){
 		return  queryForObject(sql,rs->rs.getTimestamp(1), parameters);
+	}
+	//
+	//
+	protected List<Boolean> queryForBooleans(String sql,Object ...parameters){
+		return  queryForList(sql,rs->rs.getBoolean(1), parameters);
+	}
+	//
+	protected List<String> queryForStrings(String sql,Object ...parameters){
+		return  queryForList(sql,rs->rs.getString(1), parameters);
+	}
+	//
+	protected List<Double> queryForDoubles(String sql,Object ...parameters){
+		return  queryForList(sql,rs->rs.getDouble(1), parameters);
+	}
+	//
+	protected List<Float> queryForFloats(String sql,Object ...parameters){
+		return  queryForList(sql,rs->rs.getFloat(1), parameters);
+	}
+	//
+	protected List<Integer> queryForIntegers(String sql,Object ...parameters){
+		return  queryForList(sql,rs->rs.getInt(1), parameters);
+	}
+	//
+	protected List<Long> queryForLongs(String sql,Object ...parameters){
+		return  queryForList(sql,rs->rs.getLong(1), parameters);
+	}
+	//
+	protected List<Short> queryForShorts(String sql,Object ...parameters){
+		return  queryForList(sql,rs->rs.getShort(1), parameters);	
+	}
+	//
+	protected List<BigDecimal> queryForBigDecimals(String sql,Object ...parameters){
+		return  queryForList(sql,rs->rs.getBigDecimal(1), parameters);
+	}
+	//
+	protected List<Byte> queryForBytes(String sql,Object ...parameters){
+		return  queryForList(sql,rs->rs.getByte(1), parameters);
+	}
+	//
+	protected List<Date> queryForDates(String sql,Object ...parameters){
+		return  queryForList(sql,rs->rs.getTimestamp(1), parameters);
 	}
 	//
 	protected final boolean execute(
@@ -203,7 +241,7 @@ public class JazminDAO {
 		}
 	}
 	//
-	protected final int executeUpdate(
+	protected int executeUpdate(
 			String sql,
 			Object... parameters) {
 		Connection conn = connectionDriver.getConnection();

@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
-import jazmin.driver.jdbc.smartjdbc.SmartJdbcConfig;
+import jazmin.driver.jdbc.smartjdbc.Config;
 import jazmin.driver.jdbc.smartjdbc.SmartJdbcException;
 import jazmin.driver.jdbc.smartjdbc.SqlBean;
 import jazmin.driver.jdbc.smartjdbc.annotations.DomainDefine;
@@ -79,7 +79,7 @@ public abstract class SqlProvider {
 		if (domainDefine != null && (!domainDefine.domainClass().equals(void.class))) {
 			tableClass=domainDefine.domainClass();
 		}
-		return SmartJdbcConfig.getTableName(tableClass);
+		return Config.getTableName(tableClass);
 	}
 	
 	/**
@@ -88,7 +88,7 @@ public abstract class SqlProvider {
 	 * @return
 	 */
 	public static String convertFieldName(String name) {
-		return SmartJdbcConfig.convertFieldName(name);
+		return Config.convertFieldName(name);
 	}
 
 	/**

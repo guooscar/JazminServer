@@ -135,7 +135,7 @@ public class RpcServer extends Server implements Registerable{
 		instanceMap.put(instanceName, instance);
 		//
 		//
-		for(Method m:implClass.getDeclaredMethods()){
+		for(Method m:interfaceClass.getMethods()){
 			//Transaction annotation add on impl class so we should use implClass
 			if(!Modifier.isPublic(m.getModifiers())){
 				continue;

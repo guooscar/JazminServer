@@ -10,6 +10,7 @@ import java.util.TreeSet;
 import jazmin.driver.jdbc.smartjdbc.QueryWhere;
 import jazmin.driver.jdbc.smartjdbc.SmartJdbcException;
 import jazmin.driver.jdbc.smartjdbc.SqlBean;
+import jazmin.driver.jdbc.smartjdbc.annotations.NonPersistent;
 import jazmin.util.JSONUtil;
 
 /**
@@ -50,6 +51,10 @@ public class UpdateProvider extends SqlProvider{
 		sql.append("set ");
 		for (Field f : type.getFields()) {
 			if (excludesNames.contains(f.getName())) {
+				continue;
+			}
+			NonPersistent nonPersistent=f.getAnnotation(NonPersistent.class);
+			if(nonPersistent!=null) {
 				continue;
 			}
 			String fieldName = convertFieldName(f.getName());
