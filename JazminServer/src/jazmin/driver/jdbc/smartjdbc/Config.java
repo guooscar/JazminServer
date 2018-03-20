@@ -2,7 +2,10 @@ package jazmin.driver.jdbc.smartjdbc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import jazmin.driver.jdbc.smartjdbc.provider.SelectProvider;
 
 /**
  * 
@@ -28,6 +31,11 @@ public class Config {
 	private static Function<String,String> convertFieldNameFunc=(name)->{
 		return convertField(name);	
 	};
+	
+	/**
+	 * defaultOrderBy
+	 */
+	private static BiConsumer<SelectProvider,Query> defaultOrderBy;
 	//
 	public static String getTableName(Class<?> domainClass) {
 		return tableNameFunc.apply(domainClass);
@@ -103,4 +111,19 @@ public class Config {
 		}
 		return result.toString();
 	}
+	/**
+	 * 
+	 * @return
+	 */
+	public static BiConsumer<SelectProvider,Query> getDefaultOrderBy() {
+		return defaultOrderBy;
+	}
+	/**
+	 * 
+	 * @param defaultOrderBy
+	 */
+	public static void setDefaultOrderBy(BiConsumer<SelectProvider,Query> defaultOrderBy) {
+		Config.defaultOrderBy = defaultOrderBy;
+	}
+	
 }
