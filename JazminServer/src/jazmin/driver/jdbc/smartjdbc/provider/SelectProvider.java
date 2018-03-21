@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import jazmin.driver.jdbc.smartjdbc.Config;
 import jazmin.driver.jdbc.smartjdbc.Query;
 import jazmin.driver.jdbc.smartjdbc.QueryWhere;
 import jazmin.driver.jdbc.smartjdbc.QueryWhere.Where;
@@ -518,6 +519,9 @@ public class SelectProvider extends SqlProvider{
 					orderBy(orderBy.sql());
 				}
 			}
+		}
+		if(Config.getDefaultOrderBy()!=null) {
+			Config.getDefaultOrderBy().accept(this,query);
 		}
 	}
 	//
