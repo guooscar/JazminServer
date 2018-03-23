@@ -9,6 +9,9 @@ import jazmin.driver.jdbc.smartjdbc.annotations.QueryField;
  */
 public class Query {
 	//
+	public static final int SORT_TYPE_ASC=1;
+	public static final int SORT_TYPE_DESC=2;
+	//
 	@QueryField(ingore=true)
 	public int pageIndex;//从1开始
 	

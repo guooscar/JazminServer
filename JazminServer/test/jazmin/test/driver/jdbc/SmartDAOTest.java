@@ -9,6 +9,7 @@ import jazmin.driver.jdbc.smartjdbc.annotations.ForeignKey;
 import jazmin.driver.jdbc.smartjdbc.annotations.InnerJoin;
 import jazmin.driver.jdbc.smartjdbc.annotations.QueryDefine;
 import jazmin.driver.jdbc.smartjdbc.annotations.QueryField;
+import jazmin.driver.jdbc.smartjdbc.provider.SelectProvider;
 
 /**
  * 
@@ -81,20 +82,33 @@ public class SmartDAOTest {
 	@QueryDefine(domainClass=Team.class)
 	public static class TeamQuery extends BizQuery{
 		public String name;
+		@QueryField(field="status")
+		public int[] statusList;
 		
 		@InnerJoin(table1Field="createUserId",table2=User.class)
 		@QueryField(field="name")
 		public String createUserName;
+		//sort
+		public int idSort;
+		public int nameSort;
+		public int moneySort;
+		public int pointSort;
+		public int createUserIdSort;
+		public int updateUserIdSort;
+		public int gradesSort;
+		
 	}
 	
 	public static void main(String[] args) {
 		Query.defaultOrderType=BizQuery.ORDER_TYPE_CREATE_TIME_ASC;
 		TeamQuery query=new TeamQuery();
 		query.name="skydu";
+		query.statusList=new int[] {1,2};
 		query.createUserName="royi";
-		new BizSelectProvider(TeamInfo.class).selectCount().query(query).needOrderBy(false).build();
-		new BizSelectProvider(TeamInfo.class).query(query).build();
-		new BizSelectProvider(TeamStat.class).query(query).groupBy("createUserId").build();
-		new BizSelectProvider(TeamDetailInfo.class).query(query).build();
+		query.idSort=1;
+//		new SelectProvider(TeamInfo.class).selectCount().query(query).needOrderBy(false).build();
+		new SelectProvider(TeamInfo.class).query(query).build();
+//		new SelectProvider(TeamStat.class).query(query).groupBy("createUserId").build();
+//		new SelectProvider(TeamDetailInfo.class).query(query).build();
 	}
 }

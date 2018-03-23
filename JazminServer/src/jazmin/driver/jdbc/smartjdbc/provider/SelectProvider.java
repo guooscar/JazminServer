@@ -245,6 +245,9 @@ public class SelectProvider extends SqlProvider{
 						Modifier.isFinal(field.getModifiers())) {
 					continue;
 				}
+				if(field.getType().equals(int.class)&&field.getName().endsWith("Sort")) {//ingore Sort Field
+					continue;
+				}
 				Class<?> fieldType = field.getType();
 				Object reallyValue = field.get(query);
 				if (reallyValue == null
@@ -512,16 +515,48 @@ public class SelectProvider extends SqlProvider{
 		if(query==null) {
 			return;
 		}
-		OrderBys orderBys=query.getClass().getAnnotation(OrderBys.class);
-		if(orderBys!=null&&orderBys.orderBys()!=null) {
-			for (OrderBy orderBy : orderBys.orderBys()) {
-				if (query.orderType != null&& query.orderType == orderBy.orderType()) {
-					orderBy(orderBy.sql());
+		boolean haveSort=false;
+		Field[] fields = query.getClass().getFields();
+		for (Field field : fields) {
+			if (Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers())) {
+				continue;
+			}
+			if(!field.getType().equals(int.class)) {
+				continue;
+			}
+			String fieldName=field.getName();
+			if(!fieldName.endsWith("Sort")) {
+				continue;
+			}
+			try {
+				int value=field.getInt(query);
+				if(value==0) {
+					continue;
 				}
+				fieldName=convertFieldName(fieldName.substring(0,fieldName.length()-4));
+				String orderBy=" "+fieldName;
+				if(value==Query.SORT_TYPE_ASC) {
+					orderBy(orderBy+" asc ");
+				}else if(value==Query.SORT_TYPE_DESC) {
+					orderBy(orderBy+" desc ");
+				}
+				haveSort=true;
+			} catch (Exception e1) {
+				logger.error(e1.getMessage(),e1);
 			}
 		}
-		if(Config.getDefaultOrderBy()!=null) {
-			Config.getDefaultOrderBy().accept(this,query);
+		if(!haveSort) {
+			OrderBys orderBys=query.getClass().getAnnotation(OrderBys.class);
+			if(orderBys!=null&&orderBys.orderBys()!=null) {
+				for (OrderBy orderBy : orderBys.orderBys()) {
+					if (query.orderType != null&& query.orderType == orderBy.orderType()) {
+						orderBy(orderBy.sql());
+					}
+				}
+			}
+			if(Config.getDefaultOrderBy()!=null) {
+				Config.getDefaultOrderBy().accept(this,query);
+			}
 		}
 	}
 	//

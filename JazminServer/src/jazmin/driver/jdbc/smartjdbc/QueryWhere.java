@@ -55,7 +55,9 @@ public class QueryWhere {
 	}
 	//
 	public  QueryWhere in(String alias,String key,Object[] values) {
-		this.where(alias, key, "in", values);
+		if(values!=null&&values.length>0) {
+			this.where(alias, key, "in", values);	
+		}
 		return this;
 	}
 	//
