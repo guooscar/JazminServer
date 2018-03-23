@@ -2,7 +2,6 @@ package jazmin.test.driver.jdbc;
 
 import java.util.List;
 
-import jazmin.driver.jdbc.smartjdbc.Query;
 import jazmin.driver.jdbc.smartjdbc.annotations.DomainDefine;
 import jazmin.driver.jdbc.smartjdbc.annotations.DomainField;
 import jazmin.driver.jdbc.smartjdbc.annotations.ForeignKey;
@@ -100,7 +99,6 @@ public class SmartDAOTest {
 	}
 	
 	public static void main(String[] args) {
-		Query.defaultOrderType=BizQuery.ORDER_TYPE_CREATE_TIME_ASC;
 		TeamQuery query=new TeamQuery();
 		query.name="skydu";
 		query.statusList=new int[] {1,2};

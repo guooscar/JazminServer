@@ -16,20 +16,12 @@ public class Query {
 	public int pageIndex;//从1开始
 	
 	@QueryField(ingore=true)
-	public int pageSize=20;
+	public int pageSize;
 	
 	@QueryField(ingore=true)
 	public Integer orderType;
 	//
-	public static Integer defaultOrderType=null;
-	public static Integer defaultPageSize=20;
-	//
 	public Query(){
-		orderType=defaultOrderType;
-		pageIndex=1;
-		if(defaultPageSize!=null) {
-			pageSize=defaultPageSize;
-		}
 	}
 	//
 	public int getStartPageIndex(){
