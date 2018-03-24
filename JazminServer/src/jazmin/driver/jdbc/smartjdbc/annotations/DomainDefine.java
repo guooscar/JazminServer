@@ -17,6 +17,5 @@ import java.lang.annotation.Target;
 @Documented
 @Inherited  
 public @interface DomainDefine {
-	public String comment() default "";
 	public Class<?> domainClass() default void.class;
 }
