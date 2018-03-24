@@ -31,7 +31,6 @@ import jazmin.driver.jdbc.smartjdbc.annotations.QueryField;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.util.ArrayUtils;
-import jazmin.util.DumpUtil;
 import jazmin.util.StringUtil;
 
 /**
@@ -810,9 +809,6 @@ public class SelectProvider extends SqlProvider{
 		}
 		//
 		SqlBean bean=new SqlBean(sql.toString(),qw.whereValues());
-		if(logger.isDebugEnabled()) {
-			logger.debug("{} \nSqlBean:{}",DumpUtil.dump(this),DumpUtil.dump(bean));
-		}
 		return bean;
 	}
 		
