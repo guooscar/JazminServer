@@ -23,6 +23,7 @@ import jazmin.driver.jdbc.smartjdbc.annotations.ForeignKey;
 import jazmin.driver.jdbc.smartjdbc.annotations.InnerJoin;
 import jazmin.driver.jdbc.smartjdbc.annotations.InnerJoins;
 import jazmin.driver.jdbc.smartjdbc.annotations.LeftJoin;
+import jazmin.driver.jdbc.smartjdbc.annotations.NonPersistent;
 import jazmin.driver.jdbc.smartjdbc.annotations.OrderBys;
 import jazmin.driver.jdbc.smartjdbc.annotations.OrderBys.OrderBy;
 import jazmin.driver.jdbc.smartjdbc.annotations.QueryDefine;
@@ -578,6 +579,10 @@ public class SelectProvider extends SqlProvider{
 			if(excludeFields.contains(field.getName())){
 				continue;
 			}	
+			NonPersistent nonPersistent=field.getAnnotation(NonPersistent.class);
+			if(nonPersistent!=null) {
+				continue;
+			}
 			DomainField domainField = field.getAnnotation(DomainField.class);
 			if(domainField!=null&&domainField.ignoreWhenSelect()) {
 				continue;
