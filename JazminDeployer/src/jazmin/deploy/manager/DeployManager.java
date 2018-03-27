@@ -728,7 +728,7 @@ public class DeployManager {
         String queryBegin = "select * from " + Application.class.getName() + " where";
         User user = getUser(uid);
         String sql = queryBegin;
-        if (!uid.equals(User.ADMIN)) {
+        if (!user.admin) {
             StringBuilder cc = new StringBuilder();
             for (String q : user.applicationSystems) {
                 cc.append("'" + q + "',");
@@ -868,7 +868,7 @@ public class DeployManager {
         String queryBegin = "select * from " + Instance.class.getName() + " where";
         User user = getUser(uid);
         String sql = queryBegin;
-        if (!uid.equals(User.ADMIN)) {
+        if (!user.admin) {
             StringBuilder cc = new StringBuilder();
             for (String q : user.instanceClusters) {
                 cc.append("'" + q + "',");
@@ -897,7 +897,7 @@ public class DeployManager {
         String queryBegin = "select * from " + Machine.class.getName() + " where";
         User user = getUser(uid);
         String sql = queryBegin;
-        if (!uid.equals(User.ADMIN)) {
+        if (!user.admin) {
             StringBuilder cc = new StringBuilder();
             for (String q : user.machines) {
                 cc.append("'" + q + "',");
