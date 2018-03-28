@@ -11,6 +11,7 @@ import java.util.Date;
 
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
+import jazmin.util.DumpUtil;
 /**
  * 
  * @author yama
@@ -94,7 +95,6 @@ public class ConnectionUtil {
 			return;
 		}
 		int i = 1;
-
 		for (Object o : objs) {
 			if (o == null) {
 				ps.setString(i++, null);
@@ -146,7 +146,7 @@ public class ConnectionUtil {
 				ps.setBoolean(i++, ((Boolean) o));
 				continue;
 			}
-			throw new IllegalArgumentException("unsupport type:" + o.getClass());
+			throw new IllegalArgumentException("unsupport type:" + o.getClass()+","+DumpUtil.dump(o));
 		}
 	}
 	

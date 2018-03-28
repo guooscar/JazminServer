@@ -54,7 +54,7 @@ public class ProxyController {
 	/**
 	 * register proxy target
 	 */
-public void registerProxyTarget(Object target){
+	public void registerProxyTarget(Object target){
 		
 		String targetName=target.getClass().getSimpleName();
 		Class<?>targetType=target.getClass();
@@ -63,7 +63,7 @@ public void registerProxyTarget(Object target){
 			targetType=findProxiedClass(target);
 			targetName=targetType.getSimpleName();
 		}
-		Method methods[]=targetType.getDeclaredMethods();
+		Method methods[]=targetType.getMethods();
 		for(Method m:methods){
 			if(Modifier.isPublic(m.getModifiers())){
 				String fullName=targetName+"."+m.getName();
@@ -159,5 +159,20 @@ public void registerProxyTarget(Object target){
 			}
 		}
 		return new PlainTextView(sb.toString());
+	}
+	/**
+	 * create proxy class 
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T create(Class<T>proxyClass,String url){
+		if(!proxyClass.isInterface()){
+			throw new IllegalArgumentException("target class must be interface.");
+		}
+		SyncHttpProxyHandler handler=new SyncHttpProxyHandler(url);	
+		Object proxyObject=Proxy.newProxyInstance(
+				proxyClass.getClassLoader(),
+				new Class<?>[]{proxyClass}, 
+				handler);
+		return (T) proxyObject;
 	}
 }

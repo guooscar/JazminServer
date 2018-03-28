@@ -3,18 +3,6 @@
  */
 package jazmin.server.rpc;
 
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.SelfSignedCertificate;
-import io.netty.handler.timeout.IdleStateHandler;
-
 import java.io.File;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -28,6 +16,17 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
 
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.SelfSignedCertificate;
+import io.netty.handler.timeout.IdleStateHandler;
 import jazmin.core.Jazmin;
 import jazmin.core.Registerable;
 import jazmin.core.Server;
@@ -46,6 +45,8 @@ import jazmin.server.rpc.codec.fst.FSTDecoder;
 import jazmin.server.rpc.codec.fst.FSTEncoder;
 import jazmin.server.rpc.codec.json.JSONDecoder;
 import jazmin.server.rpc.codec.json.JSONEncoder;
+import jazmin.server.rpc.codec.kyro.KyroDecoder;
+import jazmin.server.rpc.codec.kyro.KyroEncoder;
 import jazmin.server.rpc.codec.zjson.CompressedJSONDecoder;
 import jazmin.server.rpc.codec.zjson.CompressedJSONEncoder;
 
@@ -83,6 +84,8 @@ public class RpcServer extends Server implements Registerable{
 	public static final int CODEC_JSON=1;
 	public static final int CODEC_ZJSON=2;
 	public static final int CODEC_FST=3;
+	public static final int CODEC_KYRO=4;
+	
 	public static int codec=CODEC_ZJSON;
 	//
 	public RpcServer() {
@@ -132,7 +135,7 @@ public class RpcServer extends Server implements Registerable{
 		instanceMap.put(instanceName, instance);
 		//
 		//
-		for(Method m:implClass.getDeclaredMethods()){
+		for(Method m:interfaceClass.getMethods()){
 			//Transaction annotation add on impl class so we should use implClass
 			if(!Modifier.isPublic(m.getModifiers())){
 				continue;
@@ -220,6 +223,11 @@ public class RpcServer extends Server implements Registerable{
 					sc.pipeline().addLast(
 							new FSTEncoder(networkTrafficStat), 
 							new FSTDecoder(networkTrafficStat),
+							rpcServerHandler);
+				}else if(codec==CODEC_KYRO){
+					sc.pipeline().addLast(
+							new KyroEncoder(networkTrafficStat), 
+							new KyroDecoder(networkTrafficStat),
 							rpcServerHandler);
 				}else{
 					throw new IllegalArgumentException("bad codec type:"+RpcServer.codec);

@@ -18,9 +18,10 @@ public class RPCServerTest {
 	public static void main(String[] args) throws Exception{
 		LoggerFactory.setLevel("OFF");
 		RpcServer rpcServer=new RpcServer();
-		rpcServer.setEnableSSL(false);
-		//rpcServer.setCredential("123");
-		Jazmin.dispatcher.setPerformanceLogFile("/tmp/test.log");
+		rpcServer.setPort(6001);
+		//RpcServer.codec=RpcServer.CODEC_KYRO;
+		Jazmin.dispatcher.setCorePoolSize(8);
+		Jazmin.dispatcher.setMaximumPoolSize(8);
 		Jazmin.addServer(rpcServer);
 		Jazmin.addServer(new ConsoleServer());
 		Jazmin.start();
