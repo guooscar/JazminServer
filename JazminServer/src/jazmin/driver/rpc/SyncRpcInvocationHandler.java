@@ -32,7 +32,8 @@ public class SyncRpcInvocationHandler extends RpcInvocationHandler {
 			Object proxy, 
 			Method method,
 			Object[] args) throws Throwable {
-		String serviceId=method.getDeclaringClass().getSimpleName()+"."+method.getName();
+		Class<?>[] ifaces = proxy.getClass().getInterfaces();
+		String serviceId=ifaces[0].getSimpleName()+"."+method.getName();
 		long startTime=System.currentTimeMillis();
 		if(logger.isDebugEnabled()){
 			logger.debug(">invoke {}",serviceId);

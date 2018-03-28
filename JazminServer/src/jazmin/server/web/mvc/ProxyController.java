@@ -63,7 +63,7 @@ public class ProxyController {
 			targetType=findProxiedClass(target);
 			targetName=targetType.getSimpleName();
 		}
-		Method methods[]=targetType.getDeclaredMethods();
+		Method methods[]=targetType.getMethods();
 		for(Method m:methods){
 			if(Modifier.isPublic(m.getModifiers())){
 				String fullName=targetName+"."+m.getName();
