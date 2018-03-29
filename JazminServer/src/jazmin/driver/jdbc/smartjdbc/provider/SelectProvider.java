@@ -77,6 +77,7 @@ public class SelectProvider extends SqlProvider{
 	boolean needOrderBy;
 	boolean isForUpdate;
 	List<SelectField> selectFields;
+	boolean ingoreSelectDomainFiled;
 	Set<String> excludeFields;//userName not user_name
 	Map<String,Join> innerJoinMap;
 	Map<String,String> innerJoinFieldAliasMap;
@@ -108,6 +109,11 @@ public class SelectProvider extends SqlProvider{
 	//
 	public SelectProvider sum(String alias,String field,String asField) {
 		select(alias, field,null,asField, false, "sum");
+		return this;
+	}
+	//
+	public SelectProvider ingoreSelectDomainFiled() {
+		this.ingoreSelectDomainFiled=true;
 		return this;
 	}
 	//
@@ -566,7 +572,7 @@ public class SelectProvider extends SqlProvider{
 		this.limit(query.getStartPageIndex(),query.pageSize);
 	}
 	//
-	private void buildSelectFields(){
+	private void buildSelectDomainFields(){
 		int index=1;
 		Map<String, Join> map = new LinkedHashMap<>();
 		Field[] fields=domainClass.getFields();
@@ -708,7 +714,9 @@ public class SelectProvider extends SqlProvider{
 	 */
 	protected SqlBean query() {
 		StringBuffer sql = new StringBuffer();
-		buildSelectFields();
+		if(!ingoreSelectDomainFiled) {
+			buildSelectDomainFields();
+		}
 		sql.append("select ");
 		if(selectFields.size()==0) {
 			throw new IllegalArgumentException("no select field found in "+domainClass.getName());
