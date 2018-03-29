@@ -70,7 +70,6 @@ public class DeployStartServlet extends VaadinServlet{
 		Jazmin.environment.put("deploy.ant.lib","/Users/yama/git/JazminServer/JazminServer/release/JazminServer");
 		*/
 		
-		
 		ws.addResource("/","release/JazminDeployer");
 		LoggerFactory.setLevel("DEBUG");
 		Jazmin.addServer(ws);

@@ -52,6 +52,7 @@ import jazmin.deploy.domain.svn.WorkingCopy;
 import jazmin.deploy.manager.RobotDeployManagerContext.RobotDeployManagerContextImpl;
 import jazmin.deploy.manager.RobotWorkflowEngineContext.RobotWorkflowEngineContextImpl;
 import jazmin.deploy.util.DateUtil;
+import jazmin.deploy.util.HttpUtil;
 import jazmin.deploy.workflow.WorkflowEngine;
 import jazmin.deploy.workflow.execute.ProcessInstance;
 import jazmin.log.Logger;
@@ -115,6 +116,7 @@ public class DeployManager {
     public static String deployHostname = "";
     public static String repoPath = "";
     public static String antPath = "";
+    public static String authURL="";
     public static String antCommonLibPath = "";
     public static Date lastHealthCheckTime;
 
@@ -125,6 +127,7 @@ public class DeployManager {
         deployHostname = Jazmin.environment.getString("deploy.hostname", "localhost");
         repoPath = Jazmin.environment.getString("deploy.repo.dir", "./repo");
         antPath = Jazmin.environment.getString("deploy.ant", "ant");
+        authURL = Jazmin.environment.getString("deploy.auth.url", "");
         antCommonLibPath = Jazmin.environment.getString("deploy.ant.lib", "./lib");
 
         checkWorkspace();
@@ -681,9 +684,25 @@ public class DeployManager {
             }
         }
     }
-
+    //
+    public static User auth(String u,String p){
+    	try{
+    		String json=HttpUtil.sendPost(authURL+"?userName="+u+"&password="+p);
+    		User user= JSONUtil.fromJson(json, User.class);
+    		if(user.id==null||user.id.trim().length()==0){
+    			return null;
+    		}
+    		return user;
+    	}catch (Exception e) {
+    		logger.catching(e);
+    	}
+       	return null;
+    }
     //
     public static User validate(String u, String p) {
+    	if(authURL.length()>0){
+    		return auth(u, p);
+    	}
         User ui = userMap.get(u);
         if (ui == null) {
             return null;
