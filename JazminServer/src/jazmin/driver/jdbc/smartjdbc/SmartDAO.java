@@ -468,6 +468,9 @@ public class SmartDAO extends JazminDAO{
 				}
 			} else {
 				DomainField domainField=f.getAnnotation(DomainField.class);
+				if(domainField!=null&&domainField.ignoreWhenSelect()) {
+					continue;
+				}
 				if(domainField==null||StringUtil.isEmpty(domainField.foreignKeyFields())) {
 					String strValue=rs.getString(fieldName);
 					if(strValue!=null){
