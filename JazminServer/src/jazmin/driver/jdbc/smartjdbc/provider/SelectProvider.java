@@ -17,6 +17,7 @@ import jazmin.driver.jdbc.smartjdbc.Query;
 import jazmin.driver.jdbc.smartjdbc.QueryWhere;
 import jazmin.driver.jdbc.smartjdbc.QueryWhere.Where;
 import jazmin.driver.jdbc.smartjdbc.SmartJdbcException;
+import jazmin.driver.jdbc.smartjdbc.SortField;
 import jazmin.driver.jdbc.smartjdbc.SqlBean;
 import jazmin.driver.jdbc.smartjdbc.annotations.DomainField;
 import jazmin.driver.jdbc.smartjdbc.annotations.ForeignKey;
@@ -516,12 +517,28 @@ public class SelectProvider extends SqlProvider{
 		return new SqlBean(newSql,values);
 	}
 	//
+	private int getSortFieldOrder(String[] sortFields,String fieldName) {
+		if(sortFields==null||sortFields.length==0) {
+			return 0;
+		}
+		int order=0;
+		for (String field : sortFields) {
+			order++;
+			if(field.equals(fieldName)) {
+				return order;
+			}
+		}
+		return 0;
+	}
+	//
 	protected void addOrderBy(Query query) {
 		if(query==null) {
 			return;
 		}
 		boolean haveSort=false;
 		Field[] fields = query.getClass().getFields();
+		String[] querySortFields=query.sortFields;
+		List<SortField> sortFields=new ArrayList<>();
 		for (Field field : fields) {
 			if (Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers())) {
 				continue;
@@ -534,20 +551,30 @@ public class SelectProvider extends SqlProvider{
 				continue;
 			}
 			try {
-				int value=field.getInt(query);
-				if(value==0) {
+				int sortType=field.getInt(query);
+				if(sortType==0) {
 					continue;
 				}
-				fieldName=convertFieldName(fieldName.substring(0,fieldName.length()-4));
-				String orderBy=" "+fieldName;
-				if(value==Query.SORT_TYPE_ASC) {
-					orderBy(orderBy+" asc ");
-				}else if(value==Query.SORT_TYPE_DESC) {
-					orderBy(orderBy+" desc ");
-				}
+				String reallyFieldName=fieldName.substring(0,fieldName.length()-4);
+				String dbFieldName=convertFieldName(reallyFieldName);
+				SortField sortField=new SortField();
+				sortField.fieldName=dbFieldName;
+				sortField.sortType=sortType;
+				sortField.order=getSortFieldOrder(querySortFields,fieldName);
+				sortFields.add(sortField);
 				haveSort=true;
 			} catch (Exception e1) {
 				logger.error(e1.getMessage(),e1);
+			}
+		}
+		sortFields.sort((a,b)->{
+			return a.order-b.order;
+		});
+		for (SortField e : sortFields) {
+			if(e.sortType==Query.SORT_TYPE_ASC) {
+				orderBy(e.fieldName+" asc");
+			}else if(e.sortType==Query.SORT_TYPE_DESC) {
+				orderBy(e.fieldName+" desc");
 			}
 		}
 		if(!haveSort) {
@@ -795,8 +822,12 @@ public class SelectProvider extends SqlProvider{
 		//order by
 		if(needOrderBy) {
 			addOrderBy(query);
-			if (!StringUtil.isEmpty(qw.getOrderBy())) {
-				sql.append(" order by ").append(qw.getOrderBy());
+			if (qw.getOrderBys().size()>0) {
+				sql.append(" order by ");
+				for (String orderBy : qw.getOrderBys()) {
+					sql.append(orderBy).append(",");
+				}
+				sql.deleteCharAt(sql.length()-1);
 			}
 		}
 		//limit

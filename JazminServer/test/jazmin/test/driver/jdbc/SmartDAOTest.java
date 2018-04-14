@@ -2,6 +2,7 @@ package jazmin.test.driver.jdbc;
 
 import java.util.List;
 
+import jazmin.driver.jdbc.smartjdbc.SqlBean;
 import jazmin.driver.jdbc.smartjdbc.annotations.DomainDefine;
 import jazmin.driver.jdbc.smartjdbc.annotations.DomainField;
 import jazmin.driver.jdbc.smartjdbc.annotations.ForeignKey;
@@ -9,6 +10,7 @@ import jazmin.driver.jdbc.smartjdbc.annotations.InnerJoin;
 import jazmin.driver.jdbc.smartjdbc.annotations.QueryDefine;
 import jazmin.driver.jdbc.smartjdbc.annotations.QueryField;
 import jazmin.driver.jdbc.smartjdbc.provider.SelectProvider;
+import jazmin.util.DumpUtil;
 
 /**
  * 
@@ -104,8 +106,12 @@ public class SmartDAOTest {
 		query.statusList=new int[] {1,2};
 		query.createUserName="royi";
 		query.idSort=1;
+		query.nameSort=2;
+		query.pointSort=1;
+		query.sortFields=new String[]{"pointSort","idSort","nameSort"};
 //		new SelectProvider(TeamInfo.class).selectCount().query(query).needOrderBy(false).build();
-		new SelectProvider(TeamInfo.class).query(query).build();
+		SqlBean bean=new SelectProvider(TeamInfo.class).query(query).build();
+		System.out.println(DumpUtil.dump(bean));
 //		new SelectProvider(TeamStat.class).query(query).groupBy("createUserId").build();
 //		new SelectProvider(TeamDetailInfo.class).query(query).build();
 	}

@@ -20,6 +20,9 @@ public class Query {
 	
 	@QueryField(ingore=true)
 	public Integer orderType;
+	
+	@QueryField(ingore=true)
+	public String[] sortFields;//sort fileds order
 	//
 	public static Integer defaultOrderType=null;
 	public static Integer defaultPageSize=20;

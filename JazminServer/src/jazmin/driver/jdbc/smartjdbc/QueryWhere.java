@@ -1,7 +1,9 @@
 package jazmin.driver.jdbc.smartjdbc;
 
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 
@@ -23,13 +25,14 @@ public class QueryWhere {
 	}
 	//
 	protected List<Where> wheres;
-	protected String orderBy;
+	protected Set<String> orderBys;
 	protected int limitStart=0;
 	protected int limitEnd=-1;
 	protected boolean forUpdate;
 	//
 	private QueryWhere() {
-		wheres=new LinkedList<Where>();
+		wheres=new LinkedList<>();
+		orderBys=new LinkedHashSet<>();
 	}
 	//
 	public static QueryWhere create(){
@@ -73,7 +76,7 @@ public class QueryWhere {
 	}
 	//
 	public QueryWhere orderBy(String orderBy){
-		this.orderBy=orderBy;
+		this.orderBys.add(orderBy);
 		return this;
 	}
 	//
@@ -155,8 +158,8 @@ public class QueryWhere {
 	/**
 	 * @return the orderBy
 	 */
-	public String getOrderBy() {
-		return orderBy;
+	public Set<String> getOrderBys() {
+		return orderBys;
 	}
 	/**
 	 * @return the limitStart
