@@ -293,6 +293,18 @@ public class SmartDAO extends JazminDAO{
 	/**
 	 * 
 	 * @param domainClass
+	 * @param query
+	 * @param excludeFields
+	 * @return
+	 */
+	public <T> List<T> getAll(Class<T> domainClass,QueryWhere query,String ... excludeFields){
+		SqlBean sqlBean=new SelectProvider(domainClass).query(query).excludeFields(excludeFields).build();
+		return queryList(domainClass,sqlBean.sql,sqlBean.parameters);
+	}
+	
+	/**
+	 * 
+	 * @param domainClass
 	 * @param qw
 	 * @return
 	 */
