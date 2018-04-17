@@ -682,7 +682,11 @@ public class SelectProvider extends SqlProvider{
 					}
 				}
 			}else {
-				select(MAIN_TABLE_ALIAS, field.getName(),null,null,distinct,statFunc);
+				if(StringUtil.isEmpty(domainField.field())) {
+					select(MAIN_TABLE_ALIAS,field.getName(),null,null,distinct,statFunc);
+				}else {
+					select(MAIN_TABLE_ALIAS,domainField.field(),null,field.getName(),distinct,statFunc);
+				}
 				continue;
 			}
 		}
