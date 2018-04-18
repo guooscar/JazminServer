@@ -692,6 +692,7 @@ public class DeployManager {
     		if(user.id==null||user.id.trim().length()==0){
     			return null;
     		}
+    		userMap.put(u, user);
     		return user;
     	}catch (Exception e) {
     		logger.catching(e);
