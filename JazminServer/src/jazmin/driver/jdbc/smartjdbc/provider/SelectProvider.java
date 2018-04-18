@@ -669,16 +669,7 @@ public class SelectProvider extends SqlProvider{
 					table1Alias=join.table2Alias;
 				}
 				if(WRAP_TYPES.contains(field.getType())){
-					String selectField=field.getName();
-					String asField=null;
-					if(!StringUtil.isEmpty(domainField.field())) {
-						asField=field.getName();
-						selectField=domainField.field();
-					}
-					if(!StringUtil.isEmpty(statFunc)) {
-						asField=field.getName();
-					}
-					select(join.table2Alias,selectField,null,asField,distinct,statFunc);
+					addSelect(join.table2Alias, field, domainField);
 				}else {
 					List<Field> subClassFields=getPersistentFields((Class<?>)field.getGenericType());
 					for (Field subClassField : subClassFields) {
@@ -687,33 +678,24 @@ public class SelectProvider extends SqlProvider{
 					}
 				}
 			}else {
-				String selectField=field.getName();
-				String asField=null;
-				if(!StringUtil.isEmpty(domainField.field())) {
-					asField=field.getName();
-					selectField=domainField.field();
-				}
-				if(!StringUtil.isEmpty(statFunc)) {
-					asField=field.getName();
-				}
-				select(MAIN_TABLE_ALIAS,selectField,null,asField,distinct,statFunc);
+				addSelect(MAIN_TABLE_ALIAS, field, domainField);
 				continue;
 			}
 		}
 	}
 	//
-//	private void addSelect(Field field,DomainField domainField) {
-//		String selectField=field.getName();
-//		String asField=null;
-//		if(!StringUtil.isEmpty(domainField.field())) {
-//			asField=field.getName();
-//			selectField=domainField.field();
-//		}
-//		if(!StringUtil.isEmpty(statFunc)) {
-//			asField=field.getName();
-//		}
-//		select(MAIN_TABLE_ALIAS,selectField,null,asField,distinct,statFunc);
-//	}
+	private void addSelect(String tableAlias,Field field,DomainField domainField) {
+		String selectField=field.getName();
+		String asField=null;
+		if(!StringUtil.isEmpty(domainField.field())) {
+			asField=field.getName();
+			selectField=domainField.field();
+		}
+		if(!StringUtil.isEmpty(domainField.statFunc())) {
+			asField=field.getName();
+		}
+		select(tableAlias,selectField,null,asField,domainField.distinct(),domainField.statFunc());
+	}
 	//
 	private String getSinglePrimaryKey(Class<?> clazz) {
 		List<Field> list=SqlProvider.getPrimaryKey(clazz);
