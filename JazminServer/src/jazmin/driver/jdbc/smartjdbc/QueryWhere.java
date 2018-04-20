@@ -60,7 +60,14 @@ public class QueryWhere {
 	//
 	public  QueryWhere in(String alias,String key,Object[] values) {
 		if(values!=null&&values.length>0) {
-			this.where(alias, key, "in", values);	
+			this.where(alias, key, "in", values);
+		}
+		return this;
+	}
+	//
+	public  QueryWhere notin(String alias,String key,Object[] values) {
+		if(values!=null&&values.length>0) {
+			this.where(alias, key, "not in", values);
 		}
 		return this;
 	}
@@ -101,7 +108,8 @@ public class QueryWhere {
 		List<Object>ret=new LinkedList<Object>();
 		for(Where w:wheres){
 			if(w.key!=null){
-				if(w.operator.equals("in")) {
+				if(w.operator.trim().equalsIgnoreCase("in")||
+						w.operator.trim().equalsIgnoreCase("not in")) {
 					Object[] values=(Object[])w.value;
 					if(values!=null&&values.length>0) {
 						for (Object value : values) {
@@ -132,6 +140,16 @@ public class QueryWhere {
 				if(w.operator.trim().equalsIgnoreCase("like")){
 					sql.append(" concat('%',?,'%') ");
 				}else if(w.operator.trim().equalsIgnoreCase("in")) {
+					Object[] values=(Object[])w.value;
+					if(values!=null&&values.length>0) {
+						sql.append(" ( ");
+						for (int i = 0; i < values.length; i++) {
+							sql.append(" ?,");
+						}
+						sql.deleteCharAt(sql.length() - 1);
+						sql.append(" ) ");
+					}
+				}else if(w.operator.trim().equalsIgnoreCase("not in")) {
 					Object[] values=(Object[])w.value;
 					if(values!=null&&values.length>0) {
 						sql.append(" ( ");

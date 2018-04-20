@@ -191,8 +191,23 @@ public class SelectProvider extends SqlProvider{
 		return this;
 	}
 	//
+	public SelectProvider inOrNotin(String alias,String operator,String key,Object[] values){
+		if(StringUtil.isEmpty(operator)||operator.trim().equalsIgnoreCase("in")) {
+			qw.in(alias, key, values);
+		}
+		else if(operator.trim().equalsIgnoreCase("not in")) {
+			qw.notin(alias, key, values);
+		}
+		return this;
+	}
+	//
 	public SelectProvider in(String alias,String key,Object[] values){
 		qw.in(alias, key, values);
+		return this;
+	}
+	//
+	public SelectProvider notin(String alias,String key,Object[] values){
+		qw.notin(alias, key, values);
 		return this;
 	}
 	//
@@ -455,23 +470,23 @@ public class SelectProvider extends SqlProvider{
 					if(queryField!=null&&(!StringUtil.isEmpty(queryField.operator()))) {
 						operator=queryField.operator();
 					}
-					if (StringUtil.isEmpty(operator)) {
+					if (fieldType.equals(int[].class)||
+							fieldType.equals(short[].class)||
+							fieldType.equals(byte[].class)||
+							fieldType.equals(String[].class)) {//in or not in
+						if(fieldType.equals(int[].class)) {
+							inOrNotin(alias,operator,dbFieldName, ArrayUtils.convert((int[])value));
+						}else if(fieldType.equals(short[].class)) {
+							inOrNotin(alias,operator,dbFieldName, ArrayUtils.convert((short[])value));
+						}else if(fieldType.equals(byte[].class)) {
+							inOrNotin(alias,operator, dbFieldName, ArrayUtils.convert((byte[])value));
+						}else if(fieldType.equals(String[].class)) {
+							inOrNotin(alias,operator, dbFieldName, ArrayUtils.convert((String[])value));
+						}
+						continue;
+					}else if (StringUtil.isEmpty(operator)) {
 						if(fieldType.equals(String.class)) {//字符串默认like
 							operator="like";
-						}else if (fieldType.equals(int[].class)||
-								fieldType.equals(short[].class)||
-								fieldType.equals(byte[].class)||
-								fieldType.equals(String[].class)) {
-							if(fieldType.equals(int[].class)) {
-								in(alias, dbFieldName, ArrayUtils.convert((int[])value));
-							}else if(fieldType.equals(short[].class)) {
-								in(alias, dbFieldName, ArrayUtils.convert((short[])value));
-							}else if(fieldType.equals(byte[].class)) {
-								in(alias, dbFieldName, ArrayUtils.convert((byte[])value));
-							}else if(fieldType.equals(String[].class)) {
-								in(alias, dbFieldName, ArrayUtils.convert((String[])value));
-							}
-							continue;
 						}else {
 							operator="=";
 						}
