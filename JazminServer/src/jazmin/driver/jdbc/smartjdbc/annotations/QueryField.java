@@ -29,6 +29,7 @@ public @interface QueryField {
 
 	/**和表结构映射的字段名 默认就是自己*/
 	public String field() default "";
+	
 	/**别的表的关联字段  必须填对应的外键字段 可以有多个按照顺序依次  逗号分隔*/
 	String foreignKeyFields() default "";
 }
