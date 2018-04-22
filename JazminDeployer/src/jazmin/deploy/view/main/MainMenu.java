@@ -86,7 +86,7 @@ public final class MainMenu extends CustomComponent {
         settings.addStyleName("user-menu");
         settingsItem = settings.addItem("", new ThemeResource("img/profile-pic-300px.jpg"), null);
         updateUserName();
-        if(DeploySystemUI.getUser().id.equals(User.ADMIN)){
+        if(DeploySystemUI.getUser().admin){
         	settingsItem.addItem("Reload Config", (selectedItem)->{
             	DeployManager.reload();
             	DeploySystemUI.showNotificationInfo("Info","Config reload complete.");

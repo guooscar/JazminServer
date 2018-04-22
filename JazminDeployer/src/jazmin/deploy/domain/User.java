@@ -11,10 +11,10 @@ import java.util.List;
  * 30 Dec, 2014
  */
 public class User {
-	public static String ADMIN="admin";
 	//
 	public String id;
 	public String password;
+	public boolean admin;
 	public List<String>machines;
 	public List<String>applicationSystems;
 	public List<String>instanceClusters;
