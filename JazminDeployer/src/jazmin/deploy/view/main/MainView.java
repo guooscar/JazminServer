@@ -78,7 +78,7 @@ public class MainView extends HorizontalLayout {
     	menuView.addMenuItem("Instance", FontAwesome.LIST,new InstanceInfoView());
     	menuView.addMenuItem("Machine", FontAwesome.DESKTOP,new MachineInfoView());	
     	menuView.addMenuItem("Application", FontAwesome.FILE,new ApplicationInfoView());	
-        if(DeploySystemUI.getUser().id.equals(User.ADMIN)){
+        if(DeploySystemUI.getUser().admin){
     		menuView.addMenuItem("Package", FontAwesome.FOLDER_O,new PackageInfoView());	
         	menuView.addMenuItem("Repo", FontAwesome.CLOUD_UPLOAD,new RepoInfoView());
     	}
