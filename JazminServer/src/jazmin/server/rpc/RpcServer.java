@@ -7,6 +7,7 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +35,7 @@ import jazmin.core.app.AppException;
 import jazmin.core.monitor.Monitor;
 import jazmin.core.monitor.MonitorAgent;
 import jazmin.core.thread.DispatcherCallbackAdapter;
+import jazmin.driver.jdbc.Transaction;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
@@ -135,23 +137,43 @@ public class RpcServer extends Server implements Registerable{
 		instanceMap.put(instanceName, instance);
 		//
 		//
-		for(Method m:interfaceClass.getMethods()){
+		Collection<Method> implMethods=getDeclaredMethod(implClass, interfaceClass);
+		for(Method m:implMethods){
 			//Transaction annotation add on impl class so we should use implClass
-			if(!Modifier.isPublic(m.getModifiers())){
-				continue;
-			}
-			if(Modifier.isStatic(m.getModifiers())){
-				continue;
-			}
 			//
 			String methodName=instanceName+"."+m.getName();
 			if(methodMap.containsKey(methodName)){
 				throw new IllegalArgumentException("method:"+methodName
 						+" already exists.");
 			}
-			logger.debug("register method:{}",methodName);
+			logger.debug("register method:{}/transaction:{}",methodName,
+					m.isAnnotationPresent(Transaction.class));
 			methodMap.put(methodName, m);
 		}
+	}
+	//
+	public static Collection<Method> getDeclaredMethod(Class<?> implClass,Class<?> inferfaceClass) {
+		Map<String,Method> methodMap = new HashMap<>();
+		for (Method m : inferfaceClass.getMethods()) {
+			methodMap.put(m.getName(), m);
+		}
+		Map<String,Method> implMethods = new HashMap<>();
+		for (Class<?> clazz = implClass; clazz != Object.class; clazz = clazz.getSuperclass()) {
+			Method[] methods = clazz.getDeclaredMethods();
+			for (Method m : methods) {
+				if (!Modifier.isPublic(m.getModifiers())) {
+					continue;
+				}
+				if (Modifier.isStatic(m.getModifiers())) {
+					continue;
+				}
+				if(!methodMap.containsKey(m.getName())) {
+					continue;
+				}
+				implMethods.put(m.getName(),m);
+			}
+		}
+		return implMethods.values();
 	}
 	/**
 	 * return all service names
