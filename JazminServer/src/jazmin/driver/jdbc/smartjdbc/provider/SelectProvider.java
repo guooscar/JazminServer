@@ -223,6 +223,11 @@ public class SelectProvider extends SqlProvider{
 		return this;
 	}
 	//
+	public SelectProvider whereSql(String sql,Object ...values){
+		qw.whereSql(sql,null, values);
+		return this;
+	}
+	//
 	public SelectProvider whereSql(String sql,OrGroup orGroup,Object ...values){
 		qw.whereSql(sql,orGroup, values);
 		return this;
