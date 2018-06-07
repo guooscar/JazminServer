@@ -17,6 +17,7 @@ import java.lang.annotation.Target;
 @Documented
 @Inherited  
 public @interface DomainDefine {
+	String comment() default "";
 	String tableName() default "";//tableName first than domainClass
 	Class<?> domainClass() default void.class;
 }

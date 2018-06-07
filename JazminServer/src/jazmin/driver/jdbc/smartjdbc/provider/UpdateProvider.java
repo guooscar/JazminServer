@@ -8,8 +8,10 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import jazmin.driver.jdbc.smartjdbc.QueryWhere;
+import jazmin.driver.jdbc.smartjdbc.QueryWhere.WhereStatment;
 import jazmin.driver.jdbc.smartjdbc.SmartJdbcException;
 import jazmin.driver.jdbc.smartjdbc.SqlBean;
+import jazmin.driver.jdbc.smartjdbc.annotations.DomainField;
 import jazmin.driver.jdbc.smartjdbc.annotations.NonPersistent;
 import jazmin.util.JSONUtil;
 
@@ -20,10 +22,10 @@ import jazmin.util.JSONUtil;
  */
 public class UpdateProvider extends SqlProvider{
 	//
-	Object bean;
-	QueryWhere qw;
-	String[] excludeProperties;
-	boolean excludeNull;
+	protected Object bean;
+	protected QueryWhere qw;
+	protected String[] excludeProperties;
+	protected boolean excludeNull;
 	//
 	public UpdateProvider(Object bean,boolean excludeNull,String ... excludeProperties) {
 		this(bean, null, excludeNull, excludeProperties);
@@ -57,6 +59,10 @@ public class UpdateProvider extends SqlProvider{
 			if(nonPersistent!=null) {
 				continue;
 			}
+			DomainField domainField=f.getAnnotation(DomainField.class);
+			if(domainField!=null&&domainField.autoIncrement()) {
+				continue;
+			}
 			String fieldName = convertFieldName(f.getName());
 			if (Modifier.isStatic(f.getModifiers())) {
 				continue;
@@ -85,8 +91,9 @@ public class UpdateProvider extends SqlProvider{
 				qw.where(convertFieldName(field.getName()),getFieldValue(bean, field.getName()));
 			}
 		}
-		sql.append(qw.whereStatement());
-		for(Object o:qw.whereValues()){
+		WhereStatment ws=qw.whereStatement();
+		sql.append(ws.sql);
+		for(Object o:ws.values){
 			fieldList.add(o);
 		}
 		return createSqlBean(sql.toString(), fieldList.toArray(new Object[fieldList.size()]));
