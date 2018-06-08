@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @Documented
 public @interface InnerJoin {
 	//
-	public String table1Field();
+	public String table1Field() default "id";
 
 	public String table2Field() default "id";
 

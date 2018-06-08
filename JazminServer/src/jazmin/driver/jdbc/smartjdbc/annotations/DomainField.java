@@ -18,6 +18,12 @@ import java.lang.annotation.Target;
 @Inherited  
 public @interface DomainField {
 	
+	/**字段注释*/
+	String comment() default "";
+	
+	/**是否自增*/
+	boolean autoIncrement() default false;
+	
 	/**这个字段是别的表的关联字段  必须填对应的外键字段 可以有多个按照顺序依次y以逗号分隔*/
 	String foreignKeyFields() default "";
 	
@@ -29,6 +35,7 @@ public @interface DomainField {
 
 	/**select max() or sum() avg() */
 	String statFunc() default "";
+	
 	/**ignore or not when select*/
 	boolean ignoreWhenSelect() default false;
 }

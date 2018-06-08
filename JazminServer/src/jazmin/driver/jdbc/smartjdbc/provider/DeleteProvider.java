@@ -1,6 +1,7 @@
 package jazmin.driver.jdbc.smartjdbc.provider;
 
 import jazmin.driver.jdbc.smartjdbc.QueryWhere;
+import jazmin.driver.jdbc.smartjdbc.QueryWhere.WhereStatment;
 import jazmin.driver.jdbc.smartjdbc.SqlBean;
 
 /**
@@ -10,8 +11,8 @@ import jazmin.driver.jdbc.smartjdbc.SqlBean;
  */
 public class DeleteProvider extends SqlProvider{
 	//
-	Class<?> domainClass;
-	QueryWhere qw;
+	protected Class<?> domainClass;
+	protected QueryWhere qw;
 	//
 	public DeleteProvider(Class<?> domainClass,QueryWhere qw) {
 		this.domainClass=domainClass;
@@ -24,8 +25,9 @@ public class DeleteProvider extends SqlProvider{
 		String tableName=getTableName(domainClass);
 		sql.append("delete from ").append(tableName).append(" ");
 		sql.append("where 1=1 ");
-		sql.append(qw.whereStatement());
-		return createSqlBean(sql.toString(),qw.whereValues());
+		WhereStatment ws=qw.whereStatement();
+		sql.append(ws.sql);
+		return createSqlBean(sql.toString(),ws.values);
 	}
 
 }

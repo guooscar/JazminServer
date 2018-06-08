@@ -20,6 +20,7 @@ import jazmin.driver.jdbc.smartjdbc.annotations.PrimaryKey;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.util.DumpUtil;
+import jazmin.util.StringUtil;
 
 /**
  * 
@@ -76,8 +77,13 @@ public abstract class SqlProvider {
 	public static String getTableName(Class<?> domainClass) {
 		Class<?> tableClass=domainClass;
 		DomainDefine domainDefine=domainClass.getAnnotation(DomainDefine.class);
-		if (domainDefine != null && (!domainDefine.domainClass().equals(void.class))) {
-			tableClass=domainDefine.domainClass();
+		if (domainDefine != null) {
+			if(!StringUtil.isEmpty(domainDefine.tableName())) {//tableName first
+				return domainDefine.tableName();
+			}
+			if(!domainDefine.domainClass().equals(void.class)){
+				tableClass=domainDefine.domainClass();
+			}
 		}
 		return Config.getTableName(tableClass);
 	}
