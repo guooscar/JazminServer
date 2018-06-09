@@ -19,7 +19,7 @@ import jazmin.util.JSONUtil;
 public class SyncHttpProxyHandler implements InvocationHandler {
 	String url;
 	HttpClientDriver httpDriver;
-	SyncHttpProxyHandler(String url){
+	public SyncHttpProxyHandler(String url){
 		this.url=url;
 		httpDriver=new HttpClientDriver();
 		try {

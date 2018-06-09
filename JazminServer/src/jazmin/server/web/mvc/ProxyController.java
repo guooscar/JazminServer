@@ -68,7 +68,8 @@ public class ProxyController {
 			if(Modifier.isPublic(m.getModifiers())){
 				String fullName=targetName+"."+m.getName();
 				if(methodMap.containsKey(fullName)){
-					throw new IllegalStateException(fullName+" already registered");
+					logger.warn(fullName+" already registered");
+					continue;
 				}
 				InvokeInfo info=new InvokeInfo();
 				info.method=m;
