@@ -412,7 +412,7 @@ public class SelectProvider extends SqlProvider{
 					}else {
 						Join childJoin=getJoin(key, join.joins);
 						if(childJoin==null) {
-							childJoin=createInnerJoin(key,table1Alias,"l"+(index++),table1,table2,id,"id");
+							childJoin=createInnerJoin(key,table1Alias,"i"+(index++),table1,table2,id,"id");
 							join.joins.add(childJoin);
 						}
 						join=childJoin;
