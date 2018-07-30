@@ -11,6 +11,7 @@ import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import jazmin.core.app.AppException;
@@ -92,6 +93,8 @@ public class ProxyController {
 			 if(typeArguments.length==1) {
 				 if(List.class.isAssignableFrom(clazz) && (typeArguments[0] instanceof Class)) {
 					 return JSONUtil.fromJsonList(json, (Class<?>) typeArguments[0]);
+				 }else  if(Set.class.isAssignableFrom(clazz) && (typeArguments[0] instanceof Class)) {
+					 return JSONUtil.fromJsonSet(json, (Class<?>) typeArguments[0]);
 				 }
 			 }
 		 }
