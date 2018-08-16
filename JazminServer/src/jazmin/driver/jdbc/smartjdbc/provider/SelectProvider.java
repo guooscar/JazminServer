@@ -2,6 +2,7 @@ package jazmin.driver.jdbc.smartjdbc.provider;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -502,7 +503,7 @@ public class SelectProvider extends SqlProvider{
 			Field field=info.field;
 			try {
 				Object value=field.get(q);
-				paraMap.put("#{"+field.getName()+"}", value);
+				paraMap.put(field.getName(), value);
 			} catch (Exception e) {
 				logger.error(e.getMessage(),e);
 				throw new SmartJdbcException(e.getMessage());
@@ -573,18 +574,38 @@ public class SelectProvider extends SqlProvider{
 		return false;
 	}
 	//
+	/**
+	 * 
+	 * @param data
+	 * @param regex
+	 * @return
+	 */
+	public static List<String> matchs(String data, String regex) {
+		List<String> result = new ArrayList<>();
+		if (data == null || regex == null) {
+			return result;
+		}
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(data);
+		while (matcher.find()) {
+			result.add(matcher.group(1));
+		}
+		return result;
+	}
+	//
 	public static SqlBean parseSql(String sql,Map<String,Object> paraMap) {
-		Pattern p=Pattern.compile("\\#\\{[a-zA-Z_$][a-zA-Z0-9_$]*\\}");
+		Pattern p=Pattern.compile("\\#\\{([a-zA-Z_][a-zA-Z0-9_]*)\\}");
 		Matcher m = p.matcher(sql);
+		Pattern $p=Pattern.compile("\\$\\{([a-zA-Z_][a-zA-Z0-9_]*)\\}");
+		Matcher $m = $p.matcher(sql);
+		String newSql=sql;
+		Object[] values=null;
 		List<String> groups=new ArrayList<>();
 		while(m.find()) { 
-		    groups.add(m.group());
+		    groups.add(m.group(1));
 		}
-		if(groups.isEmpty()) {
-			return new SqlBean(sql);
-		}
-		String newSql=m.replaceAll("?");
-		Object[] values=new Object[groups.size()];
+		newSql=m.replaceAll("?");
+		values=new Object[groups.size()];
 		int i=0;
 		for (String group : groups) {
 			Object value=paraMap.get(group);
@@ -593,6 +614,21 @@ public class SelectProvider extends SqlProvider{
 						"\nall can choose paras is:"+paraMap.keySet()); 
 			}
 			values[i++]=value;
+		}
+		//
+		while($m.find()) { 
+			String group=$m.group(1);
+			String replaceGroup="\\$\\{"+group+"\\}";
+			Object value=paraMap.get(group);
+			if(value==null) {
+				throw new SmartJdbcException(group+" not found.\nsql:"+sql+
+						"\nall can choose paras is:"+paraMap.keySet()); 
+			}
+			if(value instanceof String) {
+				newSql=newSql.replaceAll(replaceGroup,"'"+value.toString()+"'");
+			}else {
+				newSql=newSql.replaceAll(replaceGroup,value.toString());
+			}
 		}
 		return new SqlBean(newSql,values);
 	}
@@ -758,6 +794,8 @@ public class SelectProvider extends SqlProvider{
 					table1Alias=join.table2Alias;
 				}
 				if(WRAP_TYPES.contains(field.getType())){
+					addSelect(join.table2Alias, field, domainField);
+				}else if(field.getGenericType() instanceof ParameterizedType){
 					addSelect(join.table2Alias, field, domainField);
 				}else {
 					List<Field> subClassFields=getPersistentFields((Class<?>)field.getGenericType());
@@ -928,6 +966,9 @@ public class SelectProvider extends SqlProvider{
 	}
 	//
 	protected String getOrderBySql() {
+		if(isSelectCount) {
+			return "";
+		}
 		StringBuffer sql=new StringBuffer();
 		if(needOrderBy) {
 			addOrderBy(query);
@@ -943,12 +984,13 @@ public class SelectProvider extends SqlProvider{
 	}
 	//
 	protected String getLimitSql() {
+		if(isSelectCount) {
+			return "";
+		}
 		StringBuffer sql=new StringBuffer();
-		if(needPaging) {
-			addPaging(query);
-			if(qw.getLimitEnd()!=-1) {
-				sql.append(" limit ").append(qw.getLimitStart()).append(",").append(qw.getLimitEnd());
-			}
+		addPaging(query);	
+		if(qw.getLimitEnd()!=-1) {
+			sql.append(" limit ").append(qw.getLimitStart()).append(",").append(qw.getLimitEnd());
 		}
 		return sql.toString();
 	}
@@ -984,5 +1026,13 @@ public class SelectProvider extends SqlProvider{
 			return queryCount();
 		}
 		return query();
+	}
+	
+	public List<SelectField> getSelectFields() {
+		return selectFields;
+	}
+	
+	public void setSelectFields(List<SelectField> selectFields) {
+		this.selectFields = selectFields;
 	}
 }

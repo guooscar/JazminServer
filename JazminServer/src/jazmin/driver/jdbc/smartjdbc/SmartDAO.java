@@ -488,7 +488,7 @@ public class SmartDAO extends JazminDAO{
 				value = rs.getBoolean(fieldName);
 			} else if (fieldType.equals(BigDecimal.class)) {
 				value = rs.getBigDecimal(fieldName);
-			}  else if (fieldType.equals(byte[].class)) {
+			} else if (fieldType.equals(byte[].class)) {
 				Blob bb = rs.getBlob(fieldName);
 				if (bb != null) {
 					ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -496,7 +496,7 @@ public class SmartDAO extends JazminDAO{
 					value = bos.toByteArray();
 				}
 			} else {
-				if(domainField==null||StringUtil.isEmpty(domainField.foreignKeyFields())) {
+				if(domainField==null||(!StringUtil.isEmpty(domainField.field()))) {
 					String strValue=rs.getString(fieldName);
 					if(strValue!=null){
 						Type genericType=f.getGenericType();
