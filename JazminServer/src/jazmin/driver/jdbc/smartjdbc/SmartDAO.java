@@ -11,6 +11,7 @@ import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,6 +29,8 @@ import jazmin.driver.jdbc.smartjdbc.provider.InsertProvider;
 import jazmin.driver.jdbc.smartjdbc.provider.SelectProvider;
 import jazmin.driver.jdbc.smartjdbc.provider.SqlProvider;
 import jazmin.driver.jdbc.smartjdbc.provider.UpdateProvider;
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
 import jazmin.util.IOUtil;
 import jazmin.util.JSONUtil;
 import jazmin.util.StringUtil;
@@ -37,7 +40,8 @@ import jazmin.util.StringUtil;
  * @author skydu
  */
 public class SmartDAO extends JazminDAO{
-	
+	//
+	private static Logger logger=LoggerFactory.get(SmartDAO.class);
 	/**
 	 * 
 	 * @param o
@@ -197,11 +201,27 @@ public class SmartDAO extends JazminDAO{
 	 * 
 	 * @param domainClass
 	 * @param qw
+	 * @param excludeFields
 	 * @return
 	 */
 	public <T> T getDomain(Class<T> domainClass,QueryWhere qw,String ... excludeFields){
-		SqlBean sqlBean=new SelectProvider(domainClass).query(qw).
-				excludeFields(excludeFields).build();
+		return getDomain(domainClass, qw, null,excludeFields);
+	}
+	
+	/**
+	 * 
+	 * @param domainClass
+	 * @param qw
+	 * @param includeFields
+	 * @param excludeFields
+	 * @return
+	 */
+	public <T> T getDomain(Class<T> domainClass,QueryWhere qw,Set<String> includeFields,String ... excludeFields){
+		SqlBean sqlBean=new SelectProvider(domainClass).
+				query(qw).
+				includeFields(includeFields).
+				excludeFields(excludeFields).
+				build();
 		return queryObject(domainClass,sqlBean.sql,sqlBean.parameters);
 	}
 	
@@ -226,8 +246,10 @@ public class SmartDAO extends JazminDAO{
 	public <T> T getDomain(Query query,String ... excludeFields){
 		beforeQuery(query);
 		Class<T> domainClass=(Class<T>) getDomainClass(query);
-		SqlBean sqlBean=new SelectProvider(domainClass).query(query).
-				excludeFields(excludeFields).build();
+		SqlBean sqlBean=new SelectProvider(domainClass).
+				query(query).
+				excludeFields(excludeFields).
+				build();
 		return queryObject(domainClass,sqlBean.sql,sqlBean.parameters);
 	}
 	
@@ -247,12 +269,38 @@ public class SmartDAO extends JazminDAO{
 	 * 
 	 * @param domainClass
 	 * @param qw
+	 * @param excludeFields
 	 * @return
 	 */
 	public <T> List<T> getList(Class<T> domainClass,QueryWhere qw,String ... excludeFields){
+		return getList(domainClass, qw, null, excludeFields);
+	}
+	
+	/**
+	 * 
+	 * @param domainClass
+	 * @param qw
+	 * @param includeFields
+	 * @param excludeFields
+	 * @return
+	 */
+	public <T> List<T> getList(Class<T> domainClass,QueryWhere qw,Set<String> includeFields,String ... excludeFields){
 		SqlBean sqlBean=new SelectProvider(domainClass).query(qw).
-				excludeFields(excludeFields).needPaging(true).build();
+				includeFields(includeFields).
+				excludeFields(excludeFields).
+				needPaging(true).
+				build();
 		return queryList(domainClass,sqlBean.sql,sqlBean.parameters);
+	}
+	
+	/**
+	 * 
+	 * @param query
+	 * @param excludeFields
+	 * @return
+	 */
+	public <T> List<T> getList(Query query,String ... excludeFields){
+		return getList(query, null, excludeFields);
 	}
 	
 	/**
@@ -260,11 +308,15 @@ public class SmartDAO extends JazminDAO{
 	 * @param query
 	 * @return
 	 */
-	public <T> List<T> getList(Query query,String ... excludeFields){
+	public <T> List<T> getList(Query query,Set<String> includeFields,String ... excludeFields){
 		beforeQuery(query);
 		Class<T> domainClass=getDomainClass(query);
-		SqlBean sqlBean=new SelectProvider(domainClass).query(query).
-				excludeFields(excludeFields).needPaging(true).build();
+		SqlBean sqlBean=new SelectProvider(domainClass).
+				query(query).
+				includeFields(includeFields).
+				excludeFields(excludeFields).
+				needPaging(true).
+				build();
 		return queryList(domainClass,sqlBean.sql,sqlBean.parameters);
 	}
 	
@@ -382,6 +434,7 @@ public class SmartDAO extends JazminDAO{
 			convertBean(instance,rs);
 			return instance;
 		}catch(Exception e){
+			logger.error(e.getMessage(),e);
 			throw new SmartJdbcException(e);
 		}
 	} 
@@ -419,6 +472,19 @@ public class SmartDAO extends JazminDAO{
 		WRAP_TYPES.add(float.class);
 		WRAP_TYPES.add(double.class);
 	}
+	//
+	private List<Field> getNoStaticFinalFields(Class<?> clazz) {
+		List<Field> fieldList=new ArrayList<>();
+		Field[] fields = clazz.getFields();
+		for (Field field : fields) {
+			if (Modifier.isStatic(field.getModifiers()) || 
+					Modifier.isFinal(field.getModifiers())) {
+				continue;
+			}
+			fieldList.add(field);
+		}
+		return fieldList;
+	}
 	/**
 	 * 
 	 * @param o
@@ -441,7 +507,14 @@ public class SmartDAO extends JazminDAO{
 		for(int i=1;i<=columnCount;i++) {
 			columnNames.add(rsmd.getColumnLabel(i));
 		}
-		for (Field f : type.getFields()) {
+		List<Field> fields=getNoStaticFinalFields(type);
+		for (Field f : fields) {
+			String fieldName = convertFieldName(f.getName());
+			if(preAliasField!=null) {
+				fieldName=preAliasField+fieldName;
+			}
+		}
+		for (Field f : fields) {
 			if (excludesNames.contains(f.getName())) {
 				continue;
 			}
@@ -450,10 +523,6 @@ public class SmartDAO extends JazminDAO{
 				fieldName=preAliasField+fieldName;
 			}
 			Class<?> fieldType = f.getType();
-			if (Modifier.isStatic(f.getModifiers())||
-					Modifier.isFinal(f.getModifiers())) {
-				continue;
-			}
 			DomainField domainField=f.getAnnotation(DomainField.class);
 			if(domainField!=null&&domainField.ignoreWhenSelect()) {
 				continue;
@@ -496,7 +565,7 @@ public class SmartDAO extends JazminDAO{
 					value = bos.toByteArray();
 				}
 			} else {
-				if(domainField==null||(!StringUtil.isEmpty(domainField.field()))) {
+				if(columnNames.contains(fieldName)) {
 					String strValue=rs.getString(fieldName);
 					if(strValue!=null){
 						Type genericType=f.getGenericType();
@@ -518,10 +587,13 @@ public class SmartDAO extends JazminDAO{
 						 }
 					}
 				}else {
-					Class<?> subClass=((Class<?>)f.getGenericType());
-					value=subClass.newInstance();
-					String subPreAliasField=f.getName()+"_";
-					convertBean(value, subPreAliasField, rs, excludeFields);
+					Type genericType=f.getGenericType();
+					if ( genericType instanceof Class) { //only support Class
+						Class<?> subClass=((Class<?>)f.getGenericType());
+						value=subClass.newInstance();
+						String subPreAliasField=f.getName()+"_";
+						convertBean(value, subPreAliasField, rs, excludeFields);
+					}
 				}
 			}
 			f.setAccessible(true);

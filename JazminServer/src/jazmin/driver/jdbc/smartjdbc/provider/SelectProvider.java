@@ -5,8 +5,8 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -88,6 +88,7 @@ public class SelectProvider extends SqlProvider{
 	protected boolean isForUpdate;
 	protected List<SelectField> selectFields;
 	protected boolean ingoreSelectDomainFiled;
+	protected Set<String> includeFields;
 	protected Set<String> excludeFields;//userName not user_name
 	protected Map<String,Join> innerJoinMap;
 	protected Map<String,String> innerJoinFieldAliasMap;
@@ -99,7 +100,8 @@ public class SelectProvider extends SqlProvider{
 	public SelectProvider(Class<?> domainClass) {
 		this.domainClass=domainClass;
 		this.selectFields=new ArrayList<>();
-		this.excludeFields=new HashSet<>();
+		this.includeFields=new LinkedHashSet<>();
+		this.excludeFields=new LinkedHashSet<>();
 		this.qw=QueryWhere.create();
 		this.groupBys=new ArrayList<>();
 		this.leftJoins=new ArrayList<>();
@@ -163,6 +165,15 @@ public class SelectProvider extends SqlProvider{
 			String preAsField,String asField,boolean distinct,String statFunction) {
 		selectFields.add(createSelectField(tableAlias, field, 
 				preAsField,asField, distinct, statFunction));
+		return this;
+	}
+	//
+	public SelectProvider includeFields(Set<String> fields){
+		if(fields!=null) {
+			for (String field : fields) {
+				includeFields.add(field);
+			}
+		}
 		return this;
 	}
 	//
@@ -732,6 +743,9 @@ public class SelectProvider extends SqlProvider{
 			if (Modifier.isStatic(field.getModifiers())|| Modifier.isFinal(field.getModifiers())) {
 				continue;
 			}
+			if((!includeFields.isEmpty())&&(!includeFields.contains(field.getName()))){
+				continue;
+			}
 			if(excludeFields.contains(field.getName())){
 				continue;
 			}
@@ -866,7 +880,7 @@ public class SelectProvider extends SqlProvider{
 	 */
 	protected SqlBean queryCount() {
 		StringBuffer sql = new StringBuffer();
-		sql.append("select count(1) ");
+		sql.append("\nselect count(1) \n");
 		this.needPaging=false;
 		return build(sql);
 	}
@@ -880,7 +894,7 @@ public class SelectProvider extends SqlProvider{
 		if(!ingoreSelectDomainFiled) {
 			buildSelectDomainFields();
 		}
-		sql.append("select ");
+		sql.append("\nselect ");
 		if(selectFields.size()==0) {
 			throw new IllegalArgumentException("no select field found in "+domainClass.getName());
 		}
@@ -913,26 +927,29 @@ public class SelectProvider extends SqlProvider{
 			sql.append(",");
 		}
 		sql.deleteCharAt(sql.length()-1);
+		sql.append("\n");
 	}
 	//
 	//
 	protected String getFromSql() {
 		StringBuffer sql=new StringBuffer();
-		sql.append(" from ").append(getTableName(domainClass)).append(" ").append(MAIN_TABLE_ALIAS).append(" ");
+		sql.append("from ").append(getTableName(domainClass)).append(" ").append(MAIN_TABLE_ALIAS).append(" \n");
 		//inner join
 		this.innerJoinMap=getInnerJoins(query);
 		for (Join join : innerJoins) {
-			sql.append(" inner join  ");
+			sql.append("inner join  ");
 			sql.append(getTableName(join.table2)).append(" ").append(join.table2Alias);
 			sql.append(" on ").append(join.table1Alias).append(".`"+convertFieldName(join.table1Field)+"`=").
 				append(join.table2Alias).append(".").append(convertFieldName(join.table2Field));
+			sql.append("\n");
 		}
 		//left join
 		for (Join join : leftJoins) {
-			sql.append(" left join  ");
+			sql.append("left join  ");
 			sql.append(getTableName(join.table2)).append(" ").append(join.table2Alias);
 			sql.append(" on ").append(join.table1Alias).append(".`"+convertFieldName(join.table1Field)+"`=").
 				append(join.table2Alias).append(".").append(convertFieldName(join.table2Field));
+			sql.append("\n");
 		}
 		return sql.toString();
 	}
@@ -940,20 +957,21 @@ public class SelectProvider extends SqlProvider{
 	protected String getWhereSql() {
 		StringBuffer sql=new StringBuffer();
 		addWheres(query);
-		sql.append(" where 1=1 ");
+		sql.append("where 1=1 ");
 		for (Where w : qw.getWheres()) {
 			if(w.alias==null) {
 				w.alias=MAIN_TABLE_ALIAS;
 			}
 		}
 		sql.append(qw.whereStatement().sql);
+		sql.append("\n");
 		return sql.toString();
 	}
 	//
 	protected String getGroupBySql() {
 		StringBuffer sql=new StringBuffer();
 		if(groupBys.size()>0) {
-			sql.append(" group by ");
+			sql.append("group by ");
 			for (GroupByField field : groupBys) {
 				if(!StringUtil.isEmpty(field.tableAlias)) {
 					sql.append(field.tableAlias).append(".");
@@ -961,6 +979,7 @@ public class SelectProvider extends SqlProvider{
 				sql.append(convertFieldName(field.field)).append(",");
 			}
 			sql.deleteCharAt(sql.length()-1);
+			sql.append("\n");
 		}
 		return sql.toString();
 	}
@@ -973,11 +992,12 @@ public class SelectProvider extends SqlProvider{
 		if(needOrderBy) {
 			addOrderBy(query);
 			if (qw.getOrderBys().size()>0) {
-				sql.append(" order by ");
+				sql.append("order by ");
 				for (String orderBy : qw.getOrderBys()) {
 					sql.append(orderBy).append(",");
 				}
 				sql.deleteCharAt(sql.length()-1);
+				sql.append("\n");
 			}
 		}
 		return sql.toString();
@@ -990,14 +1010,14 @@ public class SelectProvider extends SqlProvider{
 		StringBuffer sql=new StringBuffer();
 		addPaging(query);	
 		if(qw.getLimitEnd()!=-1) {
-			sql.append(" limit ").append(qw.getLimitStart()).append(",").append(qw.getLimitEnd());
+			sql.append("limit ").append(qw.getLimitStart()).append(",").append(qw.getLimitEnd()).append("\n");
 		}
 		return sql.toString();
 	}
 	//
 	protected String getForUpdateSql() {
 		if(isForUpdate) {
-			return " for update ";
+			return "for update \n";
 		}
 		return "";
 	}
