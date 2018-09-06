@@ -103,7 +103,20 @@ public class SmartDAO extends JazminDAO{
 	 */
 	public int update(Object bean,
 			String... excludeFields){
-		return update(bean,false,excludeFields);
+		return update(bean,false,null,excludeFields);
+	}
+	
+	/**
+	 * 
+	 * @param bean
+	 * @param includeFields
+	 * @param excludeFields
+	 * @return
+	 */
+	public int update(Object bean,
+			Set<String> includeFields,
+			String... excludeFields) {
+		return update(bean,false,includeFields,excludeFields);
 	}
 	//
 	/**
@@ -115,9 +128,10 @@ public class SmartDAO extends JazminDAO{
 	 */
 	public int update(Object bean,
 			boolean excludeNull,
+			Set<String> includeFields,
 			String... excludeFields){
 		beforeUpdate(bean,excludeNull,excludeFields);
-		SqlBean sqlBean=new UpdateProvider(bean, excludeNull, excludeFields).build();
+		SqlBean sqlBean=new UpdateProvider(bean, excludeNull,includeFields,excludeFields).build();
 		int result=executeUpdate(sqlBean.sql,sqlBean.parameters);
 		afterUpdate(result,bean,excludeNull,excludeFields);
 		return result;

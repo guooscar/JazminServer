@@ -743,7 +743,7 @@ public class SelectProvider extends SqlProvider{
 			if (Modifier.isStatic(field.getModifiers())|| Modifier.isFinal(field.getModifiers())) {
 				continue;
 			}
-			if((!includeFields.isEmpty())&&(!includeFields.contains(field.getName()))){
+			if(includeFields!=null&&!includeFields.isEmpty()&&(!includeFields.contains(field.getName()))){
 				continue;
 			}
 			if(excludeFields.contains(field.getName())){

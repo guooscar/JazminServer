@@ -137,6 +137,7 @@ public class Jazmin {
 		appClassloader=Thread.currentThread().getContextClassLoader();
 		SerializeConfig.getGlobalInstance().setAsmEnable(false);
 		ParserConfig.getGlobalInstance().setAsmEnable(false);
+		ParserConfig.getGlobalInstance().setAutoTypeSupport(true); 
 	}
 	/**
 	 * get server start time
