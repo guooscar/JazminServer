@@ -19,7 +19,6 @@
 	<classpathentry kind="lib" path="lib/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-1.50.jar"/>
 	<classpathentry kind="lib" path="lib/netty-3.10.3.Final.jar"/>
-	<classpathentry kind="lib" path="lib/mongo-java-driver-3.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.36-bin.jar"/>
 	<classpathentry kind="lib" path="lib/jsch-0.1.53.jar"/>
 	<classpathentry kind="lib" path="lib/fst-2.43-onejar.jar"/>
@@ -41,5 +40,6 @@
 	<classpathentry kind="lib" path="lib/lucene-queryparser-7.4.0.jar"/>
 	<classpathentry kind="lib" path="lib/lucene-analyzers-smartcn-7.4.0.jar"/>
 	<classpathentry kind="lib" path="lib/fastjson-1.2.49.jar"/>
+	<classpathentry kind="lib" path="lib/mongo-java-driver-3.6.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
