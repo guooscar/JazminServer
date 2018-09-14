@@ -40,12 +40,15 @@ public class MongodbDriver extends Driver{
 	}
 	//
 	@Override
-	public void start() throws Exception {
-		 MongoClientURI connStr = new MongoClientURI(mongoUri);
-	     mongoClient = new MongoClient(connStr);
+	public void init() throws Exception {
+		MongoClientURI connStr = new MongoClientURI(mongoUri);
+	    mongoClient = new MongoClient(connStr);
 	}
 	//
-	
+	@Override
+	public void start() throws Exception {
+		 
+	}
 	//
 	@Override
 	public void stop() throws Exception {
