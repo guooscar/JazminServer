@@ -88,17 +88,22 @@ public class ProxyController {
 	}
 	//
 	public Object getParameterValue(Class<?> clazz,Type type,String json){
-		 if ( type instanceof ParameterizedType ) {  
-			 Type[] typeArguments = ((ParameterizedType)type).getActualTypeArguments();  
-			 if(typeArguments.length==1) {
-				 if(List.class.isAssignableFrom(clazz) && (typeArguments[0] instanceof Class)) {
-					 return JSONUtil.fromJsonList(json, (Class<?>) typeArguments[0]);
-				 }else  if(Set.class.isAssignableFrom(clazz) && (typeArguments[0] instanceof Class)) {
-					 return JSONUtil.fromJsonSet(json, (Class<?>) typeArguments[0]);
+		try {
+			 if ( type instanceof ParameterizedType ) {  
+				 Type[] typeArguments = ((ParameterizedType)type).getActualTypeArguments();  
+				 if(typeArguments.length==1) {
+					 if(List.class.isAssignableFrom(clazz) && (typeArguments[0] instanceof Class)) {
+						 return JSONUtil.fromJsonList(json, (Class<?>) typeArguments[0]);
+					 }else  if(Set.class.isAssignableFrom(clazz) && (typeArguments[0] instanceof Class)) {
+						 return JSONUtil.fromJsonSet(json, (Class<?>) typeArguments[0]);
+					 }
 				 }
 			 }
-		 }
-		return JSONUtil.fromJson(json, clazz);
+			return JSONUtil.fromJson(json, clazz);
+		} catch (Throwable e) {
+			logger.error(e.getMessage(),e);
+			throw new ParameterException(-1,e.getMessage());
+		}	
 	}
 	//
 	/**
@@ -135,6 +140,7 @@ public class ProxyController {
 			exception=e;
 		}finally {
 			if(exception!=null){
+				logger.error("invoke failed.classAndMethod:{} ",classAndMethod);
 				logger.catching(exception);
 			}
 			contextThreadLocal.set(null);
@@ -158,6 +164,9 @@ public class ProxyController {
 			if(e instanceof AppException){
 				AppException ae=(AppException)e;
 				sb.append(","+ae.getCode()+","+ae.getMessage());
+			}if(e instanceof ParameterException){
+				ParameterException ae=(ParameterException)e;
+				sb.append(","+ae.getCode()+",");
 			}else{
 				sb.append(",,"+e.getMessage()+"\n");
 			}
