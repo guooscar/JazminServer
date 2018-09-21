@@ -104,6 +104,7 @@ public class ThreadWorker implements Runnable {
 							ae.getCode(),
 							ae.getMessage());
 				}else{
+					exception=new AppException(exception.getMessage());
 					logger.error("<invoke:" + methodName, exception);		
 				}
 			}
