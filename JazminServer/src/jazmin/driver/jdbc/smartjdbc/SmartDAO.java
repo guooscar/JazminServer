@@ -171,7 +171,7 @@ public class SmartDAO extends JazminDAO{
 	/**
 	 * 
 	 * @param domainClass
-	 * @param qt
+	 * @param qw
 	 * @return
 	 */
 	public int delete(Class<?> domainClass,QueryWhere qw){
