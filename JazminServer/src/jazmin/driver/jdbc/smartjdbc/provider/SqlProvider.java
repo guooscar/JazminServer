@@ -20,6 +20,7 @@ import jazmin.driver.jdbc.smartjdbc.annotations.NonPersistent;
 import jazmin.driver.jdbc.smartjdbc.annotations.PrimaryKey;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
+import jazmin.util.ClassUtils;
 import jazmin.util.DumpUtil;
 import jazmin.util.StringUtil;
 
@@ -167,7 +168,8 @@ public abstract class SqlProvider {
 	 */
 	public static List<Field> getPersistentFields(Class<?> domainClass){
 		List<Field> fields=new ArrayList<>();
-		for (Field field : domainClass.getFields()) {
+		List<Field> fieldList = ClassUtils.getFieldList(domainClass);
+		for (Field field : fieldList) {
 			if(isPersistentField(field)) {
 				fields.add(field);
 			}

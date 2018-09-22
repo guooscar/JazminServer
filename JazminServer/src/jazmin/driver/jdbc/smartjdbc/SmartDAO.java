@@ -31,6 +31,7 @@ import jazmin.driver.jdbc.smartjdbc.provider.SqlProvider;
 import jazmin.driver.jdbc.smartjdbc.provider.UpdateProvider;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
+import jazmin.util.ClassUtils;
 import jazmin.util.IOUtil;
 import jazmin.util.JSONUtil;
 import jazmin.util.StringUtil;
@@ -489,7 +490,7 @@ public class SmartDAO extends JazminDAO{
 	//
 	private List<Field> getNoStaticFinalFields(Class<?> clazz) {
 		List<Field> fieldList=new ArrayList<>();
-		Field[] fields = clazz.getFields();
+		List<Field> fields = ClassUtils.getFieldList(clazz);
 		for (Field field : fields) {
 			if (Modifier.isStatic(field.getModifiers()) || 
 					Modifier.isFinal(field.getModifiers())) {

@@ -34,6 +34,7 @@ import jazmin.driver.jdbc.smartjdbc.annotations.QueryField.OrGroup;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.util.ArrayUtils;
+import jazmin.util.ClassUtils;
 import jazmin.util.StringUtil;
 
 /**
@@ -284,7 +285,7 @@ public class SelectProvider extends SqlProvider{
 	//
 	protected List<Field> getQueryFields(Query query){
 		List<Field> fieldList=new ArrayList<>();
-		Field[] fields = query.getClass().getFields();
+		List<Field> fields = ClassUtils.getFieldList(query.getClass());
 		QueryDefine queryDefine = query.getClass().getAnnotation(QueryDefine.class);
 		if (queryDefine == null) {
 			throw new IllegalArgumentException("queryDefine not found in " + query.getClass().getName());
@@ -455,7 +456,7 @@ public class SelectProvider extends SqlProvider{
 	}
 	//
 	protected QueryInfo createQueryInfo(Query query){
-		Field[] fields = query.getClass().getFields();
+		List<Field> fields = ClassUtils.getFieldList(query.getClass());
 		QueryDefine queryDefine = query.getClass().getAnnotation(QueryDefine.class);
 		if (queryDefine == null) {
 			throw new IllegalArgumentException("queryDefine not found in " + query.getClass().getName());
@@ -671,7 +672,7 @@ public class SelectProvider extends SqlProvider{
 			return orderByList;
 		}
 		boolean haveSort=false;
-		Field[] fields = query.getClass().getFields();
+		List<Field> fields = ClassUtils.getFieldList(query.getClass());
 		String[] querySortFields=query.sortFields;
 		List<SortField> sortFields=new ArrayList<>();
 		for (Field field : fields) {
@@ -738,7 +739,7 @@ public class SelectProvider extends SqlProvider{
 	protected void buildSelectDomainFields(){
 		int index=1;
 		Map<String, Join> map = new LinkedHashMap<>();
-		Field[] fields=domainClass.getFields();
+		List<Field> fields = ClassUtils.getFieldList(domainClass);
 		for (Field field : fields) {
 			if (Modifier.isStatic(field.getModifiers())|| Modifier.isFinal(field.getModifiers())) {
 				continue;

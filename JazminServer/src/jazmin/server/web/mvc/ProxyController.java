@@ -164,7 +164,7 @@ public class ProxyController {
 			if(e instanceof AppException){
 				AppException ae=(AppException)e;
 				sb.append(","+ae.getCode()+","+ae.getMessage());
-			}if(e instanceof ParameterException){
+			}else if(e instanceof ParameterException){
 				ParameterException ae=(ParameterException)e;
 				sb.append(","+ae.getCode()+",");
 			}else{
