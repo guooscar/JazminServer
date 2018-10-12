@@ -99,13 +99,13 @@ public class ThreadWorker implements Runnable {
 			if (exception != null) {
 				if(exception instanceof AppException){
 					AppException ae=(AppException)exception;
-					logger.warn("<invoke:{},app exception code={},msg={}" ,
+					logger.error("<invoke:{},app exception code={},msg={}" ,
 							methodName,
 							ae.getCode(),
 							ae.getMessage());
 				}else{
+					logger.error("<invoke:" + methodName, exception);	
 					exception=new AppException(exception.getMessage());
-					logger.error("<invoke:" + methodName, exception);		
 				}
 			}
 			if(traceLog){
