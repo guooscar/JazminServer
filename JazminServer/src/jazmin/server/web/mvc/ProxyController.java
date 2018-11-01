@@ -18,6 +18,7 @@ import jazmin.core.app.AppException;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.util.JSONUtil;
+import jazmin.util.XssShieldUtil;
 
 /**
  * @author yama
@@ -163,12 +164,12 @@ public class ProxyController {
 			sb.append(e.getClass().getSimpleName());
 			if(e instanceof AppException){
 				AppException ae=(AppException)e;
-				sb.append(","+ae.getCode()+","+ae.getMessage());
+				sb.append(","+ae.getCode()+","+XssShieldUtil.stripXss(ae.getMessage()));
 			}else if(e instanceof ParameterException){
 				ParameterException ae=(ParameterException)e;
 				sb.append(","+ae.getCode()+",");
 			}else{
-				sb.append(",,"+e.getMessage()+"\n");
+				sb.append(",,"+XssShieldUtil.stripXss(e.getMessage())+"\n");
 			}
 		}
 		return new PlainTextView(sb.toString());
