@@ -9,12 +9,13 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
+
+import java.nio.ByteBuffer;
+
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.mysqlproxy.MySQLProxyServer.ProxyServerBackendChannelInitializer;
-import jazmin.server.mysqlproxy.mysql.proto.HandshakeResponse;
-import jazmin.util.DumpUtil;
-import jazmin.util.HexDumpUtil;
+import jazmin.server.mysqlproxy.mysql.protocol.AuthPacket;
 /**
  * 
  * @author yama
@@ -24,15 +25,18 @@ public class ProxyFrontendHandler extends ChannelHandlerAdapter {
 	private static Logger logger=LoggerFactory.get(ProxyFrontendHandler.class);
     private volatile Channel outboundChannel;
     private MySQLProxyServer server;
-    private HandshakeResponse handshakeResponse;
-    public ProxyFrontendHandler(MySQLProxyServer server) {
+    private AuthPacket authPacket;
+    ProxyRule rule;
+    ProxySession session;
+    //
+    public ProxyFrontendHandler(MySQLProxyServer server,ProxyRule rule) {
     	this.server=server;
+    	this.rule=rule;
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         final Channel inboundChannel = ctx.channel();
-        ProxyRule rule=server.getRule();
         String remoteHost=rule.remoteHost;
         int remotePort=rule.remotePort;
         if(logger.isDebugEnabled()){
@@ -42,7 +46,7 @@ public class ProxyFrontendHandler extends ChannelHandlerAdapter {
         Bootstrap b = new Bootstrap();
         b.group(inboundChannel.eventLoop())
          .channel(ctx.channel().getClass())
-         .handler(new ProxyServerBackendChannelInitializer(inboundChannel))
+         .handler(new ProxyServerBackendChannelInitializer(server,rule,this,inboundChannel))
          .option(ChannelOption.TCP_NODELAY, true);
         ChannelFuture f = b.connect(remoteHost, remotePort);
         outboundChannel = f.channel();
@@ -54,14 +58,12 @@ public class ProxyFrontendHandler extends ChannelHandlerAdapter {
                     	logger.debug("connect to backend {}:{} success",
                     			remoteHost,remotePort);
                     }
-                    // connection complete start to read first data
                     inboundChannel.read();
                 } else {
                 	if(logger.isDebugEnabled()){
                     	logger.debug("connect to backend {}:{} error",
                     			remoteHost,remotePort);
                     }
-                    // Close the connection if the connection attempt has failed.
                     inboundChannel.close();
                 }
             }
@@ -71,13 +73,32 @@ public class ProxyFrontendHandler extends ChannelHandlerAdapter {
     @Override
     public void channelRead(final ChannelHandlerContext ctx, Object msg) {
     	byte[] packet = (byte[]) msg;
-    	if(handshakeResponse==null) {
-    		handshakeResponse=HandshakeResponse.loadFromPacket(packet);
-    		//handshakeResponse.
-    		System.err.println(DumpUtil.dump(handshakeResponse));
+    	if(authPacket==null&&rule.authProvider!=null) {
+    		authPacket=new AuthPacket();
+    		authPacket.read(packet);
+    		session.clientPassword=authPacket.password;
+    		session.user=authPacket.user;
+    		session.dbUser=authPacket.user;
+    		//
+    		Database database=rule.authProvider.auth(session);
+    		if(database!=null){
+    			//rewrite user and password
+    			authPacket.password=ProxySession.scramble411(database.password.getBytes(),session.challenge);
+    			authPacket.user=database.user;
+    			//log
+    			session.dbUser=database.user;
+    			//
+    			ByteBuffer bf=ByteBuffer.allocate(authPacket.calcPacketSize()+4);
+        		authPacket.write(bf);
+        		writeToBackend(ctx,bf.array());
+        		return;
+    		}
     	}
-    	System.err.println("----->\n"+HexDumpUtil.dumpHexString(packet));
-        writeToBackend(ctx, packet);
+    	 if(session!=null){
+         	session.packetCount++;
+         }
+    	//System.err.println("----->\n"+HexDumpUtil.dumpHexString(packet));
+        writeToBackend(ctx, packet); 	
     }
     //
     private void writeToBackend(ChannelHandlerContext ctx, byte[] packet) {
@@ -99,9 +120,12 @@ public class ProxyFrontendHandler extends ChannelHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
     	if(logger.isDebugEnabled()){
-        	logger.debug("disconnect from backend {}",ctx.channel());
+        	logger.debug("disconnect from frontend {}",ctx.channel());
         }
-        if (outboundChannel != null) {
+    	if(session!=null){
+    		server.removeSession(session.id);	
+    	}
+    	if (outboundChannel != null) {
             closeOnFlush(outboundChannel);
         }
     }
