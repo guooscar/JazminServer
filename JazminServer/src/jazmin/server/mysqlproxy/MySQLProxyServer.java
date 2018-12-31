@@ -1,19 +1,19 @@
 /**
  * 
  */
-package jazmin.server.proxy;
+package jazmin.server.mysqlproxy;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import jazmin.core.Jazmin;
 import jazmin.core.Server;
 import jazmin.misc.io.IOWorker;
@@ -22,7 +22,7 @@ import jazmin.misc.io.IOWorker;
  * @author yama
  *
  */
-public class ProxyServer extends Server{
+public class MySQLProxyServer extends Server{
 	ServerBootstrap nettyServer;
 	EventLoopGroup bossGroup;
 	EventLoopGroup workerGroup;
@@ -30,7 +30,7 @@ public class ProxyServer extends Server{
 	int port;
 	List<ProxyRule>proxyRules;
 	//
-	public ProxyServer() {
+	public MySQLProxyServer() {
 		proxyRules=new ArrayList<ProxyRule>();
 		port=5050;
 	}
@@ -95,7 +95,20 @@ public class ProxyServer extends Server{
 		@Override
 		protected void initChannel(SocketChannel ch) throws Exception {
 			 ch.pipeline().addLast(
-		               new ProxyFrontendHandler(ProxyServer.this)); 
+					 	new PacketDecoder(),
+		                new ProxyFrontendHandler(MySQLProxyServer.this)); 
+		}
+	}
+	public static class ProxyServerBackendChannelInitializer extends ChannelInitializer<SocketChannel>{
+		Channel inChannel;
+		ProxyServerBackendChannelInitializer(Channel inChannel){
+			this.inChannel=inChannel;
+		}
+		@Override
+		protected void initChannel(SocketChannel ch) throws Exception {
+			 ch.pipeline().addLast(
+					 	new PacketDecoder(),
+		                new ProxyBackendHandler(inChannel)); 
 		}
 	}
 	//--------------------------------------------------------------------------
@@ -122,7 +135,7 @@ public class ProxyServer extends Server{
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		ProxyServer server=new ProxyServer();
+		MySQLProxyServer server=new MySQLProxyServer();
 		server.addRule("uat.itit.io",8001);
 		Jazmin.addServer(server);
 		Jazmin.start();
