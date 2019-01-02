@@ -134,6 +134,8 @@ JazminServer帮助开发者实现了众多的底层功能，基于JazminServer�
 * WebSshServer
   * 使用WebSocket作为传输中继
   * 前端使用hterm.js
+* MySQLProxyServer
+  * 解析MySQL协议，支持对用户进行第三方用户名密码认证
 
 <p>
 <img src='https://github.com/guooscar/JazminServer/blob/master/JazminServer/doc/images/image002.jpg?raw=true'/>

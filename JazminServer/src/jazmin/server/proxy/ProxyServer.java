@@ -32,7 +32,7 @@ public class ProxyServer extends Server{
 	//
 	public ProxyServer() {
 		proxyRules=new ArrayList<ProxyRule>();
-		port=9001;
+		port=5050;
 	}
 	/**
 	 * add proxy rule 
@@ -123,7 +123,7 @@ public class ProxyServer extends Server{
 	 */
 	public static void main(String[] args) {
 		ProxyServer server=new ProxyServer();
-		server.addRule("bbs.tiexue.net",80);
+		server.addRule("uat.itit.io",8001);
 		Jazmin.addServer(server);
 		Jazmin.start();
 	}
