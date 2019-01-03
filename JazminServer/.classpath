@@ -6,7 +6,7 @@
 	<classpathentry kind="lib" path="lib/flex-messaging-core.jar"/>
 	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/xmemcached-2.0.0.jar"/>
-	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api.jar" sourcepath="/Users/yama/.m2/repository/javax/servlet/javax.servlet-api/3.1.0/javax.servlet-api-3.1.0-sources.jar"/>
 	<classpathentry kind="lib" path="lib/gently-utils-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/josql-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/c3p0-0.9.5.jar"/>
