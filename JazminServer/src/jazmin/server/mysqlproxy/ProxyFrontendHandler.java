@@ -1,5 +1,7 @@
 package jazmin.server.mysqlproxy;
 
+import java.nio.ByteBuffer;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -9,13 +11,11 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
-
-import java.nio.ByteBuffer;
-
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.mysqlproxy.MySQLProxyServer.ProxyServerBackendChannelInitializer;
 import jazmin.server.mysqlproxy.mysql.protocol.AuthPacket;
+import jazmin.server.mysqlproxy.mysql.protocol.Capabilities;
 /**
  * 
  * @author yama
@@ -73,9 +73,11 @@ public class ProxyFrontendHandler extends ChannelHandlerAdapter {
     @Override
     public void channelRead(final ChannelHandlerContext ctx, Object msg) {
     	byte[] packet = (byte[]) msg;
+    	//System.err.println("----->\n"+HexDumpUtil.dumpHexString(packet));
     	if(authPacket==null&&rule.authProvider!=null) {
     		authPacket=new AuthPacket();
     		authPacket.read(packet);
+    		authPacket.clientFlags &= ~Capabilities.CLIENT_CONNECT_ATTRS;//remove attr
     		session.clientPassword=authPacket.password;
     		session.user=authPacket.user;
     		session.dbUser=authPacket.user;
@@ -97,7 +99,7 @@ public class ProxyFrontendHandler extends ChannelHandlerAdapter {
     	 if(session!=null){
          	session.packetCount++;
          }
-    	//System.err.println("----->\n"+HexDumpUtil.dumpHexString(packet));
+    	
         writeToBackend(ctx, packet); 	
     }
     //
