@@ -5,11 +5,16 @@ package jazmin.server.web.mvc;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.List;
 
 import jazmin.core.app.AppException;
 import jazmin.driver.http.HttpClientDriver;
 import jazmin.driver.http.HttpRequest;
 import jazmin.driver.http.HttpResponse;
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
 import jazmin.util.JSONUtil;
 
 /**
@@ -17,9 +22,10 @@ import jazmin.util.JSONUtil;
  *
  */
 public class SyncHttpProxyHandler implements InvocationHandler {
+	private Logger logger=LoggerFactory.get(SyncHttpProxyHandler.class);
 	String url;
 	HttpClientDriver httpDriver;
-	SyncHttpProxyHandler(String url){
+	public SyncHttpProxyHandler(String url){
 		this.url=url;
 		httpDriver=new HttpClientDriver();
 		try {
@@ -32,10 +38,13 @@ public class SyncHttpProxyHandler implements InvocationHandler {
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		String invokeName=method.getDeclaringClass().getSimpleName()+"."+method.getName();
+		logger.info(">>invoke "+invokeName);
 		HttpRequest req=httpDriver.post(url+"/"+invokeName);
-		for(int i=0;i<args.length;i++){
-			if(args[i]!=null){
-				req.addFormParam("arg"+i, JSONUtil.toJson(args[i]));		
+		if(args!=null) {
+			for(int i=0;i<args.length;i++){
+				if(args[i]!=null){
+					req.addFormParam("arg"+i, JSONUtil.toJson(args[i]));		
+				}
 			}
 		}
 		Object ret=null;
@@ -49,7 +58,18 @@ public class SyncHttpProxyHandler implements InvocationHandler {
 			String ss[]=respBody.split("\n");
 			if(ss.length>0){
 				if(!ss[0].isEmpty()){
-					ret=JSONUtil.fromJson(ss[0],method.getReturnType());
+					Class<?>retType=method.getReturnType();
+					Type genericType =method.getGenericReturnType();
+					if ( genericType instanceof ParameterizedType ) {  
+						 Type[] typeArguments = ((ParameterizedType)genericType).getActualTypeArguments();  
+						 if(typeArguments.length==1) {
+							 if(List.class.isAssignableFrom(retType) && (typeArguments[0] instanceof Class)) {
+								 ret=JSONUtil.fromJsonList(ss[0],(Class<?>) typeArguments[0]);
+							 }
+						 }
+					 }else {
+						 ret=JSONUtil.fromJson(ss[0],method.getReturnType());
+					 }
 				}	
 			}
 			if(ss.length>1){
@@ -66,11 +86,14 @@ public class SyncHttpProxyHandler implements InvocationHandler {
 				}
 			}
 		}catch (Exception e) {
+			logger.warn("invoke "+invokeName+":"+e.getMessage());
 			if(e instanceof AppException){
 				throw e;
 			}else{
 				throw new AppException(e);
 			}	
+		}finally {
+			logger.info("<<invoke "+invokeName);
 		}
 		return ret;
 	}

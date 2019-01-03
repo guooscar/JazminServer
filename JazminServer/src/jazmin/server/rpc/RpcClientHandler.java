@@ -58,13 +58,13 @@ public class RpcClientHandler extends ChannelHandlerAdapter{
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) 
     		throws Exception {
-    	if((cause instanceof IOException)||(cause instanceof DecoderException)){
-    		logger.warn("exception on channal:"+ctx.channel()+","+cause.getMessage());
-    	}else{
-    		logger.error("exception on channal:"+ctx.channel(),cause);	
-    	}
-    	RpcSession session=ctx.channel().attr(RpcClient.SESSION_KEY).get();
-    	session.close();
+	    	if((cause instanceof IOException)||(cause instanceof DecoderException)){
+	    		logger.warn("exception on channal:"+ctx.channel()+","+cause.getMessage());
+	    	}else{
+	    		logger.error("exception on channal:"+ctx.channel(),cause);	
+	    	}
+	    	RpcSession session=ctx.channel().attr(RpcClient.SESSION_KEY).get();
+	    	session.close();
         ctx.close();
     }
 

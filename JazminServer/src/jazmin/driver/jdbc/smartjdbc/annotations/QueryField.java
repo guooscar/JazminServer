@@ -31,11 +31,12 @@ public @interface QueryField {
 	/** 不作为查询条件 */
 	public boolean ingore() default false;
 
-	/**和表结构映射的字段名 默认就是自己*/
+	/**和表结构映射的字段名 默认就是自己;如果有多个字段，用,分隔，通过or组合起来*/
 	public String field() default "";
 	
 	/**别的表的关联字段  必须填对应的外键字段 可以有多个按照顺序依次  逗号分隔*/
 	String foreignKeyFields() default "";
+	
 	/**orAnd的分组,逗号分隔 eg:or name=#{name} or a.type=#type*/
 	public OrGroup orGroup() default @OrGroup;
 }

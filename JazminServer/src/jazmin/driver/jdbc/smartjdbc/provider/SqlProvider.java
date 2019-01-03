@@ -15,10 +15,12 @@ import jazmin.driver.jdbc.smartjdbc.Config;
 import jazmin.driver.jdbc.smartjdbc.SmartJdbcException;
 import jazmin.driver.jdbc.smartjdbc.SqlBean;
 import jazmin.driver.jdbc.smartjdbc.annotations.DomainDefine;
+import jazmin.driver.jdbc.smartjdbc.annotations.DomainField;
 import jazmin.driver.jdbc.smartjdbc.annotations.NonPersistent;
 import jazmin.driver.jdbc.smartjdbc.annotations.PrimaryKey;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
+import jazmin.util.ClassUtils;
 import jazmin.util.DumpUtil;
 import jazmin.util.StringUtil;
 
@@ -143,19 +145,34 @@ public abstract class SqlProvider {
 	
 	/**
 	 * 
+	 * @param field
+	 * @return
+	 */
+	public static boolean isPersistentField(Field field) {
+		if (Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers())) {
+			return false;
+		}
+		if(field.getAnnotation(NonPersistent.class)!=null) {
+			return false;
+		}
+		DomainField domainField=field.getAnnotation(DomainField.class);
+		if(domainField!=null) {
+			return domainField.persistent();
+		}
+		return true;
+	}
+	/**
+	 * 
 	 * @param domainClass
 	 * @return
 	 */
 	public static List<Field> getPersistentFields(Class<?> domainClass){
 		List<Field> fields=new ArrayList<>();
-		for (Field field : domainClass.getFields()) {
-			if (Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers())) {
-				continue;
+		List<Field> fieldList = ClassUtils.getFieldList(domainClass);
+		for (Field field : fieldList) {
+			if(isPersistentField(field)) {
+				fields.add(field);
 			}
-			if(field.getAnnotation(NonPersistent.class)!=null) {
-				continue;
-			}
-			fields.add(field);
 		}
 		return fields;
 	}

@@ -10,6 +10,7 @@ public class SqlBean {
 	public String sql;
 	
 	public Object[] parameters;
+	
 	public String selectSql;//select a.*,b.name ....
 	
 	public String fromSql;//from t_bug a inner join t_user i0
