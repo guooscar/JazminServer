@@ -15,5 +15,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)  
 @Documented
 public @interface ForeignKey {
+	
 	Class<?> domainClass();
+	
+	String field() default "id";
 }

@@ -414,18 +414,18 @@ public class SelectProvider extends SqlProvider{
 									domainClass.getSimpleName()+"."+foreignKeyField.getName());
 					}
 					Class<?> table2=foreignKey.domainClass();
-					String key=id+"-"+table2.getName()+"-"+"id";
+					String table2Field=foreignKey.field();
+					String key=id+"-"+table2.getName()+"-"+table2Field;
 					if(join==null) {
-						
 						join = map.get(key);
 						if(join==null) {
-							join=createInnerJoin(key,table1Alias,"i"+(index++),table1, table2,id,"id");
+							join=createInnerJoin(key,table1Alias,"i"+(index++),table1, table2,id,table2Field);
 							map.put(key, join);
 						}
 					}else {
 						Join childJoin=getJoin(key, join.joins);
 						if(childJoin==null) {
-							childJoin=createInnerJoin(key,table1Alias,"i"+(index++),table1,table2,id,"id");
+							childJoin=createInnerJoin(key,table1Alias,"i"+(index++),table1,table2,id,table2Field);
 							join.joins.add(childJoin);
 						}
 						join=childJoin;
