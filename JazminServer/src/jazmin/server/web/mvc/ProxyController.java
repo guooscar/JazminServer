@@ -28,8 +28,8 @@ public class ProxyController {
 	private static Logger logger=LoggerFactory.get(ProxyController.class);
 	//
 	public static class InvokeInfo{
-		Object target;
-		Method method;
+		public Object target;
+		public Method method;
 	}
 	//
 	protected Map<String,InvokeInfo>methodMap;
