@@ -104,6 +104,7 @@ public class ProxyController {
 			return JSONUtil.fromJson(json, clazz);
 		} catch (Throwable e) {
 			logger.error(e.getMessage(),e);
+			logger.error("clazz:{} json:{}",clazz,json);
 			throw new ParameterException(-1,e.getMessage());
 		}	
 	}
