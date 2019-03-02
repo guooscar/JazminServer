@@ -216,12 +216,12 @@ public class SelectProvider extends SqlProvider{
 		return this;
 	}
 	//
-	public SelectProvider inOrNotin(String alias,String operator,String key,Object[] values){
+	public SelectProvider inOrNotin(String alias,String operator,String key,Object[] values,OrGroup orGroup){
 		if(StringUtil.isEmpty(operator)||operator.trim().equalsIgnoreCase("in")) {
-			qw.in(alias, key, values);
+			qw.in(alias, key, values,orGroup);
 		}
 		else if(operator.trim().equalsIgnoreCase("not in")) {
-			qw.notin(alias, key, values);
+			qw.notin(alias, key, values,orGroup);
 		}
 		return this;
 	}
@@ -553,13 +553,13 @@ public class SelectProvider extends SqlProvider{
 							fieldType.equals(byte[].class)||
 							fieldType.equals(String[].class)) {//in or not in
 						if(fieldType.equals(int[].class)) {
-							inOrNotin(alias,operator,dbFieldName, ArrayUtils.convert((int[])value));
+							inOrNotin(alias,operator,dbFieldName, ArrayUtils.convert((int[])value),info.orGroup);
 						}else if(fieldType.equals(short[].class)) {
-							inOrNotin(alias,operator,dbFieldName, ArrayUtils.convert((short[])value));
+							inOrNotin(alias,operator,dbFieldName, ArrayUtils.convert((short[])value),info.orGroup);
 						}else if(fieldType.equals(byte[].class)) {
-							inOrNotin(alias,operator, dbFieldName, ArrayUtils.convert((byte[])value));
+							inOrNotin(alias,operator, dbFieldName, ArrayUtils.convert((byte[])value),info.orGroup);
 						}else if(fieldType.equals(String[].class)) {
-							inOrNotin(alias,operator, dbFieldName, ArrayUtils.convert((String[])value));
+							inOrNotin(alias,operator, dbFieldName, ArrayUtils.convert((String[])value),info.orGroup);
 						}
 						continue;
 					}else if (StringUtil.isEmpty(operator)) {
