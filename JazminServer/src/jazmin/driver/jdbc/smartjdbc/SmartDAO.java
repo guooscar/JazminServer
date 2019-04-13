@@ -601,10 +601,10 @@ public class SmartDAO extends JazminDAO{
 							 }else {
 								 value=JSONUtil.fromJson(strValue,fieldType);
 							 }
-						} finally {
-							logger.error("strValue:{} parse failed",strValue);
+						}catch (Exception e) {
+							logger.error("fieldName:{} strValue:{} parse failed",fieldName,strValue);
+							throw e;
 						}
-						
 					}
 				}else {
 					Type genericType=f.getGenericType();
