@@ -99,7 +99,7 @@ public class ThreadWorker implements Runnable {
 			if (exception != null) {
 				if(exception instanceof AppException){
 					AppException ae=(AppException)exception;
-					logger.error("<invoke:{},app exception code={},msg={}" ,
+					logger.warn("<invoke:{},app exception code={},msg={}" ,
 							methodName,
 							ae.getCode(),
 							ae.getMessage());
