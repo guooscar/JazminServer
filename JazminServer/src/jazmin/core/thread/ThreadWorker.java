@@ -98,11 +98,8 @@ public class ThreadWorker implements Runnable {
 			long runTime=current-runStartTime;
 			if (exception != null) {
 				if(exception instanceof AppException){
-					AppException ae=(AppException)exception;
-					logger.warn("<invoke:{},app exception code={},msg={}" ,
-							methodName,
-							ae.getCode(),
-							ae.getMessage());
+					AppException ae=(AppException)exception;//AppException use warnning log
+					logger.warn("<invoke:"+methodName+",app exception code="+ae.getCode()+",msg="+ae.getMessage(),exception);
 				}else{
 					logger.error("<invoke:" + methodName, exception);	
 					exception=new AppException(exception.getMessage());
