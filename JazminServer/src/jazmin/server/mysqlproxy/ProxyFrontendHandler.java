@@ -16,6 +16,8 @@ import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.mysqlproxy.MySQLProxyServer.ProxyServerBackendChannelInitializer;
 import jazmin.server.mysqlproxy.mysql.protocol.AuthPacket;
+import jazmin.server.mysqlproxy.mysql.protocol.Capabilities;
+import jazmin.util.DumpUtil;
 /**
  * 
  * @author yama
@@ -73,9 +75,11 @@ public class ProxyFrontendHandler extends ChannelHandlerAdapter {
     @Override
     public void channelRead(final ChannelHandlerContext ctx, Object msg) {
     	byte[] packet = (byte[]) msg;
+    	//System.err.println("----->\n"+HexDumpUtil.dumpHexString(packet));
     	if(authPacket==null&&rule.authProvider!=null) {
     		authPacket=new AuthPacket();
     		authPacket.read(packet);
+    		System.err.println(DumpUtil.dump(authPacket));
     		session.clientPassword=authPacket.password;
     		session.user=authPacket.user;
     		session.dbUser=authPacket.user;
@@ -85,19 +89,22 @@ public class ProxyFrontendHandler extends ChannelHandlerAdapter {
     			//rewrite user and password
     			authPacket.password=ProxySession.scramble411(database.password.getBytes(),session.challenge);
     			authPacket.user=database.user;
+    			if((authPacket.clientFlags & Capabilities.CLIENT_CONNECT_ATTRS) != 0){
+    				authPacket.clientFlags^=Capabilities.CLIENT_CONNECT_ATTRS;
+    			}
     			//log
     			session.dbUser=database.user;
     			//
     			ByteBuffer bf=ByteBuffer.allocate(authPacket.calcPacketSize()+4);
         		authPacket.write(bf);
+        		//System.err.println("C----->\n"+HexDumpUtil.dumpHexString(bf.array()));
         		writeToBackend(ctx,bf.array());
         		return;
     		}
     	}
-    	 if(session!=null){
-         	session.packetCount++;
-         }
-    	//System.err.println("----->\n"+HexDumpUtil.dumpHexString(packet));
+    	if(session!=null){
+    		session.packetCount++;
+        }
         writeToBackend(ctx, packet); 	
     }
     //

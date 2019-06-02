@@ -26,7 +26,7 @@ public class TestMySQLProxyServer {
 		//
 		ProxyRule rule=new ProxyRule();
 		rule.localPort=5050;
-		rule.remoteHost="dbhost";
+		rule.remoteHost="host";
 		rule.remotePort=8001;
 		rule.authProvider=new ProxyRuleAuthProvider() {
 			@Override
@@ -39,7 +39,7 @@ public class TestMySQLProxyServer {
 				if(!session.comparePassword(shaPassword)){
 					return null;
 				}
-				return new Database("root","password");
+				return new Database("user","password");
 			}
 		};
 		server.addRule(rule);
