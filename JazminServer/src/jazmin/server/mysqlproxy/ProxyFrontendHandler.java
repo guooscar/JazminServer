@@ -17,7 +17,6 @@ import jazmin.log.LoggerFactory;
 import jazmin.server.mysqlproxy.MySQLProxyServer.ProxyServerBackendChannelInitializer;
 import jazmin.server.mysqlproxy.mysql.protocol.AuthPacket;
 import jazmin.server.mysqlproxy.mysql.protocol.Capabilities;
-import jazmin.util.DumpUtil;
 /**
  * 
  * @author yama
@@ -79,7 +78,6 @@ public class ProxyFrontendHandler extends ChannelHandlerAdapter {
     	if(authPacket==null&&rule.authProvider!=null) {
     		authPacket=new AuthPacket();
     		authPacket.read(packet);
-    		System.err.println(DumpUtil.dump(authPacket));
     		session.clientPassword=authPacket.password;
     		session.user=authPacket.user;
     		session.dbUser=authPacket.user;

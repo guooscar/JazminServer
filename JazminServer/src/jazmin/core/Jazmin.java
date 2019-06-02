@@ -33,6 +33,9 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.serializer.SerializeConfig;
+
 import jazmin.core.app.Application;
 import jazmin.core.app.ApplicationLoader;
 import jazmin.core.boot.BootScriptLoader;
@@ -46,10 +49,6 @@ import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
 import jazmin.util.DumpUtil;
-import jazmin.util.IOUtil;
-
-import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.serializer.SerializeConfig;
 
 /**
  * JazminServer is a Java based application/message/rpc server.
@@ -137,6 +136,7 @@ public class Jazmin {
 		appClassloader=Thread.currentThread().getContextClassLoader();
 		SerializeConfig.getGlobalInstance().setAsmEnable(false);
 		ParserConfig.getGlobalInstance().setAsmEnable(false);
+		ParserConfig.getGlobalInstance().setAutoTypeSupport(true); 
 	}
 	/**
 	 * get server start time
@@ -563,8 +563,6 @@ public class Jazmin {
 		} catch (Exception e) {
 			logger.error(e.getMessage(),e);
 		}
-		File workDir=new File("work");
-		IOUtil.deleteDirectory(workDir);
 		//
 		Date stopTime=new Date();
 		Duration d=Duration.between(stopTime.toInstant(), startTime.toInstant());

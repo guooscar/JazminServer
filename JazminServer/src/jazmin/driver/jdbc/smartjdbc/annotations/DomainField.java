@@ -33,9 +33,12 @@ public @interface DomainField {
 	/**select distinct field*/
 	boolean distinct() default false;
 
-	/**select max() or sum() avg() */
+	/**统计函数 */
 	String statFunc() default "";
 	
-	/**ignore or not when select*/
+	/**查询时忽略*/
 	boolean ignoreWhenSelect() default false;
+	
+	/**是否持久化*/
+	boolean persistent() default true;
 }

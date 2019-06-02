@@ -11,12 +11,14 @@ import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import jazmin.core.app.AppException;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.util.JSONUtil;
+import jazmin.util.XssShieldUtil;
 
 /**
  * @author yama
@@ -68,7 +70,8 @@ public class ProxyController {
 			if(Modifier.isPublic(m.getModifiers())){
 				String fullName=targetName+"."+m.getName();
 				if(methodMap.containsKey(fullName)){
-					throw new IllegalStateException(fullName+" already registered");
+					logger.warn(fullName+" already registered");
+					continue;
 				}
 				InvokeInfo info=new InvokeInfo();
 				info.method=m;
@@ -86,15 +89,22 @@ public class ProxyController {
 	}
 	//
 	public Object getParameterValue(Class<?> clazz,Type type,String json){
-		 if ( type instanceof ParameterizedType ) {  
-			 Type[] typeArguments = ((ParameterizedType)type).getActualTypeArguments();  
-			 if(typeArguments.length==1) {
-				 if(List.class.isAssignableFrom(clazz) && (typeArguments[0] instanceof Class)) {
-					 return JSONUtil.fromJsonList(json, (Class<?>) typeArguments[0]);
+		try {
+			 if ( type instanceof ParameterizedType ) {  
+				 Type[] typeArguments = ((ParameterizedType)type).getActualTypeArguments();  
+				 if(typeArguments.length==1) {
+					 if(List.class.isAssignableFrom(clazz) && (typeArguments[0] instanceof Class)) {
+						 return JSONUtil.fromJsonList(json, (Class<?>) typeArguments[0]);
+					 }else  if(Set.class.isAssignableFrom(clazz) && (typeArguments[0] instanceof Class)) {
+						 return JSONUtil.fromJsonSet(json, (Class<?>) typeArguments[0]);
+					 }
 				 }
 			 }
-		 }
-		return JSONUtil.fromJson(json, clazz);
+			return JSONUtil.fromJson(json, clazz);
+		} catch (Throwable e) {
+			logger.error(e.getMessage(),e);
+			throw new ParameterException(-1,e.getMessage());
+		}	
 	}
 	//
 	/**
@@ -131,6 +141,7 @@ public class ProxyController {
 			exception=e;
 		}finally {
 			if(exception!=null){
+				logger.error("invoke failed.classAndMethod:{} ",classAndMethod);
 				logger.catching(exception);
 			}
 			contextThreadLocal.set(null);
@@ -153,9 +164,12 @@ public class ProxyController {
 			sb.append(e.getClass().getSimpleName());
 			if(e instanceof AppException){
 				AppException ae=(AppException)e;
-				sb.append(","+ae.getCode()+","+ae.getMessage());
+				sb.append(","+ae.getCode()+","+XssShieldUtil.stripXss(ae.getMessage()));
+			}else if(e instanceof ParameterException){
+				ParameterException ae=(ParameterException)e;
+				sb.append(","+ae.getCode()+",");
 			}else{
-				sb.append(",,"+e.getMessage()+"\n");
+				sb.append(",,"+XssShieldUtil.stripXss(e.getMessage())+"\n");
 			}
 		}
 		return new PlainTextView(sb.toString());

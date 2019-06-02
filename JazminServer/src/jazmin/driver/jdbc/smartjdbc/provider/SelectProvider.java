@@ -2,10 +2,11 @@ package jazmin.driver.jdbc.smartjdbc.provider;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +34,7 @@ import jazmin.driver.jdbc.smartjdbc.annotations.QueryField.OrGroup;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.util.ArrayUtils;
+import jazmin.util.ClassUtils;
 import jazmin.util.StringUtil;
 
 /**
@@ -87,6 +89,7 @@ public class SelectProvider extends SqlProvider{
 	protected boolean isForUpdate;
 	protected List<SelectField> selectFields;
 	protected boolean ingoreSelectDomainFiled;
+	protected Set<String> includeFields;
 	protected Set<String> excludeFields;//userName not user_name
 	protected Map<String,Join> innerJoinMap;
 	protected Map<String,String> innerJoinFieldAliasMap;
@@ -98,7 +101,8 @@ public class SelectProvider extends SqlProvider{
 	public SelectProvider(Class<?> domainClass) {
 		this.domainClass=domainClass;
 		this.selectFields=new ArrayList<>();
-		this.excludeFields=new HashSet<>();
+		this.includeFields=new LinkedHashSet<>();
+		this.excludeFields=new LinkedHashSet<>();
 		this.qw=QueryWhere.create();
 		this.groupBys=new ArrayList<>();
 		this.leftJoins=new ArrayList<>();
@@ -162,6 +166,15 @@ public class SelectProvider extends SqlProvider{
 			String preAsField,String asField,boolean distinct,String statFunction) {
 		selectFields.add(createSelectField(tableAlias, field, 
 				preAsField,asField, distinct, statFunction));
+		return this;
+	}
+	//
+	public SelectProvider includeFields(Set<String> fields){
+		if(fields!=null) {
+			for (String field : fields) {
+				includeFields.add(field);
+			}
+		}
 		return this;
 	}
 	//
@@ -272,7 +285,7 @@ public class SelectProvider extends SqlProvider{
 	//
 	protected List<Field> getQueryFields(Query query){
 		List<Field> fieldList=new ArrayList<>();
-		Field[] fields = query.getClass().getFields();
+		List<Field> fields = ClassUtils.getFieldList(query.getClass());
 		QueryDefine queryDefine = query.getClass().getAnnotation(QueryDefine.class);
 		if (queryDefine == null) {
 			throw new IllegalArgumentException("queryDefine not found in " + query.getClass().getName());
@@ -412,7 +425,7 @@ public class SelectProvider extends SqlProvider{
 					}else {
 						Join childJoin=getJoin(key, join.joins);
 						if(childJoin==null) {
-							childJoin=createInnerJoin(key,table1Alias,"l"+(index++),table1,table2,id,"id");
+							childJoin=createInnerJoin(key,table1Alias,"i"+(index++),table1,table2,id,"id");
 							join.joins.add(childJoin);
 						}
 						join=childJoin;
@@ -443,7 +456,7 @@ public class SelectProvider extends SqlProvider{
 	}
 	//
 	protected QueryInfo createQueryInfo(Query query){
-		Field[] fields = query.getClass().getFields();
+		List<Field> fields = ClassUtils.getFieldList(query.getClass());
 		QueryDefine queryDefine = query.getClass().getAnnotation(QueryDefine.class);
 		if (queryDefine == null) {
 			throw new IllegalArgumentException("queryDefine not found in " + query.getClass().getName());
@@ -502,7 +515,7 @@ public class SelectProvider extends SqlProvider{
 			Field field=info.field;
 			try {
 				Object value=field.get(q);
-				paraMap.put("#{"+field.getName()+"}", value);
+				paraMap.put(field.getName(), value);
 			} catch (Exception e) {
 				logger.error(e.getMessage(),e);
 				throw new SmartJdbcException(e.getMessage());
@@ -573,18 +586,38 @@ public class SelectProvider extends SqlProvider{
 		return false;
 	}
 	//
+	/**
+	 * 
+	 * @param data
+	 * @param regex
+	 * @return
+	 */
+	public static List<String> matchs(String data, String regex) {
+		List<String> result = new ArrayList<>();
+		if (data == null || regex == null) {
+			return result;
+		}
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(data);
+		while (matcher.find()) {
+			result.add(matcher.group(1));
+		}
+		return result;
+	}
+	//
 	public static SqlBean parseSql(String sql,Map<String,Object> paraMap) {
-		Pattern p=Pattern.compile("\\#\\{[a-zA-Z_$][a-zA-Z0-9_$]*\\}");
+		Pattern p=Pattern.compile("\\#\\{([a-zA-Z_][a-zA-Z0-9_]*)\\}");
 		Matcher m = p.matcher(sql);
+		Pattern $p=Pattern.compile("\\$\\{([a-zA-Z_][a-zA-Z0-9_]*)\\}");
+		Matcher $m = $p.matcher(sql);
+		String newSql=sql;
+		Object[] values=null;
 		List<String> groups=new ArrayList<>();
 		while(m.find()) { 
-		    groups.add(m.group());
+		    groups.add(m.group(1));
 		}
-		if(groups.isEmpty()) {
-			return new SqlBean(sql);
-		}
-		String newSql=m.replaceAll("?");
-		Object[] values=new Object[groups.size()];
+		newSql=m.replaceAll("?");
+		values=new Object[groups.size()];
 		int i=0;
 		for (String group : groups) {
 			Object value=paraMap.get(group);
@@ -593,6 +626,21 @@ public class SelectProvider extends SqlProvider{
 						"\nall can choose paras is:"+paraMap.keySet()); 
 			}
 			values[i++]=value;
+		}
+		//
+		while($m.find()) { 
+			String group=$m.group(1);
+			String replaceGroup="\\$\\{"+group+"\\}";
+			Object value=paraMap.get(group);
+			if(value==null) {
+				throw new SmartJdbcException(group+" not found.\nsql:"+sql+
+						"\nall can choose paras is:"+paraMap.keySet()); 
+			}
+			if(value instanceof String) {
+				newSql=newSql.replaceAll(replaceGroup,"'"+value.toString()+"'");
+			}else {
+				newSql=newSql.replaceAll(replaceGroup,value.toString());
+			}
 		}
 		return new SqlBean(newSql,values);
 	}
@@ -624,7 +672,7 @@ public class SelectProvider extends SqlProvider{
 			return orderByList;
 		}
 		boolean haveSort=false;
-		Field[] fields = query.getClass().getFields();
+		List<Field> fields = ClassUtils.getFieldList(query.getClass());
 		String[] querySortFields=query.sortFields;
 		List<SortField> sortFields=new ArrayList<>();
 		for (Field field : fields) {
@@ -691,9 +739,12 @@ public class SelectProvider extends SqlProvider{
 	protected void buildSelectDomainFields(){
 		int index=1;
 		Map<String, Join> map = new LinkedHashMap<>();
-		Field[] fields=domainClass.getFields();
+		List<Field> fields = ClassUtils.getFieldList(domainClass);
 		for (Field field : fields) {
 			if (Modifier.isStatic(field.getModifiers())|| Modifier.isFinal(field.getModifiers())) {
+				continue;
+			}
+			if(includeFields!=null&&!includeFields.isEmpty()&&(!includeFields.contains(field.getName()))){
 				continue;
 			}
 			if(excludeFields.contains(field.getName())){
@@ -758,6 +809,8 @@ public class SelectProvider extends SqlProvider{
 					table1Alias=join.table2Alias;
 				}
 				if(WRAP_TYPES.contains(field.getType())){
+					addSelect(join.table2Alias, field, domainField);
+				}else if(field.getGenericType() instanceof ParameterizedType){
 					addSelect(join.table2Alias, field, domainField);
 				}else {
 					List<Field> subClassFields=getPersistentFields((Class<?>)field.getGenericType());
@@ -828,7 +881,7 @@ public class SelectProvider extends SqlProvider{
 	 */
 	protected SqlBean queryCount() {
 		StringBuffer sql = new StringBuffer();
-		sql.append("select count(1) ");
+		sql.append("\nselect count(1) \n");
 		this.needPaging=false;
 		return build(sql);
 	}
@@ -842,7 +895,7 @@ public class SelectProvider extends SqlProvider{
 		if(!ingoreSelectDomainFiled) {
 			buildSelectDomainFields();
 		}
-		sql.append("select ");
+		sql.append("\nselect ");
 		if(selectFields.size()==0) {
 			throw new IllegalArgumentException("no select field found in "+domainClass.getName());
 		}
@@ -875,26 +928,29 @@ public class SelectProvider extends SqlProvider{
 			sql.append(",");
 		}
 		sql.deleteCharAt(sql.length()-1);
+		sql.append("\n");
 	}
 	//
 	//
 	protected String getFromSql() {
 		StringBuffer sql=new StringBuffer();
-		sql.append(" from ").append(getTableName(domainClass)).append(" ").append(MAIN_TABLE_ALIAS).append(" ");
+		sql.append("from ").append(getTableName(domainClass)).append(" ").append(MAIN_TABLE_ALIAS).append(" \n");
 		//inner join
 		this.innerJoinMap=getInnerJoins(query);
 		for (Join join : innerJoins) {
-			sql.append(" inner join  ");
+			sql.append("inner join  ");
 			sql.append(getTableName(join.table2)).append(" ").append(join.table2Alias);
 			sql.append(" on ").append(join.table1Alias).append(".`"+convertFieldName(join.table1Field)+"`=").
 				append(join.table2Alias).append(".").append(convertFieldName(join.table2Field));
+			sql.append("\n");
 		}
 		//left join
 		for (Join join : leftJoins) {
-			sql.append(" left join  ");
+			sql.append("left join  ");
 			sql.append(getTableName(join.table2)).append(" ").append(join.table2Alias);
 			sql.append(" on ").append(join.table1Alias).append(".`"+convertFieldName(join.table1Field)+"`=").
 				append(join.table2Alias).append(".").append(convertFieldName(join.table2Field));
+			sql.append("\n");
 		}
 		return sql.toString();
 	}
@@ -902,20 +958,21 @@ public class SelectProvider extends SqlProvider{
 	protected String getWhereSql() {
 		StringBuffer sql=new StringBuffer();
 		addWheres(query);
-		sql.append(" where 1=1 ");
+		sql.append("where 1=1 ");
 		for (Where w : qw.getWheres()) {
 			if(w.alias==null) {
 				w.alias=MAIN_TABLE_ALIAS;
 			}
 		}
 		sql.append(qw.whereStatement().sql);
+		sql.append("\n");
 		return sql.toString();
 	}
 	//
 	protected String getGroupBySql() {
 		StringBuffer sql=new StringBuffer();
 		if(groupBys.size()>0) {
-			sql.append(" group by ");
+			sql.append("group by ");
 			for (GroupByField field : groupBys) {
 				if(!StringUtil.isEmpty(field.tableAlias)) {
 					sql.append(field.tableAlias).append(".");
@@ -923,39 +980,45 @@ public class SelectProvider extends SqlProvider{
 				sql.append(convertFieldName(field.field)).append(",");
 			}
 			sql.deleteCharAt(sql.length()-1);
+			sql.append("\n");
 		}
 		return sql.toString();
 	}
 	//
 	protected String getOrderBySql() {
+		if(isSelectCount) {
+			return "";
+		}
 		StringBuffer sql=new StringBuffer();
 		if(needOrderBy) {
 			addOrderBy(query);
 			if (qw.getOrderBys().size()>0) {
-				sql.append(" order by ");
+				sql.append("order by ");
 				for (String orderBy : qw.getOrderBys()) {
 					sql.append(orderBy).append(",");
 				}
 				sql.deleteCharAt(sql.length()-1);
+				sql.append("\n");
 			}
 		}
 		return sql.toString();
 	}
 	//
 	protected String getLimitSql() {
+		if(isSelectCount) {
+			return "";
+		}
 		StringBuffer sql=new StringBuffer();
-		if(needPaging) {
-			addPaging(query);
-			if(qw.getLimitEnd()!=-1) {
-				sql.append(" limit ").append(qw.getLimitStart()).append(",").append(qw.getLimitEnd());
-			}
+		addPaging(query);	
+		if(qw.getLimitEnd()!=-1) {
+			sql.append("limit ").append(qw.getLimitStart()).append(",").append(qw.getLimitEnd()).append("\n");
 		}
 		return sql.toString();
 	}
 	//
 	protected String getForUpdateSql() {
 		if(isForUpdate) {
-			return " for update ";
+			return "for update \n";
 		}
 		return "";
 	}
@@ -984,5 +1047,13 @@ public class SelectProvider extends SqlProvider{
 			return queryCount();
 		}
 		return query();
+	}
+	
+	public List<SelectField> getSelectFields() {
+		return selectFields;
+	}
+	
+	public void setSelectFields(List<SelectField> selectFields) {
+		this.selectFields = selectFields;
 	}
 }

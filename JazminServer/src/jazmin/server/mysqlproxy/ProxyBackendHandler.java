@@ -1,5 +1,10 @@
 package jazmin.server.mysqlproxy;
 
+import java.util.Base64;
+import java.util.Date;
+
+import org.bouncycastle.util.Arrays;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -7,15 +12,9 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-
-import java.util.Base64;
-import java.util.Date;
-
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.mysqlproxy.mysql.protocol.HandshakePacket;
-
-import org.bouncycastle.util.Arrays;
 /**
  * 
  * @author yama
@@ -46,6 +45,7 @@ public class ProxyBackendHandler extends ChannelHandlerAdapter {
     @Override
     public void channelRead(final ChannelHandlerContext ctx, Object msg)throws Exception {
         byte[] packet = (byte[]) msg;
+        //System.err.println("<----\n"+HexDumpUtil.dumpHexString(packet));
         if(handshake==null) {
         	handshake=new HandshakePacket();
         	handshake.read(packet);
@@ -64,7 +64,7 @@ public class ProxyBackendHandler extends ChannelHandlerAdapter {
         if(frontendHander.session!=null){
         	frontendHander.session.packetCount++;
         }
-        //System.err.println("<----\n"+HexDumpUtil.dumpHexString(packet));
+       
         writeToFrontend(ctx, packet);
         
     }
