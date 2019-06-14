@@ -97,7 +97,7 @@ public class ProxyController {
 					 if(List.class.isAssignableFrom(clazz) && (typeArguments[0] instanceof Class)) {
 						 return JSONUtil.fromJsonList(json, (Class<?>) typeArguments[0]);
 					 }else  if(Set.class.isAssignableFrom(clazz) && (typeArguments[0] instanceof Class)) {
-						 return JSONUtil.fromJsonSet(json, (Class<?>) typeArguments[0]);
+						 return JSONUtil.fromJsonLinkedHashSet(json, (Class<?>) typeArguments[0]);
 					 }
 				 }
 			 }
