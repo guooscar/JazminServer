@@ -8,6 +8,7 @@
  */
 package jazmin.util;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -88,7 +89,7 @@ public class JSONUtil {
 	 * @return
 	 */
 	public static <T> Set<T> fromJsonSet(String json,Class<T>t){
-		return  JSON.parseObject(json,new TypeReference<Set<T>>(){});
+		return  JSON.parseObject(json,new TypeReference<LinkedHashSet<T>>(){});
 	}
 	
 }
