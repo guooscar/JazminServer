@@ -591,7 +591,7 @@ public class SmartDAO extends JazminDAO{
 									 if(List.class.isAssignableFrom(fieldType) && (typeArguments[0] instanceof Class)) {
 										 value=JSONUtil.fromJsonList(strValue,(Class<?>) typeArguments[0]);
 									 }else if(Set.class.isAssignableFrom(fieldType) && (typeArguments[0] instanceof Class)) {
-										 value=JSONUtil.fromJsonSet(strValue,(Class<?>) typeArguments[0]);
+										 value=JSONUtil.fromJsonLinkedHashSet(strValue,(Class<?>) typeArguments[0]);
 									 }
 								 }else if(typeArguments.length==2) {
 									 if(Map.class.isAssignableFrom(fieldType) && (typeArguments[0] instanceof Class) && (typeArguments[1] instanceof Class)) {

@@ -92,4 +92,13 @@ public class JSONUtil {
 		return  JSON.parseObject(json,new TypeReference<LinkedHashSet<T>>(){});
 	}
 	
+	/**
+	 * 
+	 * @param json
+	 * @param t
+	 * @return
+	 */
+	public static <T> LinkedHashSet<T> fromJsonLinkedHashSet(String json,Class<T>t){
+		return  JSON.parseObject(json,new TypeReference<LinkedHashSet<T>>(){});
+	}
 }
