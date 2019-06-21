@@ -13,6 +13,9 @@ import java.util.Date;
 import java.util.List;
 
 import jazmin.core.app.AutoWired;
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
+import jazmin.util.DumpUtil;
 
 
 /**
@@ -20,6 +23,9 @@ import jazmin.core.app.AutoWired;
  * 27 Dec, 2014
  */
 public class JazminDAO {
+	//
+	private static Logger logger=LoggerFactory.get(JazminDAO.class);
+	//
 	protected int limitMaxRows=-1;
 	@AutoWired
 	protected ConnectionDriver connectionDriver;
@@ -95,7 +101,12 @@ public class JazminDAO {
 			if(limitMaxRows>0){
 				ps.setMaxRows(limitMaxRows);		
 			}
-			ConnectionUtil.set(ps, parameters);
+			try {
+				ConnectionUtil.set(ps, parameters);
+			} catch (Exception e) {
+				logger.error("ConnectionUtil.set failed.\nsql:{} \nparameters:{}",sql,DumpUtil.dump(parameters));
+				throw e;
+			}
 			rs = ps.executeQuery();
 			List<T> result = new ArrayList<T>();
 			while (rs.next()) {

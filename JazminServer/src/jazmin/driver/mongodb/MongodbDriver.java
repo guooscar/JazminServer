@@ -3,12 +3,8 @@
  */
 package jazmin.driver.mongodb;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import jazmin.core.Driver;
-import jazmin.misc.InfoBuilder;
 
 import org.bson.Document;
 
@@ -17,6 +13,7 @@ import com.mongodb.DB;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoClientURI;
 import com.mongodb.MongoCredential;
 import com.mongodb.ReadPreference;
 import com.mongodb.ReplicaSetStatus;
@@ -26,50 +23,32 @@ import com.mongodb.client.ListDatabasesIterable;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoIterable;
 
+import jazmin.core.Driver;
+import jazmin.misc.InfoBuilder;
+
 /**
  * @author yama
  *
  */
 public class MongodbDriver extends Driver{
-	private List<ConnectionInfo>connections;
+	
+	private String mongoUri;
 	private MongoClient mongoClient;
+	private String database;
 	//
 	public MongodbDriver() {
-		connections=new ArrayList<ConnectionInfo>();
 	}
 	//
-	public void addConnection(String host,int port,String user,String pwd,String db){
-		ConnectionInfo ci=new ConnectionInfo();
-		ci.host=host;
-		ci.port=port;
-		ci.user=user;
-		ci.password=pwd;
-		ci.database=db;
-		connections.add(ci);
-	}
-	//
-	public void addConnection(String host,int port){
-		this.addConnection(host, port,null,null,null);
+	@Override
+	public void init() throws Exception {
+		MongoClientURI connStr = new MongoClientURI(mongoUri);
+	    mongoClient = new MongoClient(connStr);
 	}
 	//
 	@Override
 	public void start() throws Exception {
-		List<ServerAddress>addressList=new ArrayList<ServerAddress>();
-		List<MongoCredential>credentialList=new ArrayList<MongoCredential>();
-		//
-		for(ConnectionInfo c:connections){
-			addressList.add(new ServerAddress(c.host,c.port));
-			if(c.user!=null&&c.password!=null){
-				credentialList.add(MongoCredential.createCredential(c.user,
-	                    c.database,
-	                    c.password.toCharArray()));		
-			}
-		}
-		//
-		mongoClient=new MongoClient(addressList, credentialList);
+		 
 	}
-	//
-	
 	//
 	@Override
 	public void stop() throws Exception {
@@ -266,6 +245,47 @@ public class MongodbDriver extends Driver{
 	public DBObject unlock() {
 		return mongoClient.unlock();
 	}
+	/**
+	 * 
+	 * @return
+	 */
+	public MongoClient getMongoClient() {
+		return mongoClient;
+	}
+	/**
+	 * 
+	 * @param mongoClient
+	 */
+	public void setMongoClient(MongoClient mongoClient) {
+		this.mongoClient = mongoClient;
+	}
+	/**
+	 * 
+	 * @return
+	 */
+	public String getMongoUri() {
+		return mongoUri;
+	}
+	/**
+	 * 
+	 * @param mongoUri
+	 */
+	public void setMongoUri(String mongoUri) {
+		this.mongoUri = mongoUri;
+	}
+	//
+	/**
+	 * @return the database
+	 */
+	public String getDatabase() {
+		return database;
+	}
+	/**
+	 * @param database the database to set
+	 */
+	public void setDatabase(String database) {
+		this.database = database;
+	}
 	//
 	@Override
 	public String info() {
@@ -274,10 +294,7 @@ public class MongodbDriver extends Driver{
 		ib.print("connectPoint",getConnectPoint());
 		ib.print("maxBsonObjectSize",getMaxBsonObjectSize());
 		ib.print("writeConcern",getWriteConcern());
-		
-		for(ConnectionInfo ci:connections){
-			ib.print("Connection-"+idx++,ci.user+":"+ci.password+"@"+ci.host+":"+ci.port+"/"+ci.database);
-		}
+		ib.print("mongoUri",mongoUri);
 		//
 		idx=1;
 		for(String name:listDatabaseNames()){
@@ -285,4 +302,6 @@ public class MongodbDriver extends Driver{
 		}
 		return ib.toString();
 	}
+	
+	
 }
