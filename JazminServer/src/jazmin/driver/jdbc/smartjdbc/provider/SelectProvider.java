@@ -68,6 +68,8 @@ public class SelectProvider extends SqlProvider{
 		public String table2Alias;
 		public Class<?> table2;
 		public String table2Field;
+		public String[] table1Fields;
+		public String[] table2Fields;
 		public List<Join> joins;
 		//
 		public Join() {
@@ -379,14 +381,14 @@ public class SelectProvider extends SqlProvider{
 						join = map.get(key);
 						if(join==null) {
 							join=createInnerJoin(key,table1Alias,"i"+(index++),table1,j.table2(),j.table1Field(),
-									j.table2Field());
+									j.table2Field(),j.table1Fields(),j.table2Fields());
 							map.put(key, join);
 						}
 					}else {
 						Join childJoin=getJoin(key, join.joins);
 						if(childJoin==null) {
 							childJoin=createInnerJoin(key,table1Alias,"i"+(index++),table1,j.table2(),j.table1Field(),
-									j.table2Field());
+									j.table2Field(),j.table1Fields(),j.table2Fields());
 							join.joins.add(childJoin);
 						}
 						join=childJoin;
@@ -419,13 +421,13 @@ public class SelectProvider extends SqlProvider{
 					if(join==null) {
 						join = map.get(key);
 						if(join==null) {
-							join=createInnerJoin(key,table1Alias,"i"+(index++),table1, table2,id,table2Field);
+							join=createInnerJoin(key,table1Alias,"i"+(index++),table1, table2,id,table2Field,null,null);
 							map.put(key, join);
 						}
 					}else {
 						Join childJoin=getJoin(key, join.joins);
 						if(childJoin==null) {
-							childJoin=createInnerJoin(key,table1Alias,"i"+(index++),table1,table2,id,table2Field);
+							childJoin=createInnerJoin(key,table1Alias,"i"+(index++),table1,table2,id,table2Field,null,null);
 							join.joins.add(childJoin);
 						}
 						join=childJoin;
@@ -442,13 +444,16 @@ public class SelectProvider extends SqlProvider{
 	}
 	//
 	protected Join createInnerJoin(String key,String table1Alias,String table2Alias,
-			Class<?> table1,Class<?> table2,String table1Field,String table2Field) {
+			Class<?> table1,Class<?> table2,String table1Field,String table2Field,
+			String[] table1Fields,String[] table2Fields) {
 		Join join=new Join();
 		join.key=key;
 		join.table1Alias=table1Alias;
 		join.table2Alias=table2Alias;
 		join.table1Field=table1Field;
 		join.table2Field=table2Field;
+		join.table1Fields=table1Fields;
+		join.table2Fields=table2Fields;
 		join.table1=table1;
 		join.table2=table2;
 		this.innerJoins.add(join);
@@ -941,7 +946,14 @@ public class SelectProvider extends SqlProvider{
 			sql.append("inner join  ");
 			sql.append(getTableName(join.table2)).append(" ").append(join.table2Alias);
 			sql.append(" on ").append(join.table1Alias).append(".`"+convertFieldName(join.table1Field)+"`=").
-				append(join.table2Alias).append(".").append(convertFieldName(join.table2Field));
+				append(join.table2Alias).append(".`").append(convertFieldName(join.table2Field)).append("`");
+			if(join.table1Fields!=null&&join.table2Fields!=null&&join.table1Fields.length>0
+					&&join.table1Fields.length==join.table2Fields.length) {
+				for(int i=0;i<join.table1Fields.length;i++) {
+					sql.append(" and ").append(join.table1Alias).append(".`"+convertFieldName(join.table1Fields[i])+"`=").
+					append(join.table2Alias).append(".`").append(convertFieldName(join.table2Fields[i])).append("`");
+				}
+			}
 			sql.append("\n");
 		}
 		//left join
