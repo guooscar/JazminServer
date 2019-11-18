@@ -41,5 +41,6 @@
 	<classpathentry kind="lib" path="lib/fastjson-1.2.49.jar"/>
 	<classpathentry kind="lib" path="lib/mongo-java-driver-3.6.3.jar"/>
 	<classpathentry kind="lib" path="lib/druid-1.1.10.jar"/>
+	<classpathentry kind="lib" path="lib/javax.mail-1.6.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
