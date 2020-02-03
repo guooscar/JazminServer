@@ -187,7 +187,7 @@ public class TracePreparedStatement implements PreparedStatement {
 	 *             * @see java.sql.Statement#clearBatch()
 	 */
 	public void clearBatch() throws SQLException {
-		parameter = new ArrayList<>();
+		parameter = new ArrayList<>(64);
 		parameters.clear();
 		statement.clearBatch();
 	}
