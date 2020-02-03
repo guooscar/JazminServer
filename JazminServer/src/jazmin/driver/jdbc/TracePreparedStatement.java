@@ -39,8 +39,8 @@ public class TracePreparedStatement implements PreparedStatement {
 	private static final int SLOW_SQL_TIME = 1000;
 	private StringBuilder sqlString;
 	private PreparedStatement statement;
-	private List<Object[]> parameters;
-	private Object[] parameter;
+	private List<List<Object>> parameters;
+	private List<Object> parameter;
 	private int paramSize = 0;
 	private ConnectionWrapper connectionHolder;
 	//
@@ -48,8 +48,8 @@ public class TracePreparedStatement implements PreparedStatement {
 		statement = ps;
 		connectionHolder=ch;
 		sqlString = new StringBuilder(sqlStr);
-		parameters = new ArrayList<Object[]>();
-		parameter = new Object[128];
+		parameters = new ArrayList<>();
+		parameter = new ArrayList<>(128);
 		parameters.add(parameter);
 	}
 
@@ -57,13 +57,13 @@ public class TracePreparedStatement implements PreparedStatement {
 	/*
 	 * dump SQL parameter
 	 */
-	private String dumpParameter(Object[] parameter) {
+	private String dumpParameter(List<Object> parameter) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("-------------------------------------------------------\n");
 		if (paramSize != 0) {
 			for (int i = 0; i < paramSize; i++) {
 				sb.append("[" + i + "]\t:");
-				sb.append(parameter[i] + "\n");
+				sb.append(parameter.get(i) + "\n");
 			}
 		}
 		sb.append("-------------------------------------------------------\n");
@@ -147,7 +147,7 @@ public class TracePreparedStatement implements PreparedStatement {
 			if (i > paramSize) {
 				paramSize = i;
 			}
-			parameter[i - 1] = o;
+			parameter.set(i-1, o);
 		}
 	}
 
@@ -158,7 +158,7 @@ public class TracePreparedStatement implements PreparedStatement {
 	 *             * @see java.sql.PreparedStatement#addBatch()
 	 */
 	public void addBatch() throws SQLException {
-		parameter = new Object[128];
+		parameter = new ArrayList<>(128);
 		parameters.add(parameter);
 		statement.addBatch();
 	}
@@ -191,7 +191,7 @@ public class TracePreparedStatement implements PreparedStatement {
 	 *             * @see java.sql.Statement#clearBatch()
 	 */
 	public void clearBatch() throws SQLException {
-		parameter = new Object[128];
+		parameter = new ArrayList<>(128);
 		parameters.clear();
 		statement.clearBatch();
 	}
