@@ -199,6 +199,11 @@ public abstract class ConnectionDriver extends Driver{
 	 * @param needTranscation boolean
 	 */
 	public void startTransaction(boolean needTranscation) {
+		ConnectionStatus cs=globalStatusHolder.get();
+		if(cs!=null&&cs.connection!=null) {
+			logger.error("connection not release.connection:"+cs.connection);
+		}
+		//
 		ConnectionStatus t=new ConnectionStatus();
 		t.needTranscation=(needTranscation);
 		globalStatusHolder.set(t);
