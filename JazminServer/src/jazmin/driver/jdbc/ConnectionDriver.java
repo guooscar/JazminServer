@@ -204,15 +204,16 @@ public abstract class ConnectionDriver extends Driver{
 		globalStatusHolder.set(t);
 	}
 	//-------------------------------------------------------------------------
-	static class AutoTranscationCallback extends DispatcherCallbackAdapter{
+	public static class AutoTranscationCallback extends DispatcherCallbackAdapter{
 		ConnectionDriver connectionDriver;
+		private static ThreadLocal<List<TransactionSynchronizationAdapter>> synchronizations=new ThreadLocal<>();
+		//
 		public AutoTranscationCallback(ConnectionDriver cd) {
 			this.connectionDriver=cd;
 		}
 		@Override
 		public void before(Object instance, Method method, Object[] args)
 				throws Exception {
-			
 			boolean needTranscation=method.isAnnotationPresent(Transaction.class);
 			if(logger.isDebugEnabled()){
 				logger.debug("Transcation on method:{}={}",
@@ -226,11 +227,50 @@ public abstract class ConnectionDriver extends Driver{
 		public void end(Object instance, Method method, Object[] args,
 				Object ret, Throwable e) {
 			if(e==null){
-				connectionDriver.commit();		
+				List<TransactionSynchronizationAdapter> synchronizations=AutoTranscationCallback.getSynchronizations();
+				try {
+					if(synchronizations!=null) {
+						for (TransactionSynchronizationAdapter ts : synchronizations) {
+							ts.beforeCommit(false);
+						}
+					}
+					connectionDriver.commit();		
+					if(synchronizations!=null) {
+						for (TransactionSynchronizationAdapter ts : synchronizations) {
+							ts.afterCommit();
+						}
+					}
+				} finally {
+					AutoTranscationCallback.cleanSynchronizations();
+				}
+				
 			}else{
 				connectionDriver.rollback();		
 			}
+			boolean needTranscation=method.isAnnotationPresent(Transaction.class);
+			if(logger.isDebugEnabled()){
+				logger.debug("endTransaction on method:{}={}",
+						method.getDeclaringClass().getSimpleName()+"."+method.getName(),
+						needTranscation);
+			}
 			connectionDriver.endTransaction();
+		}
+		//
+		public static List<TransactionSynchronizationAdapter> getSynchronizations(){
+			return synchronizations.get();
+		}
+		//
+		public static void registerSynchronization(TransactionSynchronizationAdapter synchronization){
+			List<TransactionSynchronizationAdapter> synchronizations=getSynchronizations();
+			if(synchronizations==null) {
+				synchronizations=new ArrayList<>();
+			}
+			synchronizations.add(synchronization);
+			AutoTranscationCallback.synchronizations.set(synchronizations);
+		}
+		//
+		public static void cleanSynchronizations(){
+			synchronizations.set(null);
 		}
 	}
 	//
@@ -240,4 +280,5 @@ public abstract class ConnectionDriver extends Driver{
 		Jazmin.dispatcher.addGlobalDispatcherCallback(ac);
 	
 	}
+	//
 }
