@@ -134,4 +134,11 @@ public class ControllerStub implements Comparable<ControllerStub>{
 	public String getId() {
 		return id;
 	}
+	/**
+	 * @return the instance
+	 */
+	public Object getInstance() {
+		return instance;
+	}
+	
 }
