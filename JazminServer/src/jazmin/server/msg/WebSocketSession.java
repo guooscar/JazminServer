@@ -6,6 +6,7 @@ package jazmin.server.msg;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import jazmin.log.Logger;
 import jazmin.log.LoggerFactory;
 import jazmin.server.msg.codec.ResponseMessage;
@@ -17,6 +18,7 @@ import jazmin.server.msg.codec.ResponseMessage;
 public class WebSocketSession extends Session{
 	private static Logger logger=LoggerFactory.get(WebSocketSession.class);
 	MessageServer messageServer;
+	boolean isBinary;
 	WebSocketSession(NetworkChannel channel,MessageServer messageServer) {
 		super(channel);
 		this.messageServer=messageServer;
@@ -34,8 +36,13 @@ public class WebSocketSession extends Session{
 			ByteBuf out=Unpooled.buffer(256);
 			try {
 				messageServer.codecFactory.encode(msg, out, messageServer.networkTrafficStat);
-				BinaryWebSocketFrame frame=new BinaryWebSocketFrame(out);
-				channel.writeAndFlush(frame);
+				if(isBinary) {
+					BinaryWebSocketFrame frame=new BinaryWebSocketFrame(out);
+					channel.writeAndFlush(frame);
+				}else {
+					TextWebSocketFrame frame=new TextWebSocketFrame(out);
+					channel.writeAndFlush(frame);
+				}
 			} catch (Exception e) {
 				logger.catching(e);
 			}

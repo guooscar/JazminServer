@@ -19,6 +19,7 @@ import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
@@ -98,21 +99,25 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 		if (frame instanceof PongWebSocketFrame) {
 			return;
 		}
-		if (!(frame instanceof BinaryWebSocketFrame)) {
-			throw new UnsupportedOperationException(String.format(
-					"%s frame types not supported", frame.getClass().getName()));
-		}
-		ByteBuf content = ((BinaryWebSocketFrame) frame).content();
-		RequestMessage message;
-		try {
-			message = decodeMessage(content);
-			if(message!=null){
-				Session session = ctx.channel().attr(SESSION_KEY).get();
-				messageServer.receiveMessage(session, message);
+		if (frame instanceof BinaryWebSocketFrame || frame instanceof TextWebSocketFrame) {
+			ByteBuf content = frame.content();
+			RequestMessage message;
+			try {
+				message = decodeMessage(content);
+				if(message!=null){
+					Session session = ctx.channel().attr(SESSION_KEY).get();
+					if(frame instanceof BinaryWebSocketFrame) {
+						((WebSocketSession)session).isBinary=true;
+					}
+					messageServer.receiveMessage(session, message);
+				}
+			} catch (Exception e) {
+				logger.catching(e);
 			}
-		} catch (Exception e) {
-			logger.catching(e);
+			return;
 		}
+		throw new UnsupportedOperationException(String.format(
+				"%s frame types not supported", frame.getClass().getName()));
 	}
 	//
 	private static void sendHttpResponse(ChannelHandlerContext ctx,

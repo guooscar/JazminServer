@@ -39,7 +39,7 @@ public class TestMySQLProxyServer {
 				if(!session.comparePassword(shaPassword)){
 					return null;
 				}
-				return new Database("root","password");
+				return new Database("user","password");
 			}
 		};
 		server.addRule(rule);
