@@ -862,6 +862,9 @@ public class TracePreparedStatement implements PreparedStatement {
 	 *             * @see java.sql.PreparedStatement#setBytes(int, byte[])
 	 */
 	public void setBytes(int parameterIndex, byte[] x) throws SQLException {
+		if (logger.isDebugEnabled()) {
+			setParameter(parameterIndex, "bytearray");
+		}
 		statement.setBytes(parameterIndex, x);
 	}
 
