@@ -143,7 +143,7 @@ public class TracePreparedStatement implements PreparedStatement {
 			if (i <= 0) {
 				throw new SQLException("parameter index start from 1");
 			}
-			parameter.add(i-1, o);
+			parameter.add(o);
 		}
 	}
 

@@ -84,6 +84,9 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 		} else {
 			handshaker.handshake(ctx.channel(), req);
 		}
+		//
+		WebSocketSession session=(WebSocketSession)ctx.channel().attr(SESSION_KEY).get();
+		session.setReq(req);
 	}
 
 	private void handleWebSocketFrame(ChannelHandlerContext ctx,WebSocketFrame frame) {

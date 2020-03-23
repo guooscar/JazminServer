@@ -5,6 +5,7 @@ package jazmin.server.msg;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import jazmin.log.Logger;
@@ -19,6 +20,7 @@ public class WebSocketSession extends Session{
 	private static Logger logger=LoggerFactory.get(WebSocketSession.class);
 	MessageServer messageServer;
 	boolean isBinary;
+	FullHttpRequest req;
 	WebSocketSession(NetworkChannel channel,MessageServer messageServer) {
 		super(channel);
 		this.messageServer=messageServer;
@@ -48,4 +50,18 @@ public class WebSocketSession extends Session{
 			}
 		}
 	}
+	//
+	/**
+	 * @return the req
+	 */
+	public FullHttpRequest getReq() {
+		return req;
+	}
+	/**
+	 * @param req the req to set
+	 */
+	public void setReq(FullHttpRequest req) {
+		this.req = req;
+	}
+	
 }
