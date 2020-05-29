@@ -86,6 +86,9 @@ public class SmartDAOTest {
 		@QueryField(field="status")
 		public int[] statusList;
 		
+		@QueryField(field="department_id_list",operator = "json_contains")
+		public int[] departmentIdList;
+		
 		@InnerJoin(table1Field="createUserId",table2=User.class)
 		@QueryField(field="name")
 		public String createUserName;
@@ -102,13 +105,13 @@ public class SmartDAOTest {
 	
 	public static void main(String[] args) {
 		TeamQuery query=new TeamQuery();
-		query.name="skydu";
-		query.statusList=new int[] {1,2};
-		query.createUserName="royi";
-		query.idSort=1;
-		query.nameSort=2;
-		query.pointSort=1;
-		query.sortFields=new String[]{"pointSort","idSort","nameSort"};
+		query.departmentIdList=new int[] {1,2};
+//		query.statusList=new int[] {1,2};
+//		query.createUserName="royi";
+//		query.idSort=1;
+//		query.nameSort=2;
+//		query.pointSort=1;
+//		query.sortFields=new String[]{"pointSort","idSort","nameSort"};
 //		new SelectProvider(TeamInfo.class).selectCount().query(query).needOrderBy(false).build();
 		SqlBean bean=new SelectProvider(TeamInfo.class).query(query).build();
 		System.out.println(DumpUtil.dump(bean));
