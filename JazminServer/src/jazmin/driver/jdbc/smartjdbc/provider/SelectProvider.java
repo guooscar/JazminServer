@@ -306,7 +306,8 @@ public class SelectProvider extends SqlProvider{
 						Modifier.isFinal(field.getModifiers())) {
 					continue;
 				}
-				if(field.getType().equals(int.class)&&field.getName().endsWith("Sort")) {//ingore Sort Field
+				if((field.getType().equals(int.class)||field.getType().equals(short.class))&&
+						field.getName().endsWith("Sort")) {//ingore Sort Field
 					continue;
 				}
 				Class<?> fieldType = field.getType();
