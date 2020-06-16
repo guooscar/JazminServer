@@ -87,6 +87,9 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 		//
 		WebSocketSession session=(WebSocketSession)ctx.channel().attr(SESSION_KEY).get();
 		session.setReq(req);
+		if(messageServer.getWebSocketListener()!=null) {
+			messageServer.getWebSocketListener().onOpen(session, req);
+		}
 	}
 
 	private void handleWebSocketFrame(ChannelHandlerContext ctx,WebSocketFrame frame) {
@@ -119,6 +122,20 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 			}
 			return;
 		}
+		if (frame instanceof TextWebSocketFrame) {
+			String text=((TextWebSocketFrame)frame).text();
+			if(messageServer.getWebSocketListener()!=null) {
+				WebSocketSession session=(WebSocketSession)ctx.channel().attr(SESSION_KEY).get();
+				messageServer.getWebSocketListener().onMessage(session, text);
+			}
+		}
+		if (frame instanceof BinaryWebSocketFrame) {
+			ByteBuf content=((BinaryWebSocketFrame)frame).content();
+			if(messageServer.getWebSocketListener()!=null) {
+				WebSocketSession session=(WebSocketSession)ctx.channel().attr(SESSION_KEY).get();
+				messageServer.getWebSocketListener().onMessage(session, content);
+			}
+		}
 		throw new UnsupportedOperationException(String.format(
 				"%s frame types not supported", frame.getClass().getName()));
 	}
@@ -144,6 +161,10 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
 		logger.error("exception on channal:" + ctx.channel(), cause);
 		ctx.close();
+		if(messageServer.getWebSocketListener()!=null) {
+			WebSocketSession session=(WebSocketSession)ctx.channel().attr(SESSION_KEY).get();
+			messageServer.getWebSocketListener().onError(session, cause);
+		}
 	}
 
 	//
@@ -157,6 +178,10 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		Session session = ctx.channel().attr(SESSION_KEY).get();
 		messageServer.sessionDisconnected(session);
+		//
+		if(messageServer.getWebSocketListener()!=null) {
+			messageServer.getWebSocketListener().onClose((WebSocketSession) session);
+		}
 	}
 	//
 	@Override
@@ -166,6 +191,10 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 				messageServer);
 		ctx.channel().attr(SESSION_KEY).set(session);
 		messageServer.sessionCreated(session);
+		//
+		if(messageServer.getWebSocketListener()!=null) {
+			messageServer.getWebSocketListener().onCreate((WebSocketSession) session);
+		}
 	}
 
 	//
@@ -180,6 +209,9 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 	//
 	//--------------------------------------------------------------------------
 	private RequestMessage decodeMessage(ByteBuf receiveBuffer)throws Exception{
+		if(messageServer.codecFactory==null) {
+			return null;
+		}
 		RequestMessage req = messageServer.codecFactory.decode(receiveBuffer, messageServer.networkTrafficStat);
 		return req;
 	}
