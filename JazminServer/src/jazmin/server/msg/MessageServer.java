@@ -23,8 +23,10 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -800,16 +802,19 @@ public class MessageServer extends Server implements Registerable{
 			principalMap.remove(session.principal);
 		}
 		//auto remove disconnect session from room
-		synchronized (session.channels) {
-			session.channels.forEach(cname->{
-				Channel cc=getChannel(cname);
-				if(cc!=null){
-					if(cc.isAutoRemoveDisconnectedSession()){
-						cc.removeSession(session);
-					}
-				}
-			});
+		Set<String> channels=new HashSet<>();
+		for (String e : session.channels) {
+			channels.add(e);
 		}
+		for (String cname : channels) {
+			Channel cc=getChannel(cname);
+			if(cc!=null){
+				if(cc.isAutoRemoveDisconnectedSession()){
+					cc.removeSession(session);
+				}
+			}
+		}
+		
 		//fire session disconnect event in thread pool
 		if(sessionLifecycleListener!=null){
 			Jazmin.dispatcher.invokeInPool(
