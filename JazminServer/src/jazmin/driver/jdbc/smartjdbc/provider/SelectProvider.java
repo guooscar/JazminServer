@@ -1010,23 +1010,27 @@ public class SelectProvider extends SqlProvider{
 		if(isSelectCount) {
 			return "";
 		}
+		if(!needOrderBy) {
+			return "";
+		}
 		StringBuffer sql=new StringBuffer();
-		if(needOrderBy) {
-			addOrderBy(query);
-			if (qw.getOrderBys().size()>0) {
-				sql.append("order by ");
-				for (String orderBy : qw.getOrderBys()) {
-					sql.append(orderBy).append(",");
-				}
-				sql.deleteCharAt(sql.length()-1);
-				sql.append("\n");
+		addOrderBy(query);
+		if (qw.getOrderBys().size()>0) {
+			sql.append("order by ");
+			for (String orderBy : qw.getOrderBys()) {
+				sql.append(orderBy).append(",");
 			}
+			sql.deleteCharAt(sql.length()-1);
+			sql.append("\n");
 		}
 		return sql.toString();
 	}
 	//
 	protected String getLimitSql() {
 		if(isSelectCount) {
+			return "";
+		}
+		if(!needPaging) {
 			return "";
 		}
 		StringBuffer sql=new StringBuffer();
