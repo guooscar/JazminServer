@@ -802,9 +802,9 @@ public class MessageServer extends Server implements Registerable{
 			principalMap.remove(session.principal);
 		}
 		//auto remove disconnect session from room
-		Set<String> channels=new HashSet<>();
-		for (String e : session.channels) {
-			channels.add(e);
+		Set<String> channels=null;
+		synchronized (session.channels) {
+			channels=new HashSet<>(session.channels);
 		}
 		for (String cname : channels) {
 			Channel cc=getChannel(cname);
