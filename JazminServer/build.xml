@@ -147,8 +147,8 @@
     	<mkdir dir="${build.dir}" />
     	<mkdir dir="${build.classes.dir}" />
  	    <javac destdir="${build.classes.dir}" 
-	    	source="1.8"
-	    	target="1.8" 
+	    	source="11"
+	    	target="11" 
 	    	debug="true"
 			encoding="utf-8"
 	    	deprecation="false" 

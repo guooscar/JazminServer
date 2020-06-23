@@ -173,21 +173,21 @@ public class WebServer extends jazmin.core.Server implements Registerable{
 		configList.add("org.eclipse.jetty.annotations.AnnotationConfiguration");
 		webAppContext.setConfigurationClasses(configList);
 		//
-		if(webAppContext.getSessionHandler()!=null){
-			if(webAppContext.getSessionHandler().getSessionManager()!=null){
-				webAppContext.getSessionHandler().getSessionManager().addEventListener(new HttpSessionListener() {
-					@Override
-					public void sessionDestroyed(HttpSessionEvent e) {
-						totalSessionCounter.decrementAndGet();
-					}
-					//
-					@Override
-					public void sessionCreated(HttpSessionEvent e) {
-						totalSessionCounter.incrementAndGet();
-					}
-				});
-			}
-		}
+//		if(webAppContext.getSessionHandler()!=null){
+//			if(webAppContext.getSessionHandler().getSessionIdManager()!=null){
+//				webAppContext.getSessionHandler().getSessionManager().addEventListener(new HttpSessionListener() {
+//					@Override
+//					public void sessionDestroyed(HttpSessionEvent e) {
+//						totalSessionCounter.decrementAndGet();
+//					}
+//					//
+//					@Override
+//					public void sessionCreated(HttpSessionEvent e) {
+//						totalSessionCounter.incrementAndGet();
+//					}
+//				});
+//			}
+//		}
 		//
 		return webAppContext;
 	}
@@ -400,8 +400,8 @@ public class WebServer extends jazmin.core.Server implements Registerable{
 			JspFactory jspFactory=JspFactory.getDefaultFactory();
 			ServletContext sc=webAppContext.getServletContext();
 			if(jspFactory!=null){
-				JspApplicationContext jac=jspFactory.getJspApplicationContext(sc);
-				jac.addELResolver(new PublicFieldELResolver());					
+//				JspApplicationContext jac=jspFactory.getJspApplicationContext(sc);
+//				jac.addELResolver(new PublicFieldELResolver());					
 			}
 		}
 		//
