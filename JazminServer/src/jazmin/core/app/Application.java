@@ -122,7 +122,6 @@ public class Application extends Lifecycle {
 						AutoWiredObject ao=autoWiredMap.get(fieldType);
 						Object target=(ao==null?null:ao.instance);
 						if(target==null){
-							System.err.println("xxxxxx:fieldType:"+fieldType+this.getClass().getClassLoader());
 							target=createWired(fieldType);
 						}
 						f.set(instance,target);	

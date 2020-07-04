@@ -5,7 +5,6 @@ package jazmin.core.app;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -62,7 +61,6 @@ public class ApplicationLoader {
 			return null;
 		}
 		//
-		//
 		for(Class<?>clz:getApplicationClasses()){
 			try {
 				if(clz.getSimpleName().equals(applicationName)){
@@ -82,6 +80,7 @@ public class ApplicationLoader {
 				logger.error(e.getMessage());
 			}
 		}
+		//
 		logger.warn("no application class found");
 		return null;
 	}
@@ -110,13 +109,6 @@ public class ApplicationLoader {
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(),e);
-		}finally {
-			if(appClassLoader!=null) {
-				try {
-					appClassLoader.close();
-				} catch (IOException e) {
-				}
-			}
 		}
 		return appClass;
 	}

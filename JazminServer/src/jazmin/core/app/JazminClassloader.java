@@ -19,19 +19,12 @@ public class JazminClassloader extends URLClassLoader {
 	private static Logger logger=LoggerFactory.get(JazminClassloader.class);
 	public JazminClassloader(File workImage) throws MalformedURLException {
 		super(getJarUrl(workImage),JazminClassloader.class.getClassLoader());
-//		try {
-//			Class<?> claz = this.findClass("itf.dao.ITFDAO");
-//			System.err.println("xxxxxclaz:"+claz);
-//		} catch (ClassNotFoundException e) {
-//			e.printStackTrace();
-//		}
 	}
 	//
 	static void getJarFiles(List<URL>result,File dir) {
 		if(dir.isFile()&&dir.getAbsolutePath().endsWith(".jar")) {
 			try {
 				result.add(dir.toURI().toURL());
-				System.err.println("add "+dir.getAbsolutePath());
 			} catch (MalformedURLException e) {
 				logger.catching(e);
 			}
