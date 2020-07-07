@@ -231,12 +231,12 @@ public abstract class ConnectionDriver extends Driver{
 		@Override
 		public void end(Object instance, Method method, Object[] args,
 				Object ret, Throwable e) {
+			List<TransactionSynchronizationAdapter> synchronizations=AutoTranscationCallback.getSynchronizations();
 			if(e==null){
-				List<TransactionSynchronizationAdapter> synchronizations=AutoTranscationCallback.getSynchronizations();
 				try {
 					if(synchronizations!=null) {
 						for (TransactionSynchronizationAdapter ts : synchronizations) {
-							ts.beforeCommit(false);
+							ts.beforeCommit();
 						}
 					}
 					connectionDriver.commit();		
@@ -248,9 +248,22 @@ public abstract class ConnectionDriver extends Driver{
 				} finally {
 					AutoTranscationCallback.cleanSynchronizations();
 				}
-				
 			}else{
-				connectionDriver.rollback();		
+				try {
+					if(synchronizations!=null) {
+						for (TransactionSynchronizationAdapter ts : synchronizations) {
+							ts.beforeRollback();
+						}
+					}
+					connectionDriver.rollback();
+					if(synchronizations!=null) {
+						for (TransactionSynchronizationAdapter ts : synchronizations) {
+							ts.afterRollback();
+						}
+					}
+				} finally {
+					AutoTranscationCallback.cleanSynchronizations();
+				}
 			}
 			boolean needTranscation=method.isAnnotationPresent(Transaction.class);
 			if(logger.isDebugEnabled()){

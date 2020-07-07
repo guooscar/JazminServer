@@ -11,8 +11,7 @@ public abstract class TransactionSynchronizationAdapter implements TransactionSy
 	 * 
 	 */
 	@Override
-	public void beforeCommit(boolean readOnly) {
-		
+	public void beforeCommit() {	
 	}
 
 	/**
@@ -20,14 +19,13 @@ public abstract class TransactionSynchronizationAdapter implements TransactionSy
 	 */
 	@Override
 	public void afterCommit() {
-		
 	}
 	
 	/**
 	 * 
 	 */
 	@Override
-	public void beforeCompletion() {
+	public void beforeRollback() {
 	}
 
 	/**
@@ -35,7 +33,7 @@ public abstract class TransactionSynchronizationAdapter implements TransactionSy
 	 * @param status
 	 */
 	@Override
-	public void afterCompletion(int status) {
+	public void afterRollback() {
 	}
 
 }
