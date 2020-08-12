@@ -46,8 +46,7 @@
 	<classpathentry kind="lib" path="lib/javax.mail-1.6.2.jar"/>
 	<classpathentry kind="lib" path="lib/activation-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/fastjson-1.2.70.jar"/>
-	<classpathentry kind="lib" path="lib/SmartJdbc-2.0.26.jar"/>
-	<classpathentry kind="lib" path="lib/jetty-server-9.4.30.v20200611.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-server-9.4.30.v20200611.jar" sourcepath="/Users/skydu/.m2/repository/org/eclipse/jetty/jetty-server/9.4.30.v20200611/jetty-server-9.4.30.v20200611-sources.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-annotations-9.4.30.v20200611.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-client-9.4.30.v20200611.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-deploy-9.4.30.v20200611.jar"/>
@@ -71,5 +70,7 @@
 	<classpathentry kind="lib" path="lib/jetty-plus-9.4.30.v20200611.jar"/>
 	<classpathentry kind="lib" path="lib/asm-7.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/javax.annotation-api-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/mysql-connector-java-8.0.15.jar"/>
+	<classpathentry kind="lib" path="lib/SmartJdbc-2.0.28.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
