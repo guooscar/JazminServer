@@ -11,6 +11,8 @@ import java.util.Map;
 
 import com.alibaba.druid.pool.DruidDataSource;
 
+import io.itit.smartjdbc.Config;
+import io.itit.smartjdbc.connection.TransactionManager;
 import jazmin.core.Jazmin;
 import jazmin.core.monitor.Monitor;
 import jazmin.core.monitor.MonitorAgent;
@@ -22,10 +24,10 @@ import jazmin.server.console.ConsoleServer;
  * @author skydu
  *
  */
-public class DruidConnectionDriver extends ConnectionDriver{
+public class SmartJdbcDruidConnectionDriver extends ConnectionDriver implements TransactionManager{
 	private DruidDataSource  dataSource;
 	//
-	public DruidConnectionDriver() throws SQLException {
+	public SmartJdbcDruidConnectionDriver() throws SQLException {
 		dataSource=new DruidDataSource();
 		setInitialSize(20);
 		setMinIdle(20);
@@ -39,6 +41,7 @@ public class DruidConnectionDriver extends ConnectionDriver{
 		setTestOnReturn(false);
 		setPoolPreparedStatements(false);
 		setFilters("stat");
+		Config.setTransactionManager(this);
 	}
 	//
 	@Override
@@ -403,5 +406,10 @@ public class DruidConnectionDriver extends ConnectionDriver{
 			info.put("statSql",isStatSql()+"");
 			monitor.sample("DruidConnectionDriver.Info",Monitor.CATEGORY_TYPE_KV,info);
 		}
+	}
+	
+	@Override
+	public Connection getConnecton(String datasourceIndex) {
+		return getConnection();
 	}
 }

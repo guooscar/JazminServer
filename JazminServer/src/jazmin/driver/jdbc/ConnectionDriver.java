@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import jazmin.core.Driver;
 import jazmin.core.Jazmin;
@@ -231,47 +232,40 @@ public abstract class ConnectionDriver extends Driver{
 		@Override
 		public void end(Object instance, Method method, Object[] args,
 				Object ret, Throwable e) {
-			List<TransactionSynchronizationAdapter> synchronizations=AutoTranscationCallback.getSynchronizations();
-			if(e==null){
-				try {
-					if(synchronizations!=null) {
-						for (TransactionSynchronizationAdapter ts : synchronizations) {
-							ts.beforeCommit();
-						}
-					}
+			try {
+				List<TransactionSynchronizationAdapter> synchronizations=AutoTranscationCallback.getSynchronizations();
+				if(e==null){
+					processSynchronizations(synchronizations,(ts)->{ts.beforeCommit();});
 					connectionDriver.commit();		
-					if(synchronizations!=null) {
-						for (TransactionSynchronizationAdapter ts : synchronizations) {
-							ts.afterCommit();
-						}
-					}
-				} finally {
-					AutoTranscationCallback.cleanSynchronizations();
-				}
-			}else{
-				try {
-					if(synchronizations!=null) {
-						for (TransactionSynchronizationAdapter ts : synchronizations) {
-							ts.beforeRollback();
-						}
-					}
+					processSynchronizations(synchronizations,(ts)->{ts.afterCommit();});
+					
+				}else{
+					processSynchronizations(synchronizations,(ts)->{ts.beforeRollback();});
 					connectionDriver.rollback();
-					if(synchronizations!=null) {
-						for (TransactionSynchronizationAdapter ts : synchronizations) {
-							ts.afterRollback();
-						}
+					processSynchronizations(synchronizations,(ts)->{ts.afterRollback();});
+				}
+				boolean needTranscation=method.isAnnotationPresent(Transaction.class);
+				if(logger.isDebugEnabled()){
+					logger.debug("endTransaction on method:{}={}",
+							method.getDeclaringClass().getSimpleName()+"."+method.getName(),
+							needTranscation);
+				}
+				connectionDriver.endTransaction();
+			} finally {
+				AutoTranscationCallback.cleanSynchronizations();
+			}
+		}
+		//
+		private void processSynchronizations(List<TransactionSynchronizationAdapter> synchronizations,Consumer<TransactionSynchronizationAdapter> consumer) {
+			if(synchronizations!=null) {
+				for (TransactionSynchronizationAdapter ts : synchronizations) {
+					try {
+						consumer.accept(ts);
+					} catch (Exception ex) {
+						logger.catching(ex);
 					}
-				} finally {
-					AutoTranscationCallback.cleanSynchronizations();
 				}
 			}
-			boolean needTranscation=method.isAnnotationPresent(Transaction.class);
-			if(logger.isDebugEnabled()){
-				logger.debug("endTransaction on method:{}={}",
-						method.getDeclaringClass().getSimpleName()+"."+method.getName(),
-						needTranscation);
-			}
-			connectionDriver.endTransaction();
 		}
 		//
 		public static List<TransactionSynchronizationAdapter> getSynchronizations(){
