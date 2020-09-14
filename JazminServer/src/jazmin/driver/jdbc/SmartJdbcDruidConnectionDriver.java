@@ -6,16 +6,12 @@ package jazmin.driver.jdbc;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.alibaba.druid.pool.DruidDataSource;
 
 import io.itit.smartjdbc.Config;
 import io.itit.smartjdbc.connection.TransactionManager;
 import jazmin.core.Jazmin;
-import jazmin.core.monitor.Monitor;
-import jazmin.core.monitor.MonitorAgent;
 import jazmin.misc.InfoBuilder;
 import jazmin.server.console.ConsoleServer;
 
@@ -320,9 +316,8 @@ public class SmartJdbcDruidConnectionDriver extends ConnectionDriver implements 
 	public void start() throws Exception {
 		ConsoleServer cs=Jazmin.getServer(ConsoleServer.class);
 		if(cs!=null){
-			cs.registerCommand(DruidDriverCommand.class);
+			cs.registerCommand(SmartJdbcDruidDriverCommand.class);
 		}
-		Jazmin.mointor.registerAgent(new DruidConnectionDriverMonitorAgent());
 	}
 	//
 	@Override
@@ -374,38 +369,6 @@ public class SmartJdbcDruidConnectionDriver extends ConnectionDriver implements 
 		op.print("IsLogAbandoned",dataSource.isLogAbandoned());
 		op.print("Filters", dataSource.getFilterClasses());
 		return op.toString();
-	}
-	//
-	//
-	private class DruidConnectionDriverMonitorAgent implements MonitorAgent{
-		@Override
-		public void sample(int idx,Monitor monitor) {
-			Map<String,String>info1=new HashMap<String, String>();
-			Map<String,String>info2=new HashMap<String, String>();
-			try{
-				info1.put("getLastError",getLastError());
-				//
-			}catch(Exception e){
-			}
-			monitor.sample("DruidConnectionDriver.ConnectionStat",Monitor.CATEGORY_TYPE_VALUE,info1);
-			monitor.sample("DruidConnectionDriver.ThreadStat",Monitor.CATEGORY_TYPE_VALUE,info2);
-			//
-			Map<String,String>info3=new HashMap<String, String>();
-			info3.put("InvokeCount",getTotalInvokeCount()+"");
-			monitor.sample("DruidConnectionDriver.InvokeCount",Monitor.CATEGORY_TYPE_COUNT,info3);
-		}
-		//
-		@Override
-		public void start(Monitor monitor) {
-			Map<String,String>info=new HashMap<String, String>();
-			info.put("user",getUser());
-			info.put("driverClass",getDriverClassName());
-			info.put("initialPoolSize",getInitialSize()+"");
-			info.put("url",getUrl());
-			info.put("loginTimeout",getLoginTimeout()+"");
-			info.put("statSql",isStatSql()+"");
-			monitor.sample("DruidConnectionDriver.Info",Monitor.CATEGORY_TYPE_KV,info);
-		}
 	}
 	
 	@Override
