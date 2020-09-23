@@ -123,7 +123,7 @@ public class ProxyServer extends Server{
 	 */
 	public static void main(String[] args) {
 		ProxyServer server=new ProxyServer();
-		server.addRule("uat.itit.io",8001);
+		server.addRule("xxxx",8001);
 		Jazmin.addServer(server);
 		Jazmin.start();
 	}
