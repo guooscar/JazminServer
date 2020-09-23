@@ -159,7 +159,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-		logger.error("exception on channal:" + ctx.channel(), cause);
+		logger.warn("exception on channal:" + ctx.channel(), cause);
 		ctx.close();
 		if(messageServer.getWebSocketListener()!=null) {
 			WebSocketSession session=(WebSocketSession)ctx.channel().attr(SESSION_KEY).get();
