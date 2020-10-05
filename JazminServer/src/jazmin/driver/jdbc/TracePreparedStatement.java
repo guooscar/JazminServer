@@ -326,18 +326,14 @@ public class TracePreparedStatement implements PreparedStatement {
 	public ResultSet executeQuery() throws SQLException {
 		long s = System.currentTimeMillis();
 		ResultSet rs = null;
-		int size=0;
 		try {
 			rs = statement.executeQuery();
-			rs.last();
-			size = rs.getRow();
-			rs.beforeFirst();
 			return rs;
 		} catch (SQLException e) {
 			processError("", s);
 			throw e;
 		} finally {
-			traceSql(size+"", s);
+			traceSql("", s);
 		}
 	}
 
@@ -354,18 +350,14 @@ public class TracePreparedStatement implements PreparedStatement {
 		this.sqlString.append(sql);
 		long s = System.currentTimeMillis();
 		ResultSet rs = null;
-		int size=0;
 		try {
 			rs = statement.executeQuery(sql);
-			rs.last();
-			size = rs.getRow();
-			rs.beforeFirst();
 			return rs;
 		} catch (SQLException e) {
 			processError("", s);
 			throw e;
 		} finally {
-			traceSql(size+"", s);
+			traceSql("", s);
 		}
 	}
 

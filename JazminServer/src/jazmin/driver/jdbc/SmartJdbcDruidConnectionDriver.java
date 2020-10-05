@@ -9,9 +9,12 @@ import java.util.Date;
 
 import com.alibaba.druid.pool.DruidDataSource;
 
-import io.itit.smartjdbc.Config;
+import io.itit.smartjdbc.SmartDataSource;
+import io.itit.smartjdbc.SmartJdbc;
 import io.itit.smartjdbc.connection.TransactionManager;
 import jazmin.core.Jazmin;
+import jazmin.log.Logger;
+import jazmin.log.LoggerFactory;
 import jazmin.misc.InfoBuilder;
 import jazmin.server.console.ConsoleServer;
 
@@ -21,7 +24,10 @@ import jazmin.server.console.ConsoleServer;
  *
  */
 public class SmartJdbcDruidConnectionDriver extends ConnectionDriver implements TransactionManager{
+	//
+	private static Logger logger=LoggerFactory.get(SmartJdbcDruidConnectionDriver.class);
 	private DruidDataSource  dataSource;
+	private SmartDataSource smartDataSource;
 	//
 	public SmartJdbcDruidConnectionDriver() throws SQLException {
 		dataSource=new DruidDataSource();
@@ -37,7 +43,11 @@ public class SmartJdbcDruidConnectionDriver extends ConnectionDriver implements 
 		setTestOnReturn(false);
 		setPoolPreparedStatements(false);
 		setFilters("stat");
-		Config.setTransactionManager(this);
+		//
+		smartDataSource=new SmartDataSource(dataSource, this);
+		smartDataSource.setFieldCamelCase(true);
+		SmartJdbc.registerDataSource(smartDataSource);
+		logger.info("registerDataSource smartDataSource:{}",smartDataSource);
 	}
 	//
 	@Override
@@ -310,6 +320,7 @@ public class SmartJdbcDruidConnectionDriver extends ConnectionDriver implements 
 	@Override
 	public void init() throws Exception {
 		super.init();
+		smartDataSource.init();
 	}
 	//
 	@Override
@@ -318,6 +329,7 @@ public class SmartJdbcDruidConnectionDriver extends ConnectionDriver implements 
 		if(cs!=null){
 			cs.registerCommand(SmartJdbcDruidDriverCommand.class);
 		}
+		smartDataSource.start();
 	}
 	//
 	@Override
@@ -368,11 +380,31 @@ public class SmartJdbcDruidConnectionDriver extends ConnectionDriver implements 
 		op.print("RemoveAbandoned",dataSource.isRemoveAbandoned());
 		op.print("IsLogAbandoned",dataSource.isLogAbandoned());
 		op.print("Filters", dataSource.getFilterClasses());
+		op.print("dataBaseType", smartDataSource.getDatabaseType());
 		return op.toString();
 	}
-	
-	@Override
-	public Connection getConnecton(String datasourceIndex) {
-		return getConnection();
+	/**
+	 * @return the dataSource
+	 */
+	public DruidDataSource getDataSource() {
+		return dataSource;
+	}
+	/**
+	 * @param dataSource the dataSource to set
+	 */
+	public void setDataSource(DruidDataSource dataSource) {
+		this.dataSource = dataSource;
+	}
+	/**
+	 * @return the smartDataSource
+	 */
+	public SmartDataSource getSmartDataSource() {
+		return smartDataSource;
+	}
+	/**
+	 * @param smartDataSource the smartDataSource to set
+	 */
+	public void setSmartDataSource(SmartDataSource smartDataSource) {
+		this.smartDataSource = smartDataSource;
 	}
 }
