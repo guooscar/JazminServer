@@ -32,7 +32,7 @@ public class ApplicationLoader {
 	//
 	public Application load(){
 		if(!workDir.exists()){
-			if(!workDir.mkdir()){
+			if(!workDir.mkdirs()){
 				throw new IllegalArgumentException("can not create work dir:"+workDir);
 			}
 		}

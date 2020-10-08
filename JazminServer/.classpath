@@ -42,10 +42,8 @@
 	<classpathentry kind="lib" path="lib/lucene-queryparser-7.4.0.jar"/>
 	<classpathentry kind="lib" path="lib/lucene-analyzers-smartcn-7.4.0.jar"/>
 	<classpathentry kind="lib" path="lib/mongo-java-driver-3.6.3.jar"/>
-	<classpathentry kind="lib" path="lib/druid-1.1.10.jar" sourcepath="/Users/skydu/.m2/repository/com/alibaba/druid/1.1.10/druid-1.1.10-sources.jar"/>
 	<classpathentry kind="lib" path="lib/javax.mail-1.6.2.jar"/>
 	<classpathentry kind="lib" path="lib/activation-1.1.jar"/>
-	<classpathentry kind="lib" path="lib/fastjson-1.2.70.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-server-9.4.30.v20200611.jar" sourcepath="/Users/skydu/.m2/repository/org/eclipse/jetty/jetty-server/9.4.30.v20200611/jetty-server-9.4.30.v20200611-sources.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-annotations-9.4.30.v20200611.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-client-9.4.30.v20200611.jar"/>
@@ -71,5 +69,7 @@
 	<classpathentry kind="lib" path="lib/asm-7.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/javax.annotation-api-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/SmartJdbc-2.0.29.jar"/>
+	<classpathentry kind="lib" path="lib/druid-1.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/fastjson-1.2.73.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
