@@ -682,6 +682,9 @@ public class TracePreparedStatement implements PreparedStatement {
 	 *             java.sql.Array)
 	 */
 	public void setArray(int parameterIndex, Array x) throws SQLException {
+		if (logger.isDebugEnabled()) {
+			setParameter(parameterIndex, x);
+		}
 		statement.setArray(parameterIndex, x);
 	}
 
