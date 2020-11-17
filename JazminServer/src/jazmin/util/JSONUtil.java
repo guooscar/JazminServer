@@ -90,5 +90,4 @@ public class JSONUtil {
 	public static <T> Set<T> fromJsonSet(String json,Class<T>t){
 		return  JSON.parseObject(json,new TypeReference<Set<T>>(){});
 	}
-	
 }

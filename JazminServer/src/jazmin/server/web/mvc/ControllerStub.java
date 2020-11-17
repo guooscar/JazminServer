@@ -121,10 +121,24 @@ public class ControllerStub implements Comparable<ControllerStub>{
 		return id.compareTo(o.id);
 	};
 	//
+	//
 	@Override
 	public String toString() {
 		String before=beforeMethod==null?"null":beforeMethod.getName();
 		String after=afterMethod==null?"null":afterMethod.getName();
 		return "["+id+"] before:"+before+"/"+"after:"+after;
 	}
+	/**
+	 * @return the id
+	 */
+	public String getId() {
+		return id;
+	}
+	/**
+	 * @return the instance
+	 */
+	public Object getInstance() {
+		return instance;
+	}
+	
 }

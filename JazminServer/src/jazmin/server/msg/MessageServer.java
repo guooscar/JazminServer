@@ -23,8 +23,10 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -54,9 +56,9 @@ import jazmin.misc.InfoBuilder;
 import jazmin.misc.io.IOWorker;
 import jazmin.misc.io.NetworkTrafficStat;
 import jazmin.server.console.ConsoleServer;
+import jazmin.server.msg.codec.DefaultCodecFactory;
 import jazmin.server.msg.codec.MessageDecoder;
 import jazmin.server.msg.codec.MessageEncoder;
-import jazmin.server.msg.codec.DefaultCodecFactory;
 import jazmin.server.msg.codec.RequestMessage;
 import jazmin.server.msg.codec.ResponseMessage;
 
@@ -109,6 +111,7 @@ public class MessageServer extends Server implements Registerable{
 	WebSocketServerHandler webSocketServerHandler;
 	TcpServerHandler tcpServerHandler;
 	KcpUdpHandler kcpUdpHandler;
+	WebSocketListener webSocketListener;
 	//
 	public MessageServer() {
 		super();
@@ -799,14 +802,19 @@ public class MessageServer extends Server implements Registerable{
 			principalMap.remove(session.principal);
 		}
 		//auto remove disconnect session from room
-		session.channels.forEach(cname->{
+		Set<String> channels=null;
+		synchronized (session.channels) {
+			channels=new HashSet<>(session.channels);
+		}
+		for (String cname : channels) {
 			Channel cc=getChannel(cname);
 			if(cc!=null){
 				if(cc.isAutoRemoveDisconnectedSession()){
 					cc.removeSession(session);
 				}
 			}
-		});
+		}
+		
 		//fire session disconnect event in thread pool
 		if(sessionLifecycleListener!=null){
 			Jazmin.dispatcher.invokeInPool(
@@ -940,7 +948,9 @@ public class MessageServer extends Server implements Registerable{
 		ioWorker=new IOWorker("MsgServerIO",Runtime.getRuntime().availableProcessors()*2+1);
 		bossGroup = new NioEventLoopGroup(1,ioWorker);
 		workerGroup = new NioEventLoopGroup(0,ioWorker);
-		initTcpNettyServer();
+		if(port>0){
+			initTcpNettyServer();
+		}
 		if(webSocketPort>0){
 			initWsNettyServer();
 		}
@@ -958,7 +968,9 @@ public class MessageServer extends Server implements Registerable{
 	//
 	@Override
 	public void start() throws Exception {
-		tcpNettyServer.bind(port).sync();
+		if(tcpNettyServer!=null) {
+			tcpNettyServer.bind(port).sync();
+		}
 		if(webSocketNettyServer!=null){
 			webSocketNettyServer.bind(webSocketPort).sync();
 		}
@@ -1000,6 +1012,20 @@ public class MessageServer extends Server implements Registerable{
 			ib.print(stub.serviceId, stub);
 		});			
 		return ib.toString();
+	}
+
+	/**
+	 * @return the webSocketListener
+	 */
+	public WebSocketListener getWebSocketListener() {
+		return webSocketListener;
+	}
+
+	/**
+	 * @param webSocketListener the webSocketListener to set
+	 */
+	public void setWebSocketListener(WebSocketListener webSocketListener) {
+		this.webSocketListener = webSocketListener;
 	}
 	
 }

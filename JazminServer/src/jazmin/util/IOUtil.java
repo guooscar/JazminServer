@@ -106,6 +106,9 @@ public class IOUtil {
 		try {
 			while (!decompressor.finished()) {
 				int count = decompressor.inflate(buf);
+				if(count==0) {
+					break;
+				}
 				bos.write(buf, 0, count);
 			}
 		} catch (DataFormatException e) {

@@ -132,6 +132,17 @@ public class QueryWhere {
 		return this;
 	}
 	//
+	public  QueryWhere jsonContains(String alias,String key,Object[] values) {
+		return jsonContains(alias, key, values);
+	}
+	//
+	public  QueryWhere jsonContains(String alias,String key,Object[] values,OrGroup orGroup) {
+		if(values!=null&&values.length>0) {
+			this.where(alias, key, "json_contains", values,orGroup);
+		}
+		return this;
+	}
+	//
 	public QueryWhere whereSql(String sql,Object ...values){
 		return whereSql(sql, null, values);
 	}
@@ -239,40 +250,56 @@ public class QueryWhere {
 				sql.append(" ( ");
 				int keyIndex=1;
 				for (String key : keys) {
-					String value="?";
-					if(w.alias!=null) {
-						sql.append(w.alias).append(".");
-					}
-					sql.append("`").append(key).append("` ");
-					sql.append(w.operator).append(" ");
-					if(w.operator.trim().equalsIgnoreCase("like")){
-						sql.append(" concat('%',"+value+",'%') ");
-						valueList.add(w.value);
-					}else if(w.operator.trim().equalsIgnoreCase("in")) {
+					if(w.operator.trim().equalsIgnoreCase("json_contains")) {
+						String finalKey="`"+key+"`";
+						if(w.alias!=null) {
+							finalKey=w.alias+"."+finalKey;
+						}
 						Object[] values=(Object[])w.value;
 						if(values!=null&&values.length>0) {
-							sql.append(" ( ");
 							for (int i = 0; i < values.length; i++) {
-								sql.append(" ?,");
-								valueList.add(values[i]);
+								sql.append(" json_contains("+finalKey+",'"+values[i]+"') ");
+								if(i<values.length-1) {
+									sql.append(" or ");
+								}
 							}
-							sql.deleteCharAt(sql.length() - 1);
-							sql.append(" ) ");
 						}
-					}else if(w.operator.trim().equalsIgnoreCase("not in")) {
-						Object[] values=(Object[])w.value;
-						if(values!=null&&values.length>0) {
-							sql.append(" ( ");
-							for (int i = 0; i < values.length; i++) {
-								sql.append(" ?,");
-								valueList.add(values[i]);
+					}else {
+						String value="?";
+						if(w.alias!=null) {
+							sql.append(w.alias).append(".");
+						}
+						sql.append("`").append(key).append("` ");
+						sql.append(w.operator).append(" ");
+						if(w.operator.trim().equalsIgnoreCase("like")){
+							sql.append(" concat('%',"+value+",'%') ");
+							valueList.add(w.value);
+						}else if(w.operator.trim().equalsIgnoreCase("in")) {
+							Object[] values=(Object[])w.value;
+							if(values!=null&&values.length>0) {
+								sql.append(" ( ");
+								for (int i = 0; i < values.length; i++) {
+									sql.append(" ?,");
+									valueList.add(values[i]);
+								}
+								sql.deleteCharAt(sql.length() - 1);
+								sql.append(" ) ");
 							}
-							sql.deleteCharAt(sql.length() - 1);
-							sql.append(" ) ");
+						}else if(w.operator.trim().equalsIgnoreCase("not in")) {
+							Object[] values=(Object[])w.value;
+							if(values!=null&&values.length>0) {
+								sql.append(" ( ");
+								for (int i = 0; i < values.length; i++) {
+									sql.append(" ?,");
+									valueList.add(values[i]);
+								}
+								sql.deleteCharAt(sql.length() - 1);
+								sql.append(" ) ");
+							}
+						}else{
+							sql.append("  "+value+" ");
+							valueList.add(w.value);
 						}
-					}else{
-						sql.append("  "+value+" ");
-						valueList.add(w.value);
 					}
 					if(keyIndex<keys.size()) {
 						sql.append(" or ");

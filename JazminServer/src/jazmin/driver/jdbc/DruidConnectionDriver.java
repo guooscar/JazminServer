@@ -22,7 +22,7 @@ import jazmin.server.console.ConsoleServer;
  * @author skydu
  *
  */
-public class DruidConnectionDriver extends ConnectionDriver {
+public class DruidConnectionDriver extends ConnectionDriver{
 	private DruidDataSource  dataSource;
 	//
 	public DruidConnectionDriver() throws SQLException {

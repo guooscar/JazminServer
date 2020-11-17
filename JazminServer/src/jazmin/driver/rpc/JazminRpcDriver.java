@@ -491,7 +491,7 @@ public class JazminRpcDriver extends Driver{
 	@Override
 	public void start() throws Exception {
 		Jazmin.scheduleAtFixedRate(
-				this::checkSessionActiveStatus, 30,30, TimeUnit.SECONDS);
+				this::checkSessionActiveStatus, 15,15, TimeUnit.SECONDS);
 		Jazmin.scheduleAtFixedRate(
 				this::heartbeat, 5,5, TimeUnit.MINUTES);
 		

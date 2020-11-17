@@ -18,7 +18,7 @@ public class TestProxyControllerProxy {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		BxcAction action=ProxyController.create(BxcAction.class,"https://bxc.uat3.itit.io/p/client/invoke");
+		BxcAction action=ProxyController.create(BxcAction.class,"https://xxxx/p/client/invoke");
 		action.getGoods("",51);
 	}
 

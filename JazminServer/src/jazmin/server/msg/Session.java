@@ -218,11 +218,15 @@ public class Session {
 	}
 	//
 	void enterChannel(Channel c){
-		channels.add(c.id);
+		synchronized (channels) {
+			channels.add(c.id);
+		}
 	}
 	//
 	void  leaveChannel(Channel c){
-		channels.remove(c.id);
+		synchronized (channels) {
+			channels.remove(c.id);
+		}
 	}
 	//
 	void lastAccess(){

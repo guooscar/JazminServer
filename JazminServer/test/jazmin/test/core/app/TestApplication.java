@@ -3,10 +3,8 @@
  */
 package jazmin.test.core.app;
 
-import jazmin.core.Jazmin;
 import jazmin.core.app.Application;
 import jazmin.core.app.AutoWired;
-import jazmin.server.rpc.RpcServer;
 import jazmin.test.core.app.TestAction.TestActionImpl;
 
 /**
@@ -28,10 +26,15 @@ public class TestApplication extends Application {
 		System.err.println(testAction.testService.testDAO.connectionDriver);
 	}
 	//
+	public static void runAccount() throws Exception{
+		
+	}
+	//
+	public static void runBiz() throws Exception{
+		
+	}
+	//
 	public static void main(String[] args)throws Exception{
-		TestApplication ta=new TestApplication();
-		Jazmin.loadApplication(ta);
-		Jazmin.addServer(new RpcServer());
-		Jazmin.start();
+		runAccount();
 	}
 }

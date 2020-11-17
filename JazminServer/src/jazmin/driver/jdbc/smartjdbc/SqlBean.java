@@ -40,12 +40,12 @@ public class SqlBean {
 	//
 	public String toSql() {
 		StringBuffer sql=new StringBuffer();
-		sql.append(selectSql);
-		sql.append(fromSql);
-		sql.append(whereSql);
-		sql.append(groupBySql);
-		sql.append(orderBySql);
-		sql.append(limitSql);
+		sql.append(selectSql).append(" ");
+		sql.append(fromSql).append(" ");
+		sql.append(whereSql).append(" ");
+		sql.append(groupBySql).append(" ");
+		sql.append(orderBySql).append(" ");
+		sql.append(limitSql).append(" ");
 		sql.append(forUpdateSql);
 		return sql.toString();
 	}

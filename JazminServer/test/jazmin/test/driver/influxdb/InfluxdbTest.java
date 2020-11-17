@@ -15,11 +15,11 @@ import jazmin.server.console.ConsoleServer;
 public class InfluxdbTest {
 	public static void main(String[] args) {
 		InfluxdbDriver hd=new InfluxdbDriver();
-		hd.setHost("uat2.itit.io");
+		hd.setHost("x");
 		hd.setPort(8086);
 		hd.setDatabase("firstdb");
 		hd.setUser("admin");
-		hd.setPassword("itit2016");
+		hd.setPassword("x");
 		Jazmin.addDriver(hd);
 		ConsoleServer cs=new ConsoleServer();
 		Jazmin.addServer(cs);

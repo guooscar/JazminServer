@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import jazmin.core.Driver;
 import jazmin.core.Jazmin;
@@ -199,20 +200,26 @@ public abstract class ConnectionDriver extends Driver{
 	 * @param needTranscation boolean
 	 */
 	public void startTransaction(boolean needTranscation) {
+		ConnectionStatus cs=globalStatusHolder.get();
+		if(cs!=null&&cs.connection!=null) {
+			logger.error("connection not release.connection:"+cs.connection);
+		}
+		//
 		ConnectionStatus t=new ConnectionStatus();
 		t.needTranscation=(needTranscation);
 		globalStatusHolder.set(t);
 	}
 	//-------------------------------------------------------------------------
-	static class AutoTranscationCallback extends DispatcherCallbackAdapter{
+	public static class AutoTranscationCallback extends DispatcherCallbackAdapter{
 		ConnectionDriver connectionDriver;
+		private static ThreadLocal<List<TransactionSynchronizationAdapter>> synchronizations=new ThreadLocal<>();
+		//
 		public AutoTranscationCallback(ConnectionDriver cd) {
 			this.connectionDriver=cd;
 		}
 		@Override
 		public void before(Object instance, Method method, Object[] args)
 				throws Exception {
-			
 			boolean needTranscation=method.isAnnotationPresent(Transaction.class);
 			if(logger.isDebugEnabled()){
 				logger.debug("Transcation on method:{}={}",
@@ -225,12 +232,57 @@ public abstract class ConnectionDriver extends Driver{
 		@Override
 		public void end(Object instance, Method method, Object[] args,
 				Object ret, Throwable e) {
-			if(e==null){
-				connectionDriver.commit();		
-			}else{
-				connectionDriver.rollback();		
+			try {
+				List<TransactionSynchronizationAdapter> synchronizations=AutoTranscationCallback.getSynchronizations();
+				if(e==null){
+					processSynchronizations(synchronizations,(ts)->{ts.beforeCommit();});
+					connectionDriver.commit();		
+					processSynchronizations(synchronizations,(ts)->{ts.afterCommit();});
+					
+				}else{
+					processSynchronizations(synchronizations,(ts)->{ts.beforeRollback();});
+					connectionDriver.rollback();
+					processSynchronizations(synchronizations,(ts)->{ts.afterRollback();});
+				}
+				boolean needTranscation=method.isAnnotationPresent(Transaction.class);
+				if(logger.isDebugEnabled()){
+					logger.debug("endTransaction on method:{}={}",
+							method.getDeclaringClass().getSimpleName()+"."+method.getName(),
+							needTranscation);
+				}
+				connectionDriver.endTransaction();
+			} finally {
+				AutoTranscationCallback.cleanSynchronizations();
 			}
-			connectionDriver.endTransaction();
+		}
+		//
+		private void processSynchronizations(List<TransactionSynchronizationAdapter> synchronizations,Consumer<TransactionSynchronizationAdapter> consumer) {
+			if(synchronizations!=null) {
+				for (TransactionSynchronizationAdapter ts : synchronizations) {
+					try {
+						consumer.accept(ts);
+					} catch (Exception ex) {
+						logger.catching(ex);
+					}
+				}
+			}
+		}
+		//
+		public static List<TransactionSynchronizationAdapter> getSynchronizations(){
+			return synchronizations.get();
+		}
+		//
+		public static void registerSynchronization(TransactionSynchronizationAdapter synchronization){
+			List<TransactionSynchronizationAdapter> synchronizations=getSynchronizations();
+			if(synchronizations==null) {
+				synchronizations=new ArrayList<>();
+			}
+			synchronizations.add(synchronization);
+			AutoTranscationCallback.synchronizations.set(synchronizations);
+		}
+		//
+		public static void cleanSynchronizations(){
+			synchronizations.set(null);
 		}
 	}
 	//
@@ -240,4 +292,5 @@ public abstract class ConnectionDriver extends Driver{
 		Jazmin.dispatcher.addGlobalDispatcherCallback(ac);
 	
 	}
+	//
 }

@@ -39,17 +39,16 @@ public class TracePreparedStatement implements PreparedStatement {
 	private static final int SLOW_SQL_TIME = 1000;
 	private StringBuilder sqlString;
 	private PreparedStatement statement;
-	private List<Object[]> parameters;
-	private Object[] parameter;
-	private int paramSize = 0;
+	private List<List<Object>> parameters;
+	private List<Object> parameter;
 	private ConnectionWrapper connectionHolder;
 	//
 	public TracePreparedStatement(ConnectionWrapper ch,PreparedStatement ps, String sqlStr) {
 		statement = ps;
 		connectionHolder=ch;
 		sqlString = new StringBuilder(sqlStr);
-		parameters = new ArrayList<Object[]>();
-		parameter = new Object[128];
+		parameters = new ArrayList<>();
+		parameter = new ArrayList<>();
 		parameters.add(parameter);
 	}
 
@@ -57,13 +56,13 @@ public class TracePreparedStatement implements PreparedStatement {
 	/*
 	 * dump SQL parameter
 	 */
-	private String dumpParameter(Object[] parameter) {
+	private String dumpParameter(List<Object> parameter) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("-------------------------------------------------------\n");
-		if (paramSize != 0) {
-			for (int i = 0; i < paramSize; i++) {
+		if (parameter!=null&&!parameter.isEmpty()) {
+			for (int i = 0; i < parameter.size(); i++) {
 				sb.append("[" + i + "]\t:");
-				sb.append(parameter[i] + "\n");
+				sb.append(parameter.get(i) + "\n");
 			}
 		}
 		sb.append("-------------------------------------------------------\n");
@@ -144,10 +143,7 @@ public class TracePreparedStatement implements PreparedStatement {
 			if (i <= 0) {
 				throw new SQLException("parameter index start from 1");
 			}
-			if (i > paramSize) {
-				paramSize = i;
-			}
-			parameter[i - 1] = o;
+			parameter.add(o);
 		}
 	}
 
@@ -158,7 +154,7 @@ public class TracePreparedStatement implements PreparedStatement {
 	 *             * @see java.sql.PreparedStatement#addBatch()
 	 */
 	public void addBatch() throws SQLException {
-		parameter = new Object[128];
+		parameter = new ArrayList<>();
 		parameters.add(parameter);
 		statement.addBatch();
 	}
@@ -191,7 +187,7 @@ public class TracePreparedStatement implements PreparedStatement {
 	 *             * @see java.sql.Statement#clearBatch()
 	 */
 	public void clearBatch() throws SQLException {
-		parameter = new Object[128];
+		parameter = new ArrayList<>(64);
 		parameters.clear();
 		statement.clearBatch();
 	}
@@ -330,14 +326,18 @@ public class TracePreparedStatement implements PreparedStatement {
 	public ResultSet executeQuery() throws SQLException {
 		long s = System.currentTimeMillis();
 		ResultSet rs = null;
+		int size=0;
 		try {
 			rs = statement.executeQuery();
+			rs.last();
+			size = rs.getRow();
+			rs.beforeFirst();
 			return rs;
 		} catch (SQLException e) {
 			processError("", s);
 			throw e;
 		} finally {
-			traceSql("", s);
+			traceSql(size+"", s);
 		}
 	}
 
@@ -354,14 +354,18 @@ public class TracePreparedStatement implements PreparedStatement {
 		this.sqlString.append(sql);
 		long s = System.currentTimeMillis();
 		ResultSet rs = null;
+		int size=0;
 		try {
 			rs = statement.executeQuery(sql);
+			rs.last();
+			size = rs.getRow();
+			rs.beforeFirst();
 			return rs;
 		} catch (SQLException e) {
 			processError("", s);
 			throw e;
 		} finally {
-			traceSql("", s);
+			traceSql(size+"", s);
 		}
 	}
 
@@ -678,6 +682,9 @@ public class TracePreparedStatement implements PreparedStatement {
 	 *             java.sql.Array)
 	 */
 	public void setArray(int parameterIndex, Array x) throws SQLException {
+		if (logger.isDebugEnabled()) {
+			setParameter(parameterIndex, x);
+		}
 		statement.setArray(parameterIndex, x);
 	}
 
@@ -866,6 +873,9 @@ public class TracePreparedStatement implements PreparedStatement {
 	 *             * @see java.sql.PreparedStatement#setBytes(int, byte[])
 	 */
 	public void setBytes(int parameterIndex, byte[] x) throws SQLException {
+		if (logger.isDebugEnabled()) {
+			setParameter(parameterIndex, "bytearray");
+		}
 		statement.setBytes(parameterIndex, x);
 	}
 

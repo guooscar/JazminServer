@@ -26,9 +26,10 @@ import jazmin.util.XssShieldUtil;
  */
 public class ProxyController {
 	private static Logger logger=LoggerFactory.get(ProxyController.class);
-	static class InvokeInfo{
-		Object target;
-		Method method;
+	//
+	public static class InvokeInfo{
+		public Object target;
+		public Method method;
 	}
 	//
 	protected Map<String,InvokeInfo>methodMap;
@@ -36,10 +37,10 @@ public class ProxyController {
 		methodMap=new ConcurrentHashMap<>();		
 	}
 	//
-	static ThreadLocal<Context>contextThreadLocal=new ThreadLocal<>();
+	public static ThreadLocal<Context>contextThreadLocal=new ThreadLocal<>();
 	//
 	//
-	private Class<?> findProxiedClass(Object proxiedObject) {
+	protected Class<?> findProxiedClass(Object proxiedObject) {
 	    Class<?> proxiedClass = proxiedObject.getClass();
 	    if (proxiedObject instanceof Proxy) {
 	        Class<?>[] ifaces = proxiedClass.getInterfaces();
@@ -103,6 +104,7 @@ public class ProxyController {
 			return JSONUtil.fromJson(json, clazz);
 		} catch (Throwable e) {
 			logger.error(e.getMessage(),e);
+			logger.error("clazz:{} json:{}",clazz,json);
 			throw new ParameterException(-1,e.getMessage());
 		}	
 	}
@@ -153,7 +155,7 @@ public class ProxyController {
 	 * 1.return value json string 
 	 * 2.exception string if has
 	 */
-	private PlainTextView makeResultView(Object result,Throwable e){
+	protected PlainTextView makeResultView(Object result,Throwable e){
 		StringBuilder sb=new StringBuilder();
 		if(result!=null){
 			sb.append(JSONUtil.toJson(result)+"\n");

@@ -196,7 +196,7 @@ public class Jazmin {
 	public static void loadApplication(String appPackage){
 		logger.info("load application from:"+appPackage);
 		ApplicationLoader applicationLoader=new ApplicationLoader(
-				new File("work"),new File(appPackage));
+				new File("work"+File.separator+serverName),new File(appPackage));
 		applicationPackage=appPackage;
 		loadApplication(applicationLoader.load());
 	}
